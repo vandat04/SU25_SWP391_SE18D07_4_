@@ -4,6 +4,7 @@
  */
 package service;
 
+import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import java.util.List;
 
@@ -20,4 +21,5 @@ public interface IVillageService {
     List<CraftVillage> searchVillages(String keyword);
     List<CraftVillage> getVillagesBySeller(int sellerId);
     List<CraftVillage> getTopVisitedVillages(int limit);
+    List<CraftType> getAllCraftType();
 }

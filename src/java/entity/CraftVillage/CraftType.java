@@ -1,7 +1,6 @@
 package entity.CraftVillage;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 public class CraftType {
     private int typeID;
@@ -14,6 +13,23 @@ public class CraftType {
     // Constructors-------------------------------------------------------------
     public CraftType() {}
 
+    public CraftType(int typeID, String typeName, String description, int status, Timestamp createdDate, Timestamp updatedDate) {
+        this.typeID = typeID;
+        this.typeName = typeName;
+        this.description = description;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+    }
+
+    public CraftType(int typeID, String typeName, String description) {
+        this.typeID = typeID;
+        this.typeName = typeName;
+        this.description = description;
+    }
+
+    
+    
     
     //--------------------------------------------------------------------------
     public int getTypeID() {

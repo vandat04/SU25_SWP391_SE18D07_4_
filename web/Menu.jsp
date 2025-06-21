@@ -56,7 +56,7 @@
                                 <a href="#" class="menu-name" data-title="Craft Villages">Craft Villages</a>
                                 <ul class="sub-menu">
                                     <c:forEach items="${listVillages}" var="village">
-                                        <li class="menu-item"><a href="village?id=${village.villageID}">${village.villageName}</a></li>
+                                        <li class="menu-item"><a href="village?id=${village.typeID}">${village.typeName}</a></li>
                                         </c:forEach>
                                 </ul>
                             </li>
@@ -64,7 +64,7 @@
                                 <li class="menu-item"><a href="admin">Dashboard</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.account.roleID == 2 }">
-                                <li class="menu-item"><a href="manager">Manage Products</a></li>
+                                <li class="menu-item"><a href="seller">Dashboard</a></li>
                                 </c:if>
                         </ul>
                     </div>

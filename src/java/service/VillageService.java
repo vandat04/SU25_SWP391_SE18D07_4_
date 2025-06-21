@@ -4,6 +4,8 @@
  */
 package service;
 
+import DAO.CraftVillageDAO;
+import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import java.util.List;
 
@@ -13,6 +15,8 @@ import java.util.List;
  */
 public class VillageService implements IVillageService{
 
+    CraftVillageDAO vDAO = new CraftVillageDAO();
+    
     @Override
     public int addVillage(CraftVillage village) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -51,6 +55,11 @@ public class VillageService implements IVillageService{
     @Override
     public List<CraftVillage> getTopVisitedVillages(int limit) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<CraftType> getAllCraftType() {
+        return vDAO.getAllCraftType();
     }
     
 }
