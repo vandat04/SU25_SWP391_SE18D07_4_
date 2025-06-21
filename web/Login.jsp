@@ -22,63 +22,63 @@
         <link rel="stylesheet" href="assets/css/style.css">
         <link rel="stylesheet" href="assets/css/main-color.css">
         <script>
-function sendOTP() {
-    const input = $('#emailInput').val();
-    $.ajax({
-        url: 'forgot-password',
-        method: 'POST',
-        data: {
-            action: 'sendOTP',
-            input: input
-        },
-        success: function(response) {
-            alert(response.message);
-            if(response.success) {
-                $('#step1').hide();
-                $('#step2').show();
+            function sendOTP() {
+                const input = $('#emailInput').val();
+                $.ajax({
+                    url: 'forgot-password',
+                    method: 'POST',
+                    data: {
+                        action: 'sendOTP',
+                        input: input
+                    },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            $('#step1').hide();
+                            $('#step2').show();
+                        }
+                    }
+                });
             }
-        }
-    });
-}
 
-function verifyOTP() {
-    const otp = $('#otpInput').val();
-    $.ajax({
-        url: 'forgot-password',
-        method: 'POST',
-        data: {
-            action: 'verifyOTP',
-            otp: otp
-        },
-        success: function(response) {
-            alert(response.message);
-            if(response.success) {
-                $('#step2').hide();
-                $('#step3').show();
+            function verifyOTP() {
+                const otp = $('#otpInput').val();
+                $.ajax({
+                    url: 'forgot-password',
+                    method: 'POST',
+                    data: {
+                        action: 'verifyOTP',
+                        otp: otp
+                    },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            $('#step2').hide();
+                            $('#step3').show();
+                        }
+                    }
+                });
             }
-        }
-    });
-}
 
-function resetPassword() {
-    const password = $('#newPassword').val();
-    $.ajax({
-        url: 'forgot-password',
-        method: 'POST',
-        data: {
-            action: 'resetPassword',
-            newPassword: password
-        },
-        success: function(response) {
-            alert(response.message);
-            if(response.success) {
-                $('#forgotPasswordModal').modal('hide');
-                location.reload();
+            function resetPassword() {
+                const password = $('#newPassword').val();
+                $.ajax({
+                    url: 'forgot-password',
+                    method: 'POST',
+                    data: {
+                        action: 'resetPassword',
+                        newPassword: password
+                    },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            $('#forgotPasswordModal').modal('hide');
+                            location.reload();
+                        }
+                    }
+                });
             }
-        }
-    });
-}
-</script>
+        </script>
     </head>
     <body class="biolife-body">
 
@@ -123,70 +123,77 @@ function resetPassword() {
                         <div class="row">
 
                         <%
+                            String usernameCookieSaved = "";
+                            String passwordCookieSaved = "";
+                            Cookie[] cookieListFromBrowser = request.getCookies();
+                            if (cookieListFromBrowser != null) {
+                                for (Cookie c : cookieListFromBrowser) {
+                                    if (c.getName().equals("COOKIE_USERNAME")) {
+                                        usernameCookieSaved = c.getValue();
+                                    }
+                                    if (c.getName().equals("COOKIE_PASSWORD")) {
+                                        passwordCookieSaved = c.getValue();
+                                    }
+                                }
+                            }
+                        %>
+                        <!--Form Sign In-->
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="signin-container">
+                                <form action="login" name="frm-login" method="post" onsubmit="console.log('Form submitted via POST');
+                                    return true;">
+                                    <!-- Add success message display -->
+                                    <c:if test="${not empty registerSuccess}">
+                                        <div class="alert alert-success" style="color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                            ${registerSuccess}
+                                        </div>
+                                        <c:remove var="registerSuccess" scope="session" />
+                                    </c:if>
+                                    <p class="form-row">
+                                        <label for="fid-name">Username or Email:<span class="requite">*</span></label>
+                                        <c:choose>
+                                            <c:when test="${not empty registeredEmail}">
+                                                <input type="text" id="fid-name" name="user" value="${registeredEmail}" class="txt-input" placeholder="Enter your username or email">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <input type="text" id="fid-name" name="user" value="<%= usernameCookieSaved%>" class="txt-input" placeholder="Enter your username or email">
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </p>
+                                    <!-- Remove registeredEmail from session after use -->
+                                    <c:remove var="registeredEmail" scope="session" />
+                                    <p class="form-row">
+                                        <label for="fid-pass">Password:<span class="requite">*</span></label>
+                                        <input type="password" id="fid-pass" name="pass" value="<%= passwordCookieSaved%>" class="txt-input">
+                                    </p>
+                                    <p class="remember-me">
+                                        <input type="checkbox" name="rememberMe" id="rememberMe"  />
+                                        <label for="rememberMe">Remember me</label>
+                                        <br>
 
-                        String usernameCookieSaved="";
-
-                        String passwordCookieSaved="";
-
-                        Cookie[] cookieListFromBrowser = request.getCookies() ;
-
-                        if(cookieListFromBrowser!= null){
-
-                        for(Cookie c :cookieListFromBrowser){
-
-                        if(c.getName().equals("COOKIE_USERNAME")){
-
-                        usernameCookieSaved = c.getValue();
-
-                        }
-
-                        if(c.getName().equals("COOKIE_PASSWORD")){
-
-                        passwordCookieSaved = c.getValue();
-                    }
-                    }
-                    }
-                %>
-                    <!--Form Sign In-->
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="signin-container">
-                            <form action="login" name="frm-login" method="post">
-                                <p class="form-row">
-                                    <label for="fid-name">Email Address:<span class="requite">*</span></label>
-                                    <input type="text" id="fid-name" name="user" value="<%= usernameCookieSaved %>" class="txt-input">
-                                </p>
-                                <p class="form-row">
-                                    <label for="fid-pass">Password:<span class="requite">*</span></label>
-                                    <input type="password" id="fid-pass" name="pass" value="<%= passwordCookieSaved%>" class="txt-input">
-                                </p>
-                                   <p class="remember-me">
-                    <input type="checkbox" name="rememberMe" id="rememberMe"  />
-                    <label for="rememberMe">Remember me</label>
-                    <br>
-                    
-                </p>
-
+                                    </p>
                                     <!-- Add error message display -->
-
                                     <c:if test="${not empty error}">
-
-                                        <p class="form-row" style="color: red">
-
+                                        <div class="alert alert-danger" style="color: red; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin: 10px 0;">
                                             ${error}
+                                        </div>
+                                    </c:if>
 
-                                        </p>
-
+                                    <c:if test="${not empty mess}">
+                                        <div class="alert alert-danger" style="color: red; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                            ${mess}
+                                        </div>
                                     </c:if>
 
                                     <p class="form-row wrap-btn">
 
-                                        <button class="btn btn-submit btn-bold" type="submit">sign in</button>
+                                        <button class="btn btn-submit btn-bold" type="submit" onclick="console.log('Submit button clicked');">sign in</button>
 
-                                        <div class="form-row">
-    <a href="#" class="link-to-help" data-toggle="modal" data-target="#forgotPasswordModal">
-        Quên mật khẩu?
-    </a>
-</div>
+                                    <div class="form-row">
+                                        <a href="#" class="link-to-help" data-toggle="modal" data-target="#forgotPasswordModal">
+                                            Quên mật khẩu?
+                                        </a>
+                                    </div>
 
                                     </p>
 
@@ -254,128 +261,6 @@ function resetPassword() {
         <!-- FOOTER -->
 
         <jsp:include page="Footer.jsp"></jsp:include>
-
-        <!--    <footer id="footer" class="footer layout-03">
-                <div class="footer-content background-footer-03">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-9">
-                                <section class="footer-item">
-                                    <a href="Home.jsp" class="logo footer-logo"><img src="assets/images/organic-3.png" alt="biolife logo" width="135" height="34"></a>
-                                    <div class="footer-phone-info">
-                                        <i class="biolife-icon icon-head-phone"></i>
-                                        <p class="r-info">
-                                            <span>Got Questions ?</span>
-                                            <span>(700)  9001-1909  (900) 689 -66</span>
-                                        </p>
-                                    </div>
-                                    <div class="newsletter-block layout-01">
-                                        <h4 class="title">Newsletter Signup</h4>
-                                        <div class="form-content">
-                                            <form action="#" name="new-letter-foter">
-                                                <input type="email" class="input-text email" value="" placeholder="Your email here...">
-                                                <button type="submit" class="bnt-submit" name="ok">Sign up</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-6 md-margin-top-5px sm-margin-top-50px xs-margin-top-40px">
-                                <section class="footer-item">
-                                    <h3 class="section-title">Useful Links</h3>
-                                    <div class="row">
-                                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                                            <div class="wrap-custom-menu vertical-menu-2">
-                                                <ul class="menu">
-                                                    <li><a href="#">About Us</a></li>
-                                                    <li><a href="#">About Our Shop</a></li>
-                                                    <li><a href="#">Secure Shopping</a></li>
-                                                    <li><a href="#">Delivery infomation</a></li>
-                                                    <li><a href="#">Privacy Policy</a></li>
-                                                    <li><a href="#">Our Sitemap</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                                            <div class="wrap-custom-menu vertical-menu-2">
-                                                <ul class="menu">
-                                                    <li><a href="#">Who We Are</a></li>
-                                                    <li><a href="#">Our Services</a></li>
-                                                    <li><a href="#">Projects</a></li>
-                                                    <li><a href="#">Contacts Us</a></li>
-                                                    <li><a href="#">Innovation</a></li>
-                                                    <li><a href="#">Testimonials</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-6 md-margin-top-5px sm-margin-top-50px xs-margin-top-40px">
-                                <section class="footer-item">
-                                    <h3 class="section-title">Transport Offices</h3>
-                                    <div class="contact-info-block footer-layout xs-padding-top-10px">
-                                        <ul class="contact-lines">
-                                            <li>
-                                                <p class="info-item">
-                                                    <i class="biolife-icon icon-location"></i>
-                                                    <b class="desc">7563 St. Vicent Place, Glasgow, Greater Newyork NH7689, UK </b>
-                                                </p>
-                                            </li>
-                                            <li>
-                                                <p class="info-item">
-                                                    <i class="biolife-icon icon-phone"></i>
-                                                    <b class="desc">Phone: (+067) 234 789  (+068) 222 888</b>
-                                                </p>
-                                            </li>
-                                            <li>
-                                                <p class="info-item">
-                                                    <i class="biolife-icon icon-letter"></i>
-                                                    <b class="desc">Email:  contact@company.com</b>
-                                                </p>
-                                            </li>
-                                            <li>
-                                                <p class="info-item">
-                                                    <i class="biolife-icon icon-clock"></i>
-                                                    <b class="desc">Hours: 7 Days a week from 10:00 am</b>
-                                                </p>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="biolife-social inline">
-                                        <ul class="socials">
-                                            <li><a href="#" title="twitter" class="socail-btn"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
-                                            <li><a href="#" title="facebook" class="socail-btn"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
-                                            <li><a href="#" title="pinterest" class="socail-btn"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
-                                            <li><a href="#" title="youtube" class="socail-btn"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
-                                            <li><a href="#" title="instagram" class="socail-btn"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
-                                        </ul>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="separator sm-margin-top-70px xs-margin-top-40px"></div>
-                            </div>
-                            <div class="col-lg-6 col-sm-6 col-xs-12">
-                                <div class="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
-                            </div>
-                            <div class="col-lg-6 col-sm-6 col-xs-12">
-                                <div class="payment-methods">
-                                    <ul>
-                                        <li><a href="#" class="payment-link"><img src="assets/images/card1.jpg" width="51" height="36" alt=""></a></li>
-                                        <li><a href="#" class="payment-link"><img src="assets/images/card2.jpg" width="51" height="36" alt=""></a></li>
-                                        <li><a href="#" class="payment-link"><img src="assets/images/card3.jpg" width="51" height="36" alt=""></a></li>
-                                        <li><a href="#" class="payment-link"><img src="assets/images/card4.jpg" width="51" height="36" alt=""></a></li>
-                                        <li><a href="#" class="payment-link"><img src="assets/images/card5.jpg" width="51" height="36" alt=""></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>-->
 
         <!--Footer For Mobile-->
         <div class="mobile-footer">
@@ -453,48 +338,48 @@ function resetPassword() {
         <script src="assets/js/slick.min.js"></script>
         <script src="assets/js/biolife.framework.js"></script>
         <script src="assets/js/functions.js"></script>
-<!--        modal-->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Quên Mật Khẩu</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Bước 1: Nhập email -->
-                <div id="step1">
-                    <div class="form-group">
-                        <label>Email hoặc tên đăng nhập</label>
-                        <input type="text" class="form-control" id="emailInput">
+        <!--        modal-->
+        <div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Quên Mật Khẩu</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <button class="btn btn-primary" onclick="sendOTP()">Gửi mã OTP</button>
-                </div>
+                    <div class="modal-body">
+                        <!-- Bước 1: Nhập email -->
+                        <div id="step1">
+                            <div class="form-group">
+                                <label>Email hoặc tên đăng nhập</label>
+                                <input type="text" class="form-control" id="emailInput">
+                            </div>
+                            <button class="btn btn-primary" onclick="sendOTP()">Gửi mã OTP</button>
+                        </div>
 
-                <!-- Bước 2: Nhập OTP -->
-                <div id="step2" style="display:none">
-                    <div class="form-group">
-                        <label>Nhập mã OTP</label>
-                        <input type="text" class="form-control" id="otpInput">
-                        <small class="text-muted">Mã OTP có hiệu lực trong 1 phút</small>
-                    </div>
-                    <button class="btn btn-primary" onclick="verifyOTP()">Xác nhận</button>
-                </div>
+                        <!-- Bước 2: Nhập OTP -->
+                        <div id="step2" style="display:none">
+                            <div class="form-group">
+                                <label>Nhập mã OTP</label>
+                                <input type="text" class="form-control" id="otpInput">
+                                <small class="text-muted">Mã OTP có hiệu lực trong 1 phút</small>
+                            </div>
+                            <button class="btn btn-primary" onclick="verifyOTP()">Xác nhận</button>
+                        </div>
 
-                <!-- Bước 3: Đặt mật khẩu mới -->
-                <div id="step3" style="display:none">
-                    <div class="form-group">
-                        <label>Mật khẩu mới</label>
-                        <input type="password" class="form-control" id="newPassword">
+                        <!-- Bước 3: Đặt mật khẩu mới -->
+                        <div id="step3" style="display:none">
+                            <div class="form-group">
+                                <label>Mật khẩu mới</label>
+                                <input type="password" class="form-control" id="newPassword">
+                            </div>
+                            <button class="btn btn-primary" onclick="resetPassword()">Đổi mật khẩu</button>
+                        </div>
                     </div>
-                    <button class="btn btn-primary" onclick="resetPassword()">Đổi mật khẩu</button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
     </body>
 
 </html>

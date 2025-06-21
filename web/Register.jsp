@@ -101,11 +101,15 @@
                             <form action="register" name="frm-register" method="post">
                                 <p class="form-row">
                                     <label for="username">Username:<span class="requite">*</span></label>
-                                    <input type="text" id="username" name="userName" value="" class="txt-input" required>
+                                    <input type="text" id="username" name="userName" value="${param.userName}" class="txt-input" required>
                                 </p>
                                 <p class="form-row">
                                     <label for="email">Email Address:<span class="requite">*</span></label>
-                                    <input type="email" id="email" name="email" value="" class="txt-input" required>
+                                    <input type="email" id="email" name="email" value="${param.email}" class="txt-input" required>
+                                </p>
+                                <p class="form-row">
+                                    <label for="fullName">Full Name:</label>
+                                    <input type="text" id="fullName" name="fullName" value="${param.fullName}" class="txt-input">
                                 </p>
                                 <p class="form-row">
                                     <label for="pass">Password:<span class="requite">*</span></label>
@@ -117,11 +121,11 @@
                                 </p>
                                 <p class="form-row">
                                     <label for="address">Address:</label>
-                                    <input type="text" id="address" name="address" value="" class="txt-input">
+                                    <input type="text" id="address" name="address" value="${param.address}" class="txt-input">
                                 </p>
                                 <p class="form-row">
                                     <label for="phone">Phone Number:</label>
-                                    <input type="text" id="phone" name="phoneNumber" value="" class="txt-input">
+                                    <input type="text" id="phone" name="phoneNumber" value="${param.phoneNumber}" class="txt-input">
                                 </p>
                                 <p class="form-row wrap-btn">
                                     <button class="btn btn-submit btn-bold" type="submit">Register</button>

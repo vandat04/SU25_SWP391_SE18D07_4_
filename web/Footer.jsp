@@ -1,9 +1,5 @@
-<%-- 
-    Document   : Footer
-    Created on : Mar 13, 2025, 4:49:48 PM
-    Author     : PC
---%>
 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -44,12 +40,15 @@
                             </div>
                             <div class="col-lg-6 col-sm-6 col-xs-6">
                                 <div class="wrap-custom-menu vertical-menu-2">
+
                                     <ul class="menu">
-                                        <li><a href="craft?type=pottery">Gốm sứ</a></li>
-                                        <li><a href="craft?type=wood">Điêu khắc gỗ</a></li>
-                                        <li><a href="craft?type=lacquer">Sơn mài</a></li>
-                                        <li><a href="craft?type=silk">Lụa</a></li>
+                                        <c:forEach var="c" items="${listCC}">
+                                            <li class="menu-item">
+                                                <a href="category?categoryID=${c.categoryID}">${c.categoryName}</a>
+                                            </li>
+                                        </c:forEach>
                                     </ul>
+
                                 </div>
                             </div>
                         </div>

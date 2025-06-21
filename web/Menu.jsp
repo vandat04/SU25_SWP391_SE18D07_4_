@@ -1,8 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <header id="header" class="header-area style-01 layout-03">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
     <div class="header-top bg-main hidden-xs">
         <div class="container">
             <div class="top-bar left">
@@ -12,7 +12,6 @@
                             <i class="fa fa-envelope" aria-hidden="true"></i>dcvhoang.work@gmail.com
                         </a>
                     </li>
-
                     <li><a href="https://www.youtube.com/@Achipdichdao" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i>Da Nang Craft Village</a></li>
                 </ul>
             </div>
@@ -22,7 +21,7 @@
                         <li style="min-width: unset !important;">
                             <a href="logout" class="login-link" style="min-width: unset !important; display: inline-block;"><i></i>Logout</a>
                         </li>
-                        <li><a href="userprofile" class="login-link"><i class="biolife-icon icon-login"></i>Hello ${sessionScope.account.userName}</a></li>
+                        <li><a href="userprofile" class="login-link"><i class="biolife-icon icon-login"></i>Hello ${sessionScope.account.fullName}</a></li>
                         </c:if>
                         <c:if test="${sessionScope.account == null}">
                         <li><a href="Login.jsp" class="login-link"><i class="biolife-icon icon-login"></i>Login/Register</a></li>
@@ -31,7 +30,6 @@
             </div>
         </div>
     </div>
-
     <div class="header-middle biolife-sticky-object">
         <div class="container">
             <div class="row">
@@ -46,10 +44,11 @@
                             <li class="menu-item menu-item-has-children has-child">
                                 <a href="#" class="menu-name" data-title="Craft Types">Craft Types</a>
                                 <ul class="sub-menu">
-                                    <li class="menu-item"><a href="blog?type=pottery">Gốm sứ</a></li>
-                                    <li class="menu-item"><a href="blog?type=wood">Điêu khắc gỗ</a></li>
-                                    <li class="menu-item"><a href="blog?type=lacquer">Sơn mài</a></li>
-                                    <li class="menu-item"><a href="blog?type=silk">Lụa</a></li>
+                                    <c:forEach var="c" items="${listCC}">
+                                        <li class="menu-item">
+                                            <a href="category?categoryID=${c.categoryID}">${c.categoryName}</a>
+                                        </li>
+                                    </c:forEach>
                                 </ul>
                             </li>
                             <li class="menu-item"><a href="tour360" class="menu-name">360° Tour</a></li>
@@ -69,7 +68,6 @@
                                 </c:if>
                         </ul>
                     </div>
-
                 </div>
                 <div class="col-lg-3 col-md-3 col-md-6 col-xs-6">
                     <div class="biolife-cart-info">
@@ -84,7 +82,6 @@
                                 </form>
                             </div>
                         </div>
-
                         <!-- Wishlist -->
                         <div class="wishlist-block hidden-sm hidden-xs">
                             <a href="wishlist" class="link-to">
@@ -96,23 +93,16 @@
                                 </span>
                             </a>
                         </div>
-
-
-
                         <!-- User account -->
                         <div class="minicart-block">
                             <div class="minicart-contain">
                                 <c:if test="${sessionScope.account != null}">
-                                    <!--                                    <a href="userprofile" class="login-link">
-                                                                            <i class="biolife-icon icon-login"></i>Hello ${sessionScope.account.userName}
-                                                                        </a>-->
+                                   
                                 </c:if>
 
                             </div>
                         </div>
                         <!-- Wishlist -->
-
-
                         <!-- Shopping cart -->
                         <div class="minicart-block">
                             <div class="minicart-contain">
@@ -123,17 +113,6 @@
                                     <span class="title">Cart</span>
 
                                 </a>
-                                <!--                                <div class="cart-content">
-                                                                    <div class="cart-inner">
-                                                                        <ul class="products">
-                                                                             Cart items would go here 
-                                                                        </ul>
-                                                                        <p class="btn-control">
-                                                                            <a href="#" class="btn view-cart">view cart</a>
-                                                                            <a href="#" class="btn">checkout</a>
-                                                                        </p>
-                                                                    </div>
-                                                                </div>-->
                             </div>
                         </div>
 
@@ -168,7 +147,7 @@
                         <div class="wrap-menu">
                             <ul class="menu clone-main-menu">
                                 <c:forEach items="${listCC}" var="category">
-                                    <li class="list-group-item text-white"><a href="category?cid=${category.cid}">${category.cname}</a></li>
+                                    <li class="list-group-item text-white"><a href="category?categoryID=${category.categoryID}">${category.categoryName}</a></li>
                                     </c:forEach>
                             </ul>
                         </div>
@@ -178,15 +157,7 @@
                     <div class="header-search-bar layout-01">
                         <form action="search" class="form-search" name="desktop-seacrh" onsubmit="return syncSearch();">
                             <input type="hidden" name="action" value="search">
-                            <input type="text" name="txt" class="input-text" value="${param.txt}" placeholder="Search here...">
-                            <!--                            <select name="category">
-                                                            <option value="-1" selected>All Categories</option>
-                            <c:forEach items="${listCC}" var="c">
-                                <option value="${c.cid}" ${c.cid == selectedCid ? 'selected' : ''}>${c.cname}</option>
-                            </c:forEach>
-                        </select>-->
-
-
+                            <input type="text" name="txt" class="input-text" value="${param.txt}" placeholder="Search here..."
                             <button type="submit" class="btn-submit"><i class="biolife-icon icon-search"></i></button>
                         </form>
                     </div>
