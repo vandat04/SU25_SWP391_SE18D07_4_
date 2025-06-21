@@ -57,7 +57,23 @@ public class Product {
         this.totalReviews = totalReviews;
     }
     
-
+    public Product(int pid, String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID, String mainImageUrl, int clickCount, Timestamp lastClicked, Timestamp createdDate, Timestamp updatedDate) {
+        this.pid = pid;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.stock = stock;
+        this.status = status;
+        this.villageID = villageID;
+        this.categoryID = categoryID;
+        this.mainImageUrl = mainImageUrl;
+        this.clickCount = clickCount;
+        this.lastClicked = lastClicked;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+    }
+    
+    
     //--------------------------------------------------------------------------
     public int getPid() {
         return pid;

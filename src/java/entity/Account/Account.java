@@ -14,9 +14,10 @@ public class Account {
     private boolean isEmailVerified;
     private String lastLoginDate;
     private int loginAttempts;
-    private String lockedUntil; //Cần thiết k ***
+    private String lockedUntil; 
     private String avatarUrl;
     private String preferredLanguage; // ví dụ: "vi", "en" ***
+    private String fullName;
 
     // Constructors-------------------------------------------------------------
     public Account() {}
@@ -29,9 +30,10 @@ public class Account {
         this.phoneNumber = phoneNumber;
     }
 
-    public Account(int userID, String userName, String email, String address, String phoneNumber,int roleID, int status, String createdDate, String updatedDate) {
+    public Account(int userID, String userName,String password, String email, String address, String phoneNumber,int roleID, int status, String createdDate, String updatedDate, String fullName) {
         this.userID = userID;
         this.userName = userName;
+        this.password = password;
         this.email = email;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -39,12 +41,21 @@ public class Account {
         this.status = status;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
+        this.fullName = fullName;
     }
     
     
+
     
     
+    public String getFullName() {
+        return fullName;
+    }
+
     //--------------------------------------------------------------------------
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
     public int getUserID() {
         return userID;
@@ -176,7 +187,9 @@ public class Account {
 
     @Override
     public String toString() {
-        return "Account{" + "userID=" + userID + ", userName=" + userName + ", password=" + password + ", email=" + email + ", address=" + address + ", phoneNumber=" + phoneNumber + ", status=" + status + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", roleID=" + roleID + ", isEmailVerified=" + isEmailVerified + ", lastLoginDate=" + lastLoginDate + ", loginAttempts=" + loginAttempts + ", lockedUntil=" + lockedUntil + ", avatarUrl=" + avatarUrl + ", preferredLanguage=" + preferredLanguage + '}';
+        return "Account{" + "userID=" + userID + ", userName=" + userName + ", password=" + password + ", email=" + email + ", address=" + address + ", phoneNumber=" + phoneNumber + ", status=" + status + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", roleID=" + roleID + ", isEmailVerified=" + isEmailVerified + ", lastLoginDate=" + lastLoginDate + ", loginAttempts=" + loginAttempts + ", lockedUntil=" + lockedUntil + ", avatarUrl=" + avatarUrl + ", preferredLanguage=" + preferredLanguage + ", fullName=" + fullName + '}';
     }
+
+    
     
 } 

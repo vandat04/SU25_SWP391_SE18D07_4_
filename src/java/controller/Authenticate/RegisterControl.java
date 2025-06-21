@@ -1,6 +1,5 @@
 package controller.Authenticate;
 
-import DAO.AccountDAO;
 import entity.Account.Account;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -14,8 +13,8 @@ import service.AccountService;
 @WebServlet(name = "RegisterControl", urlPatterns = {"/register"})
 public class RegisterControl extends HttpServlet {
 
-    AccountDAO aDAO = new AccountDAO();
-    
+    AccountService accountService = new AccountService();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -31,44 +30,73 @@ public class RegisterControl extends HttpServlet {
             String password = request.getParameter("password");
             String rePassword = request.getParameter("rePassword");
             String email = request.getParameter("email");
+            String fullName = request.getParameter("fullName");
             String address = request.getParameter("address");
             String phoneNumber = request.getParameter("phoneNumber");
-            
+
             // Validate form data
-            if (userName == null || userName.isEmpty() || 
-                password == null || password.isEmpty() || 
-                email == null || email.isEmpty()) {
+            if (userName == null || userName.trim().isEmpty()
+                    || password == null || password.trim().isEmpty()
+                    || email == null || email.trim().isEmpty()) {
                 request.setAttribute("error", "Please fill all required fields");
                 request.getRequestDispatcher("Register.jsp").forward(request, response);
                 return;
             }
-            
+
+            // Trim whitespace from inputs
+            userName = userName.trim();
+            password = password.trim();
+            email = email.trim();
+
             // Check if passwords match
             if (!password.equals(rePassword)) {
                 request.setAttribute("error", "Passwords do not match");
                 request.getRequestDispatcher("Register.jsp").forward(request, response);
                 return;
             }
-            
-            
-            // Call stored procedure with all required parameters
-            AccountService aSer = new AccountService();
-            
-            boolean success = aSer.register(new Account(userName, password, email, address, phoneNumber));
-            
-            if (success) {
-                // Registration successful, automatically log in
-                Account a = aDAO.loginAccount(email, password);
-                if (a != null) {
-                    HttpSession session = request.getSession();
-                    session.setAttribute("account", a);
-                    response.sendRedirect("home");
-                } else {
-                    request.setAttribute("error", "Registration successful but login failed");
-                    request.getRequestDispatcher("Login.jsp").forward(request, response);
+
+            // Check for duplicate username
+            if (accountService.checkUsernameExists(userName)) {
+                request.setAttribute("error", "Username '" + userName + "' is already taken. Please choose a different username.");
+                request.getRequestDispatcher("Register.jsp").forward(request, response);
+                return;
+            }
+
+            // Check for duplicate email
+            if (accountService.checkEmailExists(email)) {
+                request.setAttribute("error", "Email '" + email + "' is already registered. Please use a different email or try logging in.");
+                request.getRequestDispatcher("Register.jsp").forward(request, response);
+                return;
+            }
+
+            // Check for duplicate phone number (if provided)
+            if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+                phoneNumber = phoneNumber.trim();
+                if (accountService.checkPhoneNumberExists(phoneNumber)) {
+                    request.setAttribute("error", "Phone number '" + phoneNumber + "' is already registered. Please use a different phone number.");
+                    request.getRequestDispatcher("Register.jsp").forward(request, response);
+                    return;
                 }
+            }
+            // Use Service to register account
+            Account newAccount = new Account();
+            newAccount.setUserName(userName);
+            newAccount.setPassword(password);
+            newAccount.setEmail(email);
+            newAccount.setFullName(fullName != null ? fullName.trim() : "");
+            newAccount.setAddress(address != null ? address.trim() : "");
+            newAccount.setPhoneNumber(phoneNumber != null ? phoneNumber.trim() : "");
+
+            boolean success = accountService.register(newAccount);
+
+            if (success) {
+                // Registration successful, redirect to login page with success message
+                HttpSession session = request.getSession();
+                session.setAttribute("registerSuccess", "Registration successful! Please login with your new account.");
+                session.setAttribute("registeredEmail", email); // Pre-fill email on login page
+                response.sendRedirect("login");
             } else {
-                request.setAttribute("error", "UserName or Email was existed");
+                request.setAttribute("error", "Registration failed. Please try again or contact support if the problem persists.");
                 request.getRequestDispatcher("Register.jsp").forward(request, response);
             }
         } catch (Exception e) {

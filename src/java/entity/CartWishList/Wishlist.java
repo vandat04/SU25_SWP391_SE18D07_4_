@@ -1,7 +1,6 @@
 package entity.CartWishList;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 public class Wishlist {
     private int wishlistID;
@@ -11,6 +10,12 @@ public class Wishlist {
     
     //Contructor----------------------------------------------------------------
     public Wishlist() {
+    }
+
+    public Wishlist(int wishlistID, int userID, int productID) {
+        this.wishlistID = wishlistID;
+        this.userID = userID;
+        this.productID = productID;
     }
 
     

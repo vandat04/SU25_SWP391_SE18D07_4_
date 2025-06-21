@@ -5,6 +5,8 @@
 package service;
 
 import DAO.AccountDAO;
+import DAO.WishlistDAO;
+//import DAO.WishlistDAO;
 import entity.Account.Account;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
 public class AccountService implements IAccountService{
 
     AccountDAO aDAO = new AccountDAO();
+    WishlistDAO wDAO = new WishlistDAO();
 
     @Override
     public Account login(String username, String password) {
@@ -55,5 +58,24 @@ public class AccountService implements IAccountService{
     public boolean register(Account account) throws Exception {
         return aDAO.registerAccount(account);
     }
-    
+
+    @Override
+    public Account loginByEmail(String email) {
+        return aDAO.loginByEmail(email);
+    }
+
+    @Override
+    public boolean checkPhoneNumberExists(String phoneNumber) {
+        return aDAO.checkPhoneNumberExists(phoneNumber);
+    }
+
+    @Override
+    public boolean checkUsernameExists(String username) {
+        return aDAO.checkUsernameExists(username);
+    }
+
+    @Override
+    public boolean checkEmailExists(String email) {
+        return aDAO.checkEmailExists(email);
+    }
 }

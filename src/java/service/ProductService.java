@@ -133,5 +133,4 @@ public class ProductService implements IProductService{
     public List<Product> getTop5NewestProducts() {
         return pDAO.getTop5NewestProducts();
     }
-    
 }
