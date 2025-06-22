@@ -33,6 +33,22 @@ public class HomeControl extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        
+        ProductService productService = new ProductService();
+        
+        // Lấy danh sách sản phẩm active
+        List<Product> listP = productService.getActivateProducts();
+        request.setAttribute("listP", listP);
+
+        // Lấy danh sách categories
+        List<ProductCategory> listC = productService.getAllCategory();
+        request.setAttribute("listCC", listC);
+
+        // Lấy top 5 sản phẩm mới nhất
+        List<Product> listTop5 = productService.getTop5NewestProducts();
+        request.setAttribute("listTop5Newsest", listTop5);
+        
         request.getRequestDispatcher("Home.jsp").forward(request, response);
     }
 

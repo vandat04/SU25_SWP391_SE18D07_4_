@@ -259,6 +259,23 @@ public class Product {
         this.totalReviews = totalReviews;
     }
 
+    // Alias methods for JSP compatibility
+    public int getId() {
+        return pid;
+    }
+
+    public void setId(int id) {
+        this.pid = id;
+    }
+
+    public String getImg() {
+        return mainImageUrl;
+    }
+
+    public void setImg(String img) {
+        this.mainImageUrl = img;
+    }
+
     @Override
     public String toString() {
         return "Product{" + "pid=" + pid + ", name=" + name + ", price=" + price + ", description=" + description + ", stock=" + stock + ", status=" + status + ", villageID=" + villageID + ", categoryID=" + categoryID + ", mainImageUrl=" + mainImageUrl + ", clickCount=" + clickCount + ", lastClicked=" + lastClicked + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", craftTypeID=" + craftTypeID + ", sku=" + sku + ", weight=" + weight + ", dimensions=" + dimensions + ", materials=" + materials + ", careInstructions=" + careInstructions + ", warranty=" + warranty + ", isFeatured=" + isFeatured + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews + '}';

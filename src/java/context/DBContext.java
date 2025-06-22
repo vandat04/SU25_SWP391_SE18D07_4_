@@ -13,21 +13,21 @@ import java.util.logging.Logger;
 public class DBContext {
 
     public static String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    public static String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=CraftDB;";
+
+    public static String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=CraftDB;encrypt=false;trustServerCertificate=true;loginTimeout=5;socketTimeout=10000;";
     public static String userDB = "sa";
     public static String passDB = "1";
     
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException {
         Connection con = null;
-        
         try {
             Class.forName(driverName);
             con = DriverManager.getConnection(dbURL, userDB, passDB);
             return con;
-        } catch (Exception ex) {
-            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, "SQL Server JDBC Driver not found.", ex);
+            throw new SQLException("Database driver not found.", ex);
         }
-        return null;
     }
     
     public static void main(String[] args) {
@@ -36,7 +36,7 @@ public class DBContext {
                 System.out.println("Connect to JDBC success");
             }            
         } catch (SQLException ex) {
-            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, "Failed to connect during main method test.", ex);
         }
     }
 }

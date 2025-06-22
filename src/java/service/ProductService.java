@@ -36,12 +36,21 @@ public class ProductService implements IProductService{
 
     @Override
     public Product getProductById(int productId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return pDAO.getProductByID(String.valueOf(productId));
+    }
+
+    public Product getProductByID(String id) {
+        return pDAO.getProductByID(id);
     }
 
     @Override
     public List<Product> getAllProducts() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return pDAO.getAllProducts();
+    }
+
+    public List<Product> getProductByCategoryID(String categoryId) {
+        return pDAO.getProductByCategoryID(categoryId);
+
     }
 
     @Override
@@ -51,7 +60,7 @@ public class ProductService implements IProductService{
 
     @Override
     public List<Product> getProductsByCategory(int categoryId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return pDAO.getProductByCategoryID(String.valueOf(categoryId));
     }
 
     @Override

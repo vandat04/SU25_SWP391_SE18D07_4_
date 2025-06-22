@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/service/ProductService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/web/META-INF/context.xml</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/constant/Iconstant.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/service/EmailService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/controller/Authenticate/HomeControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/DAO/CraftVillageDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/context/DBContext.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/web/WEB-INF/web.xml</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/web/Menu.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/entity/Product/Product.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/DAO/AccountDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/DAO/ProductDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/src/java/service/MessageService.java</file>
+        </group>
+    </open-files>
+</project-private>

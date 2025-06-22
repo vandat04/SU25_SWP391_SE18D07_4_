@@ -65,6 +65,74 @@ public class ProductDAO {
         }
     }
 
+    public Product getProductByID(String id) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT * FROM Product WHERE pid = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, id);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToProduct(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return null;
+    }
+
+    public List<Product> getAllProducts() {
+        List<Product> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT * FROM Product";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
+    public List<Product> getProductByCategoryID(String categoryId) {
+        List<Product> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT * FROM Product WHERE categoryID = ? AND status = 1";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, categoryId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
     public List<Product> getActiveProducts() {
         List<Product> list = new ArrayList<>();
         Connection conn = null;
