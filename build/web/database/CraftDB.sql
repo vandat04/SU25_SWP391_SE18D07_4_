@@ -46,6 +46,8 @@ CREATE TABLE [dbo].[Account](
 	CONSTRAINT FK_Account_Role FOREIGN KEY (roleID) REFERENCES [dbo].[Role](roleID)
 )
 GO
+ALTER TABLE Account
+ADD fullName NVARCHAR(100);
 
 --Table [EmailVerification] 
 CREATE TABLE [dbo].[EmailVerification](
@@ -732,6 +734,7 @@ CREATE PROCEDURE [dbo].[AddAccount]
     @address NVARCHAR(200) = NULL,
     @phoneNumber NVARCHAR(20) = NULL,
     @roleID INT = 1, -- Default: User
+	@fullName NVARCHAR(100),
     @result INT OUTPUT  -- kết quả trả về
 AS
 BEGIN
@@ -740,22 +743,28 @@ BEGIN
         -- Kiểm tra trùng username
         IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userName = @userName)
         BEGIN
-            SET @result = 0;
+            SET @result = 2; -- Trùng username
             RETURN;
         END
         -- Kiểm tra trùng email
         IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE email = @email)
         BEGIN
-            SET @result = 0;
+            SET @result = 3; -- Trùng email
+            RETURN;
+        END
+		-- Kiểm tra trùng sdt
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE phoneNumber = @phoneNumber)
+        BEGIN
+            SET @result = 4; -- Trùng sdt
             RETURN;
         END
         -- Nếu không trùng thì thêm mới
         INSERT INTO [dbo].[Account] (
             userName, password, email, address, phoneNumber,
-            roleID
+            roleID, fullName
         )
         VALUES (
-            @userName, dbo.HashPassword(@password), @email, @address,@phoneNumber, @roleID
+            @userName, dbo.HashPassword(@password), @email, @address,@phoneNumber, @roleID, @fullName
         );
         SET @result = 1; -- thành công
     END TRY
@@ -794,6 +803,7 @@ CREATE PROCEDURE [dbo].[UpdateAccount]
     @address NVARCHAR(200) = NULL,
     @phoneNumber NVARCHAR(20) = NULL,
     @avatarUrl VARCHAR(MAX) = NULL,
+	@fullName NVARCHAR(100),
     @result INT OUTPUT
 AS
 BEGIN
@@ -802,7 +812,7 @@ BEGIN
         -- Kiểm tra user tồn tại
         IF NOT EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userID = @userID)
         BEGIN
-            SET @result = 0;
+            SET @result = 2; -- Trung user
             RETURN;
         END
         -- Kiểm tra email đã được dùng bởi user khác chưa
@@ -811,18 +821,26 @@ BEGIN
             WHERE email = @email AND userID != @userID
         )
         BEGIN
-            SET @result = -1; -- Email bị trùng
+            SET @result = 3; -- Email bị trùng
+            RETURN;
+        END
+		IF EXISTS (
+            SELECT 1 FROM [dbo].[Account]
+            WHERE phoneNumber = @phoneNumber AND userID != @userID
+        )
+        BEGIN
+            SET @result = 4; -- SDT bị trùng
             RETURN;
         END
         -- Cập nhật thông tin cho user
         UPDATE [dbo].[Account]
         SET
-            email = @email, address = @address, phoneNumber = @phoneNumber, avatarUrl = @avatarUrl, updatedDate = GETDATE()
+            email = @email, address = @address, phoneNumber = @phoneNumber, avatarUrl = @avatarUrl, updatedDate = GETDATE() , fullName = @fullName
         WHERE userID = @userID;
         SET @result = 1; -- Thành công
     END TRY
     BEGIN CATCH
-        SET @result = -99; -- Lỗi hệ thống
+        SET @result = 0; -- Lỗi hệ thống
     END CATCH
 END
 GO
@@ -912,6 +930,7 @@ CREATE PROCEDURE RegisterAccount
     @Email NVARCHAR(100),
     @Address NVARCHAR(200) = NULL,
     @PhoneNumber NVARCHAR(20) = NULL,
+	@fullName NVARCHAR(100),
 	@NewUserID INT OUTPUT 
 AS
 BEGIN
@@ -930,10 +949,10 @@ BEGIN
     END
     -- 3. Tạo tài khoản mới, hash password ngay trong SQL
     INSERT INTO Account (
-        userName, password, email, address, phoneNumber
+        userName, password, email, address, phoneNumber, fullName
     )
     VALUES (
-        @UserName, dbo.HashPassword(@Password), @Email, @Address, @PhoneNumber
+        @UserName, dbo.HashPassword(@Password), @Email, @Address, @PhoneNumber, @fullName
     );
     -- 4. Trả về userID
     SET @NewUserID = SCOPE_IDENTITY();
@@ -941,6 +960,7 @@ END;
 GO
 
 --Login
+
 CREATE PROCEDURE [dbo].[LoginAccount]
     @userNameOrEmail NVARCHAR(100),
     @password NVARCHAR(100)
@@ -952,6 +972,7 @@ BEGIN
         userID,
         userName,
         email,
+		fullName,
         address,
         phoneNumber,
         roleID,
@@ -961,6 +982,30 @@ BEGIN
     FROM Account
     WHERE (userName = @userNameOrEmail OR email = @userNameOrEmail)
     AND password = @hashedPassword
+    AND status = 1;
+END
+GO
+
+--PROCEDURE [LoginByEmail] for Google OAuth
+CREATE PROCEDURE [dbo].[LoginByEmail]
+    @email NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT
+        userID,
+        userName,
+        email,
+        address,
+        phoneNumber,
+        roleID,
+        status,
+        createdDate,
+        updatedDate,
+		fullName
+    FROM Account
+    WHERE TRIM(email) = @email
     AND status = 1;
 END
 GO

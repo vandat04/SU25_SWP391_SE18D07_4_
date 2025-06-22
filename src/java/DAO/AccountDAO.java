@@ -54,25 +54,34 @@ public class AccountDAO {
     }
 
     public boolean registerAccount(Account account) {
-        java.sql.Connection conn = null;
+        String query = "{CALL RegisterAccount(?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+        
         try {
-            conn = DBContext.getConnection();
-            String sql = "{CALL RegisterAccount(?, ?, ?, ?, ?,?,?)}";
-            CallableStatement cs = conn.prepareCall(sql);
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+            
             cs.setString(1, account.getUserName());
             cs.setString(2, account.getPassword());
             cs.setString(3, account.getEmail());
-            cs.setString(4, account.getAddress());
-            cs.setString(5, account.getPhoneNumber());
-            cs.setString(6, account.getFullName());
-            cs.registerOutParameter(7, java.sql.Types.INTEGER);
-            cs.execute();
-
-            int newUserId = cs.getInt(7);
-            System.out.println("Tài khoản được tạo với ID = " + newUserId);
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace(); // In rõ lỗi ra console
+            cs.setString(4, account.getFullName());
+            cs.setString(5, account.getAddress());
+            cs.setString(6, account.getPhoneNumber());
+            cs.registerOutParameter(7, java.sql.Types.INTEGER); // Register OUTPUT parameter
+    
+            cs.execute(); // Use execute() instead of executeUpdate() for procedures with OUTPUT parameters
+            
+            // Get the new user ID from the output parameter
+            int newUserID = cs.getInt(7);
+            LOGGER.log(Level.INFO, "Successfully registered user: {0} with ID: {1}", 
+                      new Object[]{account.getUserName(), newUserID});
+            
+            return newUserID > 0;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error registering account for user: " + account.getUserName(), e);
+        } finally {
+            closeResources(conn, cs, null);
         }
         return false;
     }
