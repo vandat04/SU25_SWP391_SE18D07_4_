@@ -4,13 +4,20 @@
  */
 package controller.Admin;
 
+import entity.Account.Account;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import service.AccountService;
+import service.PaymentService;
+import service.ReportService;
 
 /**
  *
@@ -30,19 +37,26 @@ public class AdminControl extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet AdminControl</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet AdminControl at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        ReportService rService = new ReportService();
+        AccountService aService = new AccountService();
+        PaymentService pService = new PaymentService();
+        List<Account> accountCount = aService.getAllAccounts();
+        request.setAttribute("accountCount", accountCount);
+        Map<Integer, BigDecimal> revenueMap = pService.getRevenueByYear(Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("revenueMap", revenueMap);
+        Map<Integer, Integer> monthlyRegister = rService.getMonthlyAccountRegistrations(Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("monthlyRegister", monthlyRegister);
+        Map<Integer, Integer> statusOrder = rService.getOrderStatusSummaryByMonthYear(Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("statusOrder", statusOrder);
+        BigDecimal currentRevenue = rService.getRevenueByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("currentRevenue", currentRevenue);
+        int currentPost = rService.getNumberCraftPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("currentPost", currentPost);
+        int currentProductPost = rService.getNumberProductPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("currentProductPost", currentProductPost);
+        int currentTicketPost = rService.getNumberTicketPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        request.setAttribute("currentTicketPost", currentTicketPost);
+        request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
