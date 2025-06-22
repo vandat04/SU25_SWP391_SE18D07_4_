@@ -288,7 +288,7 @@ CREATE TABLE [dbo].[TicketOrder](
 	[villageID] [int] NOT NULL,
 	[totalPrice] [decimal](10, 2) NOT NULL,
 	[totalQuantity] [int] NOT NULL,
-	[status]  [int] NOT NULL DEFAULT(0),
+	[status]  [int] NOT NULL DEFAULT(0), -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
 	[paymentMethod] [nvarchar](50) NOT NULL,
 	[paymentStatus]  [int] NOT NULL DEFAULT(0),
 	[customerName] [nvarchar](100) NOT NULL,
@@ -338,7 +338,7 @@ CREATE TABLE [dbo].[TicketCode](
 	[issueDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[expiryDate] [datetime] NOT NULL,
 	[usageDate] [datetime] NULL,
-	[status] [int] NOT NULL DEFAULT(0),
+	[status] [int] NOT NULL DEFAULT(0), 
 	[usedBy] [nvarchar](100) NULL,
 	[notes] [nvarchar](500) NULL,
 	CONSTRAINT [FK_TicketCode_OrderDetail] FOREIGN KEY([orderDetailID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID])
@@ -363,7 +363,7 @@ CREATE TABLE [dbo].[Orders](
 	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[userID] [int] NOT NULL,
 	[total_price] [decimal](10, 2) NOT NULL,
-	[status]  [int] DEFAULT(0) NOT NULL,  --0 pending, 1: đã giao,2 ...
+	[status]  [int] DEFAULT(0) NOT NULL,  -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
 	[shippingAddress] [nvarchar](200) NOT NULL,
 	[shippingPhone] [nvarchar](20) NOT NULL,
 	[shippingName] [nvarchar](100) NOT NULL,
@@ -383,6 +383,9 @@ CREATE TABLE [dbo].[Orders](
 	CONSTRAINT FK_Orders_Account FOREIGN KEY (userID) REFERENCES [dbo].[Account](userID)
 )
 GO
+
+insert into Orders ()
+values
 
 --Table [OrderDetail]
 CREATE TABLE [dbo].[OrderDetail](
@@ -551,13 +554,14 @@ GO
 
 ----------------------------------------------------Payment-------------
 --Table [Payment]
+Drop table Payment
 CREATE TABLE [dbo].[Payment](
 	[paymentID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[orderID] [int] NULL,
 	[tourBookingID] [int] NULL,
 	[amount] [decimal](10, 2) NOT NULL,
 	[paymentMethod] [nvarchar](50) NOT NULL,
-	[paymentStatus] [nvarchar](50) NOT NULL,
+	[paymentStatus] int default(0) NOT NULL, -- 0: Chưa thanh toán, 1: đã thanh toán
 	[transactionID] [nvarchar](100) NULL,
 	[paymentDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
@@ -566,6 +570,8 @@ CREATE TABLE [dbo].[Payment](
 	CONSTRAINT [FK_Payment_TicketOrder] FOREIGN KEY([tourBookingID]) REFERENCES [dbo].[TicketOrder] ([orderID])
 )
 GO
+
+
 
 ----------------------------------------------------Admin-Seller-------------
 --Table [SalesReport]
@@ -713,6 +719,33 @@ VALUES
 (1,1, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999');
 GO
 
+INSERT INTO [dbo].[TicketOrder] (userID, villageID, status,totalPrice, totalQuantity, paymentMethod, customerName, customerPhone)
+VALUES 
+(1,1,1, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999'),
+(1,1,1, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999'),
+(1,1,2, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999'),
+(1,1,2, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999'),
+(1,1,2, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999'),
+(1,1,3, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999')
+GO
+
+
+INSERT INTO [dbo].[Payment] (
+    orderID, tourBookingID, amount, paymentMethod, paymentStatus, transactionID, paymentDate, updatedDate
+)
+VALUES 
+(NULL,1, 5500000.00, N'VNPay', 1, 'TXN100001', '2025-06-02', '2025-06-01'),
+(NULL,1, 500000.00, N'VNPay', 1, 'TXN100001', '2025-05-01', '2025-06-01'),
+(NULL,1, 15500000.00, N'VNPay', 1, 'TXN100001', '2025-04-01', '2025-06-01'),
+(NULL,1, 130000.00, N'VNPay', 1, 'TXN100001', '2025-03-01', '2025-06-01'),
+( NULL, 1,1500000.00, N'Momo', 1, 'TXN100002', '2025-02-08', '2025-06-08'),
+(NULL,1, 5500000.00, N'VNPay', 1, 'TXN100001', '2024-06-01', '2025-06-01'),
+(NULL,1, 5500000.00, N'VNPay', 1, 'TXN100001', '2025-06-01', '2025-06-01'),
+(NULL,1, 1500000.00, N'VNPay', 1, 'TXN100001', '2025-06-01', '2025-06-01'),
+( NULL, 1,1500000.00, N'Momo', 1, 'TXN100002', '2025-06-08', '2025-06-08'),
+( NULL, 1, 2800000.00, N'Tiền mặt', 1, 'TXN100003', '2025-06-12', '2025-06-12'),
+(NULL, 1, 1000000.00, N'Chuyển khoản',1, 'TXN100004', '2025-06-18', '2025-06-18');
+GO
 --Insert [TicketOrderDetail]
 INSERT INTO [dbo].[TicketOrderDetail] (orderID, ticketID, quantity, price, subtotal)
 VALUES 
@@ -725,6 +758,14 @@ VALUES
 (1, 'TICKET123', DATEADD(DAY, 5, GETDATE()));
 GO
 
+
+INSERT INTO [dbo].[Orders] ( userID, total_price, status, shippingAddress, shippingPhone, shippingName, paymentMethod, paymentStatus, createdDate)
+VALUES
+(1, 1000000.00, 0, N'12 Hùng Vương, Đà Nẵng', '0911000111', N'Nguyễn Văn A',  N'VNPay', 0, GETDATE()),
+(1, 1750000.00, 1, N'45 Lê Duẩn, Đà Nẵng', '0911222333', N'Lê Thị B', N'Momo', 1, GETDATE()),
+(1, 850000.00, 2, N'89 Trưng Nữ Vương, Đà Nẵng', '0911444555', N'Trần Văn C', N'Tiền mặt', 0, GETDATE()),
+(1, 1200000.00, 3, N'101 Nguyễn Văn Linh, Đà Nẵng', '0911666777', N'Phạm Thị D', N'Chuyển khoản', 1, GETDATE())
+GO
 --------------------------------------------------------------------Other----------------------
 --PROCEDURE [AddAccount]
 CREATE PROCEDURE [dbo].[AddAccount]

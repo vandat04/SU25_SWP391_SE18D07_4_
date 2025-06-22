@@ -41,7 +41,7 @@ public class AccountService implements IAccountService{
 
     @Override
     public List<Account> getAllAccounts() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return aDAO.getAllAccounts();
     }
 
     @Override

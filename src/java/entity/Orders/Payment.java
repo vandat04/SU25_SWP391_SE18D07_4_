@@ -6,7 +6,6 @@ package entity.Orders;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *
@@ -26,6 +25,15 @@ public class Payment {
 
     // Constructors-------------------------------------------------------------
     public Payment() {}
+
+    public Payment(int paymentID, Integer orderID, Integer tourBookingID, BigDecimal amount, String paymentMethod, Timestamp paymentDate) {
+        this.paymentID = paymentID;
+        this.orderID = orderID;
+        this.tourBookingID = tourBookingID;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = paymentDate;
+    }
     
     //--------------------------------------------------------------------------
     public int getPaymentID() {
@@ -48,9 +56,11 @@ public class Payment {
         return tourBookingID;
     }
 
-    public void setTourBookingID(Integer tourBookingID) {
+    public void getTourBookingID(Integer tourBookingID) {
         this.tourBookingID = tourBookingID;
     }
+
+   
 
     public BigDecimal getAmount() {
         return amount;

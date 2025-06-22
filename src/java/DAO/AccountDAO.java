@@ -13,6 +13,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -162,7 +167,6 @@ public class AccountDAO {
         return false;
     }
 
-    
     public boolean checkPhoneNumberExists(String phoneNumber) {
         String query = "SELECT COUNT(*) FROM Account WHERE phoneNumber = ?";
         Connection conn = null;
@@ -184,7 +188,7 @@ public class AccountDAO {
         }
         return false;
     }
-    
+
     public Account loginByEmail(String email) {
         // Use direct SQL query with REPLACE to remove line feeds and carriage returns
         String query = "SELECT userID, userName, email, fullName, address, phoneNumber, roleID, status, createdDate, updatedDate FROM Account WHERE REPLACE(REPLACE(LTRIM(RTRIM(email)), CHAR(10), ''), CHAR(13), '') = ? AND status = 1";
@@ -229,7 +233,35 @@ public class AccountDAO {
         }
         return null;
     }
-    public static void main(String[] args) {
-        System.out.println(new AccountDAO().registerAccount(new Account("dat17","123123", "d1@gmail.com", "1231331231","TVD")));
+
+    public List<Account> getAllAccounts() {
+        String query = "SELECT * FROM Account WHERE status = 1";
+        List<Account> list = new ArrayList<>();
+        Connection conn = null;
+        CallableStatement cs = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            cs = conn.prepareCall(query);
+
+            rs = cs.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToAccount(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // In rõ lỗi ra console
+        } finally {
+            if (cs != null) {
+                try {
+                    cs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            closeResources(conn, null, rs);
+        }
+        return list;
     }
 }
