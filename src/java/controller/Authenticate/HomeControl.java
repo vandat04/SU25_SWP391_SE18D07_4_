@@ -33,7 +33,7 @@ public class HomeControl extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+       
         ProductService productService = new ProductService();
         
         // Lấy danh sách sản phẩm active

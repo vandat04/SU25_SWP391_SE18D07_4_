@@ -4,8 +4,8 @@
  */
 package service;
 
+import entity.MessageNotification.Message;
 import entity.MessageNotification.MessageThread;
-import jakarta.mail.Message;
 import java.util.List;
 
 /**
