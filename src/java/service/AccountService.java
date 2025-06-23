@@ -5,6 +5,7 @@
 package service;
 
 import DAO.AccountDAO;
+import DAO.ReportDAO;
 import DAO.WishlistDAO;
 //import DAO.WishlistDAO;
 import entity.Account.Account;
@@ -18,6 +19,7 @@ public class AccountService implements IAccountService{
 
     AccountDAO aDAO = new AccountDAO();
     WishlistDAO wDAO = new WishlistDAO();
+    ReportDAO rDAO = new ReportDAO();
 
     @Override
     public Account login(String username, String password) {
@@ -26,7 +28,7 @@ public class AccountService implements IAccountService{
 
     @Override
     public boolean updateProfile(Account account) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return aDAO.updateAccount(account);
     }
 
     @Override
@@ -77,5 +79,20 @@ public class AccountService implements IAccountService{
     @Override
     public boolean checkEmailExists(String email) {
         return aDAO.checkEmailExists(email);
+    }
+
+    @Override
+    public List<Account> getAccountsByFilter(int filter) {
+        return rDAO.getAccountsByFilter(filter);
+    }
+
+    @Override
+    public boolean addNewAccountFull(Account account) {
+        return rDAO.addNewAccountFull(account);
+    }
+
+    @Override
+    public List<Account> getSearchAccount(int searchID, String contentSearch) {
+        return rDAO.getSearchAccount(searchID,contentSearch);
     }
 }

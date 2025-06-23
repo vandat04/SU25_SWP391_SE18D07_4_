@@ -13,11 +13,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.sql.Types;
 
 /**
  *
@@ -62,11 +60,11 @@ public class AccountDAO {
         String query = "{CALL RegisterAccount(?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
-        
+
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
-            
+
             cs.setString(1, account.getUserName());
             cs.setString(2, account.getPassword());
             cs.setString(3, account.getEmail());
@@ -74,14 +72,14 @@ public class AccountDAO {
             cs.setString(5, account.getAddress());
             cs.setString(6, account.getPhoneNumber());
             cs.registerOutParameter(7, java.sql.Types.INTEGER); // Register OUTPUT parameter
-    
+
             cs.execute(); // Use execute() instead of executeUpdate() for procedures with OUTPUT parameters
-            
+
             // Get the new user ID from the output parameter
             int newUserID = cs.getInt(7);
-            LOGGER.log(Level.INFO, "Successfully registered user: {0} with ID: {1}", 
-                      new Object[]{account.getUserName(), newUserID});
-            
+            LOGGER.log(Level.INFO, "Successfully registered user: {0} with ID: {1}",
+                    new Object[]{account.getUserName(), newUserID});
+
             return newUserID > 0;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error registering account for user: " + account.getUserName(), e);
@@ -263,5 +261,79 @@ public class AccountDAO {
             closeResources(conn, null, rs);
         }
         return list;
+    }
+
+    public boolean updateAccount(Account account) {
+        Connection conn = null;
+        CallableStatement cs = null;
+        try {
+            conn = new DBContext().getConnection();
+
+            boolean updatePassword = account.getPassword() != null
+                    && !account.getPassword().trim().isEmpty()
+                    && !account.getPassword().equals("********");
+
+            int result;
+
+            if (updatePassword) {
+                String query = "{? = CALL UpdateAccountFull(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+                cs = conn.prepareCall(query);
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.setInt(2, account.getUserID());
+                cs.setString(3, account.getUserName());
+                cs.setString(4, account.getPassword());
+                cs.setString(5, account.getEmail());
+                cs.setString(6, account.getPhoneNumber());
+                cs.setString(7, account.getAddress());
+                cs.setInt(8, account.getRoleID());
+                cs.setInt(9, account.getStatus());
+                cs.setString(10, account.getFullName());
+            } else {
+                String query = "{? = CALL UpdateAccountWithoutPassword(?, ?, ?, ?, ?, ?, ?, ?)}";
+                cs = conn.prepareCall(query);
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.setInt(2, account.getUserID());
+                cs.setString(3, account.getUserName());
+                cs.setString(4, account.getEmail());
+                cs.setString(5, account.getPhoneNumber());
+                cs.setString(6, account.getAddress());
+                cs.setInt(7, account.getRoleID());
+                cs.setInt(8, account.getStatus());
+                cs.setString(9, account.getFullName());
+            }
+
+            cs.execute();
+            result = cs.getInt(1); // <-- lấy RETURN từ procedure
+
+            if (result == 1) {
+                LOGGER.log(Level.INFO, "Successfully updated account with ID: {0}", account.getUserID());
+                return true;
+            } else {
+                LOGGER.log(Level.WARNING, "Email or phone already exists. Update failed for ID: {0}", account.getUserID());
+                return false;
+            }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "SQL Error updating account with ID: " + account.getUserID(), e);
+            return false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating account with ID: " + account.getUserID(), e);
+            return false;
+        } finally {
+            try {
+                if (cs != null) {
+                    cs.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "Error closing resources", e);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new AccountDAO().updateAccount(new Account(19, "dat25", "********", "dattruondg02112004@gmail.com", "Qnam", "0777076028", 1, 1, "TRƯƠNG VĂN ĐẠT")));
     }
 }

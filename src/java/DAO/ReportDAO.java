@@ -5,6 +5,7 @@
 package DAO;
 
 import context.DBContext;
+import entity.Account.Account;
 import entity.Orders.Payment;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
@@ -19,12 +20,17 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.sql.Types;
 
 /**
  *
  * @author ACER
  */
 public class ReportDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(AccountDAO.class.getName());
 
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         return new Payment(
@@ -34,6 +40,22 @@ public class ReportDAO {
                 rs.getBigDecimal("amount"),
                 rs.getString("paymentMethod"),
                 rs.getTimestamp("paymentDate")
+        );
+    }
+
+    private Account mapResultSetToAccount(ResultSet rs) throws SQLException {
+        return new Account(
+                rs.getInt("userID"),
+                rs.getString("userName"),
+                "********",
+                rs.getString("email"),
+                rs.getString("address"),
+                rs.getString("phoneNumber"),
+                rs.getInt("roleID"),
+                rs.getInt("status"),
+                rs.getString("createdDate"),
+                rs.getString("updatedDate"),
+                rs.getString("fullName")
         );
     }
 
@@ -92,6 +114,129 @@ public class ReportDAO {
         }
 
         return dailyRegistrations;
+    }
+
+    public List<Account> getAccountsByFilter(int filter) {
+        String query;
+        switch (filter) {
+            case 1:
+                query = "SELECT * FROM Account WHERE roleID = 1";
+                break;
+            case 2:
+                query = "SELECT * FROM Account WHERE roleID = 2";
+                break;
+            case 3:
+                query = "SELECT * FROM Account WHERE roleID = 3";
+                break;
+            case 4:
+                query = "SELECT * FROM Account WHERE status = 1 ORDER BY userName ASC";
+                break;
+            case 5:
+                query = "SELECT * FROM Account WHERE status = 1 ORDER BY userName DESC";
+                break;
+            case 6:
+                query = "SELECT * FROM Account WHERE status = 0";
+                break;
+            default:
+                query = "SELECT * FROM Account WHERE status = 1";
+                break;
+        }
+        List<Account> list = new ArrayList<>();
+        Connection conn = null;
+        CallableStatement cs = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            cs = conn.prepareCall(query);
+
+            rs = cs.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToAccount(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // In rõ lỗi ra console
+        } finally {
+            if (cs != null) {
+                try {
+                    cs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            closeResources(conn, null, rs);
+        }
+        return list;
+    }
+
+    public boolean addNewAccountFull(Account account) {
+        String query = "{CALL AddAccountFull(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+
+            // Set input parameters
+            cs.setString(1, account.getUserName());
+            cs.setString(2, account.getPassword());
+            cs.setString(3, account.getEmail());
+            cs.setString(4, account.getFullName());
+            cs.setString(5, account.getPhoneNumber());
+            cs.setString(6, account.getAddress());
+            cs.setInt(7, account.getRoleID());
+            cs.setInt(8, account.getStatus());
+
+            // Register OUTPUT parameter
+            cs.registerOutParameter(9, Types.INTEGER); // @result INT OUTPUT
+
+            cs.execute();
+
+            int result = cs.getInt(9); // get output value
+
+            LOGGER.log(Level.INFO, "AddAccountFull result code: {0}", result);
+
+            return result == 1; // only true if success
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error registering account for user: " + account.getUserName(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public List<Account> getSearchAccount(int searchID, String contentSearch) {
+        String query;
+        switch (searchID) {
+            case 1:
+                query = "SELECT * FROM Account WHERE username LIKE ?";
+                contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
+                break;
+            case 2:
+                query = "SELECT * FROM Account WHERE email = ?";
+                break;
+            case 3:
+                query = "SELECT * FROM Account WHERE FullName LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            default:
+                return new ArrayList<>(); // Tránh null nếu searchID không hợp lệ
+        }
+
+        List<Account> list = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setString(1, contentSearch);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToAccount(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
     }
 
 //------ Payment Report
@@ -329,37 +474,37 @@ public class ReportDAO {
     }
 
     public int getNumberTicketPostByDayMonthYear(int day, int month, int year) {
-    String query = "SELECT COUNT(*) AS total "
-                 + "FROM VillageTicket "
-                 + "WHERE status = 1 "
-                 + "AND DAY(createdDate) = ? "
-                 + "AND MONTH(createdDate) = ? "
-                 + "AND YEAR(createdDate) = ?";
+        String query = "SELECT COUNT(*) AS total "
+                + "FROM VillageTicket "
+                + "WHERE status = 1 "
+                + "AND DAY(createdDate) = ? "
+                + "AND MONTH(createdDate) = ? "
+                + "AND YEAR(createdDate) = ?";
 
-    int totalPosts = 0;
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
+        int totalPosts = 0;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-    try {
-        conn = DBContext.getConnection();
-        ps = conn.prepareStatement(query);
-        ps.setInt(1, day);
-        ps.setInt(2, month);
-        ps.setInt(3, year);
-        rs = ps.executeQuery();
-        if (rs.next()) {
-            totalPosts = rs.getInt("total");
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, day);
+            ps.setInt(2, month);
+            ps.setInt(3, year);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                totalPosts = rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        closeResources(conn, ps, rs);
+
+        return totalPosts;
     }
 
-    return totalPosts;
-}
-    
 //---- Craft Village Post
     public int getNumberCraftPostByDayMonthYear(int day, int month, int year) {
         String query = "SELECT COUNT(*) AS total "
@@ -393,10 +538,8 @@ public class ReportDAO {
         return totalPosts;
     }
 
-    
-    
 //----Main test    
     public static void main(String[] args) {
-        System.out.println(new ReportDAO().getNumberTicketPostByDayMonthYear(20, 6, 2025));
+        System.out.println(new ReportDAO().getAccountsByFilter(4));
     }
 }

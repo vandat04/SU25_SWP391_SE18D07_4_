@@ -969,10 +969,10 @@ CREATE PROCEDURE RegisterAccount
     @UserName NVARCHAR(100),
     @Password NVARCHAR(100),        -- dạng text, sẽ được hash trong procedure
     @Email NVARCHAR(100),
-    @Address NVARCHAR(200) = NULL,
-    @PhoneNumber NVARCHAR(20) = NULL,
 	@fullName NVARCHAR(100),
-	@NewUserID INT OUTPUT 
+    @Address NVARCHAR(200) = NULL,
+    @PhoneNumber NVARCHAR(20) = NULL,   
+    @NewUserID INT OUTPUT 
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1048,5 +1048,137 @@ BEGIN
     FROM Account
     WHERE TRIM(email) = @email
     AND status = 1;
+END
+GO
+
+CREATE PROCEDURE UpdateAccountFull
+    @userID INT,
+    @Username NVARCHAR(50),
+    @Password NVARCHAR(255),
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(20),
+    @Address NVARCHAR(255),
+    @RoleID INT,
+    @Status INT,
+    @FullName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Kiểm tra Email duy nhất (trừ chính account hiện tại)
+    IF EXISTS (SELECT 1 FROM Account WHERE Email = @Email AND userID <> @userID)
+    BEGIN
+        RAISERROR('Email already exists.', 16, 1);
+        RETURN 0;
+    END
+    -- Kiểm tra Phone duy nhất
+    IF EXISTS (SELECT 1 FROM Account WHERE PhoneNumber = @PhoneNumber AND userID <> @userID)
+    BEGIN
+        RAISERROR('Phone number already exists.', 16, 1);
+        RETURN 0;
+    END
+    -- Cập nhật tất cả thông tin
+    UPDATE Account
+    SET
+        UserName = @Username,
+        [Password] = [dbo].HashPassword(@Password),
+        Email = @Email,
+        PhoneNumber = @PhoneNumber,
+        Address = @Address,
+        RoleID = @RoleID,
+        Status = @Status,
+        FullName = @FullName,
+        UpdatedDate = GETDATE()
+    WHERE userID = @userID
+	RETURN 1;
+END
+
+
+CREATE PROCEDURE UpdateAccountWithoutPassword
+    @userID INT,
+    @Username NVARCHAR(50),
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(20),
+    @Address NVARCHAR(255),
+    @RoleID INT,
+    @Status INT,
+    @FullName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra Email duy nhất
+    IF EXISTS (SELECT 1 FROM Account WHERE Email = @Email AND userID <> @userID)
+    BEGIN
+        RAISERROR('Email already exists.', 16, 1);
+        RETURN 0;
+    END
+
+    -- Kiểm tra Phone duy nhất
+    IF EXISTS (SELECT 1 FROM Account WHERE PhoneNumber = @PhoneNumber AND userID <> @userID)
+    BEGIN
+        RAISERROR('Phone number already exists.', 16, 1);
+        RETURN 0;
+    END
+
+    -- Cập nhật không thay đổi mật khẩu
+    UPDATE Account
+    SET
+        UserName = @Username,
+        Email = @Email,
+        PhoneNumber = @PhoneNumber,
+        Address = @Address,
+        RoleID = @RoleID,
+        Status = @Status,
+        FullName = @FullName,
+        UpdatedDate = GETDATE()
+    WHERE userID = @userID
+	return 1;
+END
+Go
+--PROCEDURE [AddAccountFull]
+CREATE PROCEDURE [dbo].[AddAccountFull]
+    @userName NVARCHAR(100),
+    @password NVARCHAR(100), -- plain text password
+    @email NVARCHAR(100),
+	@FullName  NVARCHAR(100), 
+    @phoneNumber NVARCHAR(20) = NULL,
+	@address NVARCHAR(200) = NULL,
+    @roleID INT , 
+	@status INT ,
+    @result INT OUTPUT  -- kết quả trả về
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        -- Kiểm tra trùng username
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userName = @userName)
+        BEGIN
+            SET @result = 2; -- Trùng username
+            RETURN;
+        END
+        -- Kiểm tra trùng email
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE email = @email)
+        BEGIN
+            SET @result = 3; -- Trùng email
+            RETURN;
+        END
+		-- Kiểm tra trùng sdt
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE phoneNumber = @phoneNumber)
+        BEGIN
+            SET @result = 4; -- Trùng sdt
+            RETURN;
+        END
+        -- Nếu không trùng thì thêm mới
+        INSERT INTO [dbo].[Account] (
+            userName, password, email, address, phoneNumber, roleID, status, FullName
+        )
+        VALUES (
+            @userName, dbo.HashPassword(@password), @email, @address,@phoneNumber, @roleID, @status, @FullName
+        );
+        SET @result = 1; -- thành công
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- thất bại do lỗi hệ thống
+    END CATCH
 END
 GO

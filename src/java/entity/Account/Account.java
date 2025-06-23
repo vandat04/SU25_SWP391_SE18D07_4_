@@ -43,6 +43,29 @@ public class Account {
         this.updatedDate = updatedDate;
         this.fullName = fullName;
     }
+
+    public Account(int userID, String userName, String password, String email, String address, String phoneNumber, int status, int roleID, String fullName) {
+        this.userID = userID;
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.status = status;
+        this.roleID = roleID;
+        this.fullName = fullName;
+    }
+
+    public Account(String userName, String password, String email, String address, String phoneNumber, int status, int roleID, String fullName) {
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.status = status;
+        this.roleID = roleID;
+        this.fullName = fullName;
+    }
     
     
 

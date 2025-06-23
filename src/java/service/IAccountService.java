@@ -36,4 +36,10 @@ public interface IAccountService {
     boolean checkUsernameExists(String username);
 
     boolean checkEmailExists(String email);
+    
+    List<Account> getAccountsByFilter(int filter);
+    
+    boolean addNewAccountFull(Account account);
+    
+    List<Account> getSearchAccount(int searchID, String contentSearch);
 }
