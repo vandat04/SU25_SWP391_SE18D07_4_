@@ -11,7 +11,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Account Management</title>
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">  
         <script>
             function openModal(userID, userName, email, fullName, phoneNumber, address, roleID, status, createdDate, updatedDate) {
                 document.getElementById('modal').classList.remove('hidden');
@@ -46,6 +46,25 @@
             function closeAddAccountModal() {
                 document.getElementById("addAccountModal").classList.add("hidden");
             }
+
+            const exportBtn = document.getElementById("exportBtn");
+            const exportMenu = document.getElementById("exportMenu");
+
+            exportBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                exportMenu.classList.toggle("hidden");
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+                    exportMenu.classList.add("hidden");
+                }
+            });
+
+            function toggleExportMenu() {
+                const menu = document.getElementById("exportMenu");
+                menu.classList.toggle("hidden");
+            }
         </script>
     </head>
     <body class="bg-gray-100">
@@ -75,41 +94,52 @@
                 <!-- Search and Filter Bar -->
                 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <h1 class="text-2xl font-bold mb-6">Account List (${activeSessions}/${listAccount.size()})</h1>
-                    <!-- Search Inputs -->
-                    <form action="admin-account-management" method="post">
-                        <input type="hidden" id="typeName" name="typeName" value="searchAccount">
-                        <select id="searchID" name="searchID" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                            <option value="1">User Name</option>
-                            <option value="2">Email</option>
-                            <option value="3">Full Name</option>
-                        </select>   
-                        <input type="text" id="contentSearch" name="contentSearch" placeholder="Search by Username or Email or Full"
-                               class="border border-gray-300 rounded px-3 py-2 text-sm w-64">
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Search
-                        </button>
-                    </form>
                     <!-- Role Filter + Request Button -->
                     <div class="flex flex-col md:flex-row items-center gap-2">
                         <form action="admin-account-management" method="post">
-                            <input type="hidden" id="typeName" name="typeName" value="filterAccount">
-                            <select id="roleFilterID" name="roleFilterID" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
+                            <input type="hidden" id="typeName" name="typeName" value="searchAccount">
+                            <select id="status" name="status" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
+                                <option value="1">Activate</option>
+                                <option value="0">Deactivate</option>                        
+                            </select> 
+                            <select id="searchID" name="searchID" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
                                 <option value="0">All Accounts</option>
                                 <option value="1">Customer</option>
                                 <option value="2">Seller</option>
                                 <option value="3">Admin</option>
                                 <option value="4">Sort A - Z</option>
                                 <option value="5">Sort Z - A</option>    
-                                <option value="6">Deactivate Account</option>  
-                            </select>
+                                <option value="6">User Name</option>
+                                <option value="7">Email</option>
+                                <option value="8">Full Name</option>
+                                <option value="9">Phone Number</option>
+                            </select>   
+                            <input type="text" id="contentSearch" name="contentSearch" placeholder="Search by Username or Email or Full"
+                                   class="border border-gray-300 rounded px-3 py-2 text-sm w-64">
                             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                Filter
-                            </button>         
-                        </form>
+                                Search
+                            </button>
+                        </form> 
                         <button onclick="openAddAccountModal()" 
                                 class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
                             Add
                         </button>
+                        
+                        <div class="relative inline-block">
+                            <button onclick="toggleExportMenu()" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                                Export
+                            </button>
+                            <div id="exportMenu" class="hidden absolute z-10 mt-2 w-40 bg-white border rounded shadow-lg">
+                                <a href="export-account-pdf?cas=1" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Account</a>
+                                <a href="export-account-pdf?cas=2" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Customer</a>
+                                <a href="export-account-pdf?cas=3" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Seller</a>
+                                <a href="export-account-pdf?cas=4" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
+                                <a href="export-account-pdf?cas=5" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Deactivate Account</a>
+                                <a href="export-account-pdf?cas=6" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Quantity By Role</a>
+                                <a href="export-account-pdf?cas=7" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Registration in Year Summary Report</a>
+                            </div>
+                        </div>
                         <button onclick="handleRequestUpdate()"
                                 class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
                             Request Upgrade
@@ -134,17 +164,17 @@
                                     </p>
                                     <div class="mt-4 flex justify-between items-center">
                                         <button onclick="openModal(
-                                                            '${acc.userID}',
-                                                            '${acc.userName}',
-                                                            '${acc.email}',
-                                                            '${acc.fullName}',
-                                                            '${acc.phoneNumber}',
-                                                            '${acc.address}',
-                                                            '${acc.roleID}',
-                                                            '${acc.status}',
-                                                            '${acc.createdDate}',
-                                                            '${acc.updatedDate}'
-                                                            )"
+                                                        '${acc.userID}',
+                                                        '${acc.userName}',
+                                                        '${acc.email}',
+                                                        '${acc.fullName}',
+                                                        '${acc.phoneNumber}',
+                                                        '${acc.address}',
+                                                        '${acc.roleID}',
+                                                        '${acc.status}',
+                                                        '${acc.createdDate}',
+                                                        '${acc.updatedDate}'
+                                                        )"
                                                 class="text-white bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
                                             View Profile
                                         </button>

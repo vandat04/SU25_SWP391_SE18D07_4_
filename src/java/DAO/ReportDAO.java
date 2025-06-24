@@ -116,60 +116,6 @@ public class ReportDAO {
         return dailyRegistrations;
     }
 
-    public List<Account> getAccountsByFilter(int filter) {
-        String query;
-        switch (filter) {
-            case 1:
-                query = "SELECT * FROM Account WHERE roleID = 1";
-                break;
-            case 2:
-                query = "SELECT * FROM Account WHERE roleID = 2";
-                break;
-            case 3:
-                query = "SELECT * FROM Account WHERE roleID = 3";
-                break;
-            case 4:
-                query = "SELECT * FROM Account WHERE status = 1 ORDER BY userName ASC";
-                break;
-            case 5:
-                query = "SELECT * FROM Account WHERE status = 1 ORDER BY userName DESC";
-                break;
-            case 6:
-                query = "SELECT * FROM Account WHERE status = 0";
-                break;
-            default:
-                query = "SELECT * FROM Account WHERE status = 1";
-                break;
-        }
-        List<Account> list = new ArrayList<>();
-        Connection conn = null;
-        CallableStatement cs = null;
-        ResultSet rs = null;
-
-        try {
-            conn = DBContext.getConnection();
-            cs = conn.prepareCall(query);
-
-            rs = cs.executeQuery();
-
-            while (rs.next()) {
-                list.add(mapResultSetToAccount(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // In rõ lỗi ra console
-        } finally {
-            if (cs != null) {
-                try {
-                    cs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            closeResources(conn, null, rs);
-        }
-        return list;
-    }
-
     public boolean addNewAccountFull(Account account) {
         String query = "{CALL AddAccountFull(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
@@ -206,28 +152,54 @@ public class ReportDAO {
         return false;
     }
 
-    public List<Account> getSearchAccount(int searchID, String contentSearch) {
+    public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
         String query;
         switch (searchID) {
             case 1:
-                query = "SELECT * FROM Account WHERE username LIKE ?";
-                contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
+                query = "SELECT * FROM Account WHERE roleID = 1 and status = ? and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
                 break;
             case 2:
-                query = "SELECT * FROM Account WHERE email = ?";
+                query = "SELECT * FROM Account WHERE roleID = 2 and status = ? and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
                 break;
             case 3:
-                query = "SELECT * FROM Account WHERE FullName LIKE ?";
+                query = "SELECT * FROM Account WHERE roleID = 3 and status = ? and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 4:
+                query = "SELECT * FROM Account WHERE status = ? ORDER BY userName ASC and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 5:
+                query = "SELECT * FROM Account WHERE status = ? ORDER BY userName DESC and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 6:
+                query = "SELECT * FROM Account WHERE status = ? and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
+                break;
+            case 7:
+                query = "SELECT * FROM Account WHERE status = ? and email = ?";
+                break;
+            case 8:
+                query = "SELECT * FROM Account WHERE  status = ? and FullName LIKE ? ";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 9:
+                query = "SELECT * FROM Account WHERE  status = ? and phoneNumber LIKE ? ";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             default:
-                return new ArrayList<>(); // Tránh null nếu searchID không hợp lệ
+                query = "SELECT * FROM Account WHERE status = ? and username LIKE ?";
+                contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
+                break;
         }
 
         List<Account> list = new ArrayList<>();
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setString(1, contentSearch);
+            ps.setInt(1, status);
+            ps.setString(2, contentSearch);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToAccount(rs));
@@ -237,6 +209,44 @@ public class ReportDAO {
             e.printStackTrace(); // Ghi log tốt hơn
         }
         return list;
+    }
+
+    public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
+        String query = "SELECT MONTH(createdDate) AS [Month], COUNT(*) AS [Total] "
+                + "FROM Account "
+                + "WHERE YEAR(createdDate) = ? "
+                + "GROUP BY MONTH(createdDate) "
+                + "ORDER BY MONTH(createdDate)";
+
+        Map<Integer, Integer> monthSummary = new LinkedHashMap<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, year);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int month = rs.getInt("Month");
+                int total = rs.getInt("Total");
+                monthSummary.put(month, total);
+            }
+
+            // Đảm bảo có đủ 12 tháng, thêm 0 nếu tháng nào không có dữ liệu
+            for (int i = 1; i <= 12; i++) {
+                monthSummary.putIfAbsent(i, 0);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+
+        return monthSummary;
     }
 
 //------ Payment Report
@@ -540,6 +550,7 @@ public class ReportDAO {
 
 //----Main test    
     public static void main(String[] args) {
-        System.out.println(new ReportDAO().getAccountsByFilter(4));
+        System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
+       
     }
 }

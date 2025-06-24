@@ -5,7 +5,6 @@
 package entity.MessageNotification;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *

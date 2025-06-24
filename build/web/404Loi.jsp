@@ -215,7 +215,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="mobile-block-global">
         <div class="biolife-mobile-panels">
             <span class="biolife-current-panel-title">Global</span>

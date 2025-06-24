@@ -10,69 +10,72 @@
 <%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
-<canvas id="lineChart" height="300"></canvas>
-<script>
-    <%
-        Map<Integer, Integer> monthlyRegister = (Map<Integer, Integer>) request.getAttribute("monthlyRegister");
-
-        // Lấy tháng/năm hiện tại
-        int month = Calendar.getInstance().get(Calendar.MONTH) + 1; // 1-based
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-        int daysInMonth = java.time.YearMonth.of(year, month).lengthOfMonth();
-
-        StringBuilder labels = new StringBuilder("[");
-        StringBuilder data = new StringBuilder("[");
-
-        for (int day = 1; day <= daysInMonth; day++) {
-            labels.append("'").append(String.format("%02d", day)).append("/").append(String.format("%02d", month)).append("',");
-            int count = (monthlyRegister != null && monthlyRegister.containsKey(day)) ? monthlyRegister.get(day) : 0;
-            data.append(count).append(",");
-        }
-
-        // Xóa dấu phẩy cuối
-        if (labels.length() > 1) {
-            labels.setLength(labels.length() - 1);
-        }
-        if (data.length() > 1) {
-            data.setLength(data.length() - 1);
-        }
-        labels.append("]");
-        data.append("]");
-    %>
-    const labels = <%= labels.toString()%>;
-    const data = <%= data.toString()%>;
-
-    new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                    label: 'Tài khoản đăng ký theo ngày',
-                    data: data,
-                    borderColor: 'rgba(16, 185, 129, 1)',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 4
-                }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Số tài khoản'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Ngày trong tháng'
-                    }
-                }
+<html>
+    <head>
+        <title>Export PDF Demo</title>
+        <style>
+            /* Dropdown container */
+            .dropdown {
+                position: relative;
+                display: inline-block;
             }
-        }
-    });
-</script>
+
+            /* Dropdown button */
+            .dropbtn {
+                background-color: #3498db;
+                color: white;
+                padding: 10px 20px;
+                font-size: 14px;
+                border: none;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+
+            /* Dropdown content (hidden by default) */
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: white;
+                min-width: 160px;
+                box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+                z-index: 1;
+                border-radius: 4px;
+            }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+                color: black;
+                padding: 10px 15px;
+                text-decoration: none;
+                display: block;
+            }
+
+            /* Hover effect for links */
+            .dropdown-content a:hover {
+                background-color: #f1f1f1;
+            }
+
+            /* Show the dropdown on hover */
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+
+            /* Optional: change button color on hover */
+            .dropdown:hover .dropbtn {
+                background-color: #2980b9;
+            }
+
+        </style>
+    </head>
+    <body>
+        <!-- Dropdown Button -->
+        <div class="dropdown">
+            <button class="dropbtn">Menu ▼</button>
+            <div class="dropdown-content">
+                <a href="feature1.jsp">Tính năng 1</a>
+                <a href="feature2.jsp">Tính năng 2</a>
+                <a href="feature3.jsp">Tính năng 3</a>
+            </div>
+        </div>
+    </body>
+</html>
