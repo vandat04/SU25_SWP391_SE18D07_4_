@@ -6,6 +6,7 @@ package filter;
 
 import DAO.CraftVillageDAO;
 import entity.CraftVillage.CraftType;
+import entity.CraftVillage.CraftVillage;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -106,6 +107,10 @@ public class CraftVillageCategoryFilter implements Filter {
         if (request.getAttribute("listVillages") == null) {
             List<CraftType> listC = new CraftVillageDAO().getAllCraftType();
             request.setAttribute("listVillages", listC);
+        }
+        if (request.getAttribute("listAllVillage") == null) {
+            List<CraftVillage> listAllVillage = new CraftVillageDAO().getAllCraftVillageActive();
+            request.setAttribute("listAllVillage", listAllVillage);
         }
         chain.doFilter(request, response);
     }

@@ -6,6 +6,7 @@ package service;
 
 import entity.Account.Account;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -37,9 +38,9 @@ public interface IAccountService {
 
     boolean checkEmailExists(String email);
     
-    List<Account> getAccountsByFilter(int filter);
-    
     boolean addNewAccountFull(Account account);
     
-    List<Account> getSearchAccount(int searchID, String contentSearch);
+    List<Account> getSearchAccount(int status, int searchID, String contentSearch);
+    
+    Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year);
 }

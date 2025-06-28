@@ -21,6 +21,8 @@ import service.AccountService;
 @WebServlet(name = "AdminAccountManagement", urlPatterns = {"/admin-account-management"})
 public class AdminAccountManagement extends HttpServlet {
 
+    private List<Account> listAccount;
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -32,9 +34,8 @@ public class AdminAccountManagement extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Account> listAccount = new AccountService().getAllAccounts();
+        listAccount = new AccountService().getAllAccounts();
         request.setAttribute("listAccount", listAccount);
-       // List<>
         request.getRequestDispatcher("admin-account-management.jsp").forward(request, response);
     }
 
@@ -75,10 +76,8 @@ public class AdminAccountManagement extends HttpServlet {
         String address = request.getParameter("address");
         String roleID = request.getParameter("roleID");
         String status = request.getParameter("status");
-        String roleFilterID = request.getParameter("roleFilterID");
         String searchID = request.getParameter("searchID");
         String contentSearch = request.getParameter("contentSearch");
-        List<Account> listAccount;
 
         switch (typeName) {
             case "updateProfile":
@@ -88,8 +87,6 @@ public class AdminAccountManagement extends HttpServlet {
                     if (result) {
                         request.setAttribute("error", "1");
                         request.setAttribute("message", "Update Success");
-                        listAccount = new AccountService().getAllAccounts();
-                        request.setAttribute("listAccount", listAccount);
                     } else {
                         request.setAttribute("error", "0");
                         request.setAttribute("message", "Update error Email or phone number already exists");
@@ -98,17 +95,8 @@ public class AdminAccountManagement extends HttpServlet {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Update Fail");
                 }
-                break;
-            case "filterAccount":
-                try {
-                    listAccount = new AccountService().getAccountsByFilter(Integer.parseInt(roleFilterID));
-                    request.setAttribute("error", "1");
-                    request.setAttribute("message", "Filter Success");
-                    request.setAttribute("listAccount", listAccount);
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Filter Fail");
-                }
+                listAccount = new AccountService().getAllAccounts();
+                request.setAttribute("listAccount", listAccount);
                 break;
             case "addAccount":
                 try {
@@ -130,7 +118,7 @@ public class AdminAccountManagement extends HttpServlet {
                 break;
             case "searchAccount":
                 try {
-                    listAccount = new AccountService().getSearchAccount(Integer.parseInt(searchID), contentSearch);
+                    listAccount = new AccountService().getSearchAccount(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
                     request.setAttribute("error", "1");
                     request.setAttribute("message", "Search Success");
                     request.setAttribute("listAccount", listAccount);

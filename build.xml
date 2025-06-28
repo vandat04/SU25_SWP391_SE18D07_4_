@@ -68,4 +68,12 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="dist" depends="compile">
+        <mkdir dir="dist" />
+        <war destfile="dist/yourproject.war" webxml="WebContent/WEB-INF/web.xml">
+            <fileset dir="WebContent"/>
+            <lib dir="WebContent/WEB-INF/lib"/>
+            <classes dir="build/classes"/>
+        </war>
+    </target>
 </project>

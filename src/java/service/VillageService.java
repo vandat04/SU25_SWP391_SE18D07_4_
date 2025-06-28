@@ -61,5 +61,15 @@ public class VillageService implements IVillageService{
     public List<CraftType> getAllCraftType() {
         return vDAO.getAllCraftType();
     }
+
+    @Override
+    public String getVillageNameByID(int villageID) {
+        return vDAO.getVillageNameByID(villageID);
+    }
+
+    @Override
+    public String getCraftTypeNameByID(int typeID) {
+        return vDAO.getCraftTypeNameByID(typeID);
+    }
     
 }

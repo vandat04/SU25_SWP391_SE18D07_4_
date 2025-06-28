@@ -4,6 +4,7 @@
  */
 package service;
 
+import entity.MessageNotification.Message;
 import entity.MessageNotification.MessageThread;
 import java.util.List;
 
@@ -19,18 +20,20 @@ public class MessageService implements IMessageService{
     }
 
     @Override
+    public List<Message> getMessagesByThread(int threadId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean sendMessage(Message message) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
     public boolean markMessageAsRead(int messageId) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    @Override
-    public boolean sendMessage(jakarta.mail.Message message) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public List<jakarta.mail.Message> getMessagesByThread(int threadId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+   
     
 }

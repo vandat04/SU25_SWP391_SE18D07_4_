@@ -2,9 +2,9 @@ package entity.CraftVillage;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 public class CraftVillage {
+
     private int villageID;
     private Integer typeID;
     private String villageName;
@@ -14,7 +14,7 @@ public class CraftVillage {
     private Double longitude;
     private String contactPhone;
     private String contactEmail;
-    private int status; // 0: ẩn, 1: hoạt động, 2: đang duyệt
+    private int status; // 0: ẩn, 1: hoạt động
     private int clickCount;
     private Timestamp lastClicked;
     private String mainImageUrl;
@@ -38,10 +38,45 @@ public class CraftVillage {
     //Constructor --------------------------------------------------------------
     public CraftVillage() {
     }
-    
-    
-    //--------------------------------------------------------------------------
 
+    public CraftVillage(int villageID, int typeID, String villageName, String description, String address,
+            double latitude, double longitude, String contactPhone, String contactEmail,
+            int status, int clickCount, String mainImageUrl, Timestamp createdDate, Timestamp updatedDate,
+            int sellerId, String openingHours, String closingDays, BigDecimal averageRating,
+            int totalReviews, String mapEmbedUrl, String virtualTourUrl, String history,
+            String specialFeatures, String famousProducts, String culturalEvents,
+            String craftProcess, String videoDescriptionUrl, String travelTips) {
+        this.villageID = villageID;
+        this.typeID = typeID;
+        this.villageName = villageName;
+        this.description = description;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.contactPhone = contactPhone;
+        this.contactEmail = contactEmail;
+        this.status = status;
+        this.clickCount = clickCount;
+        this.mainImageUrl = mainImageUrl;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+        this.sellerId = sellerId;
+        this.openingHours = openingHours;
+        this.closingDays = closingDays;
+        this.averageRating = averageRating;
+        this.totalReviews = totalReviews;
+        this.mapEmbedUrl = mapEmbedUrl;
+        this.virtualTourUrl = virtualTourUrl;
+        this.history = history;
+        this.specialFeatures = specialFeatures;
+        this.famousProducts = famousProducts;
+        this.culturalEvents = culturalEvents;
+        this.craftProcess = craftProcess;
+        this.videoDescriptionUrl = videoDescriptionUrl;
+        this.travelTips = travelTips;
+    }
+
+    //--------------------------------------------------------------------------
     public int getVillageID() {
         return villageID;
     }
@@ -278,6 +313,5 @@ public class CraftVillage {
     public String toString() {
         return "CraftVillage{" + "villageID=" + villageID + ", typeID=" + typeID + ", villageName=" + villageName + ", description=" + description + ", address=" + address + ", latitude=" + latitude + ", longitude=" + longitude + ", contactPhone=" + contactPhone + ", contactEmail=" + contactEmail + ", status=" + status + ", clickCount=" + clickCount + ", lastClicked=" + lastClicked + ", mainImageUrl=" + mainImageUrl + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", sellerId=" + sellerId + ", openingHours=" + openingHours + ", closingDays=" + closingDays + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews + ", mapEmbedUrl=" + mapEmbedUrl + ", virtualTourUrl=" + virtualTourUrl + ", history=" + history + ", specialFeatures=" + specialFeatures + ", famousProducts=" + famousProducts + ", culturalEvents=" + culturalEvents + ", craftProcess=" + craftProcess + ", videoDescriptionUrl=" + videoDescriptionUrl + ", travelTips=" + travelTips + '}';
     }
-    
-    
-} 
+
+}

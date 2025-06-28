@@ -37,7 +37,7 @@ public class HomeControl extends HttpServlet {
         ProductService productService = new ProductService();
         
         // Lấy danh sách sản phẩm active
-        List<Product> listP = productService.getActivateProducts();
+        List<Product> listP = productService.getAllProductActive();
         request.setAttribute("listP", listP);
 
         // Lấy danh sách categories

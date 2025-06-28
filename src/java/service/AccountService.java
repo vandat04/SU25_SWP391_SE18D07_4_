@@ -10,6 +10,7 @@ import DAO.WishlistDAO;
 //import DAO.WishlistDAO;
 import entity.Account.Account;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -82,17 +83,16 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public List<Account> getAccountsByFilter(int filter) {
-        return rDAO.getAccountsByFilter(filter);
-    }
-
-    @Override
     public boolean addNewAccountFull(Account account) {
         return rDAO.addNewAccountFull(account);
     }
 
     @Override
-    public List<Account> getSearchAccount(int searchID, String contentSearch) {
-        return rDAO.getSearchAccount(searchID,contentSearch);
+    public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
+        return rDAO.getSearchAccount(status, searchID,contentSearch);
+    }
+
+    public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
+        return rDAO.getRegistrationSummaryByMonthYear(year);
     }
 }

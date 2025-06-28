@@ -27,9 +27,6 @@ public class CraftType {
         this.typeName = typeName;
         this.description = description;
     }
-
-    
-    
     
     //--------------------------------------------------------------------------
     public int getTypeID() {

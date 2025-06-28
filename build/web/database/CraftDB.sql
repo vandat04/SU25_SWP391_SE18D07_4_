@@ -185,7 +185,7 @@ CREATE TABLE [dbo].[ProductCategory](
 GO
 
 --Table [Product] 
-CREATE TABLE [dbo].[Product](
+CREATE TABLE [dbo].[Product]( --22 trường
 	[pid] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 	[price] [decimal](10, 2) NOT NULL,
@@ -206,7 +206,7 @@ CREATE TABLE [dbo].[Product](
 	[materials] [nvarchar](500) NULL,
 	[careInstructions] [nvarchar](max) NULL,
 	[warranty] [nvarchar](200) NULL,
-	[isFeatured] [bit] NOT NULL DEFAULT(0),
+	[isFeatured] [bit] NOT NULL DEFAULT(0), -- Bỏ
 	[averageRating] [decimal](3, 2) NULL,
 	[totalReviews] [int] NOT NULL DEFAULT(0),
 	CONSTRAINT [FK_Product_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
@@ -590,7 +590,7 @@ CREATE TABLE [dbo].[SalesReport](
 )
 GO
 
---Table [SellerVerification]
+--Table [SellerVerification] --loại làng nggeef đăng kí. 
 CREATE TABLE [dbo].[SellerVerification](
 	[verificationID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[sellerID] [int] NOT NULL,
@@ -679,7 +679,18 @@ VALUES
 (1, N'Ấm trà gốm', 250000, 50, 1, 1);
 SET IDENTITY_INSERT [dbo].[Product] OFF;
 GO
-
+SET IDENTITY_INSERT [dbo].[Product] ON;
+INSERT INTO [dbo].[Product] (pid,name, price, stock, villageID, categoryID)
+VALUES 
+(2, N'New', 250000, 50, 1, 1);
+SET IDENTITY_INSERT [dbo].[Product] OFF;
+GO
+SET IDENTITY_INSERT [dbo].[Product] ON;
+INSERT INTO [dbo].[Product] (pid,name, price, stock, villageID, categoryID, mainImageUrl)
+VALUES 
+(3, N'New1', 250000, 50, 1, 1, 'hinhanh/village/kim-bong.jpg');
+SET IDENTITY_INSERT [dbo].[Product] OFF;
+GO
 --Insert [ProductImage]
 INSERT INTO [dbo].[ProductImage] (productID, imageUrl, isMain)
 VALUES 

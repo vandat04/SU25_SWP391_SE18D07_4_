@@ -19,4 +19,5 @@ public interface ITicketService {
     TicketOrder createTicketOrder(TicketOrder order) throws Exception;
     boolean cancelTicketOrder(int orderId);
     List<TicketCode> getTicketCodesByOrderDetail(int detailId);
+    List<Ticket> getAllTicketActive();
 }

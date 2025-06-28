@@ -22,4 +22,6 @@ public interface IVillageService {
     List<CraftVillage> getVillagesBySeller(int sellerId);
     List<CraftVillage> getTopVisitedVillages(int limit);
     List<CraftType> getAllCraftType();
+    String getVillageNameByID (int villageID);
+    String getCraftTypeNameByID (int typeID);
 }
