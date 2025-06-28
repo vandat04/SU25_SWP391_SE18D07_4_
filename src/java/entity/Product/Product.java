@@ -10,6 +10,7 @@ public class Product {
     private BigDecimal price;
     private String description;
     private int stock;
+    private int stockAdd;
     private int status;
     private int villageID;
     private int categoryID;
@@ -18,7 +19,7 @@ public class Product {
     private Timestamp lastClicked;
     private Timestamp createdDate;
     private Timestamp updatedDate;
-    private Integer craftTypeID;
+    private int craftTypeID;
     private String sku;
     private BigDecimal weight;
     private String dimensions;
@@ -33,7 +34,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(int pid,String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID, String mainImageUrl, int clickCount, Timestamp lastClicked, Timestamp createdDate, Timestamp updatedDate, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty, BigDecimal averageRating, int totalReviews) {
+    public Product(int pid,String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID,int craftTypeID, String mainImageUrl, int clickCount, Timestamp lastClicked, Timestamp createdDate, Timestamp updatedDate, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty, BigDecimal averageRating, int totalReviews) {
         this.pid = pid;
         this.name = name;
         this.price = price;
@@ -42,6 +43,7 @@ public class Product {
         this.status = status;
         this.villageID = villageID;
         this.categoryID = categoryID;
+        this.craftTypeID = craftTypeID;
         this.mainImageUrl = mainImageUrl;
         this.clickCount = clickCount;
         this.lastClicked = lastClicked;
@@ -72,6 +74,45 @@ public class Product {
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
     }
+
+    public Product(int pid, String name, BigDecimal price, String description, int stock, int stockAdd, int status, int villageID, int categoryID, String mainImageUrl, int craftTypeID, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty) {
+        this.pid = pid;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.stock = stock;
+        this.stockAdd = stockAdd;
+        this.status = status;
+        this.villageID = villageID;
+        this.categoryID = categoryID;
+        this.mainImageUrl = mainImageUrl;
+        this.craftTypeID = craftTypeID;
+        this.sku = sku;
+        this.weight = weight;
+        this.dimensions = dimensions;
+        this.materials = materials;
+        this.careInstructions = careInstructions;
+        this.warranty = warranty;
+    }
+
+    public Product(String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID, String mainImageUrl, int craftTypeID, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty) {
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.stock = stock;
+        this.status = status;
+        this.villageID = villageID;
+        this.categoryID = categoryID;
+        this.mainImageUrl = mainImageUrl;
+        this.craftTypeID = craftTypeID;
+        this.sku = sku;
+        this.weight = weight;
+        this.dimensions = dimensions;
+        this.materials = materials;
+        this.careInstructions = careInstructions;
+        this.warranty = warranty;
+    }
+  
     
     
     //--------------------------------------------------------------------------
@@ -179,11 +220,11 @@ public class Product {
         this.updatedDate = updatedDate;
     }
 
-    public Integer getCraftTypeID() {
+    public int getCraftTypeID() {
         return craftTypeID;
     }
 
-    public void setCraftTypeID(Integer craftTypeID) {
+    public void setCraftTypeID(int craftTypeID) {
         this.craftTypeID = craftTypeID;
     }
 
@@ -280,4 +321,14 @@ public class Product {
     public String toString() {
         return "Product{" + "pid=" + pid + ", name=" + name + ", price=" + price + ", description=" + description + ", stock=" + stock + ", status=" + status + ", villageID=" + villageID + ", categoryID=" + categoryID + ", mainImageUrl=" + mainImageUrl + ", clickCount=" + clickCount + ", lastClicked=" + lastClicked + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", craftTypeID=" + craftTypeID + ", sku=" + sku + ", weight=" + weight + ", dimensions=" + dimensions + ", materials=" + materials + ", careInstructions=" + careInstructions + ", warranty=" + warranty + ", isFeatured=" + isFeatured + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews + '}';
     }
+
+    public int getStockAdd() {
+        return stockAdd;
+    }
+
+    public void setStockAdd(int stockAdd) {
+        this.stockAdd = stockAdd;
+    }
+
+    
 }

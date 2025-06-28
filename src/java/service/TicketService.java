@@ -4,6 +4,7 @@
  */
 package service;
 
+import DAO.ProductDAO;
 import entity.Orders.TicketCode;
 import entity.Orders.TicketOrder;
 import entity.Ticket.Ticket;
@@ -15,6 +16,8 @@ import java.util.List;
  */
 public class TicketService implements ITicketService{
 
+    ProductDAO pDAO = new ProductDAO();
+    
     @Override
     public List<Ticket> getTicketsByVillage(int villageId) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -38,6 +41,11 @@ public class TicketService implements ITicketService{
     @Override
     public List<TicketCode> getTicketCodesByOrderDetail(int detailId) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<Ticket> getAllTicketActive() {
+    return pDAO.getAllTicketActive();
     }
     
 }

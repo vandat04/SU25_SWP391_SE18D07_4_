@@ -113,6 +113,8 @@
                                 <option value="7">Email</option>
                                 <option value="8">Full Name</option>
                                 <option value="9">Phone Number</option>
+                                <option value="10">UserID</option>
+                                <option value="11">New Account Register</option>
                             </select>   
                             <input type="text" id="contentSearch" name="contentSearch" placeholder="Search by Username or Email or Full"
                                    class="border border-gray-300 rounded px-3 py-2 text-sm w-64">
@@ -124,7 +126,7 @@
                                 class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
                             Add
                         </button>
-                        
+
                         <div class="relative inline-block">
                             <button onclick="toggleExportMenu()" 
                                     class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
@@ -199,13 +201,16 @@
                 <h2 class="text-xl font-semibold mb-4">User Profile</h2>
                 <form action="admin-account-management" method="post" onsubmit="return handleSubmitPassword();">
                     <!-- Hidden Fields -->
-                    <input type="hidden" id="userID" name="userID">
                     <input type="hidden" id="typeName" name="typeName" value="updateProfile">
                     <!-- Form Grid -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
+                            <label class="block text-sm font-medium mb-1">UserID</label>
+                            <input type="text" id="userID" name="userID" class="w-full border rounded p-2  bg-gray-100" readonly>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium mb-1">Username</label>
-                            <input type="text" id="userName" name="userName" class="w-full border rounded p-2" readonly>
+                            <input type="text" id="userName" name="userName" class="w-full border rounded p-2  bg-gray-100" readonly>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Password</label>
@@ -244,11 +249,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Create Date</label>
-                            <input type="text" id="createdDate" name="createdDate" class="w-full border rounded p-2" readonly>
+                            <input type="text" id="createdDate" name="createdDate" class="w-full border rounded p-2  bg-gray-100" readonly>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Update Date</label>
-                            <input type="text" id="updatedDate" name="updatedDate" class="w-full border rounded p-2" readonly>
+                            <input type="text" id="updatedDate" name="updatedDate" class="w-full border rounded p-2  bg-gray-100" readonly>
                         </div>
                     </div>
                     <!-- Action Buttons -->

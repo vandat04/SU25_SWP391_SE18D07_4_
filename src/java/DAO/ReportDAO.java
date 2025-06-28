@@ -154,44 +154,51 @@ public class ReportDAO {
 
     public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
         String query;
+        contentSearch = contentSearch.trim();
         switch (searchID) {
             case 1:
-                query = "SELECT * FROM Account WHERE roleID = 1 and status = ? and username LIKE ?";
+                query = "SELECT * FROM Account WHERE roleID = 1 and status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 2:
-                query = "SELECT * FROM Account WHERE roleID = 2 and status = ? and username LIKE ?";
+                query = "SELECT * FROM Account WHERE roleID = 2 and status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 3:
-                query = "SELECT * FROM Account WHERE roleID = 3 and status = ? and username LIKE ?";
+                query = "SELECT * FROM Account WHERE roleID = 3 and status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 4:
-                query = "SELECT * FROM Account WHERE status = ? ORDER BY userName ASC and username LIKE ?";
+                query = "SELECT * FROM Account WHERE status = ? and username COLLATE Latin1_General_CI_AI LIKE ? ORDER BY userName ASC ";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 5:
-                query = "SELECT * FROM Account WHERE status = ? ORDER BY userName DESC and username LIKE ?";
+                query = "SELECT * FROM Account WHERE status = ?  and username COLLATE Latin1_General_CI_AI LIKE ? ORDER BY userName DESC";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 6:
-                query = "SELECT * FROM Account WHERE status = ? and username LIKE ?";
+                query = "SELECT * FROM Account WHERE status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
                 break;
             case 7:
                 query = "SELECT * FROM Account WHERE status = ? and email = ?";
                 break;
             case 8:
-                query = "SELECT * FROM Account WHERE  status = ? and FullName LIKE ? ";
+                query = "SELECT * FROM Account WHERE  status = ? and FullName COLLATE Latin1_General_CI_AI LIKE ? ";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 9:
                 query = "SELECT * FROM Account WHERE  status = ? and phoneNumber LIKE ? ";
                 contentSearch = "%" + contentSearch + "%";
                 break;
+            case 10:
+                query = "SELECT * FROM Account WHERE  status = ? and userID = ? ";
+                break;
+            case 11:
+                query = "SELECT * FROM Account WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE())";
+                break;
             default:
-                query = "SELECT * FROM Account WHERE status = ? and username LIKE ?";
+                query = "SELECT * FROM Account WHERE status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
                 break;
         }
@@ -199,7 +206,10 @@ public class ReportDAO {
         List<Account> list = new ArrayList<>();
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, status);
-            ps.setString(2, contentSearch);
+            if (searchID == 11) {
+            } else {
+                ps.setString(2, contentSearch);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToAccount(rs));
@@ -375,14 +385,7 @@ public class ReportDAO {
 
 //---- Order Report
     public Map<Integer, Integer> getOrderStatusSummary() {
-        String query = "SELECT status, COUNT(*) AS total "
-                + "FROM ( "
-                + "   SELECT status FROM Orders "
-                + "   UNION ALL "
-                + "   SELECT status FROM TicketOrder "
-                + ") AS Combined "
-                + "GROUP BY status "
-                + "ORDER BY status";
+        String query = "SELECT status, COUNT(*) AS total FROM ( SELECT status FROM Orders   UNION ALL    SELECT status FROM TicketOrder ) AS Combined GROUP BY status ORDER BY status";
 
         Map<Integer, Integer> statusMap = new LinkedHashMap<>();
         Connection conn = null;
@@ -550,7 +553,7 @@ public class ReportDAO {
 
 //----Main test    
     public static void main(String[] args) {
-        System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
-       
+        //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
+        System.out.println(new ReportDAO().getSearchAccount(1, 11, ""));
     }
 }

@@ -25,13 +25,8 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public boolean updateProduct(Product product) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean deleteProduct(int productId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public boolean updateProduct(Product product){
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
@@ -129,8 +124,8 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public List<Product> getActivateProducts() {
-        return pDAO.getActiveProducts();
+    public List<Product> getAllProductActive() {
+        return pDAO.getAllProductActive();
     }
 
     @Override
@@ -141,5 +136,55 @@ public class ProductService implements IProductService{
     @Override
     public List<Product> getTop5NewestProducts() {
         return pDAO.getTop5NewestProducts();
+    }
+
+    @Override
+    public List<Product> getAllProductActiveByAdmin() {
+        return pDAO.getAllProductActiveByAdmin();
+    }
+    
+    @Override
+    public boolean addProductByAdmin(Product product) {
+        return true;
+    }
+    
+    @Override
+    public boolean updateProductByAdmin(Product product){
+        return pDAO.updateProductByAdmin(product);
+    }
+    
+    @Override
+    public boolean createProductByAdmin(Product product){
+        return pDAO.createProductByAdmin(product);
+    }
+    
+    @Override
+    public boolean deleteProductByAdmin(int productId) {
+        return pDAO.deleteProductByAdmin(productId);
+    }
+    
+    @Override
+    public List<Product> getSearchProductByAdmin(int status, int searchID, String contentSearch) {
+        return pDAO.getSearchProductByAdmin(status, searchID, contentSearch);
+    }
+
+    @Override
+    public List<Product> getProductByCategory(int categoryID) {
+        return pDAO.getProductByCategory(categoryID);
+    }
+
+    @Override
+    public List<Product> getProductOutOfStockByAdmin() {
+        return pDAO.getProductOutOfStockByAdmin();
+    }
+
+    @Override
+    public String getCategoryNameByCategoryID(int categoryID) {
+        return pDAO.getCategoryNameByCategoryID(categoryID);
+    }
+
+    @Override
+    public List<Product> getTopRatedByAdmin() {
+        return pDAO.getTopRatedByAdmin();
     }
 }

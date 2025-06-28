@@ -6,7 +6,6 @@ package entity.Ticket;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *
@@ -25,6 +24,15 @@ public class Ticket {
     public Ticket() {
     }
 
+    public Ticket(int ticketID, int villageID, int typeID, BigDecimal price, int status, Timestamp createdDate) {
+        this.ticketID = ticketID;
+        this.villageID = villageID;
+        this.typeID = typeID;
+        this.price = price;
+        this.status = status;
+        this.createdDate = createdDate;
+    }
+    
     //--------------------------------------------------------------------------
     public int getTicketID() {
         return ticketID;
