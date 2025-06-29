@@ -309,6 +309,15 @@ public class Product {
         this.pid = id;
     }
 
+    // Alias method for JSP compatibility
+    public int getCateID() {
+        return categoryID;
+    }
+
+    public void setCateID(int cateID) {
+        this.categoryID = cateID;
+    }
+
     public String getImg() {
         return mainImageUrl;
     }

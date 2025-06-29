@@ -29,17 +29,56 @@ public class AccountService implements IAccountService{
 
     @Override
     public boolean updateProfile(Account account) {
-        return aDAO.updateAccount(account);
+        // Try stored procedure first
+        boolean success = aDAO.updateAccount(account);
+        if (!success) {
+            // Fallback to simple update
+            success = aDAO.updateAccountSimple(account);
+        }
+        return success;
     }
 
     @Override
     public boolean changePassword(int userId, String oldPwd, String newPwd) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            // Business validation
+            if (oldPwd == null || oldPwd.trim().isEmpty()) {
+                return false;
+            }
+            
+            if (newPwd == null || newPwd.trim().isEmpty()) {
+                return false;
+            }
+            
+            if (newPwd.length() < 6) {
+                return false;
+            }
+            
+            // Business logic: verify old password before changing
+            Account account = aDAO.getAccountById(userId);
+            if (account == null) {
+                return false;
+            }
+            
+            // Verify current password
+            if (!aDAO.checkPassword(userId, oldPwd)) {
+                return false;
+            }
+            
+            // Service calls DAO for database operations
+            aDAO.updateAccountPassword(userId, newPwd);
+            
+            return true;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public Account getAccountById(int userId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return aDAO.getAccountById(userId);
     }
 
     @Override

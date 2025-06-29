@@ -32,7 +32,7 @@ public class DBContext {
     public static void main(String[] args) {
         try (Connection con = getConnection()) {
             if (con != null) {
-                System.out.println("Connect to JDBC success");
+    
             }            
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, "Failed to connect during main method test.", ex);

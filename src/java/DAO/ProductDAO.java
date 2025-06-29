@@ -8,7 +8,6 @@ import context.DBContext;
 import entity.Product.Product;
 import entity.Product.ProductCategory;
 import entity.Ticket.Ticket;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -281,6 +280,31 @@ public class ProductDAO {
         return list;
     }
 
+    public List<Product> searchByName(String name) {
+        List<Product> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT * FROM Product WHERE name LIKE ? AND status = 1";
+            ps = conn.prepareStatement(sql);
+            String searchPattern = "%" + name.trim() + "%";
+            ps.setString(1, searchPattern);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
     public List<Ticket> getAllTicketActive() {
         List<Ticket> list = new ArrayList<>();
         Connection conn = null;
@@ -460,6 +484,84 @@ public class ProductDAO {
         return list;
     }
 
+    /**
+     * Get products by name with price range and order filtering Advanced search
+     * with filtering and sorting capabilities
+     */
+    public List<Product> getProductsByNameAndPriceRangeAndOrder(String name, String priceRange, String orderBy) {
+        List<Product> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            StringBuilder sql = new StringBuilder("SELECT * FROM Product WHERE status = 1");
+
+            // Add name filter if provided
+            if (name != null && !name.trim().isEmpty()) {
+                sql.append(" AND (name LIKE ? OR description LIKE ?)");
+            }
+
+            // Add price range filter if provided
+            if (priceRange != null && !priceRange.equals("all")) {
+                switch (priceRange) {
+                    case "0-100000":
+                        sql.append(" AND price <= 100000");
+                        break;
+                    case "100000-500000":
+                        sql.append(" AND price > 100000 AND price <= 500000");
+                        break;
+                    case "500000-1000000":
+                        sql.append(" AND price > 500000 AND price <= 1000000");
+                        break;
+                    case "1000000+":
+                        sql.append(" AND price > 1000000");
+                        break;
+                }
+            }
+
+            // Add ordering
+            if (orderBy != null && !orderBy.equals("menu_order")) {
+                switch (orderBy) {
+                    case "date":
+                        sql.append(" ORDER BY createdDate DESC");
+                        break;
+                    case "price":
+                        sql.append(" ORDER BY price ASC");
+                        break;
+                    case "price-desc":
+                        sql.append(" ORDER BY price DESC");
+                        break;
+                    default:
+                        sql.append(" ORDER BY createdDate DESC");
+                        break;
+                }
+            } else {
+                sql.append(" ORDER BY createdDate DESC");
+            }
+
+            ps = conn.prepareStatement(sql.toString());
+
+            // Set parameters for name search if provided
+            if (name != null && !name.trim().isEmpty()) {
+                String searchParam = "%" + name.trim() + "%";
+                ps.setString(1, searchParam);
+                ps.setString(2, searchParam);
+            }
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
     public List<Product> getProductByCategory(int categoryID) {
         List<Product> list = new ArrayList<>();
         String query = "SELECT * FROM Product WHERE  categoryID = ? and status = 1";
@@ -472,6 +574,72 @@ public class ProductDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+
+    /**
+     * Get products by category with price range and order filtering
+     */
+    public List<Product> getProductsByCategoryAndPriceRangeAndOrder(String cateID, String priceRange, String orderBy) {
+        List<Product> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            StringBuilder sql = new StringBuilder("SELECT * FROM Product WHERE status = 1 AND categoryID = ?");
+
+            // Add price range filter if provided
+            if (priceRange != null && !priceRange.equals("all")) {
+                switch (priceRange) {
+                    case "0-100000":
+                        sql.append(" AND price <= 100000");
+                        break;
+                    case "100000-500000":
+                        sql.append(" AND price > 100000 AND price <= 500000");
+                        break;
+                    case "500000-1000000":
+                        sql.append(" AND price > 500000 AND price <= 1000000");
+                        break;
+                    case "1000000+":
+                        sql.append(" AND price > 1000000");
+                        break;
+                }
+            }
+
+            // Add ordering
+            if (orderBy != null && !orderBy.equals("menu_order")) {
+                switch (orderBy) {
+                    case "date":
+                        sql.append(" ORDER BY createdDate DESC");
+                        break;
+                    case "price":
+                        sql.append(" ORDER BY price ASC");
+                        break;
+                    case "price-desc":
+                        sql.append(" ORDER BY price DESC");
+                        break;
+                    default:
+                        sql.append(" ORDER BY createdDate DESC");
+                        break;
+                }
+            } else {
+                sql.append(" ORDER BY createdDate DESC");
+            }
+
+            ps = conn.prepareStatement(sql.toString());
+            ps.setString(1, cateID);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
         }
         return list;
     }
@@ -524,11 +692,39 @@ public class ProductDAO {
         return list;
     }
 
+    /**
+     * Get most clicked products
+     */
+    public List<Product> getMostClickedProducts(int limit) {
+        List<Product> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT TOP (?) * FROM Product WHERE status = 1 ORDER BY clickCount DESC, lastClicked DESC";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, limit);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         // System.out.println(new ProductDAO().createProductByAdmin(new Product("New3", BigDecimal.valueOf(1000000.00), "A", 1, 1, 1, 1, "A", 1, "A", BigDecimal.valueOf(10), "A", "A", "A", "A")));
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));
         // System.out.println(new ProductDAO().getProductOutOfStockByAdmin());
         //System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
         System.out.println(new ProductDAO().getTopRatedByAdmin().size());
+
     }
 }

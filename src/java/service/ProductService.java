@@ -49,7 +49,14 @@ public class ProductService implements IProductService{
 
     @Override
     public List<Product> searchProducts(String keyword) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return pDAO.searchByName(keyword);
+    }
+    
+    /**
+     * Search products by name - additional method for compatibility
+     */
+    public List<Product> searchByName(String name) {
+        return pDAO.searchByName(name);
     }
 
     @Override
@@ -128,6 +135,11 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    public List<Product> getActivateProducts() {
+        return pDAO.getAllProductActive();
+    }
+    
+    @Override
     public List<ProductCategory> getAllCategory() {
         return pDAO.getAllCategory();
     }
@@ -185,5 +197,81 @@ public class ProductService implements IProductService{
     @Override
     public List<Product> getTopRatedByAdmin() {
         return pDAO.getTopRatedByAdmin();
+    }
+    
+    /**
+     * Get products by name with price range and order filtering
+     * This method provides advanced filtering capabilities
+     */
+    public List<Product> getProductsByNameAndPriceRangeAndOrder(String name, String priceRange, String orderBy) {
+        try {
+            // For now, just return basic search results
+            // Advanced filtering can be implemented in DAO layer later
+            List<Product> products = searchByName(name);
+            
+            // Basic price filtering
+            if (priceRange != null && !priceRange.equals("all")) {
+                products = filterByPriceRange(products, priceRange);
+            }
+            
+            // Basic ordering
+            if (orderBy != null && !orderBy.equals("menu_order")) {
+                products = orderProducts(products, orderBy);
+            }
+            
+            return products;
+        } catch (Exception e) {
+            // Fallback to basic search if filtering fails
+            return searchByName(name);
+        }
+    }
+    
+    /**
+     * Filter products by price range
+     */
+    private List<Product> filterByPriceRange(List<Product> products, String priceRange) {
+        // Basic implementation - can be enhanced
+        return products.stream()
+            .filter(product -> {
+                double price = product.getPrice().doubleValue();
+                switch (priceRange) {
+                    case "0-100000":
+                        return price <= 100000;
+                    case "100000-500000":
+                        return price > 100000 && price <= 500000;
+                    case "500000-1000000":
+                        return price > 500000 && price <= 1000000;
+                    case "1000000+":
+                        return price > 1000000;
+                    default:
+                        return true;
+                }
+            })
+            .collect(java.util.stream.Collectors.toList());
+    }
+    
+    /**
+     * Order products by specified criteria
+     */
+    private List<Product> orderProducts(List<Product> products, String orderBy) {
+        // Basic implementation - can be enhanced
+        switch (orderBy) {
+            case "price_asc":
+                products.sort((p1, p2) -> Double.compare(p1.getPrice().doubleValue(), p2.getPrice().doubleValue()));
+                break;
+            case "price_desc":
+                products.sort((p1, p2) -> Double.compare(p2.getPrice().doubleValue(), p1.getPrice().doubleValue()));
+                break;
+            case "name_asc":
+                products.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
+                break;
+            case "name_desc":
+                products.sort((p1, p2) -> p2.getName().compareToIgnoreCase(p1.getName()));
+                break;
+            default:
+                // menu_order - keep original order
+                break;
+        }
+        return products;
     }
 }

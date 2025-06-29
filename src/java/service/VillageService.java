@@ -34,7 +34,7 @@ public class VillageService implements IVillageService{
 
     @Override
     public CraftVillage getVillageById(int villageId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return vDAO.getVillageById(villageId);
     }
 
     @Override
