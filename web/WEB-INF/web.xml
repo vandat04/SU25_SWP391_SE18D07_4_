@@ -61,6 +61,24 @@
         <welcome-file>home</welcome-file>
     </welcome-file-list>
 
+    <!-- Ticket Servlets -->
+    <servlet>
+        <servlet-name>TicketDetailControl</servlet-name>
+        <servlet-class>controller.ticket.TicketDetailControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TicketDetailControl</servlet-name>
+        <url-pattern>/ticket-detail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TicketListControl</servlet-name>
+        <servlet-class>controller.ticket.TicketListControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TicketListControl</servlet-name>
+        <url-pattern>/ticket-list</url-pattern>
+    </servlet-mapping>
 
 </web-app>
 

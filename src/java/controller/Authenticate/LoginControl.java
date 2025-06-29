@@ -64,7 +64,7 @@ public class LoginControl extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String code = request.getParameter("code"); // Lấy mã code từ Google
-        System.out.println("Received code from Google: " + code);
+        
 
         if (code == null || code.isEmpty()) {
             request.getRequestDispatcher("Login.jsp").forward(request, response);
@@ -75,7 +75,7 @@ public class LoginControl extends HttpServlet {
             // Bước 1: Lấy access token từ Google
             LoginGmail gg = new LoginGmail();
             String accessToken = gg.getToken(code);
-            System.out.println("Access token: " + accessToken);
+
 
             if (accessToken == null) {
                 throw new IOException("Failed to get access token");
@@ -83,21 +83,18 @@ public class LoginControl extends HttpServlet {
 
             // Bước 2: Lấy thông tin user từ Google
             GoogleAccount acc = gg.getUserInfo(accessToken);
-            System.out.println("Google account info: " + acc);
-            System.out.println("Google email: " + acc.getEmail());
+
 
             if (acc == null || acc.getEmail() == null) {
                 throw new IOException("Failed to get Google account info");
             }
 
             // Bước 3: Controller calls Service to check user in database
-            System.out.println("Checking database for email: " + acc.getEmail());
             Account a = accountService.loginByEmail(acc.getEmail());
-            System.out.println("Database account: " + a);
 
             // Kiểm tra nếu không tìm thấy tài khoản trong database
             if (a == null) {
-                System.out.println("No account found for email: " + acc.getEmail());
+
                 request.setAttribute("error", "Email not found. Please register or try again.");
                 request.getRequestDispatcher("Login.jsp").forward(request, response);
             } else {
@@ -116,14 +113,14 @@ public class LoginControl extends HttpServlet {
                     int wishlistCount = wService.getWishListCount(a.getUserID());
                     session.setAttribute("wishlistCount", wishlistCount);
                 } catch (Exception e) {
-                    System.out.println("Error getting wishlist count: " + e.getMessage());
+
                     session.setAttribute("wishlistCount", 0);
                 }
                 response.sendRedirect("home");
 
             }
         } catch (Exception e) {
-            System.out.println("Error during Google login: " + e.getMessage());
+
             e.printStackTrace();
             request.setAttribute("error", "Error during Google login: " + e.getMessage());
             request.getRequestDispatcher("Login.jsp").forward(request, response);
@@ -137,9 +134,7 @@ public class LoginControl extends HttpServlet {
         String u = request.getParameter("user");
         String p = request.getParameter("pass");
 
-        // Thêm log để debug
-        System.out.println("Username: " + u);
-        System.out.println("Password: " + p);
+
 
         // Controller calls Service for business logic
         Account a = accountService.login(u, p);
@@ -162,7 +157,7 @@ public class LoginControl extends HttpServlet {
                 int wishlistCount = wService.getWishListCount(a.getUserID());
                 session.setAttribute("wishlistCount", wishlistCount);
             } catch (Exception e) {
-                System.out.println("Error getting wishlist count: " + e.getMessage());
+
                 session.setAttribute("wishlistCount", 0);
             }
 

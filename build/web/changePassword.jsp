@@ -14,7 +14,7 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins:600&amp;display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Ubuntu&amp;display=swap" rel="stylesheet">
-        <link rel="shortcut icon" type="image/x-icon" href="hinh anh/Logo/cropped-Favicon-1-32x32.png" />
+        <link rel="shortcut icon" type="image/x-icon" href="hinhanh/Logo/cropped-Favicon-1-32x32.png" />
         <link rel="stylesheet" href="assets/css/bootstrap.min.css">
         <link rel="stylesheet" href="assets/css/animate.min.css">
         <link rel="stylesheet" href="assets/css/font-awesome.min.css">
@@ -122,7 +122,7 @@
                             <!-- Removed password requirements section -->
                             
                             <form action="${pageContext.request.contextPath}/changePassword" method="post" id="passwordForm">
-                                <input type="hidden" name="id" value="${sessionScope.acc.id}">
+                                <input type="hidden" name="id" value="${sessionScope.acc.userID}">
                                 
                                 <div class="form-group">
                                     <label for="currentPassword">Current Password</label>
@@ -140,7 +140,7 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <a href="userProfile" class="btn-back">Back to Profile</a>
+                                    <a href="userprofile" class="btn-back">Back to Profile</a>
                                     <button type="submit" class="btn-change">Update Password</button>
                                 </div>
                             </form>

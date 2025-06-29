@@ -542,6 +542,6 @@ public class ReportDAO {
 
 //----Main test    
     public static void main(String[] args) {
-        System.out.println(new ReportDAO().getAccountsByFilter(4));
+
     }
 }

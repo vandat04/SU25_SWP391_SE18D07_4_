@@ -82,6 +82,31 @@ public class ProductCategory {
         this.updatedDate = updatedDate;
     }
 
+    // Compatibility methods for JSP that might expect 'cid' and 'cname' fields
+    public int getCid() {
+        return this.categoryID;
+    }
+    
+    public void setCid(int cid) {
+        this.categoryID = cid;
+    }
+    
+    public String getCname() {
+        return this.categoryName;
+    }
+    
+    public void setCname(String cname) {
+        this.categoryName = cname;
+    }
+    
+    public String getName() {
+        return this.categoryName;
+    }
+    
+    public void setName(String name) {
+        this.categoryName = name;
+    }
+
     @Override
     public String toString() {
         return "ProductCategory{" + "categoryID=" + categoryID + ", categoryName=" + categoryName + ", description=" + description + ", status=" + status + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + '}';

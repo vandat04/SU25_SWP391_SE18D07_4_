@@ -29,7 +29,7 @@ public class SessionCounterListener implements HttpSessionListener {
             activeSessions.set(0);
             currentSessions = 0;
         }
-        System.out.println("Session manually invalidated. Total active sessions: " + currentSessions);
+
     }
 
     /**
@@ -40,7 +40,7 @@ public class SessionCounterListener implements HttpSessionListener {
     public void sessionCreated(HttpSessionEvent se) {
         // Tăng số phiên hoạt động
         int currentSessions = activeSessions.incrementAndGet();
-        System.out.println("Session created. Total active sessions: " + currentSessions);
+
         
         // Lưu số phiên hoạt động vào application scope (ServletContext)
         se.getSession().getServletContext().setAttribute("activeSessions", currentSessions);
@@ -56,7 +56,7 @@ public class SessionCounterListener implements HttpSessionListener {
         // Check if this is a controlled end (our invalidateSession servlet caused it)
         if (se.getSession().getAttribute("controlledSessionEnd") != null) {
             // We already decremented the counter, no need to do it again
-            System.out.println("Session destroyed (already counted)");
+
             return;
         }
         
@@ -66,7 +66,7 @@ public class SessionCounterListener implements HttpSessionListener {
             activeSessions.set(0); // Đặt lại về 0 nếu nhỏ hơn 0
             currentSessions = 0;
         }
-        System.out.println("Session destroyed. Total active sessions: " + currentSessions);
+
         
         // Cập nhật lại số phiên hoạt động trong application scope
         se.getSession().getServletContext().setAttribute("activeSessions", currentSessions);

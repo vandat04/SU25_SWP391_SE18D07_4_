@@ -334,7 +334,105 @@ public class AccountDAO {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(new AccountDAO().updateAccount(new Account(19, "dat25", "********", "dattruondg02112004@gmail.com", "Qnam", "0777076028", 1, 1, "TRƯƠNG VĂN ĐẠT")));
+    public Account getAccountById(int id) {
+        String query = "SELECT * FROM Account WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new Account(
+                    rs.getInt("userID"),
+                    rs.getString("userName"),
+                    "********",
+                    rs.getString("email"),
+                    rs.getString("address"),
+                    rs.getString("phoneNumber"),
+                    rs.getInt("roleID"),
+                    rs.getInt("status"),
+                    rs.getString("createdDate"),
+                    rs.getString("updatedDate"),
+                    rs.getString("fullName")
+                );
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting account by ID: " + id, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return null;
     }
+
+    public boolean checkPassword(int userId, String password) {
+        String query = "SELECT COUNT(*) FROM Account WHERE userID = ? AND password = dbo.HashPassword(?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error checking password for user ID: " + userId, e);
+        }
+        return false;
+    }
+
+    public void updateAccountPassword(int id, String newPassword) {
+        // Use SQL Server's HashPassword function to hash the new password
+        String query = "UPDATE Account SET password = dbo.HashPassword(?), updatedDate = GETDATE() WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, newPassword); // Hash using SQL Server function
+            ps.setInt(2, id);
+            ps.executeUpdate();
+            LOGGER.log(Level.INFO, "Successfully updated password for account ID: {0}", id);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating password for account ID: " + id, e);
+        } finally {
+            closeResources(conn, ps, null);
+        }
+    }
+
+    public boolean checkPhoneExists(String phone) {
+        return checkPhoneNumberExists(phone);
+    }
+
+    public boolean updateAccountSimple(Account account) {
+        // Don't update username - it's readonly
+        String query = "UPDATE Account SET email = ?, fullName = ?, phoneNumber = ?, address = ?, updatedDate = GETDATE() WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, account.getEmail());
+            ps.setString(2, account.getFullName());
+            ps.setString(3, account.getPhoneNumber());
+            ps.setString(4, account.getAddress());
+            ps.setInt(5, account.getUserID());
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            closeResources(conn, ps, null);
+        }
+    }
+
+
 }
