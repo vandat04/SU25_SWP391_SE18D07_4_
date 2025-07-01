@@ -5,6 +5,7 @@
         <data xmlns="http://www.netbeans.org/ns/web-project/3">
             <name>CraftVillage</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
+<<<<<<< HEAD
             <web-module-libraries>
                 <library dirs="200">
                     <file>${file.reference.angus-activation-2.0.1.jar-1}</file>
@@ -89,6 +90,15 @@
             </source-roots>
             <test-roots>
                 <root id="test.src.dir"/>
+=======
+            <web-module-libraries/>
+            <web-module-additional-libraries/>
+            <source-roots>
+                <root id="src.dir" name="Source Packages"/>
+            </source-roots>
+            <test-roots>
+                <root id="test.src.dir" name="Test Packages"/>
+>>>>>>> bdfa194431de3229506b1e891471e01002bc099d
             </test-roots>
         </data>
     </configuration>

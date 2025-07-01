@@ -68,6 +68,7 @@
     nbproject/build-impl.xml file. 
 
     -->
+<<<<<<< HEAD
     <target name="dist" depends="compile">
         <mkdir dir="dist" />
         <war destfile="dist/yourproject.war" webxml="WebContent/WEB-INF/web.xml">
@@ -76,4 +77,6 @@
             <classes dir="build/classes"/>
         </war>
     </target>
+=======
+>>>>>>> bdfa194431de3229506b1e891471e01002bc099d
 </project>
