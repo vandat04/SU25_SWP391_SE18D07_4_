@@ -384,8 +384,6 @@ CREATE TABLE [dbo].[Orders](
 )
 GO
 
-insert into Orders ()
-values
 
 --Table [OrderDetail]
 CREATE TABLE [dbo].[OrderDetail](
@@ -974,23 +972,16 @@ BEGIN
         SET @result = -1; -- Lỗi hệ thống
     END CATCH
 END
-
+go
 --PROCEDURE [RegisterAccount]
 CREATE PROCEDURE RegisterAccount
     @UserName NVARCHAR(100),
     @Password NVARCHAR(100),        -- dạng text, sẽ được hash trong procedure
     @Email NVARCHAR(100),
-<<<<<<< HEAD
     @Address NVARCHAR(200) = NULL,
     @PhoneNumber NVARCHAR(20) = NULL,
 	@fullName NVARCHAR(100),
-	@NewUserID INT OUTPUT 
-=======
-	@fullName NVARCHAR(100),
-    @Address NVARCHAR(200) = NULL,
-    @PhoneNumber NVARCHAR(20) = NULL,   
-    @NewUserID INT OUTPUT 
->>>>>>> dat
+	@NewUserID INT OUTPUT  
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1067,8 +1058,6 @@ BEGIN
     WHERE TRIM(email) = @email
     AND status = 1;
 END
-<<<<<<< HEAD
-=======
 GO
 
 CREATE PROCEDURE UpdateAccountFull
@@ -1112,7 +1101,7 @@ BEGIN
 	RETURN 1;
 END
 
-
+go
 CREATE PROCEDURE UpdateAccountWithoutPassword
     @userID INT,
     @Username NVARCHAR(50),
@@ -1146,7 +1135,7 @@ BEGIN
         UserName = @Username,
         Email = @Email,
         PhoneNumber = @PhoneNumber,
-        Address = @Address,
+        Address = @Address,1
         RoleID = @RoleID,
         Status = @Status,
         FullName = @FullName,
@@ -1201,5 +1190,4 @@ BEGIN
         SET @result = 0; -- thất bại do lỗi hệ thống
     END CATCH
 END
->>>>>>> dat
 GO

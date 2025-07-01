@@ -21,7 +21,7 @@
                         <li style="min-width: unset !important;">
                             <a href="logout" class="login-link" style="min-width: unset !important; display: inline-block;"><i></i>Logout</a>
                         </li>
-                        <li><a href="userprofile" class="login-link"><i class="biolife-icon icon-login"></i>Hello ${sessionScope.account.fullName}</a></li>
+                        <li><a href="userprofile" class="login-link"><i class="biolife-icon icon-login"></i>Hello, ${sessionScope.account.userName}</a></li>
                         </c:if>
                         <c:if test="${sessionScope.account == null}">
                         <li><a href="Login.jsp" class="login-link"><i class="biolife-icon icon-login"></i>Login/Register</a></li>

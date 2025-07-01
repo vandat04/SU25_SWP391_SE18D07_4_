@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
 import context.DBContext;
@@ -120,7 +116,7 @@ public class ProductDAO {
         }
     }
 
-    public Product getProductByID(String id) {
+    public Product getProductByID(int id) { 
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -129,7 +125,7 @@ public class ProductDAO {
             conn = new DBContext().getConnection();
             String sql = "SELECT * FROM Product WHERE pid = ?";
             ps = conn.prepareStatement(sql);
-            ps.setString(1, id);
+            ps.setInt(1, id); // Sửa từ setString thành setInt
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -424,6 +420,57 @@ public class ProductDAO {
         }
         return false;
     }
+    public boolean createProduct(Product product) {
+    Connection conn = null;
+    PreparedStatement ps = null;
+    // Câu lệnh SQL khớp với các trường trong form và lớp Product của bạn
+    String sql = "INSERT INTO [dbo].[Product] ([name], [price], [description], [stock], [status], [villageID], [categoryID], [mainImageUrl], [craftTypeID], [sku], [weight], [dimensions], [materials], [careInstructions], [warranty], [isFeatured], [createdDate], [updatedDate]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), NULL)";
+
+    try {
+        conn = new DBContext().getConnection();
+        ps = conn.prepareStatement(sql);
+
+        ps.setString(1, product.getName());
+        ps.setBigDecimal(2, product.getPrice());
+        ps.setString(3, product.getDescription());
+        ps.setInt(4, product.getStock());
+        ps.setInt(5, product.getStatus());
+        ps.setInt(6, product.getVillageID());
+        ps.setInt(7, product.getCategoryID());
+        ps.setString(8, product.getMainImageUrl());
+
+        // Xử lý craftTypeID, vì nó là INT trong DB nhưng có thể không được cung cấp
+        if (product.getCraftTypeID() != 0) {
+            ps.setInt(9, product.getCraftTypeID());
+        } else {
+            ps.setNull(9, java.sql.Types.INTEGER);
+        }
+
+        ps.setString(10, product.getSku());
+
+        // Xử lý weight, vì nó có thể null
+        if (product.getWeight() != null) {
+            ps.setBigDecimal(11, product.getWeight());
+        } else {
+            ps.setNull(11, java.sql.Types.DECIMAL);
+        }
+
+        ps.setString(12, product.getDimensions());
+        ps.setString(13, product.getMaterials());
+        ps.setString(14, product.getCareInstructions());
+        ps.setString(15, product.getWarranty());
+        ps.setBoolean(16, product.isIsFeatured()); // Sử dụng isIsFeatured() từ lớp Product của bạn
+
+        int result = ps.executeUpdate();
+        return result > 0; // Nếu có hàng nào được chèn, trả về true
+
+    } catch (Exception e) {
+        e.printStackTrace(); // Ghi lại lỗi để debug
+        return false;
+    } finally {
+        closeResources(conn, ps, null);
+    }
+}
 
     public List<Product> getSearchProductByAdmin(int status, int searchID, String contentSearch) {
         String query;
@@ -718,7 +765,107 @@ public class ProductDAO {
         }
         return list;
     }
+    
+        public List<Product> getProductsBySellerID(int sellerId) {
+        List<Product> list = new ArrayList<>();
+        // Câu lệnh SQL lấy sản phẩm dựa trên sellerId từ bảng CraftVillage
+        String sql = "SELECT p.* FROM [dbo].[Product] p " +
+                     "INNER JOIN [dbo].[CraftVillage] cv ON p.villageID = cv.villageID " +
+                     "WHERE cv.sellerId = ?";
 
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, sellerId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                // Sử dụng lại hàm mapResultSetToProduct1 để lấy đầy đủ thông tin sản phẩm
+                list.add(mapResultSetToProduct1(rs)); 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+               
+          //Cập nhật thông tin sản phẩm bởi Seller.
+    
+       /**
+     * Cập nhật thông tin sản phẩm bởi Seller.
+     * Đã sửa lại để dùng 'IN' thay vì '=', cho phép nghệ nhân quản lý nhiều làng nghề.
+     */
+    public boolean updateProductBySeller(Product product, int sellerId) {
+        String sql = "UPDATE [dbo].[Product] SET " +
+                     "[name] = ?, [price] = ?, [description] = ?, [stock] = ?, [status] = ?, " +
+                     "[categoryID] = ?, [mainImageUrl] = ?, [sku] = ?, [weight] = ?, " +
+                     "[dimensions] = ?, [materials] = ?, [careInstructions] = ?, " +
+                     "[warranty] = ?, [isFeatured] = ?, [updatedDate] = GETDATE(), [craftTypeID] = ? " +
+                     "WHERE [pid] = ? AND [villageID] IN (SELECT villageID FROM CraftVillage WHERE sellerId = ?)";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, product.getName());
+            ps.setBigDecimal(2, product.getPrice());
+            ps.setString(3, product.getDescription());
+            ps.setInt(4, product.getStock());
+            ps.setInt(5, product.getStatus());
+            ps.setInt(6, product.getCategoryID());
+            ps.setString(7, product.getMainImageUrl());
+            ps.setString(8, product.getSku());
+            ps.setBigDecimal(9, product.getWeight());
+            ps.setString(10, product.getDimensions());
+            ps.setString(11, product.getMaterials());
+            ps.setString(12, product.getCareInstructions());
+            ps.setString(13, product.getWarranty());
+            ps.setBoolean(14, product.isIsFeatured());
+            
+            if (product.getCraftTypeID() != null) {
+                ps.setInt(15, product.getCraftTypeID());
+            } else {
+                ps.setNull(15, Types.INTEGER);
+            }
+
+            // Tham số cho mệnh đề WHERE
+            ps.setInt(16, product.getPid());
+            ps.setInt(17, sellerId);
+
+            int result = ps.executeUpdate();
+            return result > 0; // Trả về true nếu có ít nhất 1 dòng được cập nhật
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Xóa (ẩn) sản phẩm bởi Seller.
+     * Đã sửa lại để dùng 'IN' thay vì '=', cho phép nghệ nhân quản lý nhiều làng nghề.
+     */
+    public boolean deleteProductBySeller(int productId, int sellerId) {
+        String sql = "UPDATE [dbo].[Product] SET [status] = 2 " + // status = 2 là ẩn
+                     "WHERE [pid] = ? AND [villageID] IN (SELECT villageID FROM CraftVillage WHERE sellerId = ?)";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, productId);
+            ps.setInt(2, sellerId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public static void main(String[] args) {
         // System.out.println(new ProductDAO().createProductByAdmin(new Product("New3", BigDecimal.valueOf(1000000.00), "A", 1, 1, 1, 1, "A", 1, "A", BigDecimal.valueOf(10), "A", "A", "A", "A")));
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));

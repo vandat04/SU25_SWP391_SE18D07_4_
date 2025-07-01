@@ -31,12 +31,11 @@ public class ProductService implements IProductService{
 
     @Override
     public Product getProductById(int productId) {
-        return pDAO.getProductByID(String.valueOf(productId));
+        // Gọi đến phương thức DAO đã được sửa để nhận vào kiểu int
+        return pDAO.getProductByID(productId);
     }
 
-    public Product getProductByID(String id) {
-        return pDAO.getProductByID(id);
-    }
+    
 
     @Override
     public List<Product> getAllProducts() {
@@ -273,5 +272,9 @@ public class ProductService implements IProductService{
                 break;
         }
         return products;
+    }
+
+    public Product getProductByID(String id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

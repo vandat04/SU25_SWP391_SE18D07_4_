@@ -15,7 +15,7 @@ public class DBContext {
     public static String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     public static String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=CraftDB;encrypt=false;trustServerCertificate=true;loginTimeout=5;socketTimeout=10000;";
     public static String userDB = "sa";
-    public static String passDB = "1234";
+    public static String passDB = "123";
     
     public static Connection getConnection() throws SQLException {
         Connection con = null;
