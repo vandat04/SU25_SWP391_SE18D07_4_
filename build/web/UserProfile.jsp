@@ -111,7 +111,6 @@
 
         <!-- HEADER -->
         <jsp:include page="Menu.jsp"></jsp:include>
-
         <!-- Page Contain -->
         <div class="page-contain">
             <div id="main-content" class="main-content">
@@ -176,6 +175,11 @@
                                 <h4>Password Management</h4>
                                 <p>To change your password, please click the button below:</p>
                                 <a href="${pageContext.request.contextPath}/changePassword" class="btn-change-password">Change Password</a>
+                            </div>
+                            <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+                                <h4>Upgrade Account</h4>
+                                <p>Upgrade to become part of us, connecting the best to everyone.</p>
+                                <a href="${pageContext.request.contextPath}/upgrade-account" class="btn-change-password">Upgrade Account</a>
                             </div>
                         </c:if>
                         

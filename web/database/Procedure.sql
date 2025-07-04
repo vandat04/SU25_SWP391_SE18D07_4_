@@ -147,3 +147,110 @@ BEGIN
     END
 END
 GO
+-- Them SellerVerification
+CREATE PROCEDURE sp_InsertSellerVerification_Individual
+    @sellerID INT,
+    @businessType NVARCHAR(100),
+    @businessVillageCategry NVARCHAR(200),
+    @businessVillageName NVARCHAR(200),
+    @businessVillageAddress NVARCHAR(500),
+    @productProductCategory NVARCHAR(200),
+    @profileVillagePictureUrl VARCHAR(MAX),
+    @contactPerson NVARCHAR(200),
+    @contactPhone NVARCHAR(20),
+    @contactEmail NVARCHAR(200),
+    @idCardNumber NVARCHAR(50),
+    @idCardFrontUrl VARCHAR(MAX),
+    @idCardBackUrl VARCHAR(MAX),
+    @note NVARCHAR(MAX)
+AS
+BEGIN
+    INSERT INTO SellerVerification
+    (
+        sellerID,
+        businessType,
+        businessVillageCategry,
+        businessVillageName,
+        businessVillageAddress,
+        productProductCategory,
+        profileVillagePictureUrl,
+        contactPerson,
+        contactPhone,
+        contactEmail,
+        idCardNumber,
+        idCardFrontUrl,
+        idCardBackUrl,
+        note
+    )
+    VALUES
+    (
+        @sellerID,
+        @businessType,
+        @businessVillageCategry,
+        @businessVillageName,
+        @businessVillageAddress,
+        @productProductCategory,
+        @profileVillagePictureUrl,
+        @contactPerson,
+        @contactPhone,
+        @contactEmail,
+        @idCardNumber,
+        @idCardFrontUrl,
+        @idCardBackUrl,
+        @note
+    )
+END
+GO
+CREATE PROCEDURE sp_InsertSellerVerification_CraftVillage
+    @sellerID INT,
+    @businessType NVARCHAR(100),
+    @businessVillageCategry NVARCHAR(200),
+    @businessVillageName NVARCHAR(200),
+    @businessVillageAddress NVARCHAR(500),
+    @productProductCategory NVARCHAR(200),
+    @profileVillagePictureUrl VARCHAR(MAX),
+    @contactPerson NVARCHAR(200),
+    @contactPhone NVARCHAR(20),
+    @contactEmail NVARCHAR(200),
+    @businessLicense NVARCHAR(100),
+    @taxCode NVARCHAR(50),
+    @documentUrl VARCHAR(MAX),
+    @note NVARCHAR(MAX)
+AS
+BEGIN
+    INSERT INTO SellerVerification
+    (
+        sellerID,
+        businessType,
+        businessVillageCategry,
+        businessVillageName,
+        businessVillageAddress,
+        productProductCategory,
+        profileVillagePictureUrl,
+        contactPerson,
+        contactPhone,
+        contactEmail,
+        businessLicense,
+        taxCode,
+        documentUrl,
+        note
+    )
+    VALUES
+    (
+        @sellerID,
+        @businessType,
+        @businessVillageCategry,
+        @businessVillageName,
+        @businessVillageAddress,
+        @productProductCategory,
+        @profileVillagePictureUrl,
+        @contactPerson,
+        @contactPhone,
+        @contactEmail,
+        @businessLicense,
+        @taxCode,
+        @documentUrl,
+        @note
+    )
+END
+GO

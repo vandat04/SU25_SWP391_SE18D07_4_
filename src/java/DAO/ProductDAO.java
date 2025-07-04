@@ -724,7 +724,7 @@ public class ProductDAO {
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));
         // System.out.println(new ProductDAO().getProductOutOfStockByAdmin());
         //System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
-        System.out.println(new ProductDAO().getTopRatedByAdmin().size());
+        System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
 
     }
 }

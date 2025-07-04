@@ -6,6 +6,7 @@ package DAO;
 
 import context.DBContext;
 import entity.Account.Account;
+import entity.Account.SellerVerification;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.CallableStatement;
@@ -16,7 +17,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Types;
-
 
 /**
  *
@@ -348,17 +348,17 @@ public class AccountDAO {
 
             if (rs.next()) {
                 return new Account(
-                    rs.getInt("userID"),
-                    rs.getString("userName"),
-                    "********",
-                    rs.getString("email"),
-                    rs.getString("address"),
-                    rs.getString("phoneNumber"),
-                    rs.getInt("roleID"),
-                    rs.getInt("status"),
-                    rs.getString("createdDate"),
-                    rs.getString("updatedDate"),
-                    rs.getString("fullName")
+                        rs.getInt("userID"),
+                        rs.getString("userName"),
+                        "********",
+                        rs.getString("email"),
+                        rs.getString("address"),
+                        rs.getString("phoneNumber"),
+                        rs.getInt("roleID"),
+                        rs.getInt("status"),
+                        rs.getString("createdDate"),
+                        rs.getString("updatedDate"),
+                        rs.getString("fullName")
                 );
             }
         } catch (Exception e) {
@@ -371,8 +371,7 @@ public class AccountDAO {
 
     public boolean checkPassword(int userId, String password) {
         String query = "SELECT COUNT(*) FROM Account WHERE userID = ? AND password = dbo.HashPassword(?)";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, userId);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
@@ -414,7 +413,7 @@ public class AccountDAO {
         String query = "UPDATE Account SET email = ?, fullName = ?, phoneNumber = ?, address = ?, updatedDate = GETDATE() WHERE userID = ?";
         Connection conn = null;
         PreparedStatement ps = null;
-        
+
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -423,7 +422,7 @@ public class AccountDAO {
             ps.setString(3, account.getPhoneNumber());
             ps.setString(4, account.getAddress());
             ps.setInt(5, account.getUserID());
-            
+
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (Exception e) {
@@ -434,5 +433,101 @@ public class AccountDAO {
         }
     }
 
+    public boolean requestUpgradeForIndividual(SellerVerification sellerForm) {
+        String query = "{? = call sp_InsertSellerVerification_Individual(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
 
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+            // Register the RETURN parameter
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            // Set input parameters
+            cs.setInt(2, sellerForm.getSellerID());
+            cs.setString(3, sellerForm.getBusinessType());
+            cs.setString(4, sellerForm.getBusinessVillageCategry());
+            cs.setString(5, sellerForm.getBusinessVillageName());
+            cs.setString(6, sellerForm.getBusinessVillageAddress());
+            cs.setString(7, sellerForm.getProductProductCategory());
+            cs.setString(8, sellerForm.getProfileVillagePictureUrl());
+            cs.setString(9, sellerForm.getContactPerson());
+            cs.setString(10, sellerForm.getContactPhone());
+            cs.setString(11, sellerForm.getContactEmail());
+            cs.setString(12, sellerForm.getIdCardNumber());
+            cs.setString(13, sellerForm.getIdCardFrontUrl());
+            cs.setString(14, sellerForm.getIdCardBackUrl());
+            cs.setString(15, sellerForm.getNote());
+            // Execute the procedure
+            cs.execute();
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_InsertSellerVerification_Individual result code: {0}", result);
+            return result == 1;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public boolean requestUpgradeForCraftVillage(SellerVerification sellerForm) {
+        String query = "{? = call sp_InsertSellerVerification_CraftVillage(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+
+            // Register the RETURN parameter
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
+            // Set input parameters
+            cs.setInt(2, sellerForm.getSellerID());
+            cs.setString(3, sellerForm.getBusinessType());
+            cs.setString(4, sellerForm.getBusinessVillageCategry());
+            cs.setString(5, sellerForm.getBusinessVillageName());
+            cs.setString(6, sellerForm.getBusinessVillageAddress());
+            cs.setString(7, sellerForm.getProductProductCategory());
+            cs.setString(8, sellerForm.getProfileVillagePictureUrl());
+            cs.setString(9, sellerForm.getContactPerson());
+            cs.setString(10, sellerForm.getContactPhone());
+            cs.setString(11, sellerForm.getContactEmail());
+            cs.setString(12, sellerForm.getBusinessLicense());
+            cs.setString(13, sellerForm.getTaxCode());
+            cs.setString(14, sellerForm.getDocumentUrl());
+            cs.setString(15, sellerForm.getNote());
+
+            cs.execute();
+
+            int result = cs.getInt(1);
+
+            LOGGER.log(Level.INFO, "sp_InsertSellerVerification_CraftVillage result code: {0}", result);
+
+            return result == 1;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+
+        return false;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new AccountDAO().requestUpgradeForCraftVillage(new SellerVerification(1,"A","A","A","A","A","A","A","A","A","A","A","A","a")));
+    }
+//    public boolean requestUpgradeForCraftVillage(SellerVerification sellerForm) {
+//        
+//    }
+//
+//    public List<SellerVerification> getAllRequest(){
+//        
+//    }
+//    
+//     public List<SellerVerification> getAllRequestNotApproved(){
+//        
+//    }
 }

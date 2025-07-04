@@ -191,7 +191,7 @@
 
                                     <div class="form-row">
                                         <a href="#" class="link-to-help" data-toggle="modal" data-target="#forgotPasswordModal">
-                                            Quên mật khẩu?
+                                            Forgot password?
                                         </a>
                                     </div>
 
@@ -343,7 +343,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Quên Mật Khẩu</h5>
+                        <h5 class="modal-title">Forgot Password</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -352,29 +352,29 @@
                         <!-- Bước 1: Nhập email -->
                         <div id="step1">
                             <div class="form-group">
-                                <label>Email hoặc tên đăng nhập</label>
+                                <label>Email or Email</label>
                                 <input type="text" class="form-control" id="emailInput">
                             </div>
-                            <button class="btn btn-primary" onclick="sendOTP()">Gửi mã OTP</button>
+                            <button class="btn btn-primary" onclick="sendOTP()">Send OTP</button>
                         </div>
 
                         <!-- Bước 2: Nhập OTP -->
                         <div id="step2" style="display:none">
                             <div class="form-group">
-                                <label>Nhập mã OTP</label>
+                                <label>Enter OTP</label>
                                 <input type="text" class="form-control" id="otpInput">
-                                <small class="text-muted">Mã OTP có hiệu lực trong 1 phút</small>
+                                <small class="text-muted">OTP code is valid for 1 minute</small>
                             </div>
-                            <button class="btn btn-primary" onclick="verifyOTP()">Xác nhận</button>
+                            <button class="btn btn-primary" onclick="verifyOTP()">Confirm</button>
                         </div>
 
                         <!-- Bước 3: Đặt mật khẩu mới -->
                         <div id="step3" style="display:none">
                             <div class="form-group">
-                                <label>Mật khẩu mới</label>
+                                <label>New password</label>
                                 <input type="password" class="form-control" id="newPassword">
                             </div>
-                            <button class="btn btn-primary" onclick="resetPassword()">Đổi mật khẩu</button>
+                            <button class="btn btn-primary" onclick="resetPassword()">Change password</button>
                         </div>
                     </div>
                 </div>

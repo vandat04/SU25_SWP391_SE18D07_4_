@@ -22,7 +22,7 @@ import java.util.ArrayList;
  */
 
 public class TicketService implements ITicketService {
-    private ProductDAO pDAO;
+    private ProductDAO pDAO = new ProductDAO();
     private VillageTicketDAO villageTicketDAO;
     private TicketAvailabilityDAO availabilityDAO;
     private CartTicketDAO cartTicketDAO;
@@ -37,7 +37,7 @@ public class TicketService implements ITicketService {
     public List<Ticket> getAllTicketActive() {
     return pDAO.getAllTicketActive();
     }
-    
+
     // ======================= VILLAGE TICKET OPERATIONS =======================
     
     @Override
