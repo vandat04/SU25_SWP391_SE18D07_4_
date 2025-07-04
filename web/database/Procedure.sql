@@ -147,6 +147,7 @@ BEGIN
     END
 END
 GO
+
 -- Them SellerVerification
 CREATE PROCEDURE sp_InsertSellerVerification_Individual
     @sellerID INT,
@@ -165,6 +166,17 @@ CREATE PROCEDURE sp_InsertSellerVerification_Individual
     @note NVARCHAR(MAX)
 AS
 BEGIN
+    -- Check for duplicate
+    IF EXISTS (
+        SELECT 1
+        FROM SellerVerification
+        WHERE businessVillageName = @businessVillageName
+    )
+    BEGIN
+        RETURN 0; -- Duplicate found
+    END
+
+    -- Insert if no duplicate
     INSERT INTO SellerVerification
     (
         sellerID,
@@ -199,6 +211,8 @@ BEGIN
         @idCardBackUrl,
         @note
     )
+
+    RETURN 1; -- Success
 END
 GO
 CREATE PROCEDURE sp_InsertSellerVerification_CraftVillage
@@ -218,6 +232,17 @@ CREATE PROCEDURE sp_InsertSellerVerification_CraftVillage
     @note NVARCHAR(MAX)
 AS
 BEGIN
+    -- Check for duplicate
+    IF EXISTS (
+        SELECT 1
+        FROM SellerVerification
+        WHERE businessVillageName = @businessVillageName
+    )
+    BEGIN
+        RETURN 0; -- Duplicate found
+    END
+
+    -- Insert if no duplicate
     INSERT INTO SellerVerification
     (
         sellerID,
@@ -252,5 +277,8 @@ BEGIN
         @documentUrl,
         @note
     )
+
+    RETURN 1; -- Success
 END
 GO
+
