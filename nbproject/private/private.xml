@@ -3,43 +3,31 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/listener/SessionCounterListener.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Home.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/SellerVerification.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ProductDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Authenticate/ListRequest.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Account/SellerVerification.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Account/Account.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ISellerVerification.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Admin/AdminControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/AccountService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Authenticate/RequestUpgradeAccount.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/context/DBContext.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/CraftVillageDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/changePassword.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Product/Category.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Menu.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Detail.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/AccountDAO.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Admin/AdminAccountManagement.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/UserProfile.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Login.jsp</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Authenticate/LoginGmail.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/EmailService.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/UpgradeAccount.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ProductOrderDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/listener/ProductViewListener.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/account/UpgradeAccount.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Admin/AdminProductManagement.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/TicketDetail.jsp</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ReportDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/ProductCategoryFilter.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/database/CraftDB.sql</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Admin/AdminProcessingRequest.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/account/ChangePasswordServlet.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/CraftVillage/CraftType.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/MessageService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/constant/Iconstant.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/TicketOrderDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/TicketService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/listener/SessionListener.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/ExportPDF/ExportAccountPDFServlet.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ITicketService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ProductService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin-request-process.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/account/UpdateProfileController.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin-account-management.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IProductService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/CraftVillageCategoryFilter.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin-product-management.jsp</file>
         </group>
     </open-files>
 </project-private>

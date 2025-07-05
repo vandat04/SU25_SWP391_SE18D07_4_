@@ -4,7 +4,7 @@
  */
 package entity.Account;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 /**
  *

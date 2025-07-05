@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.account;
+package controller.Authenticate;
 
+import entity.Account.SellerVerification;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -11,16 +12,17 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.logging.Logger;
+import java.util.List;
+import service.SellerVerificationService;
 
 /**
  *
  * @author ACER
  */
-@WebServlet(name = "UpgradeAccount", urlPatterns = {"/upgrade-account"})
-public class UpgradeAccount extends HttpServlet {
+@WebServlet(name = "ListRequest", urlPatterns = {"/list-request"})
+public class ListRequest extends HttpServlet {
 
-    private static final Logger LOGGER = Logger.getLogger(ChangePasswordServlet.class.getName());
+    SellerVerificationService sService = new SellerVerificationService();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,19 +35,11 @@ public class UpgradeAccount extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet UpgradeAccount</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet UpgradeAccount at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        int userID = Integer.parseInt(request.getParameter("userID"));
+        int typeForm = Integer.parseInt(request.getParameter("typeForm"));
+        List<SellerVerification> requestList = sService.getSellerVertificationForm(typeForm, userID);
+        request.setAttribute("requestList", requestList);
+        request.getRequestDispatcher("ListRequest.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -60,9 +54,7 @@ public class UpgradeAccount extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-      
-        request.getRequestDispatcher("UpgradeAccount.jsp").forward(request, response);
-
+        processRequest(request, response);
     }
 
     /**

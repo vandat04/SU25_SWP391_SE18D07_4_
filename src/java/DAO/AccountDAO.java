@@ -516,18 +516,84 @@ public class AccountDAO {
         return false;
     }
 
-    public static void main(String[] args) {
-        System.out.println(new AccountDAO().requestUpgradeForCraftVillage(new SellerVerification(1,"A","A","A","A","A","A","A","A","A","A","A","A","a")));
+    private SellerVerification mapResultSetToSellerVerification(ResultSet rs) throws SQLException {
+        return new SellerVerification(
+                rs.getInt("verificationID"),
+                rs.getInt("sellerID"),
+                rs.getString("businessType"),
+                rs.getString("businessVillageCategry"),
+                rs.getString("businessVillageName"),
+                rs.getString("businessVillageAddress"),
+                rs.getString("productProductCategory"),
+                rs.getString("profileVillagePictureUrl"),
+                rs.getString("contactPerson"),
+                rs.getString("contactPhone"),
+                rs.getString("contactEmail"),
+                rs.getString("idCardNumber"),
+                rs.getString("idCardFrontUrl"),
+                rs.getString("idCardBackUrl"),
+                rs.getString("businessLicense"),
+                rs.getString("taxCode"),
+                rs.getString("documentUrl"),
+                rs.getString("note"),
+                rs.getInt("verificationStatus"),
+                rs.getInt("verifiedBy"),
+                rs.getTimestamp("verifiedDate"),
+                rs.getString("rejectReason"),
+                rs.getTimestamp("createdDate")
+        );
     }
-//    public boolean requestUpgradeForCraftVillage(SellerVerification sellerForm) {
-//        
-//    }
-//
-//    public List<SellerVerification> getAllRequest(){
-//        
-//    }
-//    
-//     public List<SellerVerification> getAllRequestNotApproved(){
-//        
-//    }
+
+    public List<SellerVerification> getSellerVertificationFormByAdmin(int verificationStatus) {
+        String query;
+        List<SellerVerification> list = new ArrayList<>();
+        if (verificationStatus == 3) {
+            query = "SELECT * FROM SellerVerification";
+        } else {
+            query = "SELECT * FROM SellerVerification WHERE  verificationStatus = ? ";
+        }
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            if (verificationStatus != 3) {
+                ps.setInt(1, verificationStatus);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSellerVerification(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+    
+    public List<SellerVerification> getSellerVertificationForm(int verificationStatus, int sellerID) {
+        String query;
+        List<SellerVerification> list = new ArrayList<>();
+        if (verificationStatus == 3) {
+            query = "SELECT * FROM SellerVerification where sellerID = ?";
+        } else {
+            query = "SELECT * FROM SellerVerification WHERE  sellerID = ? and verificationStatus = ? ";
+        }
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, sellerID);
+            if (verificationStatus != 3) {
+                ps.setInt(2, verificationStatus);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSellerVerification(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new AccountDAO().getSellerVertificationForm(0,1));
+    }
+
 }

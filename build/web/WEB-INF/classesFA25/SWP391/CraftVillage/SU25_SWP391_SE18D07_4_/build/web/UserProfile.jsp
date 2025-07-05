@@ -114,6 +114,15 @@
         <!-- Page Contain -->
         <div class="page-contain">
             <div id="main-content" class="main-content">
+                <!--Navigation section-->
+                <div class="container">
+                    <nav class="biolife-nav">
+                        <ul>
+                            <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
+                            <li class="nav-item"><span class="current-page">Profile</span></li>
+                        </ul>
+                    </nav>
+                </div>
                 <div class="container">
                     <div class="profile-container">
                         <div class="profile-header">
@@ -179,8 +188,8 @@
                             <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
                                 <h4>Upgrade Account</h4>
                                 <p>Upgrade to become part of us, connecting the best to everyone.</p>
-                                <a href="${pageContext.request.contextPath}/upgrade-account" class="btn-change-password">Upgrade Account</a>
-                            </div>
+                                <a href="${pageContext.request.contextPath}/request-upgrade" class="btn-change-password">Upgrade Account</a>
+                               <a href="${pageContext.request.contextPath}/list-request?typeForm=3&userID=${sessionScope.acc.userID}" class="btn-change-password">Request List</a>                            </div>
                         </c:if>
                         
                         <c:if test="${sessionScope.acc == null}">

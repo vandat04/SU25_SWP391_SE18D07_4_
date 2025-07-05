@@ -12,10 +12,8 @@ import java.util.List;
  * @author ACER
  */
 public interface ISellerVerification {
-    List<SellerVerification> AllRequest();
-    List<SellerVerification> AllRequestReject();
-    List<SellerVerification> AllRequestProcessing();
-    List<SellerVerification> AllRequestUpgraded();
     boolean requestUpgradeForIndividual(SellerVerification sellerForm);
     boolean requestUpgradeForCraftVillage(SellerVerification sellerForm);
+    List<SellerVerification> getSellerVertificationFormByAdmin(int verificationStatus);
+    List<SellerVerification> getSellerVertificationForm(int verificationStatus, int sellerID);
 }

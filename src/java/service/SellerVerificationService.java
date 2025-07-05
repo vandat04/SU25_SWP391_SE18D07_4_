@@ -8,7 +8,6 @@ import DAO.AccountDAO;
 import entity.Account.SellerVerification;
 import java.util.List;
 
-
 /**
  *
  * @author ACER
@@ -16,27 +15,6 @@ import java.util.List;
 public class SellerVerificationService implements ISellerVerification {
 
     AccountDAO aDAO = new AccountDAO();
-
-    @Override
-    public List<SellerVerification> AllRequest() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public List<SellerVerification> AllRequestReject() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public List<SellerVerification> AllRequestProcessing() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public List<SellerVerification> AllRequestUpgraded() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
     @Override
     public boolean requestUpgradeForIndividual(SellerVerification sellerForm) {
         return aDAO.requestUpgradeForIndividual(sellerForm);
@@ -47,6 +25,14 @@ public class SellerVerificationService implements ISellerVerification {
         return aDAO.requestUpgradeForCraftVillage(sellerForm);
     }
 
-    
-   
+    @Override
+    public List<SellerVerification> getSellerVertificationFormByAdmin(int verificationStatus) {
+        return aDAO.getSellerVertificationFormByAdmin(verificationStatus);
+    }
+
+    @Override
+    public List<SellerVerification> getSellerVertificationForm(int verificationStatus, int sellerID) {
+        return aDAO.getSellerVertificationForm(verificationStatus, sellerID);
+    }
+
 }

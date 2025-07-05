@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.Admin;
+package controller.Authenticate;
 
 import DAO.CraftVillageDAO;
 import DAO.ProductDAO;
@@ -20,8 +20,8 @@ import service.SellerVerificationService;
  *
  * @author ACER
  */
-@WebServlet(name = "AdminProcessingRequest", urlPatterns = {"/admin-processing-request"})
-public class AdminProcessingRequest extends HttpServlet {
+@WebServlet(name = "RequestUpgradeAccount", urlPatterns = {"/request-upgrade"})
+public class RequestUpgradeAccount extends HttpServlet {
 
     SellerVerificationService sService = new SellerVerificationService();
 
@@ -36,7 +36,7 @@ public class AdminProcessingRequest extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("UserProfile.jsp").forward(request, response);
+        request.getRequestDispatcher("UpgradeAccount.jsp").forward(request, response);
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
