@@ -1,4 +1,4 @@
-﻿
+
 CREATE DATABASE [CraftDB]
 GO
 
@@ -1001,17 +1001,10 @@ CREATE PROCEDURE RegisterAccount
     @UserName NVARCHAR(100),
     @Password NVARCHAR(100),        -- dạng text, sẽ được hash trong procedure
     @Email NVARCHAR(100),
-<<<<<<< HEAD
-    @Address NVARCHAR(200) = NULL,
-    @PhoneNumber NVARCHAR(20) = NULL,
-	@fullName NVARCHAR(100),
-	@NewUserID INT OUTPUT 
-=======
-	@fullName NVARCHAR(100),
+    @fullName NVARCHAR(100),
     @Address NVARCHAR(200) = NULL,
     @PhoneNumber NVARCHAR(20) = NULL,   
     @NewUserID INT OUTPUT 
->>>>>>> dat
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1088,8 +1081,6 @@ BEGIN
     WHERE TRIM(email) = @email
     AND status = 1;
 END
-<<<<<<< HEAD
-=======
 GO
 
 CREATE PROCEDURE UpdateAccountFull
@@ -1222,5 +1213,4 @@ BEGIN
         SET @result = 0; -- thất bại do lỗi hệ thống
     END CATCH
 END
->>>>>>> dat
 GO

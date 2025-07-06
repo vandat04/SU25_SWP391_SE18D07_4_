@@ -1001,7 +1001,7 @@ CREATE PROCEDURE RegisterAccount
     @UserName NVARCHAR(100),
     @Password NVARCHAR(100),        -- dạng text, sẽ được hash trong procedure
     @Email NVARCHAR(100),
-	@fullName NVARCHAR(100),
+    @fullName NVARCHAR(100),
     @Address NVARCHAR(200) = NULL,
     @PhoneNumber NVARCHAR(20) = NULL,   
     @NewUserID INT OUTPUT 
@@ -1081,7 +1081,6 @@ BEGIN
     WHERE TRIM(email) = @email
     AND status = 1;
 END
-
 GO
 
 CREATE PROCEDURE UpdateAccountFull
