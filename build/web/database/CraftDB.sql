@@ -1,4 +1,4 @@
-﻿
+
 CREATE DATABASE [CraftDB]
 GO
 
@@ -591,21 +591,42 @@ CREATE TABLE [dbo].[SalesReport](
 GO
 
 --Table [SellerVerification] --loại làng nggeef đăng kí. 
-CREATE TABLE [dbo].[SellerVerification](
-	[verificationID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[sellerID] [int] NOT NULL,
-	[businessLicense] [nvarchar](100) NULL,
-	[businessName] [nvarchar](200) NULL,
-	[taxCode] [nvarchar](50) NULL,
-	[documentUrl] [varchar](max) NULL,
-	[verificationStatus] [int] NOT NULL DEFAULT(0),--0: đang xử lí 1: đã duyệt 2: từ chối
-	[verifiedBy] [int] NULL,
-	[verifiedDate] [datetime] NULL,
-	[rejectReason] [nvarchar](max) NULL,
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	CONSTRAINT [FK_SellerVerification_Admin] FOREIGN KEY([verifiedBy]) REFERENCES [dbo].[Account] ([userID]),
-	CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
-)
+CREATE TABLE [dbo].[SellerVerification] (
+    [verificationID] INT IDENTITY(1,1) PRIMARY KEY NOT NULL,   
+    -- Khóa ngoại liên kết với User muốn nâng cấp-- Check thử account >18 tuổi
+    [sellerID] INT NOT NULL,
+    -- Thông tin cơ bản
+    [businessType] NVARCHAR(100) NOT NULL,         -- Cá nhân / Hộ kinh doanh / Công ty TNHH / HTX / Làng nghề
+    [businessVillageCategry] NVARCHAR(200) NOT NULL, -- Loại làng
+    [businessVillageName] NVARCHAR(200) NOT NULL,         -- Tên cá nhân / tổ chức / làng nghề
+    [businessVillageAddress] NVARCHAR(500) NOT NULL,      -- Địa chỉ kinh doanh
+    [productProductCategory] NVARCHAR(200) NOT NULL,      -- Nhóm sản phẩm kinh doanh/ Thêm cột cho ProductCategory
+    [profileVillagePictureUrl] VARCHAR(MAX) NULL,         -- Ảnh đại diện hoặc logo
+    -- Thông tin liên hệ lấy từ bảng Account
+    [contactPerson] NVARCHAR(200) NOT NULL,        -- Người đại diện 
+    [contactPhone] NVARCHAR(20) NOT NULL,          -- Số điện thoại liên hệ - 
+    [contactEmail] NVARCHAR(200) NOT NULL,         -- Email liên hệ
+    -- Thông tin cá nhân (dùng khi businessType = Cá nhân)
+    [idCardNumber] NVARCHAR(50) NULL,              -- Số CMND/CCCD
+    [idCardFrontUrl] VARCHAR(MAX) NULL,            -- Link ảnh mặt trước CMND/CCCD
+    [idCardBackUrl] VARCHAR(MAX) NULL,             -- Link ảnh mặt sau CMND/CCCD
+    -- Thông tin doanh nghiệp (dùng khi businessType != Cá nhân)
+    [businessLicense] NVARCHAR(100) NULL,          -- Số giấy phép kinh doanh
+    [taxCode] NVARCHAR(50) NULL,                   -- Mã số thuế
+    [documentUrl] VARCHAR(MAX) NULL,               -- Link ảnh/file giấy phép kinh doanh
+    -- Ghi chú bổ sung
+    [note] NVARCHAR(MAX) NULL,                     -- Ghi chú Seller gửi Admin
+    -- Trạng thái duyệt
+    [verificationStatus] INT NOT NULL DEFAULT 0,   -- 0: Đang xử lý, 1: Đã duyệt, 2: Từ chối
+    [verifiedBy] INT NULL,                         -- Admin duyệt
+    [verifiedDate] DATETIME NULL,                  -- Ngày duyệt
+    [rejectReason] NVARCHAR(MAX) NULL,             -- Lý do từ chối
+    -- Ngày tạo
+    [createdDate] DATETIME NOT NULL DEFAULT GETDATE(),    
+    -- Ràng buộc FK
+    CONSTRAINT [FK_SellerVerification_Admin] FOREIGN KEY ([verifiedBy]) REFERENCES [dbo].[Account] ([userID]),
+    CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY ([sellerID]) REFERENCES [dbo].[Account] ([userID])
+);
 GO
 
 --------------------------------------------------------------------Insert---------------------

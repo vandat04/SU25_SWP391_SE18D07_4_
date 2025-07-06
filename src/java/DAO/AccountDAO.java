@@ -6,6 +6,7 @@ package DAO;
 
 import context.DBContext;
 import entity.Account.Account;
+import entity.Account.SellerVerification;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.CallableStatement;
@@ -333,7 +334,235 @@ public class AccountDAO {
         }
     }
 
+    public boolean requestUpgradeForIndividual(SellerVerification sellerForm) {
+        String query = "{? = call sp_InsertSellerVerification_Individual(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+            // Register the RETURN parameter
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            // Set input parameters
+            cs.setInt(2, sellerForm.getSellerID());
+            cs.setString(3, sellerForm.getBusinessType());
+            cs.setString(4, sellerForm.getBusinessVillageCategry());
+            cs.setString(5, sellerForm.getBusinessVillageName());
+            cs.setString(6, sellerForm.getBusinessVillageAddress());
+            cs.setString(7, sellerForm.getProductProductCategory());
+            cs.setString(8, sellerForm.getProfileVillagePictureUrl());
+            cs.setString(9, sellerForm.getContactPerson());
+            cs.setString(10, sellerForm.getContactPhone());
+            cs.setString(11, sellerForm.getContactEmail());
+            cs.setString(12, sellerForm.getIdCardNumber());
+            cs.setString(13, sellerForm.getIdCardFrontUrl());
+            cs.setString(14, sellerForm.getIdCardBackUrl());
+            cs.setString(15, sellerForm.getNote());
+            // Execute the procedure
+            cs.execute();
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_InsertSellerVerification_Individual result code: {0}", result);
+            return result == 1;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public boolean requestUpgradeForCraftVillage(SellerVerification sellerForm) {
+        String query = "{? = call sp_InsertSellerVerification_CraftVillage(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+
+            // Register the RETURN parameter
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
+            // Set input parameters
+            cs.setInt(2, sellerForm.getSellerID());
+            cs.setString(3, sellerForm.getBusinessType());
+            cs.setString(4, sellerForm.getBusinessVillageCategry());
+            cs.setString(5, sellerForm.getBusinessVillageName());
+            cs.setString(6, sellerForm.getBusinessVillageAddress());
+            cs.setString(7, sellerForm.getProductProductCategory());
+            cs.setString(8, sellerForm.getProfileVillagePictureUrl());
+            cs.setString(9, sellerForm.getContactPerson());
+            cs.setString(10, sellerForm.getContactPhone());
+            cs.setString(11, sellerForm.getContactEmail());
+            cs.setString(12, sellerForm.getBusinessLicense());
+            cs.setString(13, sellerForm.getTaxCode());
+            cs.setString(14, sellerForm.getDocumentUrl());
+            cs.setString(15, sellerForm.getNote());
+
+            cs.execute();
+
+            int result = cs.getInt(1);
+
+            LOGGER.log(Level.INFO, "sp_InsertSellerVerification_CraftVillage result code: {0}", result);
+
+            return result == 1;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+
+        return false;
+    }
+
+    private SellerVerification mapResultSetToSellerVerification(ResultSet rs) throws SQLException {
+        return new SellerVerification(
+                rs.getInt("verificationID"),
+                rs.getInt("sellerID"),
+                rs.getString("businessType"),
+                rs.getString("businessVillageCategry"),
+                rs.getString("businessVillageName"),
+                rs.getString("businessVillageAddress"),
+                rs.getString("productProductCategory"),
+                rs.getString("profileVillagePictureUrl"),
+                rs.getString("contactPerson"),
+                rs.getString("contactPhone"),
+                rs.getString("contactEmail"),
+                rs.getString("idCardNumber"),
+                rs.getString("idCardFrontUrl"),
+                rs.getString("idCardBackUrl"),
+                rs.getString("businessLicense"),
+                rs.getString("taxCode"),
+                rs.getString("documentUrl"),
+                rs.getString("note"),
+                rs.getInt("verificationStatus"),
+                rs.getInt("verifiedBy"),
+                rs.getTimestamp("verifiedDate"),
+                rs.getString("rejectReason"),
+                rs.getTimestamp("createdDate")
+        );
+    }
+
+    public List<SellerVerification> getSellerVertificationFormByAdmin(int verificationStatus) {
+        String query;
+        List<SellerVerification> list = new ArrayList<>();
+        if (verificationStatus == 3) {
+            query = "SELECT * FROM SellerVerification";
+        } else {
+            query = "SELECT * FROM SellerVerification WHERE  verificationStatus = ? ";
+        }
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            if (verificationStatus != 3) {
+                ps.setInt(1, verificationStatus);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSellerVerification(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+
+    public List<SellerVerification> getSellerVertificationForm(int verificationStatus, int sellerID) {
+        String query;
+        List<SellerVerification> list = new ArrayList<>();
+        if (verificationStatus == 3) {
+            query = "SELECT * FROM SellerVerification where sellerID = ?";
+        } else {
+            query = "SELECT * FROM SellerVerification WHERE  sellerID = ? and verificationStatus = ? ";
+        }
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, sellerID);
+            if (verificationStatus != 3) {
+                ps.setInt(2, verificationStatus);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSellerVerification(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+
+    public boolean approvedUpgradeAccount(SellerVerification sellerForm) {
+        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+            // Register the RETURN parameter
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            // Set input parameters
+            cs.setInt(2, sellerForm.getVerificationID());
+            cs.setInt(3, sellerForm.getSellerID());
+            cs.setString(4, sellerForm.getBusinessVillageCategry());
+            cs.setString(5, sellerForm.getBusinessVillageName());
+            cs.setString(6, sellerForm.getBusinessVillageAddress());
+            cs.setString(7, sellerForm.getProductProductCategory());
+            cs.setString(8, sellerForm.getProfileVillagePictureUrl());
+            cs.setString(9, sellerForm.getContactPerson());
+            cs.setString(10, sellerForm.getContactPhone());
+            cs.setString(11, sellerForm.getContactEmail());
+            cs.setInt(12, sellerForm.getVerificationStatus());
+            cs.setInt(13, sellerForm.getVerifiedBy());
+            cs.execute();
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_RequestUpgradeAccount result code: {0}", result);
+            return result == 1;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public boolean rejectedUpgradeAccount(SellerVerification sellerForm) {
+        String query = "{? = call sp_RejectedUpgradeAccount(?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+
+            // Register the RETURN parameter
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
+            // Set input parameters
+            cs.setInt(2, sellerForm.getVerificationID());
+            cs.setInt(3, sellerForm.getVerificationStatus());
+            cs.setInt(4, sellerForm.getVerifiedBy());
+            cs.setString(5, sellerForm.getRejectReason());
+
+            cs.execute();
+
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_UpdateSellerVerificationStatus result code: {0}", result);
+
+            return result == 1;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error rejecting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+
+        return false;
+    }
+
     public static void main(String[] args) {
-        System.out.println(new AccountDAO().updateAccount(new Account(19, "dat25", "********", "dattruondg02112004@gmail.com", "Qnam", "0777076028", 1, 1, "TRƯƠNG VĂN ĐẠT")));
+        System.out.println(new AccountDAO().getSellerVertificationFormByAdmin(0));
     }
 }
