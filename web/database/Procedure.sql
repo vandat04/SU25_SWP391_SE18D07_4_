@@ -383,6 +383,12 @@ BEGIN
         WHERE
             verificationID = @verificationID;
 
+        UPDATE dbo.Account
+        SET 
+            roleID = 2
+        WHERE
+            userID = @sellerID;
+
         COMMIT TRANSACTION;
 
         RETURN 1;
