@@ -35,4 +35,15 @@ public class SellerVerificationService implements ISellerVerification {
         return aDAO.getSellerVertificationForm(verificationStatus, sellerID);
     }
 
+    @Override
+    public boolean approvedUpgradeAccount(SellerVerification sellerForm) {
+        return aDAO.approvedUpgradeAccount(sellerForm);
+    }
+
+    @Override
+    public boolean rejectedUpgradeAccount(SellerVerification sellerForm) {
+        return aDAO.rejectedUpgradeAccount(sellerForm);
+    }
+
 }
+

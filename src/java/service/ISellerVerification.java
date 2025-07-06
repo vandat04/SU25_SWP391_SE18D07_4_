@@ -16,4 +16,7 @@ public interface ISellerVerification {
     boolean requestUpgradeForCraftVillage(SellerVerification sellerForm);
     List<SellerVerification> getSellerVertificationFormByAdmin(int verificationStatus);
     List<SellerVerification> getSellerVertificationForm(int verificationStatus, int sellerID);
+    boolean approvedUpgradeAccount(SellerVerification sellerForm);
+    boolean rejectedUpgradeAccount(SellerVerification sellerForm);
 }
+

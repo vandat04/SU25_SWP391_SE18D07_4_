@@ -131,6 +131,30 @@ public class SellerVerification {
         this.rejectReason = rejectReason;
         this.createdDate = createdDate;
     }
+
+    public SellerVerification(int verificationID, int sellerID, String businessVillageCategry, String businessVillageName, String businessVillageAddress, String productProductCategory, String profileVillagePictureUrl, String contactPerson, String contactPhone, String contactEmail, Integer verificationStatus, Integer verifiedBy) {
+        this.verificationID = verificationID;
+        this.sellerID = sellerID;
+        this.businessVillageCategry = businessVillageCategry;
+        this.businessVillageName = businessVillageName;
+        this.businessVillageAddress = businessVillageAddress;
+        this.productProductCategory = productProductCategory;
+        this.profileVillagePictureUrl = profileVillagePictureUrl;
+        this.contactPerson = contactPerson;
+        this.contactPhone = contactPhone;
+        this.contactEmail = contactEmail;
+        this.verificationStatus = verificationStatus;
+        this.verifiedBy = verifiedBy;
+    }
+
+    public SellerVerification(int verificationID, Integer verificationStatus, Integer verifiedBy, String rejectReason) {
+        this.verificationID = verificationID;
+        this.verificationStatus = verificationStatus;
+        this.verifiedBy = verifiedBy;
+        this.rejectReason = rejectReason;
+    }
+    
+   
     
     
     public int getVerificationID() {
@@ -341,4 +365,6 @@ public class SellerVerification {
         return "SellerVerification{" + "verificationID=" + verificationID + ", sellerID=" + sellerID + ", businessType=" + businessType + ", businessVillageCategry=" + businessVillageCategry + ", businessVillageName=" + businessVillageName + ", businessVillageAddress=" + businessVillageAddress + ", productProductCategory=" + productProductCategory + ", profileVillagePictureUrl=" + profileVillagePictureUrl + ", contactPerson=" + contactPerson + ", contactPhone=" + contactPhone + ", contactEmail=" + contactEmail + ", idCardNumber=" + idCardNumber + ", idCardFrontUrl=" + idCardFrontUrl + ", idCardBackUrl=" + idCardBackUrl + ", businessLicense=" + businessLicense + ", taxCode=" + taxCode + ", documentUrl=" + documentUrl + ", note=" + note + ", verificationStatus=" + verificationStatus + ", verifiedBy=" + verifiedBy + ", verifiedDate=" + verifiedDate + ", rejectReason=" + rejectReason + ", createdDate=" + createdDate + '}';
     }
 
+
 }
+
