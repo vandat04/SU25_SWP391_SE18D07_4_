@@ -4,9 +4,9 @@
  */
 package controller.Admin;
 
-import entity.Product.Product;
 import entity.Ticket.Ticket;
 import java.io.IOException;
+import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,19 +14,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.List;
-import service.ProductService;
 import service.TicketService;
 
 /**
  *
  * @author ACER
  */
-@WebServlet(name = "AdminProductManagement", urlPatterns = {"/admin-product-management"})
-public class AdminProductManagement extends HttpServlet {
+@WebServlet(name = "AdminTicketManagement", urlPatterns = {"/admin-ticket-management"})
+public class AdminTicketManagement extends HttpServlet {
 
-    private List<Product> listProduct;
     List<Ticket> listTicket;
-
+    TicketService tService = new TicketService();
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -38,9 +37,10 @@ public class AdminProductManagement extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        listProduct = new ProductService().getAllProductActiveByAdmin();
-        request.setAttribute("listProduct", listProduct);
-        request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
+        
+        listTicket = new TicketService().getAllTicketActive();
+        request.setAttribute("listTicket", listTicket);
+        request.getRequestDispatcher("admin-ticket-management.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -69,69 +69,55 @@ public class AdminProductManagement extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        ProductService pService = new ProductService();
-        String typeName = request.getParameter("typeName");
-        String pidStr = request.getParameter("pid");
-        String name = request.getParameter("name");
-        String priceStr = request.getParameter("price");
-        String description = request.getParameter("description");
-        String stockStr = request.getParameter("stock");
-        String stockAddStr = request.getParameter("stockAdd");
-        String sku = request.getParameter("sku");
-        String villageIDStr = request.getParameter("villageID");
-        String categoryIDStr = request.getParameter("categoryID");
-        String craftTypeIDStr = request.getParameter("craftTypeID");
-        String mainImageUrl = request.getParameter("mainImageUrl");
-        String weightStr = request.getParameter("weight");
-        String dimensions = request.getParameter("dimensions");
-        String materials = request.getParameter("materials");
-        String careInstructions = request.getParameter("careInstructions");
-        String warranty = request.getParameter("warranty");
+      
+        String typeName =request.getParameter("typeName");
+        
+        String ticketID = request.getParameter("ticketID");
+        String villageID = request.getParameter("villageID");
+        String typeID = request.getParameter("typeID");
+        String price = request.getParameter("price");
         String status = request.getParameter("status");
-        String searchID = request.getParameter("searchID");
-        String contentSearch = request.getParameter("contentSearch");
-
+        
         switch (typeName) {
-            case "updateProduct":
+            case "updateTicket":
                 try {
-                    Product product = new Product(Integer.parseInt(pidStr), name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(stockAddStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty);
-                    boolean result = pService.updateProductByAdmin(product);
+                    Ticket ticket = new Ticket(Integer.parseInt(ticketID), BigDecimal.valueOf(Double.parseDouble(price)), Integer.parseInt(status));
+                    boolean result = tService.updateTicketByAdmin(ticket);
                     if (result) {
                         request.setAttribute("error", "1");
                         request.setAttribute("message", "Update Success");
                     } else {
                         request.setAttribute("error", "0");
-                        request.setAttribute("message", "Update error Name Product already exists");
+                        request.setAttribute("message", "Update error Ticket already exists");
                     }
                 } catch (Exception e) {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Update Fail");
                 }
-                listProduct = pService.getAllProductActive();
-                request.setAttribute("listProduct", listProduct);
+                listTicket = tService.getAllTicketActive();
+                request.setAttribute("listTicket", listTicket);
                 break;
-            case "createProduct":
+            case "createTicket":
                 try {
-                    Product product = new Product(name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty);
-                    boolean result = pService.createProductByAdmin(product);
+                    Ticket ticket = new Ticket(Integer.parseInt(villageID), Integer.parseInt(typeID), BigDecimal.valueOf(Double.parseDouble(price)), Integer.parseInt(status));
+                    boolean result = tService.createTicketByAdmin(ticket);
                     if (result) {
                         request.setAttribute("error", "1");
                         request.setAttribute("message", "Create Success");
                     } else {
                         request.setAttribute("error", "0");
-                        request.setAttribute("message", "Create Fail: Name Product already exists");
+                        request.setAttribute("message", "Create Fail: Ticket already exists");
                     }
                 } catch (Exception e) {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Create Fail");
                 }
-                listProduct = pService.getAllProductActive();
-                request.setAttribute("listProduct", listProduct);
+                listTicket = tService.getAllTicketActive();
+                request.setAttribute("listTicket", listTicket);
                 break;
-            case "deleteProduct":
+            case "deleteTicket":
                 try {
-                    boolean result = pService.deleteProductByAdmin(Integer.parseInt(pidStr));
+                    boolean result = tService.deleteTicketByAdmin(Integer.parseInt(ticketID));
                     if (result) {
                         request.setAttribute("error", "1");
                         request.setAttribute("message", "Delete Success");
@@ -143,15 +129,15 @@ public class AdminProductManagement extends HttpServlet {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Delete Fails");
                 }
-                listProduct = pService.getAllProductActive();
-                request.setAttribute("listProduct", listProduct);
+                listTicket = tService.getAllTicketActive();
+                request.setAttribute("listTicket", listTicket);
                 break;
-            case "searchProduct":
+            case "searchTicket":
                 try {
-                    listProduct = new ProductService().getSearchProductByAdmin(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
+                    listTicket = tService.searchTicketByAdmin(Integer.parseInt(status), Integer.parseInt(villageID));
                     request.setAttribute("error", "1");
                     request.setAttribute("message", "Search Success");
-                    request.setAttribute("listProduct", listProduct);
+                    request.setAttribute("listTicket", listTicket);
                 } catch (Exception e) {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Search Fail");
@@ -160,7 +146,8 @@ public class AdminProductManagement extends HttpServlet {
             default:
                 throw new AssertionError();
         }
-        request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
+        request.getRequestDispatcher("admin-ticket-management.jsp").forward(request, response);
+        
     }
 
     /**

@@ -4,7 +4,9 @@
  */
 package filter;
 
+import DAO.TicketDAO;
 import entity.Product.ProductCategory;
+import entity.Ticket.TicketType;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -104,6 +106,10 @@ public class ProductCategoryFilter implements Filter {
         if (request.getAttribute("listCC") == null) {
             List<ProductCategory> listC = new ProductService().getAllCategory();
             request.setAttribute("listCC", listC);
+        }
+        if (request.getAttribute("listTicketType") == null) {
+            List<TicketType> listTT = new TicketDAO().getAllTicketType();
+            request.setAttribute("listTicketType", listTT);
         }
         chain.doFilter(request, response);
     }
