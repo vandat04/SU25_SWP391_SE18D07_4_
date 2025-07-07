@@ -427,3 +427,72 @@ BEGIN
         RETURN 0;      -- không thành công
 END
 GO
+--Add New Ticket
+CREATE OR ALTER PROCEDURE AddTicketByAdmin
+(
+    @villageID INT,
+    @typeID INT,
+    @price DECIMAL(10,2),
+    @status INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if ticket already exists
+    IF EXISTS (
+        SELECT 1 
+        FROM VillageTicket 
+        WHERE villageID = @villageID 
+          AND typeID = @typeID
+    )
+    BEGIN
+        -- Return 0 → fail because ticket exists
+        RETURN 0;
+    END
+
+    -- Insert new Ticket
+    INSERT INTO VillageTicket (villageID, typeID, price, status, createdDate)
+    VALUES (@villageID, @typeID, @price, @status, GETDATE());
+
+    -- Return 1 → success
+    RETURN 1;
+END
+GO
+
+--Update Ticket
+CREATE PROCEDURE UpdateTicketByAdmin
+(
+    @ticketID INT,
+    @price DECIMAL(10, 2),
+    @status INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE VillageTicket
+    SET
+        price = @price,
+        status = @status,
+        updatedDate = GETDATE()
+    WHERE ticketID = @ticketID;
+    RETURN 1;
+END
+GO
+
+--Delete Ticket
+CREATE PROCEDURE DeleteTicketByAdmin
+(
+    @ticketID INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE VillageTicket
+    SET
+        status = 0,
+        updatedDate = GETDATE()
+    WHERE ticketID = @ticketID;
+    RETURN 1;
+END
+GO

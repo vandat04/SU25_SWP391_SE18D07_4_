@@ -32,6 +32,38 @@ public class Ticket {
         this.status = status;
         this.createdDate = createdDate;
     }
+
+    public Ticket(int ticketID, int villageID, int typeID, BigDecimal price, int status, Timestamp createdDate, Timestamp updatedDate) {
+        this.ticketID = ticketID;
+        this.villageID = villageID;
+        this.typeID = typeID;
+        this.price = price;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+    }
+
+    
+    public Ticket(int villageID, int typeID, BigDecimal price, int status) {
+        this.villageID = villageID;
+        this.typeID = typeID;
+        this.price = price;
+        this.status = status;
+    }
+
+    public Ticket(int ticketID, int villageID, int typeID, BigDecimal price, int status) {
+        this.ticketID = ticketID;
+        this.villageID = villageID;
+        this.typeID = typeID;
+        this.price = price;
+        this.status = status;
+    }
+
+    public Ticket(int ticketID, BigDecimal price, int status) {
+        this.ticketID = ticketID;
+        this.price = price;
+        this.status = status;
+    }
     
     //--------------------------------------------------------------------------
     public int getTicketID() {

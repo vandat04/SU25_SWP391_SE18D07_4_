@@ -101,7 +101,8 @@ public class ProductDAO {
                 rs.getInt("typeID"),
                 rs.getBigDecimal("price"),
                 rs.getInt("status"),
-                rs.getTimestamp("createdDate")
+                rs.getTimestamp("createdDate"),
+                rs.getTimestamp("updatedDate")
         );
     }
 

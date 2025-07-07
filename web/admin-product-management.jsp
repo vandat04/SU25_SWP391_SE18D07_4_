@@ -116,11 +116,11 @@
 
                 <!-- Tabs -->
                 <div class="mb-4 flex gap-4">
-                    <button onclick="showSection('productSection')" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Products Management
+                    <button  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">                       
+                        <a href="admin-product-management"> Products Management</a>
                     </button>
-                    <button onclick="showSection('ticketSection')" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                        Tickets Management
+                    <button  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        <a href="admin-ticket-management">  Tickets Management</a>
                     </button>
                 </div>
 

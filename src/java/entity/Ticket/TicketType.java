@@ -5,7 +5,6 @@
 package entity.Ticket;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *
@@ -22,7 +21,17 @@ public class TicketType {
 
     // Constructors-------------------------------------------------------------
     public TicketType() {}
-    
+
+    public TicketType(int typeID, String typeName, String description, String ageRange, int status, Timestamp createdDate, Timestamp updatedDate) {
+        this.typeID = typeID;
+        this.typeName = typeName;
+        this.description = description;
+        this.ageRange = ageRange;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+    }
+
     //--------------------------------------------------------------------------
     public int getTypeID() {
         return typeID;

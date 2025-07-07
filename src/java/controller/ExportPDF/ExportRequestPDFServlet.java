@@ -80,7 +80,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
     response.setContentType("application/pdf");
-    response.setHeader("Content-Disposition", "attachment; filename=\"report.pdf\"");
+    response.setHeader("Content-Disposition", "attachment; filename=\"request-report.pdf\"");
 
     String cas = request.getParameter("cas");
     int status;

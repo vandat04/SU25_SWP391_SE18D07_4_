@@ -20,4 +20,9 @@ public interface ITicketService {
     boolean cancelTicketOrder(int orderId);
     List<TicketCode> getTicketCodesByOrderDetail(int detailId);
     List<Ticket> getAllTicketActive();
+    boolean createTicketByAdmin(Ticket ticket);
+    boolean updateTicketByAdmin(Ticket ticket);
+    boolean deleteTicketByAdmin(int ticketID);
+    List<Ticket> getTickeReportByAdmin(int status);
+    String getTicketNameByID(int typeID);
 }

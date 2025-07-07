@@ -40,8 +40,6 @@ public class AdminProductManagement extends HttpServlet {
             throws ServletException, IOException {
         listProduct = new ProductService().getAllProductActiveByAdmin();
         request.setAttribute("listProduct", listProduct);
-        listTicket = new TicketService().getAllTicketActive();
-        request.setAttribute("listTicket", listTicket);
         request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
     }
 
@@ -143,7 +141,7 @@ public class AdminProductManagement extends HttpServlet {
                     }
                 } catch (Exception e) {
                     request.setAttribute("error", "0");
-                    request.setAttribute("message", "Delete Failz");
+                    request.setAttribute("message", "Delete Fails");
                 }
                 listProduct = pService.getAllProductActive();
                 request.setAttribute("listProduct", listProduct);
