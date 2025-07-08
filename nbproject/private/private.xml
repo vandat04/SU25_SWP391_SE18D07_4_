@@ -3,27 +3,19 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/listener/SessionCounterListener.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/product/ProductControl.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ProductDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/product.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ProductOrderDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/context/DBContext.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/CraftVillageDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ReportDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/VillageTicketDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/MessageService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/constant/Iconstant.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/TicketOrderDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/TicketService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Admin/AdminAccountManagement.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/ExportPDF/ExportAccountPDFServlet.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ITicketService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ProductService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Authenticate/LoginGmail.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/CategoryService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin-account-management.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IProductService.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/craft/SimpleVillageTicketControl.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/service/EmailService.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/DAO/SimpleTicketOrderDAO.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/addToCart.jsp</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/entity/CraftVillage/Village.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/CheckoutServlet.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/OrderCancelControl.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/service/IOrderService.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/database/Procedure.sql</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/entity/MessageNotification/SellerVerification.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/ticket/TicketDetailControl.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/TicketDetail.jsp</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/UpdateOrderStatusControl.java</file>
         </group>
     </open-files>
 </project-private>

@@ -143,6 +143,51 @@ public class VillageTicketDAO {
         return tickets;
     }
 
+    // Alias method for compatibility
+    public VillageTicket getTicketByID(int ticketId) {
+        return getTicketById(ticketId);
+    }
+
+    // Alias method for compatibility 
+    public List<VillageTicket> getTicketsByVillageID(int villageId) {
+        return getTicketsByVillageId(villageId);
+    }
+
+    // Method to get connection for external use
+    public Connection getConnection() throws SQLException {
+        return new DBContext().getConnection();
+    }
+
+    // Additional compatibility methods
+    public List<VillageTicket> getTicketPricingSummary() {
+        return getAllActiveTickets(); // Return all active tickets as summary
+    }
+
+    public boolean updateVillageTicketPrices(int villageId, BigDecimal adultPrice, BigDecimal childPrice, BigDecimal studentPrice) {
+        // Find and update tickets by type for this village
+        List<VillageTicket> tickets = getTicketsByVillageId(villageId);
+        boolean success = true;
+        
+        for (VillageTicket ticket : tickets) {
+            BigDecimal newPrice = null;
+            String typeName = ticket.getTypeName();
+            
+            if ("Adult".equalsIgnoreCase(typeName)) {
+                newPrice = adultPrice;
+            } else if ("Child".equalsIgnoreCase(typeName)) {
+                newPrice = childPrice;
+            } else if ("Student".equalsIgnoreCase(typeName)) {
+                newPrice = studentPrice;
+            }
+            
+            if (newPrice != null) {
+                success &= updateTicketPrice(ticket.getTicketID(), newPrice);
+            }
+        }
+        
+        return success;
+    }
+
     /**
      * Get all ticket types
      */

@@ -77,6 +77,23 @@ public class CraftType {
         this.updatedDate = updatedDate;
     }
 
+    // Alias methods for compatibility with DAO
+    public int getCraftTypeID() {
+        return typeID;
+    }
+
+    public void setCraftTypeID(int craftTypeID) {
+        this.typeID = craftTypeID;
+    }
+
+    public String getCraftTypeName() {
+        return typeName;
+    }
+
+    public void setCraftTypeName(String craftTypeName) {
+        this.typeName = craftTypeName;
+    }
+
     @Override
     public String toString() {
         return "CraftType{" + "typeID=" + typeID + ", typeName=" + typeName + ", description=" + description + ", status=" + status + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + '}';

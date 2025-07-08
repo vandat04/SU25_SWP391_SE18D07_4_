@@ -79,4 +79,9 @@ public interface ICartTicketService {
      * Get latest ticket date in cart  
      */
     Date getLatestTicketDateInCart(int cartId);
+
+    // Compatibility methods with different naming conventions
+    List<CartTicket> getCartTicketsByCartID(int cartId);
+    boolean removeCartTicket(int cartTicketId);
+    boolean updateCartTicketQuantity(int cartTicketId, int newQuantity);
 } 

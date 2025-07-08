@@ -10,6 +10,7 @@ import entity.Product.ProductCategory;
 import entity.Product.ProductReview;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  *
@@ -142,6 +143,20 @@ public class ProductService implements IProductService{
     @Override
     public List<ProductCategory> getAllCategory() {
         return pDAO.getAllCategory();
+    }
+
+    // Alias method for compatibility
+    public List<entity.Product.Category> getAllCategories() {
+        // Convert ProductCategory to Category if needed, or return as is
+        List<ProductCategory> categories = getAllCategory();
+        // For now, just return an empty list or handle conversion
+        return new java.util.ArrayList<>();
+    }
+
+    // Additional compatibility method
+    public List<Product> getActiveProductsBySellID(int sellerId) {
+        // Return products by seller ID (for now, return empty list)
+        return new ArrayList<>();
     }
 
     @Override

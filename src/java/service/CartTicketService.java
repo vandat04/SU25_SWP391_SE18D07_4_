@@ -24,6 +24,11 @@ public class CartTicketService implements ICartTicketService {
         return cartTicketDAO.getCartTicketsByCartId(cartId);
     }
     
+    // Alias method for compatibility
+    public List<CartTicket> getCartTicketsByCartID(int cartId) {
+        return getCartTicketsByCartId(cartId);
+    }
+    
     @Override
     public boolean addTicketToCart(int cartId, int ticketId, Date ticketDate, int quantity) {
         // Validate input parameters
@@ -58,12 +63,22 @@ public class CartTicketService implements ICartTicketService {
         return cartTicketDAO.updateTicketQuantity(cartTicketId, newQuantity);
     }
     
+    // Alias method for compatibility
+    public boolean updateCartTicketQuantity(int cartTicketId, int newQuantity) {
+        return updateTicketQuantity(cartTicketId, newQuantity);
+    }
+    
     @Override
     public boolean removeTicketFromCart(int cartTicketId) {
         if (cartTicketId <= 0) {
             return false;
         }
         return cartTicketDAO.removeTicketFromCart(cartTicketId);
+    }
+    
+    // Alias method for compatibility
+    public boolean removeCartTicket(int cartTicketId) {
+        return removeTicketFromCart(cartTicketId);
     }
     
     @Override
