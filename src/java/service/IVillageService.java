@@ -24,4 +24,8 @@ public interface IVillageService {
     List<CraftType> getAllCraftType();
     String getVillageNameByID (int villageID);
     String getCraftTypeNameByID (int typeID);
+    boolean updateCraftVillageByAdmin(CraftVillage village);
+    List<CraftVillage> getAllCraftVillageActive();
+    boolean deleteVillageByAdmin(int villageID);
+    boolean addNewVillageByAdmin(CraftVillage village);
 }

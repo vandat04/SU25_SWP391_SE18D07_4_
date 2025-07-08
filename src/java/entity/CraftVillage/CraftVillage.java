@@ -76,6 +76,71 @@ public class CraftVillage {
         this.travelTips = travelTips;
     }
 
+    public CraftVillage(int villageID, String villageName, int typeID, String description,
+            String address, double latitude, double longitude,
+            String contactPhone, String contactEmail, int status,
+            int sellerId, String openingHours, String closingDays,
+            String mapEmbedUrl, String virtualTourUrl, String history,
+            String specialFeatures, String famousProducts, String culturalEvents,
+            String craftProcess, String videoDescriptionUrl, String travelTips,
+            String mainImageUrl) {
+        this.villageID = villageID;
+        this.villageName = villageName;
+        this.typeID = typeID;
+        this.description = description;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.contactPhone = contactPhone;
+        this.contactEmail = contactEmail;
+        this.status = status;
+        this.sellerId = sellerId;
+        this.openingHours = openingHours;
+        this.closingDays = closingDays;
+        this.mapEmbedUrl = mapEmbedUrl;
+        this.virtualTourUrl = virtualTourUrl;
+        this.history = history;
+        this.specialFeatures = specialFeatures;
+        this.famousProducts = famousProducts;
+        this.culturalEvents = culturalEvents;
+        this.craftProcess = craftProcess;
+        this.videoDescriptionUrl = videoDescriptionUrl;
+        this.travelTips = travelTips;
+        this.mainImageUrl = mainImageUrl;
+    }
+
+    public CraftVillage(String villageName, int typeID, String description,
+            String address, double latitude, double longitude,
+            String contactPhone, String contactEmail, int status,
+            int sellerId, String openingHours, String closingDays,
+            String mapEmbedUrl, String virtualTourUrl, String history,
+            String specialFeatures, String famousProducts, String culturalEvents,
+            String craftProcess, String videoDescriptionUrl, String travelTips,
+            String mainImageUrl) {
+        this.villageName = villageName;
+        this.typeID = typeID;
+        this.description = description;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.contactPhone = contactPhone;
+        this.contactEmail = contactEmail;
+        this.status = status;
+        this.sellerId = sellerId;
+        this.openingHours = openingHours;
+        this.closingDays = closingDays;
+        this.mapEmbedUrl = mapEmbedUrl;
+        this.virtualTourUrl = virtualTourUrl;
+        this.history = history;
+        this.specialFeatures = specialFeatures;
+        this.famousProducts = famousProducts;
+        this.culturalEvents = culturalEvents;
+        this.craftProcess = craftProcess;
+        this.videoDescriptionUrl = videoDescriptionUrl;
+        this.travelTips = travelTips;
+        this.mainImageUrl = mainImageUrl;
+    }
+
     //--------------------------------------------------------------------------
     public int getVillageID() {
         return villageID;

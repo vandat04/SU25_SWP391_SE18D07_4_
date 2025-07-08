@@ -20,4 +20,14 @@ public interface IReviewService {
     boolean respondToReview(int reviewId, String response, boolean isProductReview);
     double getAverageProductRating(int productId);
     double getAverageVillageRating(int villageId);
+    List<CraftReview> getAllVillageReviewByAdmin(int villageID);
+    List<ProductReview> getAllProductReviewByAdmin(int productID);
+    boolean responseProductReviewByAdmin(int reviewID, String responseText); 
+    boolean responseVillageReviewByAdmin(int reviewID, String responseText);
+    boolean deleteProductReviewByAdmin(int reviewID);
+    boolean deleteVillageReviewByAdmin(int reviewID);
+    List<ProductReview> searchProductReviewByAdmin(int userID) ;
+    List<CraftReview> searchVillageReviewByAdmin(int userID) ;
+    List<ProductReview> searchProductReviewToday();
+    List<CraftReview> searchVillageReviewToday();
 }

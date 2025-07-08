@@ -23,6 +23,18 @@ public class ProductReview {
     
     // Constructors-------------------------------------------------------------
     public ProductReview() {}
+
+    public ProductReview(int reviewID, int productID, int userID, int rating, String reviewText, Timestamp reviewDate, String response, Timestamp responseDate) {
+        this.reviewID = reviewID;
+        this.productID = productID;
+        this.userID = userID;
+        this.rating = rating;
+        this.reviewText = reviewText;
+        this.reviewDate = reviewDate;
+        this.response = response;
+        this.responseDate = responseDate;
+    }
+    
     
     //--------------------------------------------------------------------------
     public int getReviewID() {

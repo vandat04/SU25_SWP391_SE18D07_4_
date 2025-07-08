@@ -13,10 +13,10 @@ import java.util.List;
  *
  * @author ACER
  */
-public class VillageService implements IVillageService{
+public class VillageService implements IVillageService {
 
     CraftVillageDAO vDAO = new CraftVillageDAO();
-    
+
     @Override
     public int addVillage(CraftVillage village) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -71,5 +71,25 @@ public class VillageService implements IVillageService{
     public String getCraftTypeNameByID(int typeID) {
         return vDAO.getCraftTypeNameByID(typeID);
     }
-    
+
+    @Override
+    public boolean updateCraftVillageByAdmin(CraftVillage village) {
+        return vDAO.updateCraftVillageByAdmin(village);
+    }
+
+    @Override
+    public List<CraftVillage> getAllCraftVillageActive() {
+        return vDAO.getAllCraftVillageActive();
+    }
+
+    @Override
+    public boolean deleteVillageByAdmin(int villageID) {
+        return vDAO.deleteVillageByAdmin(villageID);
+    }
+
+    @Override
+    public boolean addNewVillageByAdmin(CraftVillage village) {
+        return vDAO.addNewVillageByAdmin(village);
+    }
+
 }

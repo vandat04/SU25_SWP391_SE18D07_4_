@@ -25,7 +25,7 @@ import java.sql.CallableStatement;
  */
 public class ProductDAO {
 
-    private static final Logger LOGGER = Logger.getLogger(AccountDAO.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ProductDAO.class.getName());
 
     private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
         return new Product(
