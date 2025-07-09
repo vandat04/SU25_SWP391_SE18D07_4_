@@ -4,7 +4,6 @@
  */
 package controller.Admin;
 
-import DAO.ProductDAO;
 import entity.Product.ProductReview;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -68,7 +67,7 @@ public class AdminPReviewManagement extends HttpServlet {
         String name = request.getParameter("name");
         listPReview = new ReviewService().getAllProductReviewByAdmin(Integer.parseInt(pid));
         request.setAttribute("listPReview", listPReview);
-        request.setAttribute("listReviewToday", rService.searchProductReviewToday());
+        request.setAttribute("listReviewToday", rService.searchProductReviewToday(Integer.parseInt(pid)));
         request.setAttribute("name", name);
         request.setAttribute("pid", pid);
         request.getRequestDispatcher("admin-preview-management.jsp").forward(request, response);
@@ -141,7 +140,7 @@ public class AdminPReviewManagement extends HttpServlet {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Response Fail");
                 } 
-                request.setAttribute("listReviewToday", rService.searchProductReviewToday());
+                request.setAttribute("listReviewToday", rService.searchProductReviewToday(Integer.parseInt(pid)));
                 request.setAttribute("listPReview", listPReview);
                 break;
             default:

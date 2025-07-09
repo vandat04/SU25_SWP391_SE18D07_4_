@@ -91,6 +91,8 @@ public class AdminVillageManagement extends HttpServlet {
         String videoDescriptionUrl = request.getParameter("videoDescriptionUrl");
         String travelTips = request.getParameter("travelTips");
         String mainImageUrl = request.getParameter("mainImageUrl");
+        String searchID = request.getParameter("searchID");
+        String contentSearch = request.getParameter("contentSearch");
 
         switch (typeName) {
             case "updateVillage":
@@ -146,8 +148,16 @@ public class AdminVillageManagement extends HttpServlet {
                 listAllVillage = vService.getAllCraftVillageActive();
                 request.setAttribute("listAllVillage", listAllVillage);
                 break;
-            case "updateVillage4":
-
+            case "searchVillage":
+                try {
+                    listAllVillage = vService.getSearchVillageByAdmin(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
+                    request.setAttribute("error", "1");
+                    request.setAttribute("message", "Search Success");
+                    request.setAttribute("listAllVillage", listAllVillage);
+                } catch (Exception e) {
+                    request.setAttribute("error", "0");
+                    request.setAttribute("message", "Search Fail");
+                }
                 break;
             default:
                 throw new AssertionError();

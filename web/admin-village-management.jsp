@@ -16,6 +16,11 @@
                     document.getElementById("deleteForm").submit();
                 }
             }
+            
+            function toggleExportMenu() {
+                const menu = document.getElementById('exportMenu');
+                menu.classList.toggle('hidden');
+            }
         </script>
     </head>
     <body class="bg-gray-100">
@@ -64,7 +69,7 @@
                         </script>
 
                         <form action="admin-village-management" method="post" class="flex flex-wrap gap-2 items-center">
-                            <input type="hidden" name="typeName" value="searchProduct"/>
+                            <input type="hidden" name="typeName" value="searchVillage"/>
 
                             <select name="status"
                                     class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
@@ -74,14 +79,14 @@
 
                             <select name="searchID"
                                     class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                <option value="0">All Products</option>
+                                <option value="0">All Village</option>
                                 <option value="1">By Category</option>
                                 <option value="2">Sort A - Z</option>
                                 <option value="3">Sort Z - A</option>
-                                <option value="4">Product Name</option>
-                                <option value="5">Product ID</option>
-                                <option value="6">Price</option>
-                                <option value="7">New Product Post</option>
+                                <option value="4">Village Name</option>
+                                <option value="5">Village ID</option>
+                                <option value="6">Location</option>
+                                <option value="7">New Village Post</option>
                             </select>
 
                             <input type="text" name="contentSearch" placeholder="Search by Name, ID"
@@ -101,14 +106,12 @@
                             <div id="exportMenu"
                                  class="hidden absolute z-10 mt-2 w-48 bg-white border rounded shadow-lg">
                                 <a href="export-village-pdf?cas=1"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Products</a>
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Village</a>
                                 <a href="export-village-pdf?cas=2"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">By Category</a>
                                 <a href="export-village-pdf?cas=3"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Out of Stock</a>
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inactive Village</a>
                                 <a href="export-village-pdf?cas=4"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inactive Products</a>
-                                <a href="export-village-pdf?cas=5"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Top Rated Products</a>
                             </div>
                         </div>
@@ -196,7 +199,7 @@
                                                 data-main-image-url="${fn:escapeXml(v.mainImageUrl)}">
                                             View
                                         </button>
-                                        <a href="admin-village-review?villageID=${v.villageID}&villageName=${v.villageName}"
+                                        <a href="admin-vreview-management?villageID=${v.villageID}&villageName=${v.villageName}"
                                            class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">Review</a>
                                         <!-- Delete -->
                                         <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"

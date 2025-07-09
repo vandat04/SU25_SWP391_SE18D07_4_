@@ -23,7 +23,8 @@ import service.ReviewService;
 public class AdminVReviewManagement extends HttpServlet {
 
     List<CraftReview> listVReview;
-    
+    ReviewService rService = new ReviewService();
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -62,8 +63,16 @@ public class AdminVReviewManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        listVReview = new ReviewService().getAllVillageReviewByAdmin(0);
-        request.setAttribute("listVReview", listVReview);
+        String villageID = request.getParameter("villageID");
+        String villageName = request.getParameter("villageName");
+        
+        listVReview = rService.getAllVillageReviewByAdmin(Integer.parseInt(villageID));
+        request.setAttribute("listPReview", listVReview);
+        
+        request.setAttribute("listReviewToday", rService.searchVillageReviewToday(Integer.parseInt(villageID)));
+        
+        request.setAttribute("villageID", villageID);
+        request.setAttribute("villageName", villageName);
         request.getRequestDispatcher("admin-vreview-management.jsp").forward(request, response);
     }
 
@@ -78,7 +87,71 @@ public class AdminVReviewManagement extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String typeName = request.getParameter("typeName");
+        String reviewID = request.getParameter("reviewID");
+        String responseText = request.getParameter("responseText");
+        String userID = request.getParameter("userID");
+        String villageID = request.getParameter("villageID");
+        String villageName = request.getParameter("villageName");
+
+        switch (typeName) {
+            case "deleteReview":
+                try {
+                    boolean result = rService.deleteVillageReviewByAdmin(Integer.parseInt(reviewID));
+                    if (result) {
+                        request.setAttribute("error", "1");
+                        request.setAttribute("message", "Delete Success");
+                    } else {
+                        request.setAttribute("error", "0");
+                        request.setAttribute("message", "Delete Fail");
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("error", "0");
+                    request.setAttribute("message", "Delete Fail");
+                }
+                listVReview =  rService.getAllVillageReviewByAdmin(Integer.parseInt(villageID));
+                request.setAttribute("listVReview", listVReview);
+                break;
+            case "respondReview":
+                try {
+                    boolean result = rService.responseVillageReviewByAdmin(Integer.parseInt(reviewID), responseText);
+                    if (result) {
+                        request.setAttribute("error", "1");
+                        request.setAttribute("message", "Response Success");
+                    } else {
+                        request.setAttribute("error", "0");
+                        request.setAttribute("message", "Response Fail");
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("error", "0");
+                    request.setAttribute("message", "Response Fail");
+                }
+                listVReview = rService.getAllVillageReviewByAdmin(Integer.parseInt(villageID));
+                request.setAttribute("listVReview", listVReview);
+                break;
+            case "searchReview":
+                try {
+                    listVReview = rService.searchVillageReviewByAdmin(Integer.parseInt(userID));
+                    if (!listVReview.isEmpty()) {
+                        request.setAttribute("error", "1");
+                        request.setAttribute("message", "Search Success");
+                    } else {
+                        request.setAttribute("error", "0");
+                        request.setAttribute("message", "No comments");
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("error", "0");
+                    request.setAttribute("message", "Response Fail");
+                } 
+                request.setAttribute("listReviewToday", rService.searchProductReviewToday(Integer.parseInt(villageID)));
+                request.setAttribute("listVReview", listVReview);
+                break;
+            default:
+                throw new AssertionError();
+        }
+        request.setAttribute("villageName", villageName);
+        request.setAttribute("villageID", villageID);
+        request.getRequestDispatcher("admin-vreview-management.jsp").forward(request, response);
     }
 
     /**

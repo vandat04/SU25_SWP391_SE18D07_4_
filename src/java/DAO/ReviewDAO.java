@@ -235,8 +235,8 @@ public class ReviewDAO {
         return list;
     }
 
-    public List<CraftReview> searchVillageReviewToday() {
-        String query = "SELECT * FROM VillageReview WHERE CAST(reviewDate AS DATE) = CAST(GETDATE() AS DATE)";
+    public List<CraftReview> searchVillageReviewToday(int villageID) {
+        String query = "SELECT * FROM VillageReview WHERE villageID = ? and  CAST(reviewDate AS DATE) = CAST(GETDATE() AS DATE)";
         List<CraftReview> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -245,6 +245,7 @@ public class ReviewDAO {
         try {
             conn = DBContext.getConnection();
             ps = conn.prepareStatement(query);
+            ps.setInt(1, villageID); // Gán giá trị cho tham số ?
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -259,8 +260,8 @@ public class ReviewDAO {
         return list;
     }
 
-    public List<ProductReview> searchProductReviewToday() {
-        String query = "SELECT * FROM ProductReview WHERE CAST(reviewDate AS DATE) = CAST(GETDATE() AS DATE)";
+    public List<ProductReview> searchProductReviewToday(int productID) {
+        String query = "SELECT * FROM ProductReview WHERE productID = ?  and CAST(reviewDate AS DATE) = CAST(GETDATE() AS DATE)";
         List<ProductReview> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -269,6 +270,7 @@ public class ReviewDAO {
         try {
             conn = DBContext.getConnection();
             ps = conn.prepareStatement(query);
+             ps.setInt(1, productID); 
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -286,7 +288,7 @@ public class ReviewDAO {
     // Test thử
     public static void main(String[] args) {
         ReviewDAO dao = new ReviewDAO();
-        System.out.println(dao.searchProductReviewToday());
+        System.out.println(dao.searchProductReviewToday(2));
     }
 
 }

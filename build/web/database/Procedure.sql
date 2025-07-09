@@ -711,3 +711,101 @@ BEGIN
     END
 END;
 go
+
+CREATE PROCEDURE AddVillageFullByAdmin
+    @villageName nvarchar(255),
+    @typeID int,
+    @description nvarchar(max),
+    @address nvarchar(max),
+    @latitude float,
+    @longitude float,
+    @contactPhone nvarchar(100),
+    @contactEmail nvarchar(200),
+    @status int,
+    @sellerId int,
+    @openingHours nvarchar(255),
+    @closingDays nvarchar(255),
+    @mapEmbedUrl nvarchar(max),
+    @virtualTourUrl nvarchar(max),
+    @history nvarchar(max),
+    @specialFeatures nvarchar(max),
+    @famousProducts nvarchar(max),
+    @culturalEvents nvarchar(max),
+    @craftProcess nvarchar(max),
+    @videoDescriptionUrl nvarchar(500),
+    @travelTips nvarchar(max),
+    @mainImageUrl nvarchar(500),
+    @result int OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra villageName đã tồn tại chưa (bỏ dấu, không phân biệt hoa thường)
+    IF EXISTS (
+        SELECT 1
+        FROM CraftVillage
+        WHERE
+            LTRIM(RTRIM(villageName)) COLLATE Latin1_General_CI_AI
+            = LTRIM(RTRIM(@villageName)) COLLATE Latin1_General_CI_AI
+    )
+    BEGIN
+        -- Trùng tên → không thêm
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Nếu chưa tồn tại thì thêm mới
+    INSERT INTO CraftVillage (
+        villageName,
+        typeID,
+        description,
+        address,
+        latitude,
+        longitude,
+        contactPhone,
+        contactEmail,
+        status,
+        sellerId,
+        openingHours,
+        closingDays,
+        mapEmbedUrl,
+        virtualTourUrl,
+        history,
+        specialFeatures,
+        famousProducts,
+        culturalEvents,
+        craftProcess,
+        videoDescriptionUrl,
+        travelTips,
+        mainImageUrl,
+        createdDate
+    )
+    VALUES (
+        @villageName,
+        @typeID,
+        @description,
+        @address,
+        @latitude,
+        @longitude,
+        @contactPhone,
+        @contactEmail,
+        @status,
+        @sellerId,
+        @openingHours,
+        @closingDays,
+        @mapEmbedUrl,
+        @virtualTourUrl,
+        @history,
+        @specialFeatures,
+        @famousProducts,
+        @culturalEvents,
+        @craftProcess,
+        @videoDescriptionUrl,
+        @travelTips,
+        @mainImageUrl,
+        GETDATE()
+    );
+
+    SET @result = 1;
+END;
+GO

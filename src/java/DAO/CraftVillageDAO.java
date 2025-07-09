@@ -274,8 +274,122 @@ public class CraftVillageDAO {
         return false;
     }
 
+    public List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch) {
+        if (contentSearch == null) {
+            contentSearch = "";
+        } else {
+            contentSearch = contentSearch.trim();
+        }
+
+        String query;
+        switch (searchID) {
+            case 1:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND CAST(typeID AS NVARCHAR) LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 2:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageName ASC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 3:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageName DESC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 4:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 5:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND CAST(villageID AS NVARCHAR) LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 6:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND address COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 7:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE())";
+                break;
+            default:
+                query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+        }
+
+        List<CraftVillage> list = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, status);
+
+            if (query.contains("? AND") || query.contains("LIKE")) {
+                ps.setString(2, contentSearch);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCraftVillage(rs));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        }
+        return list;
+    }
+
+    public List<CraftVillage> getTopRatedByAdmin() {
+        List<CraftVillage> list = new ArrayList<>();
+        String query = "SELECT * FROM CraftVillage WHERE averageRating >= 4.5 and averageRating <= 5 AND status = 1 ORDER BY averageRating DESC";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCraftVillage(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return list;
+    }
+
+    public List<CraftVillage> getVillageByCategory(int typeID) {
+        List<CraftVillage> list = new ArrayList<>();
+        String sql = "SELECT * FROM CraftVillage WHERE typeID = ? AND status = 1";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, typeID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCraftVillage(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public String getVillageNameByTypeID(Integer typeID) {
+        String query = "SELECT typeName FROM CraftType WHERE typeID = ? AND status = 1";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, typeID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("typeName");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return "";
+    }
+
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
-        System.out.println(new CraftVillageDAO().deleteVillageByAdmin(1));
+        System.out.println(new CraftVillageDAO().getVillageNameByTypeID(1));
     }
+
 }

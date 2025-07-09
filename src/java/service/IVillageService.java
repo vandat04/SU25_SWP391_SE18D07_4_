@@ -4,6 +4,7 @@
  */
 package service;
 
+import entity.CraftVillage.CraftReview;
 import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import java.util.List;
@@ -28,4 +29,8 @@ public interface IVillageService {
     List<CraftVillage> getAllCraftVillageActive();
     boolean deleteVillageByAdmin(int villageID);
     boolean addNewVillageByAdmin(CraftVillage village);
+    List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch);
+    String getVillageNameByTypeID(Integer typeID) ;
+    List<CraftVillage> getTopRatedByAdmin();
+    List<CraftVillage> getVillageByCategory(int typeID);
 }

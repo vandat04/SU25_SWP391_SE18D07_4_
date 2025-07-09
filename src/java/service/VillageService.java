@@ -5,6 +5,7 @@
 package service;
 
 import DAO.CraftVillageDAO;
+import entity.CraftVillage.CraftReview;
 import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import java.util.List;
@@ -90,6 +91,25 @@ public class VillageService implements IVillageService {
     @Override
     public boolean addNewVillageByAdmin(CraftVillage village) {
         return vDAO.addNewVillageByAdmin(village);
+    }
+
+    public List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch) {
+        return vDAO.getSearchVillageByAdmin(status, searchID, contentSearch);
+    }
+
+
+    public List<CraftVillage> getTopRatedByAdmin() {
+        return vDAO.getTopRatedByAdmin();
+    }
+
+    @Override
+    public String getVillageNameByTypeID(Integer typeID) {
+        return vDAO.getVillageNameByTypeID(typeID);
+    }
+
+    @Override
+    public List<CraftVillage> getVillageByCategory(int typeID) {
+        return vDAO.getVillageByCategory(typeID);
     }
 
 }

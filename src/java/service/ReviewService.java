@@ -88,13 +88,14 @@ public class ReviewService implements IReviewService {
         return rDAO.searchVillageReviewByAdmin(userID);
     }
 
+  
     @Override
-    public List<ProductReview> searchProductReviewToday() {
-        return rDAO.searchProductReviewToday();
+    public List<CraftReview> searchVillageReviewToday(int villageID) {
+        return rDAO.searchVillageReviewToday(villageID);
     }
 
     @Override
-    public List<CraftReview> searchVillageReviewToday() {
-        return rDAO.searchVillageReviewToday();
+    public List<ProductReview> searchProductReviewToday(int productID) {
+        return rDAO.searchProductReviewToday(productID);
     }
 }
