@@ -3,19 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/craft/SimpleVillageTicketControl.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/service/EmailService.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/DAO/SimpleTicketOrderDAO.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/addToCart.jsp</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/entity/CraftVillage/Village.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/CheckoutServlet.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/OrderCancelControl.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/service/IOrderService.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/database/Procedure.sql</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/entity/MessageNotification/SellerVerification.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/ticket/TicketDetailControl.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/TicketDetail.jsp</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/UpdateOrderStatusControl.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/account/UpdateProfileController.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/nbproject/build-impl.xml</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/constant/Iconstant.java</file>
+            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/web/ShoppingCart.jsp</file>
         </group>
     </open-files>
 </project-private>
