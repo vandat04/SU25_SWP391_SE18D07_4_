@@ -9,6 +9,9 @@ import entity.Ticket.VillageTicket;
 import entity.Ticket.TicketType;
 import entity.Ticket.TicketAvailability;
 import entity.CartWishList.CartTicket;
+import DAO.TicketDAO;
+import entity.Orders.TicketCode;
+import entity.Orders.TicketOrder;
 import entity.Ticket.Ticket;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -22,22 +25,44 @@ import java.util.ArrayList;
  */
 
 public class TicketService implements ITicketService {
-    private ProductDAO pDAO;
+    private ProductDAO pDAO = new ProductDAO();
     private VillageTicketDAO villageTicketDAO;
     private TicketAvailabilityDAO availabilityDAO;
     private CartTicketDAO cartTicketDAO;
+    TicketDAO tDAO = new TicketDAO();
     
     public TicketService() {
         this.villageTicketDAO = new VillageTicketDAO();
         this.availabilityDAO = new TicketAvailabilityDAO();
         this.cartTicketDAO = new CartTicketDAO();
     }
+    
 
     @Override
     public List<Ticket> getAllTicketActive() {
-    return pDAO.getAllTicketActive();
+        return pDAO.getAllTicketActive();
     }
-    
+
+    public boolean createTicketByAdmin(Ticket ticket) {
+        return tDAO.createTicketByAdmin(ticket);
+    }
+
+    public boolean updateTicketByAdmin(Ticket ticket) {
+        return tDAO.updateTicketByAdmin(ticket);
+    }
+
+    public boolean deleteTicketByAdmin(int ticketID) {
+        return tDAO.deleteTicketByAdmin(ticketID);
+    }
+
+    public List<Ticket> getTickeReportByAdmin(int status) {
+        return tDAO.getTickeReportByAdmin(status);
+    }
+
+    public String getTicketNameByID(int typeID){
+        return tDAO.getTicketNameByID(typeID);
+    }
+
     // ======================= VILLAGE TICKET OPERATIONS =======================
     
     @Override
@@ -307,5 +332,9 @@ public class TicketService implements ITicketService {
             // For example: apply discounts, seasonal pricing, etc.
         }
         return ticket;
+    }
+
+    public List<Ticket> searchTicketByAdmin(int status, int villageID) {
+        return tDAO.searchTicketByAdmin(status,villageID);
     }
 }

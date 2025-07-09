@@ -200,4 +200,10 @@ public interface ITicketService {
      * Process cart ticket reservation during checkout
      */
     boolean processCartTicketReservation(int cartId);
+    boolean createTicketByAdmin(Ticket ticket);
+    boolean updateTicketByAdmin(Ticket ticket);
+    boolean deleteTicketByAdmin(int ticketID);
+    List<Ticket> getTickeReportByAdmin(int status);
+    String getTicketNameByID(int typeID);
+    List<Ticket> searchTicketByAdmin(int status, int villageID);
 }
