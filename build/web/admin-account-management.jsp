@@ -142,10 +142,12 @@
                                 <a href="export-account-pdf?cas=7" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Registration in Year Summary Report</a>
                             </div>
                         </div>
-                        <button onclick="handleRequestUpdate()"
-                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                            Request Upgrade
-                        </button>
+                        <form id="upgradeForm" action="${pageContext.request.contextPath}/admin-process-request" method="get">
+                            <button type="submit"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                                Request Upgrade
+                            </button>
+                        </form>
                     </div>
                 </div>
                 <c:choose>

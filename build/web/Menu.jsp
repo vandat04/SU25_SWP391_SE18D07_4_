@@ -44,9 +44,9 @@
                             <li class="menu-item menu-item-has-children has-child">
                                 <a href="#" class="menu-name" data-title="Craft Types">Craft Types</a>
                                 <ul class="sub-menu">
-                                    <c:forEach var="c" items="${listCC}">
+                                    <c:forEach var="c" items="${listVillages}">
                                         <li class="menu-item">
-                                            <a href="category?categoryID=${c.categoryID}">${c.categoryName}</a>
+                                            <a href="craftVillage?typeID=${c.typeID}">${c.typeName}</a>
                                         </li>
                                     </c:forEach>
                                 </ul>
@@ -55,8 +55,8 @@
                             <li class="menu-item menu-item-has-children has-child">
                                 <a href="#" class="menu-name" data-title="Craft Villages">Craft Villages</a>
                                 <ul class="sub-menu">
-                                    <c:forEach items="${listVillages}" var="village">
-                                        <li class="menu-item"><a href="village?id=${village.typeID}">${village.typeName}</a></li>
+                                    <c:forEach items="${listAllVillage}" var="village">
+                                        <li class="menu-item"><a href="village?id=${village.villageID}">${village.villageName}</a></li>
                                         </c:forEach>
                                 </ul>
                             </li>
