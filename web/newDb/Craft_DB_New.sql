@@ -550,3 +550,62 @@ CREATE TABLE [dbo].[SellerVerification] (
     CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY ([sellerID]) REFERENCES [dbo].[Account] ([userID])
 );
 GO
+
+
+-- 2. TẠO BẢNG CÒN THIẾU
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CartTicket]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[CartTicket](
+        [itemID] [int] IDENTITY(1,1) NOT NULL,
+        [cartID] [int] NOT NULL,
+        [ticketID] [int] NOT NULL,
+        [quantity] [int] NOT NULL,
+        [ticketDate] [date] NOT NULL,
+        [createdDate] [datetime] NOT NULL,
+        [updatedDate] [datetime] NULL,
+        PRIMARY KEY CLUSTERED ([itemID] ASC),
+        CONSTRAINT [UC_CartTicket_Item] UNIQUE NONCLUSTERED ([cartID] ASC, [ticketID] ASC, [ticketDate] ASC)
+    );
+    ALTER TABLE [dbo].[CartTicket] ADD CONSTRAINT [FK_CartTicket_Cart] FOREIGN KEY([cartID]) REFERENCES [dbo].[Cart] ([cartID]);
+    ALTER TABLE [dbo].[CartTicket] ADD CONSTRAINT [FK_CartTicket_VillageTicket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]);
+    ALTER TABLE [dbo].[CartTicket] ADD CHECK ([quantity] > 0);
+    CREATE NONCLUSTERED INDEX [IX_CartTicket_CartID] ON [dbo].[CartTicket]([cartID] ASC);
+    CREATE NONCLUSTERED INDEX [IX_CartTicket_TicketDate] ON [dbo].[CartTicket]([ticketDate] ASC);
+END
+Go
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TicketAvailability]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[TicketAvailability](
+        [availabilityID] [int] IDENTITY(1,1) NOT NULL,
+        [ticketID] [int] NOT NULL,
+        [availableDate] [date] NOT NULL,
+        [totalSlots] [int] NOT NULL,
+        [bookedSlots] [int] NOT NULL DEFAULT(0),
+        [availableSlots] [int] NOT NULL, -- Cột này giống y Database 1
+        [status] [bit] NOT NULL DEFAULT(1),
+        [createdDate] [datetime] NOT NULL DEFAULT(GETDATE()),
+        [updatedDate] [datetime] NULL,
+        CONSTRAINT [PK_TicketAvailability] PRIMARY KEY CLUSTERED ([availabilityID] ASC),
+        CONSTRAINT [UC_TicketAvailability_TicketDate] UNIQUE NONCLUSTERED ([ticketID] ASC, [availableDate] ASC)
+    );
+    ALTER TABLE [dbo].[TicketAvailability] ADD CONSTRAINT [FK_TicketAvailability_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]);
+END
+Go
+
+IF NOT EXISTS (
+    SELECT * FROM sys.indexes WHERE name = 'IX_TicketAvailability_Date' AND object_id = OBJECT_ID('dbo.TicketAvailability')
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_TicketAvailability_Date] ON [dbo].[TicketAvailability]([availableDate] ASC)
+    WHERE ([status]=(1));
+END
+Go
+-- 5. BỔ SUNG CONSTRAINT/CHECK CÒN THIẾU
+-- TicketAvailability
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([bookedSlots] >= 0);
+Go
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([totalSlots] > 0);
+Go
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CONSTRAINT [CK_TicketAvailability_BookedSlots] CHECK ([bookedSlots] <= [totalSlots]);
+Go
