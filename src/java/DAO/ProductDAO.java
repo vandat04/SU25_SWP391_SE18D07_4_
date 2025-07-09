@@ -24,7 +24,7 @@ import java.sql.CallableStatement;
  */
 public class ProductDAO {
 
-    private static final Logger LOGGER = Logger.getLogger(AccountDAO.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ProductDAO.class.getName());
 
     private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
         return new Product(
@@ -725,7 +725,6 @@ public class ProductDAO {
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));
         // System.out.println(new ProductDAO().getProductOutOfStockByAdmin());
         //System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
-        System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
-
+        System.out.println(new ProductDAO().getCategoryNameByCategoryID(16));
     }
 }

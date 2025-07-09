@@ -24,6 +24,17 @@ public class CraftReview {
     // Constructors-------------------------------------------------------------
     public CraftReview() {
     }
+
+    public CraftReview(int reviewID, int villageID, int userID, int rating, String reviewText, Timestamp reviewDate, String response, Timestamp responseDate) {
+        this.reviewID = reviewID;
+        this.villageID = villageID;
+        this.userID = userID;
+        this.rating = rating;
+        this.reviewText = reviewText;
+        this.reviewDate = reviewDate;
+        this.response = response;
+        this.responseDate = responseDate;
+    }
     
     //--------------------------------------------------------------------------
     public int getReviewID() {

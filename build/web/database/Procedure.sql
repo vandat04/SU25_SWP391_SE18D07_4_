@@ -496,3 +496,317 @@ BEGIN
     RETURN 1;
 END
 GO
+
+CREATE PROCEDURE sp_ResponseProductReviewByAdmin
+    @reviewID INT,
+    @response NVARCHAR(MAX),
+    @result INT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM ProductReview WHERE reviewID = @reviewID)
+    BEGIN
+        UPDATE ProductReview
+        SET response = @response,
+            responseDate = GETDATE()
+        WHERE reviewID = @reviewID;
+
+        SET @result = 1; -- Thành công
+    END
+    ELSE
+    BEGIN
+        SET @result = 0; -- Không tồn tại review
+    END
+END
+Go
+
+CREATE PROCEDURE sp_DeleteProductReviewByAdmin
+    @reviewID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM ProductReview WHERE reviewID = @reviewID)
+    BEGIN
+        DELETE FROM ProductReview WHERE reviewID = @reviewID;
+        SET @result = 1; -- Thành công
+    END
+    ELSE
+    BEGIN
+        SET @result = 0; -- Không tìm thấy review để xóa
+    END
+END
+go
+
+CREATE PROCEDURE sp_ResponseVillageReviewByAdmin
+    @reviewID INT,
+    @response NVARCHAR(MAX),
+    @result INT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM VillageReview WHERE reviewID = @reviewID)
+    BEGIN
+        UPDATE VillageReview
+        SET response = @response,
+            responseDate = GETDATE()
+        WHERE reviewID = @reviewID;
+
+        SET @result = 1; -- Thành công
+    END
+    ELSE
+    BEGIN
+        SET @result = 0; -- Không tồn tại review
+    END
+END
+go
+
+CREATE PROCEDURE sp_DeleteVillageReviewByAdmin
+    @reviewID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM VillageReview WHERE reviewID = @reviewID)
+    BEGIN
+        DELETE FROM VillageReview WHERE reviewID = @reviewID;
+        SET @result = 1; -- Thành công
+    END
+    ELSE
+    BEGIN
+        SET @result = 0; -- Không tìm thấy review để xóa
+    END
+END
+go
+
+CREATE PROCEDURE UpdateVillageFullByAdmin
+    @villageID int,
+    @villageName nvarchar(255),
+    @typeID int,
+    @description nvarchar(max),
+    @address nvarchar(max),
+    @latitude float,
+    @longitude float,
+    @contactPhone nvarchar(100),
+    @contactEmail nvarchar(200),
+    @status int,
+    @sellerId int,
+    @openingHours nvarchar(255),
+    @closingDays nvarchar(255),
+    @mapEmbedUrl nvarchar(max),
+    @virtualTourUrl nvarchar(max),
+    @history nvarchar(max),
+    @specialFeatures nvarchar(max),
+    @famousProducts nvarchar(max),
+    @culturalEvents nvarchar(max),
+    @craftProcess nvarchar(max),
+    @videoDescriptionUrl nvarchar(500),
+    @travelTips nvarchar(max),
+    @mainImageUrl nvarchar(500),
+    @result int OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra tên không trùng (không phân biệt hoa thường, không dấu)
+    IF EXISTS (
+        SELECT 1
+        FROM CraftVillage
+        WHERE
+            villageID <> @villageID
+            AND villageName COLLATE Latin1_General_CI_AI
+                = @villageName COLLATE Latin1_General_CI_AI
+    )
+    BEGIN
+        -- Trùng tên với village khác → không update
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Thực hiện UPDATE
+    UPDATE CraftVillage
+    SET
+        villageName = @villageName,
+        typeID = @typeID,
+        description = @description,
+        address = @address,
+        latitude = @latitude,
+        longitude = @longitude,
+        contactPhone = @contactPhone,
+        contactEmail = @contactEmail,
+        status = @status,
+        sellerId = @sellerId,
+        openingHours = @openingHours,
+        closingDays = @closingDays,
+        mapEmbedUrl = @mapEmbedUrl,
+        virtualTourUrl = @virtualTourUrl,
+        history = @history,
+        specialFeatures = @specialFeatures,
+        famousProducts = @famousProducts,
+        culturalEvents = @culturalEvents,
+        craftProcess = @craftProcess,
+        videoDescriptionUrl = @videoDescriptionUrl,
+        travelTips = @travelTips,
+        mainImageUrl = @mainImageUrl,
+        updatedDate = GETDATE()
+    WHERE villageID = @villageID;
+
+    SET @result = 1;
+END;
+go
+
+CREATE PROCEDURE DeleteVillageByAdmin
+    @villageID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @existsInProduct BIT = 0;
+    DECLARE @existsInTicket BIT = 0;
+
+    -- Kiểm tra xem villageID có tồn tại trong Product
+    IF EXISTS (
+        SELECT 1
+        FROM Product
+        WHERE villageID = @villageID
+    )
+    BEGIN
+        SET @existsInProduct = 1;
+    END
+
+    -- Kiểm tra xem villageID có tồn tại trong VillageTicket
+    IF EXISTS (
+        SELECT 1
+        FROM VillageTicket
+        WHERE villageID = @villageID
+    )
+    BEGIN
+        SET @existsInTicket = 1;
+    END
+
+    -- Nếu có xuất hiện ở Product hoặc VillageTicket
+    IF @existsInProduct = 1 OR @existsInTicket = 1
+    BEGIN
+        -- Update status = 0 trong Product
+        UPDATE Product
+        SET status = 0
+        WHERE villageID = @villageID;
+
+        -- Update status = 0 trong VillageTicket
+        UPDATE VillageTicket
+        SET status = 0
+        WHERE villageID = @villageID;
+
+		UPDATE CraftVillage
+        SET status = 0
+        WHERE villageID = @villageID;
+
+        -- Không xóa CraftVillage
+        SET @result = 2; -- 2 = Chỉ update status, không xóa
+    END
+    ELSE
+    BEGIN
+        -- Không tồn tại ở các bảng → XÓA hẳn CraftVillage
+        DELETE FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        SET @result = 1; -- 1 = Xóa thành công
+    END
+END;
+go
+
+CREATE PROCEDURE AddVillageFullByAdmin
+    @villageName nvarchar(255),
+    @typeID int,
+    @description nvarchar(max),
+    @address nvarchar(max),
+    @latitude float,
+    @longitude float,
+    @contactPhone nvarchar(100),
+    @contactEmail nvarchar(200),
+    @status int,
+    @sellerId int,
+    @openingHours nvarchar(255),
+    @closingDays nvarchar(255),
+    @mapEmbedUrl nvarchar(max),
+    @virtualTourUrl nvarchar(max),
+    @history nvarchar(max),
+    @specialFeatures nvarchar(max),
+    @famousProducts nvarchar(max),
+    @culturalEvents nvarchar(max),
+    @craftProcess nvarchar(max),
+    @videoDescriptionUrl nvarchar(500),
+    @travelTips nvarchar(max),
+    @mainImageUrl nvarchar(500),
+    @result int OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra villageName đã tồn tại chưa (bỏ dấu, không phân biệt hoa thường)
+    IF EXISTS (
+        SELECT 1
+        FROM CraftVillage
+        WHERE
+            LTRIM(RTRIM(villageName)) COLLATE Latin1_General_CI_AI
+            = LTRIM(RTRIM(@villageName)) COLLATE Latin1_General_CI_AI
+    )
+    BEGIN
+        -- Trùng tên → không thêm
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Nếu chưa tồn tại thì thêm mới
+    INSERT INTO CraftVillage (
+        villageName,
+        typeID,
+        description,
+        address,
+        latitude,
+        longitude,
+        contactPhone,
+        contactEmail,
+        status,
+        sellerId,
+        openingHours,
+        closingDays,
+        mapEmbedUrl,
+        virtualTourUrl,
+        history,
+        specialFeatures,
+        famousProducts,
+        culturalEvents,
+        craftProcess,
+        videoDescriptionUrl,
+        travelTips,
+        mainImageUrl,
+        createdDate
+    )
+    VALUES (
+        @villageName,
+        @typeID,
+        @description,
+        @address,
+        @latitude,
+        @longitude,
+        @contactPhone,
+        @contactEmail,
+        @status,
+        @sellerId,
+        @openingHours,
+        @closingDays,
+        @mapEmbedUrl,
+        @virtualTourUrl,
+        @history,
+        @specialFeatures,
+        @famousProducts,
+        @culturalEvents,
+        @craftProcess,
+        @videoDescriptionUrl,
+        @travelTips,
+        @mainImageUrl,
+        GETDATE()
+    );
+
+    SET @result = 1;
+END;
+GO
+

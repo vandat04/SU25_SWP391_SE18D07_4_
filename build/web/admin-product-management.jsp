@@ -90,6 +90,15 @@
                 cursor: pointer;
                 font-size: 24px;
             }
+            table tr:hover {
+                background-color: #f9fafb;
+            }
+            .table-button {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 4px;
+            }
         </style>
     </head>
     <body class="bg-gray-100">
@@ -145,14 +154,14 @@
                             <script src="https://unpkg.com/tippy.js@6"></script>
 
                             <script>
-                                                // Lấy nội dung tooltip từ JSP biến tooltipContent
-                                                var tooltipContent = `<c:out value="${tooltipContent}" escapeXml="false"/>`;
+                        // Lấy nội dung tooltip từ JSP biến tooltipContent
+                        var tooltipContent = `<c:out value="${tooltipContent}" escapeXml="false"/>`;
 
-                                                tippy('#tooltip-icon', {
-                                                    content: tooltipContent,
-                                                    allowHTML: true,
-                                                    theme: 'light',
-                                                });
+                        tippy('#tooltip-icon', {
+                            content: tooltipContent,
+                            allowHTML: true,
+                            theme: 'light',
+                        });
                             </script>
                             <form action="admin-product-management" method="post" class="flex flex-wrap gap-2 items-center">
                                 <input type="hidden" name="typeName" value="searchProduct" />
@@ -206,59 +215,74 @@
                     <table class="w-full table-auto border border-gray-300 text-sm">
                         <thead class="bg-gray-200 text-center">
                             <tr>
-                                <th class="p-2 border w-20">Product ID</th>
-                                <th class="p-2 border w-24">Image</th>
-                                <th class="p-2 border w-48">Name</th>
-                                <th class="p-2 border w-32">Price</th>
-                                <th class="p-2 border w-24">Stock</th>
-                                <th class="p-2 border w-32">Action</th>
+                                <th class="p-3 border w-20">Product ID</th>
+                                <th class="p-3 border w-24">Image</th>
+                                <th class="p-3 border w-48">Name</th>
+                                <th class="p-3 border w-32">Price</th>
+                                <th class="p-3 border w-24">Stock</th>
+                                <th class="p-3 border w-56">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="product" items="${listProduct}">
-                                <tr class="bg-white border text-center align-middle">
-                                    <td class="p-2 border">${product.pid}</td>
-                                    <td class="p-2 border">
-                                        <img src="${product.mainImageUrl}" alt="Image" class="w-16 h-16 object-cover mx-auto" />
+                                <tr class="bg-white border text-center align-middle hover:bg-gray-50">
+                                    <td class="p-3 border">${product.pid}</td>
+                                    <td class="p-3 border">
+                                        <img src="${product.mainImageUrl}" alt="Image" class="w-20 h-20 object-cover mx-auto rounded" />
                                     </td>
-                                    <td class="p-2 border">${product.name}</td>
-                                    <td class="p-2 border">${product.price}</td>
-                                    <td class="p-2 border">${product.stock}</td>
-                                    <td class="p-2 border">
-                                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
-                                                onclick="showProductDetail(
-                                                                '${product.pid}',
-                                                                '${fn:escapeXml(product.name)}',
-                                                                '${product.price}',
-                                                                '${empty product.description ? '' : fn:escapeXml(product.description)}',
-                                                                '${product.stock}',
-                                                                '${product.status}',
-                                                                '${product.villageID}',
-                                                                '${product.categoryID}',
-                                                                '${product.craftTypeID}',
-                                                                '${product.mainImageUrl}',
-                                                                '${product.clickCount}',
-                                                                '${product.createdDate}',
-                                                                '${product.updatedDate}',
-                                                                '${empty product.sku ? '' : product.sku}',
-                                                                '${empty product.weight ? '' : product.weight}',
-                                                                '${empty product.dimensions ? '' : product.dimensions}',
-                                                                '${empty product.materials ? '' : product.materials}',
-                                                                '${empty product.careInstructions ? '' : product.careInstructions}',
-                                                                '${empty product.warranty ? '' : product.warranty}',
-                                                                '${empty product.averageRating ? '' : product.averageRating}',
-                                                                '${empty product.totalReviews ? '' : product.totalReviews}'
-                                                                )">
-                                            View Details
-                                        </button>
-                                        <button 
-                                            class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                                            onclick="confirmDelete('${product.pid}')">
-                                            Delete
-                                        </button>
-                                        <!-- Form ẩn để submit pid khi xóa -->
+                                    <td class="p-3 border">${product.name}</td>
+                                    <td class="p-3 border">${product.price}</td>
+                                    <td class="p-3 border">${product.stock}</td>
+                                    <td class="p-3 border">
+                                        <div class="flex flex-col md:flex-row md:justify-center gap-2">
+                                            <!-- View Details -->
+                                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+                                                    onclick="showProductDetail(
+                                                                    '${product.pid}',
+                                                                    '${fn:escapeXml(product.name)}',
+                                                                    '${product.price}',
+                                                                    '${empty product.description ? '' : fn:escapeXml(product.description)}',
+                                                                    '${product.stock}',
+                                                                    '${product.status}',
+                                                                    '${product.villageID}',
+                                                                    '${product.categoryID}',
+                                                                    '${product.craftTypeID}',
+                                                                    '${product.mainImageUrl}',
+                                                                    '${product.clickCount}',
+                                                                    '${product.createdDate}',
+                                                                    '${product.updatedDate}',
+                                                                    '${empty product.sku ? '' : product.sku}',
+                                                                    '${empty product.weight ? '' : product.weight}',
+                                                                    '${empty product.dimensions ? '' : product.dimensions}',
+                                                                    '${empty product.materials ? '' : product.materials}',
+                                                                    '${empty product.careInstructions ? '' : product.careInstructions}',
+                                                                    '${empty product.warranty ? '' : product.warranty}',
+                                                                    '${empty product.averageRating ? '' : product.averageRating}',
+                                                                    '${empty product.totalReviews ? '' : product.totalReviews}'
+                                                                    )">
+                                                View
+                                            </button>
+
+                                            <!-- Review -->
+                                            <form method="get" action="<c:url value='/admin-preview-management'/>">
+                                                <input type="hidden" name="pid" value="${product.pid}" />
+                                                <input type="hidden" name="name" value="${product.name}" />
+                                                <button type="submit"
+                                                        class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
+                                                    Review
+                                                </button>
+                                            </form>
+
+                                            <!-- Delete -->
+                                            <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+                                                    onclick="confirmDelete('${product.pid}')">
+                                                Delete
+                                            </button>
+                                        </div>
+
+                                        <!-- Hidden form for delete -->
                                         <form id="deleteForm" method="post" action="<c:url value='/admin-product-management'/>" style="display:none;">
-                                            <input tpye="hidden" name="typeName" value="deleteProduct">
+                                            <input type="hidden" name="typeName" value="deleteProduct">
                                             <input type="hidden" name="pid" id="deletePid">
                                         </form>
                                     </td>

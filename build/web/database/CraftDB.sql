@@ -142,7 +142,7 @@ CREATE TABLE [dbo].[VillageImage](
 	[isMain] [bit] NOT NULL DEFAULT(0),
 	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	CONSTRAINT [FK_VillageImage_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID])
-)
+)VillageReview
 GO
 
 --Table [FavoriteVillage]
@@ -683,6 +683,10 @@ INSERT INTO [dbo].[VillageReview] (villageID, userID, rating, reviewText)
 VALUES 
 (1, 1, 5, N'Tuyệt vời!');
 GO
+INSERT INTO [dbo].[VillageReview] (villageID, userID, rating, reviewText)
+VALUES 
+(1, 1, 2, N'VCL!');
+GO
 
 --Insert [ProductCategory]
 SET IDENTITY_INSERT [dbo].[ProductCategory] ON;
@@ -728,6 +732,10 @@ GO
 INSERT INTO [dbo].[ProductReview] (productID, userID, rating, reviewText)
 VALUES 
 (1, 1, 5, N'Sản phẩm chất lượng cao');
+GO
+INSERT INTO [dbo].[ProductReview] (productID, userID, rating, reviewText)
+VALUES 
+(1, 1, 1, N'Nhu cc');
 GO
 
 --Insert [TicketType]
