@@ -368,7 +368,7 @@ public class AccountDAO {
         }
         return null;
     }
-    
+
     public boolean requestUpgradeForIndividual(SellerVerification sellerForm) {
         String query = "{? = call sp_InsertSellerVerification_Individual(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
@@ -529,15 +529,17 @@ public class AccountDAO {
     }
 
     public boolean approvedUpgradeAccount(SellerVerification sellerForm) {
-        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
 
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
+
             // Register the RETURN parameter
             cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
             // Set input parameters
             cs.setInt(2, sellerForm.getVerificationID());
             cs.setInt(3, sellerForm.getSellerID());
@@ -551,9 +553,18 @@ public class AccountDAO {
             cs.setString(11, sellerForm.getContactEmail());
             cs.setInt(12, sellerForm.getVerificationStatus());
             cs.setInt(13, sellerForm.getVerifiedBy());
+
+            // Register OUTPUT parameter @newVillageID
+            cs.registerOutParameter(14, java.sql.Types.INTEGER);
+
             cs.execute();
+
             int result = cs.getInt(1);
-            LOGGER.log(Level.INFO, "sp_RequestUpgradeAccount result code: {0}", result);
+            int newVillageId = cs.getInt(14);
+
+            LOGGER.log(Level.INFO, "sp_ApprovedUpgradeAccount result code: {0}", result);
+            LOGGER.log(Level.INFO, "New VillageID: {0}", newVillageId);
+
             return result == 1;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
@@ -598,7 +609,7 @@ public class AccountDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new AccountDAO().getSellerVertificationFormByAdmin(0));
+        System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(6, 4, "Go", "Go TK", "Qnam", "Go Duc", "hinhanh/village/kim-bong.jpg", "1231231231", "7770760289", "truongvandat02112004@gmail.com", 1, 3)));
     }
 
     public boolean checkPassword(int userId, String password) {

@@ -1,28 +1,41 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package controller.ticket;
 
-import DAO.VillageTicketDAO;
 import DAO.CraftVillageDAO;
 import DAO.TicketAvailabilityDAO;
-import service.ITicketAvailabilityService;
-import service.TicketAvailabilityService;
-import entity.Ticket.VillageTicket;
-import entity.Ticket.TicketAvailability;
+import DAO.VillageTicketDAO;
 import entity.CraftVillage.CraftVillage;
+import entity.Ticket.TicketAvailability;
+import entity.Ticket.VillageTicket;
+import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
+import service.ITicketAvailabilityService;
+import service.TicketAvailabilityService;
 
 /**
- * Controller for Ticket Detail functionality
- * URL: /ticket-detail?ticketId={ticketId}
+ *
+ * @author ACER
  */
 @WebServlet(name = "TicketDetailControl", urlPatterns = {"/ticket-detail"})
 public class TicketDetailControl extends HttpServlet {
-    
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     private VillageTicketDAO villageTicketDAO = new VillageTicketDAO();
     private CraftVillageDAO villageDAO = new CraftVillageDAO();
     private TicketAvailabilityDAO availabilityDAO = new TicketAvailabilityDAO();
@@ -101,4 +114,4 @@ public class TicketDetailControl extends HttpServlet {
         // Handle POST requests if needed (like adding reviews)
         doGet(request, response);
     }
-} 
+}

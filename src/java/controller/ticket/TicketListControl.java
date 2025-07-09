@@ -1,29 +1,43 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package controller.ticket;
 
-import DAO.VillageTicketDAO;
 import DAO.CraftVillageDAO;
 import DAO.TicketAvailabilityDAO;
-import service.ITicketAvailabilityService;
-import service.TicketAvailabilityService;
-import entity.Ticket.VillageTicket;
+import DAO.VillageTicketDAO;
 import entity.CraftVillage.CraftVillage;
+import entity.Ticket.VillageTicket;
+import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.stream.Collectors;
+import service.ITicketAvailabilityService;
+import service.TicketAvailabilityService;
 
 /**
- * Controller for Ticket List functionality
- * URL: /ticket-list
+ *
+ * @author ACER
  */
 @WebServlet(name = "TicketListControl", urlPatterns = {"/ticket-list"})
 public class TicketListControl extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     
     private VillageTicketDAO villageTicketDAO = new VillageTicketDAO();
     private CraftVillageDAO villageDAO = new CraftVillageDAO();
@@ -147,4 +161,4 @@ public class TicketListControl extends HttpServlet {
             throws ServletException, IOException {
         doGet(request, response);
     }
-} 
+}
