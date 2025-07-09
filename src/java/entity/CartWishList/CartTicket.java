@@ -140,6 +140,10 @@ public class CartTicket {
         return price * quantity;
     }
 
+    public double getSubtotal() {
+        return getTotalPrice();
+    }
+
     public String getFormattedPrice() {
         return String.format("%,.0f VNĐ", price);
     }

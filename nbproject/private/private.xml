@@ -2,6 +2,7 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+<<<<<<< HEAD
         <group>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ProductDAO.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/build.xml</file>
@@ -23,5 +24,8 @@
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin-product-management.jsp</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/ExportPDF/ExportProductPDFServlet.java</file>
         </group>
+=======
+        <group/>
+>>>>>>> hoangmerge9_7
     </open-files>
 </project-private>

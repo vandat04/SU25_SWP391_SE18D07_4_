@@ -503,7 +503,7 @@ CREATE NONCLUSTERED INDEX [IX_Notification_UserID] ON [dbo].[Notification]
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
---Table [PageView] -- tham chieu dfen ban????
+--Table [PageView] -- tham chieu den ban
 CREATE TABLE [dbo].[PageView](
 	[viewID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[pageUrl] [varchar](500) NOT NULL,
@@ -693,7 +693,7 @@ SET IDENTITY_INSERT [dbo].[ProductCategory] ON;
 INSERT INTO [dbo].[ProductCategory] (categoryID,categoryName, description)
 VALUES 
 (1, N'Đồ gốm', N'Sản phẩm từ đất nung'),
-(2, N'Chieu',N'San pham tu co')
+(2, N'Chieu',N'San pham tu co');
 SET IDENTITY_INSERT [dbo].[ProductCategory] OFF;
 GO
 
@@ -743,7 +743,7 @@ SET IDENTITY_INSERT [dbo].[TicketType] ON;
 INSERT INTO [dbo].[TicketType] (typeID,typeName, ageRange)
 VALUES 
 (1, N'Người lớn', N'18+'),
-(2, N'Child', N'<18')
+(2, N'Child', N'<18');
 SET IDENTITY_INSERT [dbo].[TicketType] OFF;
 GO
 

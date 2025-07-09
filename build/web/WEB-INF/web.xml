@@ -3,16 +3,15 @@
 
     <!--
     ================================================================
-    Web Application Configuration
-    This deployment descriptor contains only essential configurations.
-    Controllers use @WebServlet annotations for URL mappings.
+    MINIMAL WEB CONFIGURATION FOR JSP TESTING
+    This configuration removes servlet mappings temporarily to allow
+    deployment and testing of JSP pages only.
     ================================================================
     -->
 
     <!--
     ================================================================
     SESSION CONFIGURATION
-    Defines the session timeout for the application.
     ================================================================
     -->
     <session-config>
@@ -21,44 +20,101 @@
 
     <!--
     ================================================================
-    APPLICATION LISTENERS - TEMPORARILY DISABLED FOR DEBUGGING
-    Listeners for session lifecycle events.
-    ================================================================
-    -->
-    <!-- COMMENTED OUT TO TEST IF THESE ARE CAUSING HANG
-    <listener>
-        <listener-class>listener.SessionCounterListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>listener.SessionListener</listener-class>
-    </listener>
-    -->
-
-    <!--
-    ================================================================
-    FILTERS
-    Filters for intercepting requests, e.g., for logging or auth.
-    ================================================================
-    -->
-    <filter>
-        <filter-name>LoggingFilter</filter-name>
-        <filter-class>filter.LoggingFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>LoggingFilter</filter-name>
-        <url-pattern>/manager</url-pattern>
-        <url-pattern>/managerAccount</url-pattern>
-    </filter-mapping>
-
-    <!--
-    ================================================================
-    WELCOME FILE
-    The default page to show when the root URL is requested.
-    This will be handled by the HomeControl servlet (via @WebServlet annotation).
+    WELCOME FILE - Direct JSP access
     ================================================================
     -->
     <welcome-file-list>
-        <welcome-file>home</welcome-file>
+        <welcome-file>Home.jsp</welcome-file>
     </welcome-file-list>
 
+<<<<<<< HEAD
 </web-app>
+=======
+    <!--
+    ================================================================
+    ERROR PAGES
+    ================================================================
+    -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/404Loi.jsp</location>
+    </error-page>
+
+    <!--
+    ================================================================
+    SERVLET MAPPINGS - ENABLED FOR CART SYSTEM TESTING
+    ================================================================
+    -->
+    
+    <servlet>
+        <servlet-name>CartControll</servlet-name>
+        <servlet-class>controller.cart_order.CartControll</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CartControll</servlet-name>
+        <url-pattern>/cart</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <servlet-class>controller.cart_order.CheckoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <url-pattern>/checkout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OrderManagementControl</servlet-name>
+        <servlet-class>controller.cart_order.OrderManagementControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OrderManagementControl</servlet-name>
+        <url-pattern>/order-management</url-pattern>
+    </servlet-mapping>
+
+    <!--
+    ================================================================
+    TICKET SERVLETS - ENABLED FOR TICKET FUNCTIONALITY
+    ================================================================
+    -->
+    
+    <servlet>
+        <servlet-name>TicketDetailControl</servlet-name>
+        <servlet-class>controller.ticket.TicketDetailControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TicketDetailControl</servlet-name>
+        <url-pattern>/ticket-detail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TicketListControl</servlet-name>
+        <servlet-class>controller.ticket.TicketListControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TicketListControl</servlet-name>
+        <url-pattern>/ticket-list</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>VillageTicketControl</servlet-name>
+        <servlet-class>controller.craft.VillageTicketControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VillageTicketControl</servlet-name>
+        <url-pattern>/village-ticket</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SimpleVillageTicketControl</servlet-name>
+        <servlet-class>controller.craft.SimpleVillageTicketControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SimpleVillageTicketControl</servlet-name>
+        <url-pattern>/simple-village-ticket</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+
+>>>>>>> hoangmerge9_7

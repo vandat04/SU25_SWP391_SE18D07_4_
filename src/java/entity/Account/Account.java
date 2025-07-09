@@ -158,6 +158,10 @@ public class Account {
         this.roleID = roleID;
     }
 
+    public int getRole() {
+        return roleID;
+    }
+
     public boolean isIsEmailVerified() {
         return isEmailVerified;
     }

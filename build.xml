@@ -70,10 +70,10 @@
     -->
     <target name="dist" depends="compile">
         <mkdir dir="dist" />
-        <war destfile="dist/yourproject.war" webxml="WebContent/WEB-INF/web.xml">
-            <fileset dir="WebContent"/>
-            <lib dir="WebContent/WEB-INF/lib"/>
-            <classes dir="build/classes"/>
+        <war destfile="dist/CraftVillage.war" webxml="web/WEB-INF/web.xml">
+            <fileset dir="web"/>
+            <lib dir="web/lib"/>
+            <classes dir="build/web/WEB-INF/classes"/>
         </war>
     </target>
 </project>

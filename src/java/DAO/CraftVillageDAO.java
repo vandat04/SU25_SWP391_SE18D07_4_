@@ -250,6 +250,89 @@ public class CraftVillageDAO {
     }
 
     
+    // Additional methods for compatibility
+    public List<CraftVillage> getAllCraftVillages(int offset, int limit) {
+        // For now, ignore paging and return all active villages
+        return getAllCraftVillageActive();
+    }
+
+    public int getTotalCraftVillages() {
+        List<CraftVillage> villages = getAllCraftVillageActive();
+        return villages.size();
+    }
+
+    public boolean addVillage(CraftVillage village) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "INSERT INTO CraftVillage (typeID, villageName, description, address, contactPhone, contactEmail, status) VALUES (?, ?, ?, ?, ?, ?, 1)";
+            ps = conn.prepareStatement(sql);
+            ps.setObject(1, village.getTypeID());
+            ps.setString(2, village.getVillageName());
+            ps.setString(3, village.getDescription());
+            ps.setString(4, village.getAddress());
+            ps.setString(5, village.getContactPhone());
+            ps.setString(6, village.getContactEmail());
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            closeResources(conn, ps, null);
+        }
+    }
+
+    public boolean updateVillage(CraftVillage village) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "UPDATE CraftVillage SET typeID = ?, villageName = ?, description = ?, address = ?, contactPhone = ?, contactEmail = ? WHERE villageID = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setObject(1, village.getTypeID());
+            ps.setString(2, village.getVillageName());
+            ps.setString(3, village.getDescription());
+            ps.setString(4, village.getAddress());
+            ps.setString(5, village.getContactPhone());
+            ps.setString(6, village.getContactEmail());
+            ps.setInt(7, village.getVillageID());
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            closeResources(conn, ps, null);
+        }
+    }
+
+    public boolean updateVillageStatus(int villageId, int status) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "UPDATE CraftVillage SET status = ? WHERE villageID = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, status);
+            ps.setInt(2, villageId);
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            closeResources(conn, ps, null);
+        }
+    }
+
     public List<CraftVillage> getAllVillages() {
         List<CraftVillage> villages = new ArrayList<>();
         Connection conn = null;

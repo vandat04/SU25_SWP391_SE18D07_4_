@@ -4,6 +4,17 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <fmt:setLocale value="vi_VN"/>
 
+<!-- Remove debug info once everything is working -->
+<c:if test="${param.debug == 'true'}">
+<div style="background: #ffe; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+  <strong>Debug Info:</strong>
+  ticket: ${ticket != null ? 'OK' : 'NULL'} |
+  village: ${village != null ? 'OK' : 'NULL'} |
+  availableDates: ${fn:length(availableDates)} |
+  allTicketTypes: ${fn:length(allTicketTypes)}
+</div>
+</c:if>
+
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 
@@ -265,6 +276,7 @@
                 <div class="sumary-product single-layout">
                     <div class="media">
                         <!-- Village Images -->
+                        <c:if test="${not empty village}">
                         <ul class="biolife-carousel slider-for" data-slick='{"arrows":false,"dots":false,"slidesMargin":30,"slidesToShow":1,"slidesToScroll":1,"fade":true,"asNavFor":".slider-nav"}'>
                             <li>
                                 <img src="${village.mainImageUrl != null ? village.mainImageUrl : 'hinhanh/village/default-village.jpg'}" 
@@ -285,17 +297,18 @@
                                      onmouseout="this.style.borderColor = 'transparent'">
                             </li>
                         </ul>
+                        </c:if>
                     </div>
                     
                     <div class="product-attribute">
+                        <c:if test="${not empty village}">
                         <h3 class="title">${village.villageName} - Village Ticket</h3>
                         <div class="rating">
                             <p class="star-rating"><span class="width-${village.averageRating != null ? (village.averageRating.doubleValue() * 20) : 0}percent"></span></p>
                             <span class="review-count">(${village.totalReviews != null ? village.totalReviews : 0} Reviews)</span>
                             <b class="category">Village: ${village.villageName}</b>
                         </div>
-                        
-
+                        </c:if>
                         
                         <!-- Ticket Type Selection -->
                         <div class="form-group">
@@ -382,6 +395,7 @@
                             <a onclick="addTicketToCart()" class="btn add-to-cart-btn disabled" id="addToCartBtn">
                                 <i class="fa fa-ticket"></i> Add Ticket to Cart
                             </a>
+
                         </div>
                         
                         <div class="social-media">
@@ -571,25 +585,110 @@
         </div>
     </div>
 
+    <!-- Debug: Check data availability (only show if debug=true) -->
+    <c:if test="${param.debug == 'true'}">
+    <div id="debugInfo" style="display: block; background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+        <p>Available Dates Count: ${fn:length(availableDates)}</p>
+        <c:if test="${not empty availableDates}">
+            <c:forEach var="availability" items="${availableDates}" varStatus="status">
+                <p>Date ${status.index + 1}: ${availability.availableDate} - Slots: ${availability.availableSlots}</p>
+            </c:forEach>
+        </c:if>
+    </div>
+    </c:if>
+
+    <!-- Hidden data container for JSTL to JavaScript transfer -->
+    <div id="availabilityData" style="display: none;">
+        <c:choose>
+            <c:when test="${not empty availableDates}">
+                <c:forEach var="availability" items="${availableDates}">
+                    <c:set var="dateStr" value="${availability.availableDate}" />
+                    <c:choose>
+                        <c:when test="${not empty dateStr}">
+                            <span class="availability-item" 
+                                  data-date="${dateStr}"
+                                  data-slots="${availability.availableSlots}"></span>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- Skip invalid date -->
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
+            </c:when>
+            <c:otherwise>
+                <!-- No availability data, create sample data for testing -->
+                <%
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                %>
+                <span class="availability-item" data-date="<%=sdf.format(cal.getTime())%>" data-slots="20"></span>
+                <%
+                cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+                %>
+                <span class="availability-item" data-date="<%=sdf.format(cal.getTime())%>" data-slots="15"></span>
+                <%
+                cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+                %>
+                <span class="availability-item" data-date="<%=sdf.format(cal.getTime())%>" data-slots="18"></span>
+            </c:otherwise>
+        </c:choose>
+    </div>
+
     <!-- JavaScript for Calendar and Functionality -->
-    <script>
+    <script type="text/javascript">
         // Global variables
         let currentDate = new Date();
         let selectedDate = null;
         let selectedTicketId = null;
         let availableDates = [];
         
-        // Initialize available dates from server data
-        <c:forEach var="availableDate" items="${availableDates}">
-        availableDates.push({
-            date: '<fmt:formatDate value="${availableDate.availableDate}" pattern="yyyy-MM-dd"/>',
-            slots: ${availableDate.availableSlots}
-        });
-        </c:forEach>
-        
         // Initialize calendar on page load
         document.addEventListener('DOMContentLoaded', function() {
-            generateCalendar(currentDate);
+            try {
+                // Debug: Show debug info temporarily
+                const debugInfo = document.getElementById('debugInfo');
+                if (debugInfo) {
+                    console.log('Debug Info:', debugInfo.innerHTML);
+                    // Show debug info on page
+                    debugInfo.style.display = 'block';
+                }
+                
+                // Load availability data from hidden div (MVC pattern)
+                const availabilityItems = document.querySelectorAll('#availabilityData .availability-item');
+                console.log('Found availability items:', availabilityItems.length);
+                
+                availabilityItems.forEach(function(item) {
+                    const dateStr = item.getAttribute('data-date');
+                    const slots = parseInt(item.getAttribute('data-slots'));
+                    console.log('Adding date:', dateStr, 'slots:', slots);
+                    availableDates.push({
+                        date: dateStr,
+                        slots: slots
+                    });
+                });
+                
+                console.log('availableDates:', availableDates);
+                if (availableDates.length === 0) {
+                    const warn = document.createElement('div');
+                    warn.style.background = '#ffe0e0';
+                    warn.style.color = '#b71c1c';
+                    warn.style.padding = '10px';
+                    warn.style.margin = '10px 0';
+                    warn.style.border = '1px solid #b71c1c';
+                    warn.textContent = '⚠️ Không có dữ liệu ngày vé từ backend! (availableDates rỗng)';
+                    document.body.insertBefore(warn, document.body.firstChild);
+                }
+                
+                // Generate calendar after data is loaded
+                generateCalendar(currentDate);
+                
+            } catch (error) {
+                console.error('Error initializing calendar:', error);
+                // Fallback: still try to generate calendar with empty data
+                generateCalendar(currentDate);
+            }
+            
             // Set default ticket type if only one available
             const ticketSelect = document.getElementById('ticketTypeSelect');
             if (ticketSelect.options.length === 2) {
@@ -607,11 +706,19 @@
         
         // Calendar generation
         function generateCalendar(date) {
-            const calendarDays = document.getElementById('calendarDays');
-            const monthYear = document.getElementById('currentMonthYear');
-            
-            const year = date.getFullYear();
-            const month = date.getMonth();
+            try {
+                const calendarDays = document.getElementById('calendarDays');
+                const monthYear = document.getElementById('currentMonthYear');
+                
+                if (!calendarDays || !monthYear) {
+                    console.error('Calendar elements not found');
+                    return;
+                }
+                
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                
+                console.log('Generating calendar for:', year, month + 1);
             
             // Set month/year display
             const monthNames = [
@@ -656,7 +763,10 @@
                     if (availableDate) {
                         if (availableDate.slots > 0) {
                             dayElement.classList.add('available');
-                            dayElement.onclick = function() { selectDate(currentDayDate, availableDate.slots); };
+                            dayElement.onclick = function(event) {
+                                selectDate(event, currentDayDate, availableDate.slots);
+                                validateForm();
+                            };
                         } else {
                             dayElement.classList.add('unavailable');
                         }
@@ -667,6 +777,14 @@
                 
                 calendarDays.appendChild(dayElement);
             }
+            } catch (error) {
+                console.error('Error generating calendar:', error);
+                // Fallback: display error message
+                const calendarDays = document.getElementById('calendarDays');
+                if (calendarDays) {
+                    calendarDays.innerHTML = '<div class="calendar-error">Error loading calendar</div>';
+                }
+            }
         }
         
         // Change month
@@ -676,16 +794,19 @@
         }
         
         // Select date
-        function selectDate(date, availableSlots) {
+        function selectDate(event, date, availableSlots) {
             // Remove previous selection
             document.querySelectorAll('.calendar-day.selected').forEach(day => {
                 day.classList.remove('selected');
             });
             
             // Add selection to clicked day
-            event.target.classList.add('selected');
+            if (event && event.target) {
+                event.target.classList.add('selected');
+            }
             
             selectedDate = date;
+            console.log('Selected date:', selectedDate);
             
             // Update availability info
             const availabilityInfo = document.getElementById('availabilityInfo');
@@ -748,6 +869,7 @@
                     typeInfo.textContent = 'Choose a ticket type to see pricing';
                 }
             }
+            console.log('Selected ticketId:', selectedTicketId);
             
             // Always validate after updating
             setTimeout(function() {
@@ -777,13 +899,21 @@
         function validateForm() {
             const addToCartBtn = document.getElementById('addToCartBtn');
             const validationMessage = document.getElementById('validationMessage');
-            
             let isValid = true;
             let message = '';
-            
-            // Check ticket type selection - check both variable and dropdown
+
+            // Check ticket type selection
             const select = document.getElementById('ticketTypeSelect');
-            const hasTicketType = selectedTicketId || (select && select.value);
+            const hasTicketType = select && select.value && select.value !== "";
+            
+            // Update global selectedTicketId to ensure sync
+            if (hasTicketType) {
+                selectedTicketId = select.value;
+            } else {
+                selectedTicketId = null;
+            }
+            
+            // Form validation complete
             
             if (!hasTicketType) {
                 isValid = false;
@@ -794,15 +924,28 @@
                 isValid = false;
                 message = 'Please select a visit date';
             }
-            // Check quantity
+            // Check ngày có vé và số vé hợp lệ
             else {
-                const quantity = parseInt(document.getElementById('quantity').value);
-                if (quantity < 1) {
+                const quantityInput = document.getElementById('quantity');
+                const quantity = quantityInput ? parseInt(quantityInput.value) : 0;
+                const ticketDate = selectedDate ? formatDateForDatabase(selectedDate) : null;
+                const found = availableDates.find(d => d.date === ticketDate);
+                
+                if (!found) {
+                    isValid = false;
+                    message = 'Ngày này không có vé!';
+                } else if (found.slots <= 0) {
+                    isValid = false;
+                    message = 'Ngày này đã hết vé!';
+                } else if (quantity > found.slots) {
+                    isValid = false;
+                    message = 'Số lượng vượt quá số vé còn lại!';
+                } else if (quantity < 1) {
                     isValid = false;
                     message = 'Please select a valid quantity';
                 }
             }
-            
+
             // Update button state
             if (isValid) {
                 addToCartBtn.classList.remove('disabled');
@@ -832,49 +975,132 @@
                    String(date.getDate()).padStart(2, '0');
         }
         
+        // Note: Availability update function removed
+        // With new logic, availability is only updated at checkout, not add-to-cart
+
         // Add to Cart Logic
         function addTicketToCart() {
             const addToCartBtn = document.getElementById('addToCartBtn');
             if (addToCartBtn.classList.contains('disabled')) {
+                console.log("Button is disabled - cannot add to cart");
+                return;
+            }
+
+            // Lấy giá trị trực tiếp từ DOM với validation
+            const ticketSelect = document.getElementById('ticketTypeSelect');
+            const quantityInput = document.getElementById('quantity');
+            
+            // Ensure elements exist before getting values
+            if (!ticketSelect || !quantityInput) {
+                console.error("Required form elements not found");
+                alert("Form elements not found. Please reload the page.");
                 return;
             }
             
-            const quantity = document.getElementById('quantity').value;
-            const ticketDate = formatDateForDatabase(selectedDate);
+            const ticketId = ticketSelect.value;
+            const quantity = quantityInput.value;
+            const ticketDate = selectedDate ? formatDateForDatabase(selectedDate) : null;
+
+            // Debug log for verification
+            console.log("Adding to cart:", { ticketId, quantity, ticketDate });
+
+            // Validation with detailed error messages
+            if (!ticketId || ticketId === "") {
+                console.error("Ticket type not selected");
+                alert("Vui lòng chọn loại vé!");
+                return;
+            }
             
-            // Show loading state
+            if (!quantity || quantity === "" || parseInt(quantity) < 1) {
+                console.error("Invalid quantity:", quantity);
+                alert("Vui lòng chọn số lượng hợp lệ!");
+                return;
+            }
+            
+            if (!selectedDate || !ticketDate) {
+                console.error("Date not selected:", selectedDate);
+                alert("Vui lòng chọn ngày!");
+                return;
+            }
+
             addToCartBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Adding...';
             addToCartBtn.classList.add('disabled');
+
+            // Try both approaches for compatibility
             
-            fetch('cart?action=addTicket', {
-                method: 'POST',
+            // Approach 1: FormData (modern)
+            const formData = new FormData();
+            formData.append('action', 'addTicket');
+            formData.append('ticketId', ticketId);
+            formData.append('quantity', quantity);
+            formData.append('ticketDate', ticketDate);
+            
+            // Approach 2: URL-encoded (traditional servlet style)
+            const urlEncodedData = new URLSearchParams();
+            urlEncodedData.append('action', 'addTicket');
+            urlEncodedData.append('ticketId', ticketId);
+            urlEncodedData.append('quantity', quantity);
+            urlEncodedData.append('ticketDate', ticketDate);
+            
+            // Send request with URL-encoded data
+
+            fetch('cart', {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `ticketId=${selectedTicketId}&quantity=${quantity}&ticketDate=${ticketDate}`
+                body: urlEncodedData.toString(),
+                credentials: 'same-origin'
             })
             .then(response => response.text())
             .then(data => {
+                console.log("Server response:", data);
                 const validationMessage = document.getElementById('validationMessage');
                 
                 if (data.includes('success')) {
-                    validationMessage.textContent = 'Ticket added to cart successfully!';
+                    validationMessage.textContent = 'Vé đã được thêm vào giỏ hàng thành công!';
                     validationMessage.className = 'validation-message success';
                     validationMessage.style.display = 'block';
                     
-                    // Reset form after success
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000);
+                    // Don't update availability - it will be updated at checkout
+                    // Just reset the form
+                    document.getElementById('quantity').value = '1';
+                    
+                    // Hide success message after a few seconds
+                    setTimeout(() => { 
+                        validationMessage.style.display = 'none';
+                    }, 3000);
+                    
                 } else if (data.includes('login')) {
-                    alert('Please login to add tickets to cart!');
+                    alert('Vui lòng đăng nhập để thêm vé vào giỏ hàng!');
                     window.location.href = 'Login.jsp';
+                    
                 } else if (data.includes('unavailable')) {
-                    validationMessage.textContent = 'Selected tickets are no longer available for this date';
+                    // Extract error message from response
+                    const errorMsg = data.replace('unavailable: ', '');
+                    validationMessage.textContent = errorMsg || 'Vé không còn đủ cho ngày đã chọn!';
                     validationMessage.className = 'validation-message error';
                     validationMessage.style.display = 'block';
+                    
+                    // Special handling for cart quantity conflicts
+                    if (errorMsg.includes('đã có') && errorMsg.includes('trong giỏ hàng')) {
+                        // Show additional help for cart conflicts
+                        const helpText = document.createElement('div');
+                        helpText.style.marginTop = '10px';
+                        helpText.style.fontSize = '14px';
+                        helpText.style.color = '#666';
+                        helpText.innerHTML = '💡 <strong>Gợi ý:</strong> <a href="cart.jsp" style="color: #007cba;">Kiểm tra giỏ hàng</a> để xem vé đã có hoặc giảm số lượng.';
+                        validationMessage.appendChild(helpText);
+                    }
+                    
+                    // Hide error message after a few seconds (no page reload needed)
+                    setTimeout(() => { 
+                        validationMessage.style.display = 'none';
+                        validationMessage.innerHTML = ''; // Clear any extra content
+                    }, 8000); // Longer timeout for cart conflict messages
+                    
                 } else {
-                    validationMessage.textContent = 'Failed to add ticket to cart. Please try again.';
+                    validationMessage.textContent = 'Không thể thêm vé vào giỏ hàng. Vui lòng thử lại!';
                     validationMessage.className = 'validation-message error';
                     validationMessage.style.display = 'block';
                 }
@@ -887,8 +1113,8 @@
                 validationMessage.style.display = 'block';
             })
             .finally(() => {
-                // Reset button
                 addToCartBtn.innerHTML = '<i class="fa fa-ticket"></i> Add Ticket to Cart';
+                addToCartBtn.classList.remove('disabled');
                 validateForm();
             });
         }

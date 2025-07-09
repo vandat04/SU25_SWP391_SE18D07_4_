@@ -107,7 +107,25 @@ public class TicketCode {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-      @Override
+
+    // Alias methods for compatibility
+    public int getTicketCodeID() {
+        return codeID;
+    }
+
+    public void setTicketCodeID(int ticketCodeID) {
+        this.codeID = ticketCodeID;
+    }
+
+    public Timestamp getUsedDate() {
+        return usageDate;
+    }
+
+    public void setUsedDate(Timestamp usedDate) {
+        this.usageDate = usedDate;
+    }
+
+    @Override
     public String toString() {
         return "TicketCode{" + "codeID=" + codeID + ", orderDetailID=" + orderDetailID + ", ticketCode=" + ticketCode + ", qrCode=" + qrCode + ", issueDate=" + issueDate + ", expiryDate=" + expiryDate + ", usageDate=" + usageDate + ", status=" + status + ", usedBy=" + usedBy + ", notes=" + notes + '}';
     }

@@ -651,6 +651,67 @@ public class AccountDAO {
         return checkPhoneNumberExists(phone);
     }
 
+    // Compatibility methods for UserDAO
+    public List<Account> getAccountsWithPaging(int offset, int limit) {
+        // Return all accounts (ignore paging for now)
+        return getAllAccounts();
+    }
+
+    public Account getAccount(String username) {
+        // Find account by username
+        String query = "SELECT userID, userName, email, fullName, address, phoneNumber, roleID, status, createdDate, updatedDate FROM Account WHERE userName = ? AND status = 1";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, username);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToAccount(rs);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting account by username: " + username, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return null;
+    }
+
+    public boolean addAccount(String username, String password, String email, String fullName, String address, String phone, int roleId) {
+        Account account = new Account();
+        account.setUserName(username);
+        account.setPassword(password);
+        account.setEmail(email);
+        account.setFullName(fullName);
+        account.setAddress(address);
+        account.setPhoneNumber(phone);
+        account.setRoleID(roleId);
+        return registerAccount(account);
+    }
+
+    public boolean updateAccountStatus(int userId, int status) {
+        String query = "UPDATE Account SET status = ? WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, status);
+            ps.setInt(2, userId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating account status for user ID: " + userId, e);
+        } finally {
+            closeResources(conn, ps, null);
+        }
+        return false;
+    }
+
     public boolean updateAccountSimple(Account account) {
         // Don't update username - it's readonly
         String query = "UPDATE Account SET email = ?, fullName = ?, phoneNumber = ?, address = ?, updatedDate = GETDATE() WHERE userID = ?";

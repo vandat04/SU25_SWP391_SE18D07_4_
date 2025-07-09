@@ -46,7 +46,7 @@ public class EmailService {
     }
 
     public static void main(String[] args) {
-        sendEmail("dattruong02112004@gmail.com", "Test Subject", "This is a test email.");
+        sendEmail("hothilananh18052004@gmail.com", "Anh Yêu EM", "Đặng Công Vũ Hoàng Gửi.");
     }
 }
 
