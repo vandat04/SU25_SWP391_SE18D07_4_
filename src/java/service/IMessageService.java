@@ -17,4 +17,10 @@ public interface IMessageService {
     List<Message> getMessagesByThread(int threadId);
     boolean sendMessage(Message message);
     boolean markMessageAsRead(int messageId);
+    boolean checkMessageThreadExist(int userID, int sellerID);
+    boolean addNewMessageThread(MessageThread messageThread);
+    List<Message> getMessageByThreadID(int threadID);
+    MessageThread getMessageThread(int userID, int sellerID);
+    List<MessageThread> getMessageThreadByUserID(int userId);
+    int getThreadID(int userID, int sellerID);
 }

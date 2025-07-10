@@ -254,7 +254,7 @@
 
     <!--Hero Section-->
     <div class="hero-section hero-background">
-        <h1 class="page-title">Details</h1>
+        <h1 class="page-title">Ticket Details</h1>
     </div>
 
     <!--Navigation section-->
@@ -634,7 +634,7 @@
             </c:otherwise>
         </c:choose>
     </div>
-
+<jsp:include page="Footer.jsp"></jsp:include>
     <!-- JavaScript for Calendar and Functionality -->
     <script type="text/javascript">
         // Global variables

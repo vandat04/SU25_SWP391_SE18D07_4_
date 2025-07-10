@@ -29,7 +29,14 @@ public class Message {
         this.attachmentUrl = attachmentUrl;
         this.sentDate = sentDate;
     }
-    
+
+    public Message(int threadID, int senderID, String messageContent, String attachmentUrl) {
+        this.threadID = threadID;
+        this.senderID = senderID;
+        this.messageContent = messageContent;
+        this.attachmentUrl = attachmentUrl;
+    }
+  
     //--------------------------------------------------------------------------
 
     public int getMessageID() {

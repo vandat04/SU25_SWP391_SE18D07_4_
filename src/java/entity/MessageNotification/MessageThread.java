@@ -11,24 +11,30 @@ package entity.MessageNotification;
 public class MessageThread {
 
     private int threadID;
-    private int userID1;
-    private int sellerID2;
+    private int userID;
+    private int sellerID;
     private String messageName;
 
     // Constructors-------------------------------------------------------------
     public MessageThread() {
     }
 
-    public MessageThread(int threadID, int userID1, int sellerID2, String messageName) {
+    public MessageThread(int threadID, int userID, int sellerID, String messageName) {
         this.threadID = threadID;
-        this.userID1 = userID1;
-        this.sellerID2 = sellerID2;
+        this.userID = userID;
+        this.sellerID= sellerID;
         this.messageName = messageName;
     }
 
-    public MessageThread(int userID1, int sellerID2) {
-        this.userID1 = userID1;
-        this.sellerID2 = sellerID2;
+    public MessageThread(int userID, int sellerID) {
+        this.userID = userID;
+        this.sellerID = sellerID;
+    }
+
+    public MessageThread(int userID, int sellerID, String messageName) {
+        this.userID = userID;
+        this.sellerID = sellerID;
+        this.messageName = messageName;
     }
     
     //--------------------------------------------------------------------------
@@ -41,20 +47,20 @@ public class MessageThread {
         this.threadID = threadID;
     }
 
-    public int getUserID1() {
-        return userID1;
+    public int getUserID() {
+        return userID;
     }
 
-    public void setUserID1(int userID1) {
-        this.userID1 = userID1;
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
-    public int getSellerID2() {
-        return sellerID2;
+    public int getSellerID() {
+        return sellerID;
     }
 
-    public void setSellerID2(int sellerID2) {
-        this.sellerID2 = sellerID2;
+    public void setSellerID(int sellerID) {
+        this.sellerID = sellerID;
     }
 
     public String getMessageName() {
@@ -67,6 +73,6 @@ public class MessageThread {
 
     @Override
     public String toString() {
-        return "MessageThread{" + "threadID=" + threadID + ", userID1=" + userID1 + ", sellerID2=" + sellerID2 + ", messageName=" + messageName + '}';
+        return "MessageThread{" + "threadID=" + threadID + ", userID=" + userID + ", sellerID=" + sellerID + ", messageName=" + messageName + '}';
     }
 }
