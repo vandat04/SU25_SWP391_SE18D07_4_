@@ -720,11 +720,29 @@ public class ProductDAO {
         return list;
     }
 
+    public List<Product> getProductsByVillage(int villageId) {
+        List<Product> list = new ArrayList<>();
+        String query = "SELECT * FROM Product WHERE  villageID = ? and status = 1";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, villageId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToProduct1(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+    
     public static void main(String[] args) {
         // System.out.println(new ProductDAO().createProductByAdmin(new Product("New3", BigDecimal.valueOf(1000000.00), "A", 1, 1, 1, 1, "A", 1, "A", BigDecimal.valueOf(10), "A", "A", "A", "A")));
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));
         // System.out.println(new ProductDAO().getProductOutOfStockByAdmin());
         //System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
-        System.out.println(new ProductDAO().getCategoryNameByCategoryID(16));
+        System.out.println(new ProductDAO().getProductsByVillage(1));
     }
+
+    
 }

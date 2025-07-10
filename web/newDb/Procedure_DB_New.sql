@@ -1,4 +1,4 @@
-﻿USE [CraftDB]
+USE [CraftDB]
 GO
 
 --PROCEDURE [AddAccount]
@@ -1242,7 +1242,6 @@ BEGIN
 END;
 GO
 
-
 -- 3. BỔ SUNG HOẶC CẬP NHẬT STORED PROCEDURE CÒN THIẾU/CHƯA ĐÚNG
 IF OBJECT_ID('[dbo].[AddTicketToCart]', 'P') IS NOT NULL DROP PROCEDURE [dbo].[AddTicketToCart];
 GO
@@ -1387,3 +1386,51 @@ BEGIN
     END
 END
 GO
+
+CREATE PROCEDURE sp_addVillageReview
+    @villageID INT,
+    @userID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Insert review
+        INSERT INTO VillageReview (VillageID, UserID, ReviewText, Rating, ReviewDate)
+        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại CraftVillage
+        UPDATE CraftVillage
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE villageID = @villageID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+Go

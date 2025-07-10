@@ -8,12 +8,12 @@ package service;
 // import entity.Orders.TicketOrder;
 // import entity.Ticket.Ticket;
 import entity.Ticket.VillageTicket;
-import entity.Ticket.TicketType;
 import entity.Ticket.TicketAvailability;
 import entity.CartWishList.CartTicket;
 import entity.Ticket.Ticket;
 import java.math.BigDecimal;
 import java.util.Date;
+import entity.Ticket.TicketType;
 import java.util.List;
 
 /**
@@ -206,4 +206,5 @@ public interface ITicketService {
     List<Ticket> getTickeReportByAdmin(int status);
     String getTicketNameByID(int typeID);
     List<Ticket> searchTicketByAdmin(int status, int villageID);
+    List<TicketType> getAllTicketType();
 }

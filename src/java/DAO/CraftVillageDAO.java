@@ -41,6 +41,7 @@ public class CraftVillageDAO {
                 rs.getString("contactEmail"),
                 rs.getInt("status"),
                 rs.getInt("clickCount"),
+                rs.getTimestamp("lastClicked"),
                 rs.getString("mainImageUrl"),
                 rs.getTimestamp("createdDate"),
                 rs.getTimestamp("updatedDate"),
@@ -578,7 +579,7 @@ public class CraftVillageDAO {
 
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
-        System.out.println(new CraftVillageDAO().getVillageNameByTypeID(1));
+        System.out.println(new CraftVillageDAO().getVillageById(1));
     }
 
 }

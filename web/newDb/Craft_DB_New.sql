@@ -1,4 +1,4 @@
-﻿
+
 CREATE DATABASE [CraftDB]
 GO
 
@@ -399,12 +399,10 @@ GO
 CREATE TABLE [dbo].[MessageThread](
 	[threadID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[userID1] [int] NOT NULL,
-	[userID2] [int] NOT NULL,
-	[lastMessageDate] [datetime] NULL,
-	[status] [int] NOT NULL DEFAULT(1),
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[sellerID2] [int] NOT NULL,
+	[messageName] [varchar](max) NULL,
 	CONSTRAINT [FK_MessageThread_User1] FOREIGN KEY([userID1]) REFERENCES [dbo].[Account] ([userID]),
-	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([userID2]) REFERENCES [dbo].[Account] ([userID])
+	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([sellerID2]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
 
@@ -413,13 +411,9 @@ CREATE TABLE [dbo].[Message](
 	[messageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[threadID] [int] NOT NULL,
 	[senderID] [int] NOT NULL,
-	[receiverID] [int] NOT NULL,
 	[messageContent] [nvarchar](max) NOT NULL,
-	[isRead] [bit] NOT NULL DEFAULT(0),
 	[attachmentUrl] [varchar](max) NULL,
-	[status] [int] NOT NULL, -- 1: Đã gửi,  2. Đã phản hồi
 	[sentDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	CONSTRAINT [FK_Message_Receiver] FOREIGN KEY([receiverID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_Message_Sender] FOREIGN KEY([senderID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_Message_Thread] FOREIGN KEY([threadID]) REFERENCES [dbo].[MessageThread] ([threadID])
 )
@@ -550,7 +544,6 @@ CREATE TABLE [dbo].[SellerVerification] (
     CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY ([sellerID]) REFERENCES [dbo].[Account] ([userID])
 );
 GO
-
 
 -- 2. TẠO BẢNG CÒN THIẾU
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CartTicket]') AND type in (N'U'))

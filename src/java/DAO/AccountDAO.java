@@ -608,10 +608,6 @@ public class AccountDAO {
         return false;
     }
 
-    public static void main(String[] args) {
-        System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(6, 4, "Go", "Go TK", "Qnam", "Go Duc", "hinhanh/village/kim-bong.jpg", "1231231231", "7770760289", "truongvandat02112004@gmail.com", 1, 3)));
-    }
-
     public boolean checkPassword(int userId, String password) {
         String query = "SELECT COUNT(*) FROM Account WHERE userID = ? AND password = dbo.HashPassword(?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -736,4 +732,10 @@ public class AccountDAO {
             closeResources(conn, ps, null);
         }
     }
+    
+    public static void main(String[] args) {
+        System.out.println(new AccountDAO().getAccountById(1));
+    }
+
+    
 }

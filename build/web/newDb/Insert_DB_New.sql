@@ -1,4 +1,4 @@
-﻿USE [CraftDB]
+USE [CraftDB]
 GO
 
 --Insert [Role]
@@ -103,3 +103,77 @@ VALUES
 (1, 850000.00, 2, N'89 HV, DN', '0911444555', N'C', N'Cash', 0, GETDATE()),
 (1, 1200000.00, 3, N'101 HV, DNg', '0911666777', N'D', N'Momo', 1, GETDATE())
 GO
+
+
+--Insert [TicketType]
+SET IDENTITY_INSERT [dbo].[TicketType] ON;
+INSERT INTO [dbo].[TicketType] (typeID,typeName, ageRange)
+VALUES 
+(1, N'Người lớn', N'18+'),
+(2, N'Child', N'<18');
+SET IDENTITY_INSERT [dbo].[TicketType] OFF;
+GO
+
+--Insert [VillageTicket]
+INSERT INTO [dbo].[VillageTicket] (villageID, typeID, price)
+VALUES 
+(1, 1, 50000);
+GO
+
+INSERT INTO [CraftDB].[dbo].[CraftVillage]
+(	typeID,
+    [villageName],
+    [description],
+    [address],
+    [contactPhone],
+    [contactEmail],
+    [mainImageUrl],
+    [sellerId],
+    [openingHours],
+    [closingDays],
+    [mapEmbedUrl],
+    [history],
+    [specialFeatures],
+    [famousProducts],
+    [culturalEvents],
+    [craftProcess],
+    [videoDescriptionUrl],
+    [travelTips], 
+	status
+)
+VALUES
+( 1,
+    N'Phuoc Kieu Bronze Casting Village',
+    N'A traditional bronze casting village with over 400 years of history, famous for products such as bells, gongs, statues, and bronze artwork, representing the essence of Quang Nam culture.',
+    N'Dien Phuong Commune, Dien Ban Town, Quang Nam Province',
+    N'0935123456', -- Replace with actual phone if available
+    N'dongphuockieu@gmail.com',
+    N'hinhanh/village/phuoc-kieu.jpg',
+    1,
+    N'8 AM – 5 PM',
+    N'Sunday',
+    N'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3837.768129025902!2d108.25876437495053!3d15.868779484782038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31420f72a9ed5293%3A0xa3146eef15a8950!2zTMOgbmcgxJHDumMgxJHhu5NuZyBQaMaw4bubYyBLaeG7gXU!5e0!3m2!1svi!2s!4v1752102689258!5m2!1svi!2s',
+    N'The village was founded in the 17th century, initially producing weapons for the Nguyen Lords. In 1832, King Minh Mang merged two local casting communities under the name Phuoc Kieu.',
+    N'Completely handmade casting process, each product is acoustically tested and refined by skilled artisans.',
+    N'Bells, gongs, bronze statues, incense burners, and high-end bronze artwork.',
+    NULL,
+    N'Create molds with rice husk clay → melt bronze at high temperature → pour into molds → acoustic testing → hand-finishing.',
+    N'https://youtu.be/luGNYKSiQY0?si=_3qEOFG3Y0cnRfZr',
+    N'Best to visit in the morning to witness the full casting process. Can be combined with trips to Hoi An and My Son Sanctuary.',
+	1
+);
+
+--Insert [VillageTicket]
+INSERT INTO [dbo].[VillageTicket] (villageID, typeID, price)
+VALUES 
+(6, 1, 50000),
+(6, 2, 15000);
+GO
+
+--Insert [VillageReview]
+INSERT INTO [dbo].[VillageReview] (villageID, userID, rating, reviewText)
+VALUES 
+(6, 1, 5, N'Nice'),
+(6, 1, 2, N'VCL!');
+GO
+

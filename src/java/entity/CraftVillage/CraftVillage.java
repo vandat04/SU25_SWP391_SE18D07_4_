@@ -76,6 +76,40 @@ public class CraftVillage {
         this.travelTips = travelTips;
     }
 
+    public CraftVillage(int villageID, Integer typeID, String villageName, String description, String address, Double latitude, Double longitude, String contactPhone, String contactEmail, int status, int clickCount, Timestamp lastClicked, String mainImageUrl, Timestamp createdDate, Timestamp updatedDate, Integer sellerId, String openingHours, String closingDays, BigDecimal averageRating, int totalReviews, String mapEmbedUrl, String virtualTourUrl, String history, String specialFeatures, String famousProducts, String culturalEvents, String craftProcess, String videoDescriptionUrl, String travelTips) {
+        this.villageID = villageID;
+        this.typeID = typeID;
+        this.villageName = villageName;
+        this.description = description;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.contactPhone = contactPhone;
+        this.contactEmail = contactEmail;
+        this.status = status;
+        this.clickCount = clickCount;
+        this.lastClicked = lastClicked;
+        this.mainImageUrl = mainImageUrl;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+        this.sellerId = sellerId;
+        this.openingHours = openingHours;
+        this.closingDays = closingDays;
+        this.averageRating = averageRating;
+        this.totalReviews = totalReviews;
+        this.mapEmbedUrl = mapEmbedUrl;
+        this.virtualTourUrl = virtualTourUrl;
+        this.history = history;
+        this.specialFeatures = specialFeatures;
+        this.famousProducts = famousProducts;
+        this.culturalEvents = culturalEvents;
+        this.craftProcess = craftProcess;
+        this.videoDescriptionUrl = videoDescriptionUrl;
+        this.travelTips = travelTips;
+    }
+
+    
+    
     public CraftVillage(int villageID, String villageName, int typeID, String description,
             String address, double latitude, double longitude,
             String contactPhone, String contactEmail, int status,

@@ -67,7 +67,7 @@ public class ProductService implements IProductService{
 
     @Override
     public List<Product> getProductsByVillage(int villageId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return pDAO.getProductsByVillage(villageId);
     }
 
     @Override

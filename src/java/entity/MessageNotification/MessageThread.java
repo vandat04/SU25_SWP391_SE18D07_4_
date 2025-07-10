@@ -4,25 +4,35 @@
  */
 package entity.MessageNotification;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 /**
  *
  * @author ACER
  */
 public class MessageThread {
-     private int threadID;
+
+    private int threadID;
     private int userID1;
-    private int userID2;
-    private Timestamp lastMessageDate;
-    private int status;
-    private Timestamp createdDate;
+    private int sellerID2;
+    private String messageName;
 
     // Constructors-------------------------------------------------------------
-    public MessageThread() {}
+    public MessageThread() {
+    }
 
+    public MessageThread(int threadID, int userID1, int sellerID2, String messageName) {
+        this.threadID = threadID;
+        this.userID1 = userID1;
+        this.sellerID2 = sellerID2;
+        this.messageName = messageName;
+    }
+
+    public MessageThread(int userID1, int sellerID2) {
+        this.userID1 = userID1;
+        this.sellerID2 = sellerID2;
+    }
+    
     //--------------------------------------------------------------------------
+
     public int getThreadID() {
         return threadID;
     }
@@ -39,41 +49,24 @@ public class MessageThread {
         this.userID1 = userID1;
     }
 
-    public int getUserID2() {
-        return userID2;
+    public int getSellerID2() {
+        return sellerID2;
     }
 
-    public void setUserID2(int userID2) {
-        this.userID2 = userID2;
+    public void setSellerID2(int sellerID2) {
+        this.sellerID2 = sellerID2;
     }
 
-    public Timestamp getLastMessageDate() {
-        return lastMessageDate;
+    public String getMessageName() {
+        return messageName;
     }
 
-    public void setLastMessageDate(Timestamp lastMessageDate) {
-        this.lastMessageDate = lastMessageDate;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
+    public void setMessageName(String messageName) {
+        this.messageName = messageName;
     }
 
     @Override
     public String toString() {
-        return "MessageThread{" + "threadID=" + threadID + ", userID1=" + userID1 + ", userID2=" + userID2 + ", lastMessageDate=" + lastMessageDate + ", status=" + status + ", createdDate=" + createdDate + '}';
+        return "MessageThread{" + "threadID=" + threadID + ", userID1=" + userID1 + ", sellerID2=" + sellerID2 + ", messageName=" + messageName + '}';
     }
-    
 }

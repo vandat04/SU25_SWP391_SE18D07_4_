@@ -35,6 +35,15 @@ public class CraftReview {
         this.response = response;
         this.responseDate = responseDate;
     }
+
+    public CraftReview(int villageID, int userID, int rating, String reviewText) {
+        this.villageID = villageID;
+        this.userID = userID;
+        this.rating = rating;
+        this.reviewText = reviewText;
+    }
+    
+    
     
     //--------------------------------------------------------------------------
     public int getReviewID() {

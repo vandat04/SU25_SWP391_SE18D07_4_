@@ -6,7 +6,6 @@ import DAO.TicketAvailabilityDAO;
 import DAO.CartTicketDAO;
 import DAO.ProductDAO;
 import entity.Ticket.VillageTicket;
-import entity.Ticket.TicketType;
 import entity.Ticket.TicketAvailability;
 import entity.CartWishList.CartTicket;
 import DAO.TicketDAO;
@@ -16,6 +15,7 @@ import entity.Ticket.Ticket;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import entity.Ticket.TicketType;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -35,6 +35,26 @@ public class TicketService implements ITicketService {
         this.villageTicketDAO = new VillageTicketDAO();
         this.availabilityDAO = new TicketAvailabilityDAO();
         this.cartTicketDAO = new CartTicketDAO();
+    }
+    
+    public List<Ticket> getTicketsByVillage(int villageId) {
+        return tDAO.getTicketsByVillage(villageId);
+    }
+
+    public boolean addTicket(Ticket ticket) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public TicketOrder createTicketOrder(TicketOrder order) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public boolean cancelTicketOrder(int orderId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public List<TicketCode> getTicketCodesByOrderDetail(int detailId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 
@@ -63,7 +83,11 @@ public class TicketService implements ITicketService {
         return tDAO.getTicketNameByID(typeID);
     }
 
-    // ======================= VILLAGE TICKET OPERATIONS =======================
+    @Override
+    public List<TicketType> getAllTicketType() {
+        return tDAO.getAllTicketType();
+    }
+
     
     @Override
     public VillageTicket getTicketById(int ticketId) {
