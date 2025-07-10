@@ -387,9 +387,26 @@ public class CraftVillageDAO {
         return "";
     }
 
+    public CraftVillage getVillageById(int villageId) {
+        String query = "SELECT * FROM CraftVillage WHERE villageID = ? AND status = 1";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, villageId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCraftVillage(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
-        System.out.println(new CraftVillageDAO().getVillageNameByTypeID(1));
+        System.out.println(new CraftVillageDAO().getVillageById(1));
     }
 
 }

@@ -7,6 +7,7 @@ package service;
 import entity.Orders.TicketCode;
 import entity.Orders.TicketOrder;
 import entity.Ticket.Ticket;
+import entity.Ticket.TicketType;
 import java.util.List;
 
 /**
@@ -25,4 +26,5 @@ public interface ITicketService {
     boolean deleteTicketByAdmin(int ticketID);
     List<Ticket> getTickeReportByAdmin(int status);
     String getTicketNameByID(int typeID);
+    List<TicketType> getAllTicketType();
 }

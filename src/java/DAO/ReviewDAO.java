@@ -284,11 +284,38 @@ public class ReviewDAO {
 
         return list;
     }
+    
+    public boolean addVillageReview(CraftReview review) {
+    String sql = "{call sp_addVillageReview(?, ?, ?, ?, ?)}";
 
+    try (Connection con = DBContext.getConnection();
+         CallableStatement cs = con.prepareCall(sql)) {
+
+        cs.setInt(1, review.getVillageID());
+        cs.setInt(2, review.getUserID());
+        cs.setString(3, review.getReviewText());
+        cs.setInt(4, review.getRating());
+        cs.registerOutParameter(5, Types.INTEGER);
+
+        cs.execute();
+
+        int result = cs.getInt(5);
+        return result == 1;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+    
+ 
     // Test thử
     public static void main(String[] args) {
         ReviewDAO dao = new ReviewDAO();
-        System.out.println(dao.searchProductReviewToday(2));
+        System.out.println(dao.addVillageReview(new CraftReview(6, 1, 2, "Huhu")));
     }
 
+   
+   
 }

@@ -46,6 +46,8 @@ CREATE TABLE [dbo].[Account](
 	CONSTRAINT FK_Account_Role FOREIGN KEY (roleID) REFERENCES [dbo].[Role](roleID)
 )
 GO
+ALTER TABLE Account
+ADD fullName NVARCHAR(100);
 
 --Table [EmailVerification] 
 CREATE TABLE [dbo].[EmailVerification](
@@ -183,7 +185,7 @@ CREATE TABLE [dbo].[ProductCategory](
 GO
 
 --Table [Product] 
-CREATE TABLE [dbo].[Product](
+CREATE TABLE [dbo].[Product]( --22 trường
 	[pid] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 	[price] [decimal](10, 2) NOT NULL,
@@ -204,7 +206,7 @@ CREATE TABLE [dbo].[Product](
 	[materials] [nvarchar](500) NULL,
 	[careInstructions] [nvarchar](max) NULL,
 	[warranty] [nvarchar](200) NULL,
-	[isFeatured] [bit] NOT NULL DEFAULT(0),
+	[isFeatured] [bit] NOT NULL DEFAULT(0), -- Bỏ
 	[averageRating] [decimal](3, 2) NULL,
 	[totalReviews] [int] NOT NULL DEFAULT(0),
 	CONSTRAINT [FK_Product_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
@@ -286,7 +288,7 @@ CREATE TABLE [dbo].[TicketOrder](
 	[villageID] [int] NOT NULL,
 	[totalPrice] [decimal](10, 2) NOT NULL,
 	[totalQuantity] [int] NOT NULL,
-	[status]  [int] NOT NULL DEFAULT(0),
+	[status]  [int] NOT NULL DEFAULT(0), -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
 	[paymentMethod] [nvarchar](50) NOT NULL,
 	[paymentStatus]  [int] NOT NULL DEFAULT(0),
 	[customerName] [nvarchar](100) NOT NULL,
@@ -298,20 +300,6 @@ CREATE TABLE [dbo].[TicketOrder](
 	CONSTRAINT [FK_TicketOrder_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_TicketOrder_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID])
 )
-GO
-
---Tối ưu truy vấn cho bảng [TicketOrder]
-CREATE NONCLUSTERED INDEX [IX_TicketOrder_Status] ON [dbo].[TicketOrder]
-(	[status] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_TicketOrder_UserID] ON [dbo].[TicketOrder]
-(	[userID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_TicketOrder_VillageID] ON [dbo].[TicketOrder]
-(	[villageID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 --Table [TicketOrderDetail]
@@ -336,23 +324,11 @@ CREATE TABLE [dbo].[TicketCode](
 	[issueDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[expiryDate] [datetime] NOT NULL,
 	[usageDate] [datetime] NULL,
-	[status] [int] NOT NULL DEFAULT(0),
+	[status] [int] NOT NULL DEFAULT(0), 
 	[usedBy] [nvarchar](100) NULL,
 	[notes] [nvarchar](500) NULL,
 	CONSTRAINT [FK_TicketCode_OrderDetail] FOREIGN KEY([orderDetailID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID])
 )
-GO
-
---Tối ưu truy vấn cho bảng [TicketCode]
-CREATE NONCLUSTERED INDEX [IX_TicketCode_ExpiryDate] ON [dbo].[TicketCode]
-(	[expiryDate] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-SET ANSI_PADDING ON
-GO
-CREATE NONCLUSTERED INDEX [IX_TicketCode_Status] ON [dbo].[TicketCode]
-(	[status] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 ----------------------------------------------------Order-------------
@@ -361,7 +337,7 @@ CREATE TABLE [dbo].[Orders](
 	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[userID] [int] NOT NULL,
 	[total_price] [decimal](10, 2) NOT NULL,
-	[status]  [int] DEFAULT(0) NOT NULL,  --0 pending, 1: đã giao,2 ...
+	[status]  [int] DEFAULT(0) NOT NULL,  -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
 	[shippingAddress] [nvarchar](200) NOT NULL,
 	[shippingPhone] [nvarchar](20) NOT NULL,
 	[shippingName] [nvarchar](100) NOT NULL,
@@ -423,12 +399,10 @@ GO
 CREATE TABLE [dbo].[MessageThread](
 	[threadID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[userID1] [int] NOT NULL,
-	[userID2] [int] NOT NULL,
-	[lastMessageDate] [datetime] NULL,
-	[status] [int] NOT NULL DEFAULT(1),
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[sellerID2] [int] NOT NULL,
+	[messageName] [varchar](max) NULL,
 	CONSTRAINT [FK_MessageThread_User1] FOREIGN KEY([userID1]) REFERENCES [dbo].[Account] ([userID]),
-	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([userID2]) REFERENCES [dbo].[Account] ([userID])
+	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([sellerID2]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
 
@@ -437,32 +411,13 @@ CREATE TABLE [dbo].[Message](
 	[messageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[threadID] [int] NOT NULL,
 	[senderID] [int] NOT NULL,
-	[receiverID] [int] NOT NULL,
 	[messageContent] [nvarchar](max) NOT NULL,
-	[isRead] [bit] NOT NULL DEFAULT(0),
 	[attachmentUrl] [varchar](max) NULL,
-	[status] [int] NOT NULL, -- 1: Đã gửi,  2. Đã phản hồi
 	[sentDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	CONSTRAINT [FK_Message_Receiver] FOREIGN KEY([receiverID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_Message_Sender] FOREIGN KEY([senderID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_Message_Thread] FOREIGN KEY([threadID]) REFERENCES [dbo].[MessageThread] ([threadID])
 )
 GO
-
---Tối ưu truy vấn cho bảng [Message]
-CREATE NONCLUSTERED INDEX [IX_Message_ReceiverID] ON [dbo].[Message]
-(   [receiverID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_Message_SenderID] ON [dbo].[Message]
-(   [senderID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_Message_ThreadID] ON [dbo].[Message]
-(   [threadID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-
 
 ----------------------------------------------------Notification-------------
 --Table [NotificationType]
@@ -488,16 +443,6 @@ CREATE TABLE [dbo].[Notification](
 )
 GO
 
---Tối ưu truy vấn bảng [Notification]
-CREATE NONCLUSTERED INDEX [IX_Notification_IsRead] ON [dbo].[Notification]
-(	[isRead] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_Notification_UserID] ON [dbo].[Notification]
-(	[userID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-
 --Table [PageView] -- tham chieu dfen ban????
 CREATE TABLE [dbo].[PageView](
 	[viewID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
@@ -510,16 +455,6 @@ CREATE TABLE [dbo].[PageView](
 	[viewDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	CONSTRAINT [FK_PageView_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
 )
-GO
-
---Tối ưu truy vấn bảng [PageView]
-CREATE NONCLUSTERED INDEX [IX_PageView_SessionID] ON [dbo].[PageView]
-(	[sessionID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_PageView_UserID] ON [dbo].[PageView]
-(	[userID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 --Table [SearchHistory] --- SearchType: nvarchar --> int  BOTCHAT
@@ -535,27 +470,16 @@ CREATE TABLE [dbo].[SearchHistory](
 )
 GO
 
---Tối ưu truy vấn bảng [SearchHistory]
-CREATE NONCLUSTERED INDEX [IX_SearchHistory_Keyword] ON [dbo].[SearchHistory]
-(	[searchKeyword] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-CREATE NONCLUSTERED INDEX [IX_SearchHistory_UserID] ON [dbo].[SearchHistory]
-(	[userID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-SET ANSI_PADDING ON
-GO
-
 ----------------------------------------------------Payment-------------
 --Table [Payment]
+Drop table Payment
 CREATE TABLE [dbo].[Payment](
 	[paymentID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[orderID] [int] NULL,
 	[tourBookingID] [int] NULL,
 	[amount] [decimal](10, 2) NOT NULL,
 	[paymentMethod] [nvarchar](50) NOT NULL,
-	[paymentStatus] [nvarchar](50) NOT NULL,
+	[paymentStatus] int default(0) NOT NULL, -- 0: Chưa thanh toán, 1: đã thanh toán
 	[transactionID] [nvarchar](100) NULL,
 	[paymentDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
@@ -582,385 +506,99 @@ CREATE TABLE [dbo].[SalesReport](
 )
 GO
 
---Table [SellerVerification]
-CREATE TABLE [dbo].[SellerVerification](
-	[verificationID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[sellerID] [int] NOT NULL,
-	[businessLicense] [nvarchar](100) NULL,
-	[businessName] [nvarchar](200) NULL,
-	[taxCode] [nvarchar](50) NULL,
-	[documentUrl] [varchar](max) NULL,
-	[verificationStatus] [int] NOT NULL DEFAULT(0),--0: đang xử lí 1: đã duyệt 2: từ chối
-	[verifiedBy] [int] NULL,
-	[verifiedDate] [datetime] NULL,
-	[rejectReason] [nvarchar](max) NULL,
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	CONSTRAINT [FK_SellerVerification_Admin] FOREIGN KEY([verifiedBy]) REFERENCES [dbo].[Account] ([userID]),
-	CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
-)
+--Table [SellerVerification] --loại làng nggeef đăng kí. 
+CREATE TABLE [dbo].[SellerVerification] (
+    [verificationID] INT IDENTITY(1,1) PRIMARY KEY NOT NULL,   
+    -- Khóa ngoại liên kết với User muốn nâng cấp-- Check thử account >18 tuổi
+    [sellerID] INT NOT NULL,
+    -- Thông tin cơ bản
+    [businessType] NVARCHAR(100) NOT NULL,         -- Cá nhân / Hộ kinh doanh / Công ty TNHH / HTX / Làng nghề
+    [businessVillageCategry] NVARCHAR(200) NOT NULL, -- Loại làng
+    [businessVillageName] NVARCHAR(200) NOT NULL,         -- Tên cá nhân / tổ chức / làng nghề
+    [businessVillageAddress] NVARCHAR(500) NOT NULL,      -- Địa chỉ kinh doanh
+    [productProductCategory] NVARCHAR(200) NOT NULL,      -- Nhóm sản phẩm kinh doanh/ Thêm cột cho ProductCategory
+    [profileVillagePictureUrl] VARCHAR(MAX) NULL,         -- Ảnh đại diện hoặc logo
+    -- Thông tin liên hệ lấy từ bảng Account
+    [contactPerson] NVARCHAR(200) NOT NULL,        -- Người đại diện 
+    [contactPhone] NVARCHAR(20) NOT NULL,          -- Số điện thoại liên hệ - 
+    [contactEmail] NVARCHAR(200) NOT NULL,         -- Email liên hệ
+    -- Thông tin cá nhân (dùng khi businessType = Cá nhân)
+    [idCardNumber] NVARCHAR(50) NULL,              -- Số CMND/CCCD
+    [idCardFrontUrl] VARCHAR(MAX) NULL,            -- Link ảnh mặt trước CMND/CCCD
+    [idCardBackUrl] VARCHAR(MAX) NULL,             -- Link ảnh mặt sau CMND/CCCD
+    -- Thông tin doanh nghiệp (dùng khi businessType != Cá nhân)
+    [businessLicense] NVARCHAR(100) NULL,          -- Số giấy phép kinh doanh
+    [taxCode] NVARCHAR(50) NULL,                   -- Mã số thuế
+    [documentUrl] VARCHAR(MAX) NULL,               -- Link ảnh/file giấy phép kinh doanh
+    -- Ghi chú bổ sung
+    [note] NVARCHAR(MAX) NULL,                     -- Ghi chú Seller gửi Admin
+    -- Trạng thái duyệt
+    [verificationStatus] INT NOT NULL DEFAULT 0,   -- 0: Đang xử lý, 1: Đã duyệt, 2: Từ chối
+    [verifiedBy] INT NULL,                         -- Admin duyệt
+    [verifiedDate] DATETIME NULL,                  -- Ngày duyệt
+    [rejectReason] NVARCHAR(MAX) NULL,             -- Lý do từ chối
+    -- Ngày tạo
+    [createdDate] DATETIME NOT NULL DEFAULT GETDATE(),    
+    -- Ràng buộc FK
+    CONSTRAINT [FK_SellerVerification_Admin] FOREIGN KEY ([verifiedBy]) REFERENCES [dbo].[Account] ([userID]),
+    CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY ([sellerID]) REFERENCES [dbo].[Account] ([userID])
+);
 GO
 
---------------------------------------------------------------------Insert---------------------
---Insert [Role]
-SET IDENTITY_INSERT [dbo].[Role] ON;
-INSERT INTO [dbo].[Role] (roleID, roleName, description)
-VALUES 
-(1, N'Customer', N'Tài khoản khách mua hàng'),
-(2, N'Seller', N'Tài khoản nghệ nhân/nhà bán'),
-(3, N'Admin', N'Tài khoản quản trị');
-SET IDENTITY_INSERT [dbo].[Role] OFF;
-GO
-
---Insert [Account]
-INSERT INTO [dbo].[Account] (userName, password, email, address, phoneNumber, roleID)
-VALUES 
-(N'customer01', dbo.HashPassword('123123') , N'customer01@example.com', N'Hà Nội', '0900000001', 1),
-(N'seller01', dbo.HashPassword('123123') , N'seller01@example.com',   N'Hội An', '0900000002', 2),
-(N'admin01',  dbo.HashPassword('123123') , N'admin01@example.com',    N'Đà Nẵng', '0900000003', 3);
-GO
-
---Insert [CraftType]
-SET IDENTITY_INSERT [dbo].[CraftType] ON;
-INSERT INTO [dbo].[CraftType] (typeID,typeName, description)
-VALUES 
-(1, N'Gom', N'Gốm thủ công'),
-(2, N'Chiếu', N'Chiếu đan truyền thống');
-SET IDENTITY_INSERT [dbo].[CraftType] OFF;
-GO
-
---Insert [CraftVillage]
-SET IDENTITY_INSERT [dbo].[CraftVillage] ON;
-INSERT INTO [dbo].[CraftVillage] (villageID ,typeID, villageName, address, status, sellerId)
-VALUES 
-(1,1, N'Làng gốm Bát Tràng', N'Gia Lâm, Hà Nội', 1, 2),
-(2,2, N'Làng chiếu Cái Bè', N'Tiền Giang', 1, 2);
-SET IDENTITY_INSERT [dbo].[CraftVillage] OFF;
-GO
-
---Insert [VillageImage]
-INSERT INTO [dbo].[VillageImage] (villageID, imageUrl, isMain)
-VALUES 
-(1, 'https://example.com/battrang.jpg', 1);
-GO
-
---Insert [FavoriteVillage]
-INSERT INTO [dbo].[FavoriteVillage] (userID, villageID)
-VALUES 
-(1, 1);
-GO
-
---Insert [VillageReview]
-INSERT INTO [dbo].[VillageReview] (villageID, userID, rating, reviewText)
-VALUES 
-(1, 1, 5, N'Tuyệt vời!');
-GO
-
---Insert [ProductCategory]
-SET IDENTITY_INSERT [dbo].[ProductCategory] ON;
-INSERT INTO [dbo].[ProductCategory] (categoryID,categoryName, description)
-VALUES 
-(1, N'Đồ gốm', N'Sản phẩm từ đất nung'),
-(2, N'Chieu',N'San pham tu co')
-SET IDENTITY_INSERT [dbo].[ProductCategory] OFF;
-GO
-
---Insert [Product]
-SET IDENTITY_INSERT [dbo].[Product] ON;
-INSERT INTO [dbo].[Product] (pid,name, price, stock, villageID, categoryID)
-VALUES 
-(1, N'Ấm trà gốm', 250000, 50, 1, 1);
-SET IDENTITY_INSERT [dbo].[Product] OFF;
-GO
-
---Insert [ProductImage]
-INSERT INTO [dbo].[ProductImage] (productID, imageUrl, isMain)
-VALUES 
-(1, 'https://example.com/amtra.jpg', 1);
-GO
-
---Insert [Wishlist]
-INSERT INTO [dbo].[Wishlist] (userID, productID)
-VALUES 
-(1, 1);
-GO
-
---Insert [ProdcutReview]
-INSERT INTO [dbo].[ProductReview] (productID, userID, rating, reviewText)
-VALUES 
-(1, 1, 5, N'Sản phẩm chất lượng cao');
-GO
-
---Insert [TicketType]
-SET IDENTITY_INSERT [dbo].[TicketType] ON;
-INSERT INTO [dbo].[TicketType] (typeID,typeName, ageRange)
-VALUES 
-(1, N'Người lớn', N'18+'),
-(2, N'Child', N'<18')
-SET IDENTITY_INSERT [dbo].[TicketType] OFF;
-GO
-
---Insert [VillageTicket]
-INSERT INTO [dbo].[VillageTicket] (villageID, typeID, price)
-VALUES 
-(1, 1, 50000);
-GO
-
---Insert [TicketOrder]
-INSERT INTO [dbo].[TicketOrder] (userID, villageID, totalPrice, totalQuantity, paymentMethod, customerName, customerPhone)
-VALUES 
-(1,1, 100000, 2, N'Tiền mặt', N'Nguyễn Văn A', '0909999999');
-GO
-
---Insert [TicketOrderDetail]
-INSERT INTO [dbo].[TicketOrderDetail] (orderID, ticketID, quantity, price, subtotal)
-VALUES 
-(1, 1, 2, 50000, 100000);
-GO
-
---Insert [TicketCode]
-INSERT INTO [dbo].[TicketCode] (orderDetailID, ticketCode, expiryDate)
-VALUES 
-(1, 'TICKET123', DATEADD(DAY, 5, GETDATE()));
-GO
-
---------------------------------------------------------------------Other----------------------
---PROCEDURE [AddAccount]
-CREATE PROCEDURE [dbo].[AddAccount]
-    @userName NVARCHAR(100),
-    @password NVARCHAR(100), -- plain text password
-    @email NVARCHAR(100),
-    @address NVARCHAR(200) = NULL,
-    @phoneNumber NVARCHAR(20) = NULL,
-    @roleID INT = 1, -- Default: User
-    @result INT OUTPUT  -- kết quả trả về
-AS
+-- 2. TẠO BẢNG CÒN THIẾU
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CartTicket]') AND type in (N'U'))
 BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        -- Kiểm tra trùng username
-        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userName = @userName)
-        BEGIN
-            SET @result = 0;
-            RETURN;
-        END
-        -- Kiểm tra trùng email
-        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE email = @email)
-        BEGIN
-            SET @result = 0;
-            RETURN;
-        END
-        -- Nếu không trùng thì thêm mới
-        INSERT INTO [dbo].[Account] (
-            userName, password, email, address, phoneNumber,
-            roleID
-        )
-        VALUES (
-            @userName, dbo.HashPassword(@password), @email, @address,@phoneNumber, @roleID
-        );
-        SET @result = 1; -- thành công
-    END TRY
-    BEGIN CATCH
-        SET @result = 0; -- thất bại do lỗi hệ thống
-    END CATCH
-END
-GO
-
---PROCEDURE [ChangePassword]
-CREATE PROCEDURE [dbo].[ChangePassword]
-    @userID INT,
-    @oldPassword NVARCHAR(100),
-    @newPassword NVARCHAR(100)
-AS
-BEGIN
-    IF EXISTS (SELECT 1 FROM Account WHERE userID = @userID AND password = dbo.HashPassword(@oldPassword))
-    BEGIN
-        UPDATE Account
-        SET password = dbo.HashPassword(@newPassword)
-        WHERE userID = @userID;
-        SELECT 'Password changed successfully' AS Result;
-        RETURN 1;
-    END
-    ELSE
-    BEGIN
-        SELECT 'Current password is incorrect' AS Result;
-        RETURN 0;
-    END
-END
-GO
---PROCCEDURE [UpdateAccount]
-CREATE PROCEDURE [dbo].[UpdateAccount]
-    @userID INT,
-    @email NVARCHAR(100),
-    @address NVARCHAR(200) = NULL,
-    @phoneNumber NVARCHAR(20) = NULL,
-    @avatarUrl VARCHAR(MAX) = NULL,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        -- Kiểm tra user tồn tại
-        IF NOT EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userID = @userID)
-        BEGIN
-            SET @result = 0;
-            RETURN;
-        END
-        -- Kiểm tra email đã được dùng bởi user khác chưa
-        IF EXISTS (
-            SELECT 1 FROM [dbo].[Account]
-            WHERE email = @email AND userID != @userID
-        )
-        BEGIN
-            SET @result = -1; -- Email bị trùng
-            RETURN;
-        END
-        -- Cập nhật thông tin cho user
-        UPDATE [dbo].[Account]
-        SET
-            email = @email, address = @address, phoneNumber = @phoneNumber, avatarUrl = @avatarUrl, updatedDate = GETDATE()
-        WHERE userID = @userID;
-        SET @result = 1; -- Thành công
-    END TRY
-    BEGIN CATCH
-        SET @result = -99; -- Lỗi hệ thống
-    END CATCH
-END
-GO
---PROCEDURE [AddCraftVillage]
-CREATE PROCEDURE [dbo].[AddCraftVillage]
-    @typeID INT,
-    @villageName NVARCHAR(100),
-    @description NVARCHAR(MAX) = NULL,
-    @address NVARCHAR(200),
-    @latitude FLOAT = NULL,
-    @longitude FLOAT = NULL,
-    @contactPhone NVARCHAR(20) = NULL,
-    @contactEmail NVARCHAR(100) = NULL,
-    @sellerId INT = NULL,
-    @openingHours NVARCHAR(200) = NULL,
-    @closingDays NVARCHAR(100) = NULL,
-    @mainImageUrl VARCHAR(MAX) = NULL,
-    @mapEmbedUrl VARCHAR(MAX) = NULL,
-    @virtualTourUrl VARCHAR(MAX) = NULL,
-    @history NVARCHAR(MAX) = NULL,
-    @specialFeatures NVARCHAR(MAX) = NULL,
-    @famousProducts NVARCHAR(MAX) = NULL,
-    @culturalEvents NVARCHAR(MAX) = NULL,
-    @craftProcess NVARCHAR(MAX) = NULL,
-    @videoDescriptionUrl NVARCHAR(500) = NULL,
-    @travelTips NVARCHAR(MAX) = NULL,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        INSERT INTO [dbo].[CraftVillage] (
-            typeID, villageName, description, address, latitude, longitude, contactPhone, contactEmail, status, clickCount, lastClicked,
-            mainImageUrl, createdDate, sellerId, openingHours, closingDays, mapEmbedUrl, virtualTourUrl, history, specialFeatures,
-            famousProducts, culturalEvents, craftProcess, videoDescriptionUrl, travelTips
-        )
-        VALUES (
-            @typeID, @villageName, @description, @address, @latitude, @longitude, @contactPhone, @contactEmail, 2, 0, GETDATE(),
-            @mainImageUrl, GETDATE(), @sellerId, @openingHours, @closingDays, @mapEmbedUrl, @virtualTourUrl, @history, @specialFeatures,
-            @famousProducts, @culturalEvents, @craftProcess, @videoDescriptionUrl, @travelTips
-        );
-        SET @result = 1; -- Thành công
-    END TRY
-    BEGIN CATCH
-        SET @result = 0; -- Lỗi
-    END CATCH
-END
-GO
-
---PROCEDURE [DeleteCraftVillage]
-CREATE PROCEDURE [dbo].[DeleteCraftVillage]
-    @villageID INT,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        DECLARE @hasProduct INT, @hasTicket INT;
-        -- Kiểm tra có liên kết Product
-        SELECT @hasProduct = COUNT(*) FROM [dbo].[Product] WHERE villageID = @villageID;
-        -- Kiểm tra có liên kết Ticket
-        SELECT @hasTicket = COUNT(*) FROM [dbo].[VillageTicket] WHERE villageID = @villageID;
-        -- Nếu không có liên kết -> XÓA
-        IF (@hasProduct = 0 AND @hasTicket = 0)
-        BEGIN
-            DELETE FROM [dbo].[CraftVillage] WHERE villageID = @villageID;
-            SET @result = 1; -- Xoá thành công
-        END
-        ELSE
-        BEGIN
-            -- Nếu có liên kết -> cập nhật status = 0
-            UPDATE [dbo].[CraftVillage] SET status = 0 WHERE villageID = @villageID;
-            UPDATE [dbo].[Product] SET status = 0 WHERE villageID = @villageID;
-            UPDATE [dbo].[VillageTicket] SET status = 0 WHERE villageID = @villageID;
-            SET @result = 1; -- Cập nhật trạng thái thành công (có liên kết nên không xoá)
-        END
-    END TRY
-    BEGIN CATCH
-        SET @result = -1; -- Lỗi hệ thống
-    END CATCH
-END
-
---PROCEDURE [RegisterAccount]
-CREATE PROCEDURE RegisterAccount
-    @UserName NVARCHAR(100),
-    @Password NVARCHAR(100),        -- dạng text, sẽ được hash trong procedure
-    @Email NVARCHAR(100),
-    @Address NVARCHAR(200) = NULL,
-    @PhoneNumber NVARCHAR(20) = NULL,
-	@NewUserID INT OUTPUT 
-AS
-BEGIN
-    SET NOCOUNT ON;
-    -- 1. Kiểm tra trùng username
-    IF EXISTS (SELECT 1 FROM Account WHERE userName = @UserName)
-    BEGIN
-        RAISERROR('Username already exists.', 16, 1);
-        RETURN;
-    END
-    -- 2. Kiểm tra trùng email
-    IF EXISTS (SELECT 1 FROM Account WHERE email = @Email)
-    BEGIN
-        RAISERROR('Email already exists.', 16, 1);
-        RETURN;
-    END
-    -- 3. Tạo tài khoản mới, hash password ngay trong SQL
-    INSERT INTO Account (
-        userName, password, email, address, phoneNumber
-    )
-    VALUES (
-        @UserName, dbo.HashPassword(@Password), @Email, @Address, @PhoneNumber
+    CREATE TABLE [dbo].[CartTicket](
+        [itemID] [int] IDENTITY(1,1) NOT NULL,
+        [cartID] [int] NOT NULL,
+        [ticketID] [int] NOT NULL,
+        [quantity] [int] NOT NULL,
+        [ticketDate] [date] NOT NULL,
+        [createdDate] [datetime] NOT NULL,
+        [updatedDate] [datetime] NULL,
+        PRIMARY KEY CLUSTERED ([itemID] ASC),
+        CONSTRAINT [UC_CartTicket_Item] UNIQUE NONCLUSTERED ([cartID] ASC, [ticketID] ASC, [ticketDate] ASC)
     );
-    -- 4. Trả về userID
-    SET @NewUserID = SCOPE_IDENTITY();
-END;
-GO
-
---Login
-CREATE PROCEDURE [dbo].[LoginAccount]
-    @userNameOrEmail NVARCHAR(100),
-    @password NVARCHAR(100)
-AS
-BEGIN
-    DECLARE @hashedPassword VARBINARY(64) = dbo.HashPassword(@password);
-    
-    SELECT
-        userID,
-        userName,
-        email,
-        address,
-        phoneNumber,
-        roleID,
-        status,
-        createdDate,
-        updatedDate
-    FROM Account
-    WHERE (userName = @userNameOrEmail OR email = @userNameOrEmail)
-    AND password = @hashedPassword
-    AND status = 1;
+    ALTER TABLE [dbo].[CartTicket] ADD CONSTRAINT [FK_CartTicket_Cart] FOREIGN KEY([cartID]) REFERENCES [dbo].[Cart] ([cartID]);
+    ALTER TABLE [dbo].[CartTicket] ADD CONSTRAINT [FK_CartTicket_VillageTicket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]);
+    ALTER TABLE [dbo].[CartTicket] ADD CHECK ([quantity] > 0);
+    CREATE NONCLUSTERED INDEX [IX_CartTicket_CartID] ON [dbo].[CartTicket]([cartID] ASC);
+    CREATE NONCLUSTERED INDEX [IX_CartTicket_TicketDate] ON [dbo].[CartTicket]([ticketDate] ASC);
 END
-GO
+Go
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TicketAvailability]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[TicketAvailability](
+        [availabilityID] [int] IDENTITY(1,1) NOT NULL,
+        [ticketID] [int] NOT NULL,
+        [availableDate] [date] NOT NULL,
+        [totalSlots] [int] NOT NULL,
+        [bookedSlots] [int] NOT NULL DEFAULT(0),
+        [availableSlots] [int] NOT NULL, -- Cột này giống y Database 1
+        [status] [bit] NOT NULL DEFAULT(1),
+        [createdDate] [datetime] NOT NULL DEFAULT(GETDATE()),
+        [updatedDate] [datetime] NULL,
+        CONSTRAINT [PK_TicketAvailability] PRIMARY KEY CLUSTERED ([availabilityID] ASC),
+        CONSTRAINT [UC_TicketAvailability_TicketDate] UNIQUE NONCLUSTERED ([ticketID] ASC, [availableDate] ASC)
+    );
+    ALTER TABLE [dbo].[TicketAvailability] ADD CONSTRAINT [FK_TicketAvailability_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]);
+END
+Go
+
+IF NOT EXISTS (
+    SELECT * FROM sys.indexes WHERE name = 'IX_TicketAvailability_Date' AND object_id = OBJECT_ID('dbo.TicketAvailability')
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_TicketAvailability_Date] ON [dbo].[TicketAvailability]([availableDate] ASC)
+    WHERE ([status]=(1));
+END
+Go
+-- 5. BỔ SUNG CONSTRAINT/CHECK CÒN THIẾU
+-- TicketAvailability
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([bookedSlots] >= 0);
+Go
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([totalSlots] > 0);
+Go
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CONSTRAINT [CK_TicketAvailability_BookedSlots] CHECK ([bookedSlots] <= [totalSlots]);
+Go

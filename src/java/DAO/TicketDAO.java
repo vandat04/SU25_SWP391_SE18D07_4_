@@ -5,6 +5,7 @@
 package DAO;
 
 import context.DBContext;
+import entity.CraftVillage.CraftType;
 import entity.Ticket.Ticket;
 import entity.Ticket.TicketType;
 import java.util.logging.Level;
@@ -194,8 +195,28 @@ public class TicketDAO {
         return null;
     }
     
-    public static void main(String[] args) {
-        System.out.println(new TicketDAO().getTickeReportByAdmin(1));
+    public List<Ticket> getTicketsByVillage(int villageId) {
+        List<Ticket> list = new ArrayList<>();
+        String query = "SELECT * FROM VillageTicket WHERE  villageID = ? and status = 1";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, villageId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToTicket(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
     }
+    
+    public static void main(String[] args) {
+        System.out.println(new TicketDAO().getTicketsByVillage(1));
+    }
+
+    
+
+    
     
 }

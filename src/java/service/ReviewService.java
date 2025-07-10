@@ -24,7 +24,7 @@ public class ReviewService implements IReviewService {
 
     @Override
     public boolean addVillageReview(CraftReview review) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return rDAO.addVillageReview(review);
     }
 
     @Override

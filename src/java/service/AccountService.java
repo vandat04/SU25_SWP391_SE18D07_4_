@@ -39,7 +39,7 @@ public class AccountService implements IAccountService{
 
     @Override
     public Account getAccountById(int userId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return aDAO.getAccountById(userId); 
     }
 
     @Override

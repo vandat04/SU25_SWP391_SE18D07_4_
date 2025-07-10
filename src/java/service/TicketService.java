@@ -6,9 +6,11 @@ package service;
 
 import DAO.ProductDAO;
 import DAO.TicketDAO;
+import entity.CraftVillage.CraftType;
 import entity.Orders.TicketCode;
 import entity.Orders.TicketOrder;
 import entity.Ticket.Ticket;
+import entity.Ticket.TicketType;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ public class TicketService implements ITicketService {
 
     @Override
     public List<Ticket> getTicketsByVillage(int villageId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return tDAO.getTicketsByVillage(villageId);
     }
 
     @Override
@@ -69,5 +71,11 @@ public class TicketService implements ITicketService {
     public String getTicketNameByID(int typeID){
         return tDAO.getTicketNameByID(typeID);
     }
+
+    @Override
+    public List<TicketType> getAllTicketType() {
+        return tDAO.getAllTicketType();
+    }
+
     
 }

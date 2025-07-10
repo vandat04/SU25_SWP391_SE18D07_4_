@@ -562,7 +562,26 @@ public class AccountDAO {
         return false;
     }
 
-    public static void main(String[] args) {
-        System.out.println(new AccountDAO().getSellerVertificationFormByAdmin(0));
+    public Account getAccountById(int userId) {
+        String query = "SELECT * FROM Account WHERE userID = ? AND status = 1";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToAccount(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return null;
     }
+    
+    public static void main(String[] args) {
+        System.out.println(new AccountDAO().getAccountById(1));
+    }
+
+    
 }
