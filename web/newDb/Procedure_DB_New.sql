@@ -1434,3 +1434,76 @@ BEGIN
     END CATCH
 END
 Go
+--Chat User - Seller
+CREATE PROCEDURE addNewMessageThread
+    @userID INT,
+    @sellerID INT,
+    @messageName NVARCHAR(255),
+    @result INT OUTPUT
+AS
+BEGIN
+    -- Kiểm tra tồn tại
+    IF EXISTS (
+        SELECT 1
+        FROM MessageThread
+        WHERE userID = @userID
+          AND sellerID = @sellerID
+          AND messageName = @messageName
+    )
+    BEGIN
+        -- Đã tồn tại → trả 0
+        SET @result = 0;
+    END
+    ELSE
+    BEGIN
+        BEGIN TRY
+            INSERT INTO MessageThread (userID, sellerID, messageName)
+            VALUES (@userID, @sellerID, @messageName);
+            
+            IF @@ROWCOUNT > 0
+                SET @result = 1;
+            ELSE
+                SET @result = 0;
+        END TRY
+        BEGIN CATCH
+            -- Có lỗi khi INSERT → trả 0
+            SET @result = 0;
+        END CATCH
+    END
+END
+go
+
+CREATE PROCEDURE sendMessage
+    @threadID INT,
+    @senderID INT,
+    @messageContent NVARCHAR(MAX),
+    @attachmentUrl VARCHAR(MAX) = NULL,
+    @result INT OUTPUT
+AS
+BEGIN
+    BEGIN TRY
+        INSERT INTO [dbo].[Message] (
+            threadID,
+            senderID,
+            messageContent,
+            attachmentUrl,
+            sentDate
+        )
+        VALUES (
+            @threadID,
+            @senderID,
+            @messageContent,
+            @attachmentUrl,
+            GETDATE()
+        );
+        IF @@ROWCOUNT > 0
+            SET @result = 1;
+        ELSE
+            SET @result = 0;
+    END TRY
+    BEGIN CATCH
+        -- Có lỗi xảy ra
+        SET @result = 0;
+    END CATCH
+END
+GO

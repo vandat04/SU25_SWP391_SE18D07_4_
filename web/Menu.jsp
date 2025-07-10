@@ -60,6 +60,24 @@
                                         </c:forEach>
                                 </ul>
                             </li>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.acc}">
+                                    <!-- Đã đăng nhập -->
+                                    <li class="menu-item">
+                                        <a href="contact?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">
+                                            Contact
+                                        </a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- Chưa đăng nhập -->
+                                    <li class="menu-item">
+                                        <a href="Login.jsp" class="menu-name" data-title="Product">
+                                            Contact
+                                        </a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
                             <c:if test="${sessionScope.account.roleID == 3}">
                                 <li class="menu-item"><a href="admin">Dashboard</a></li>
                                 </c:if>
@@ -97,7 +115,7 @@
                         <div class="minicart-block">
                             <div class="minicart-contain">
                                 <c:if test="${sessionScope.account != null}">
-                                   
+
                                 </c:if>
 
                             </div>
@@ -158,7 +176,7 @@
                         <form action="search" class="form-search" name="desktop-seacrh" onsubmit="return syncSearch();">
                             <input type="hidden" name="action" value="search">
                             <input type="text" name="txt" class="input-text" value="${param.txt}" placeholder="Search here..."
-                            <button type="submit" class="btn-submit"><i class="biolife-icon icon-search"></i></button>
+                                   <button type="submit" class="btn-submit"><i class="biolife-icon icon-search"></i></button>
                         </form>
                     </div>
                     <div class="live-info">

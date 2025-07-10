@@ -177,3 +177,9 @@ VALUES
 (6, 1, 2, N'VCL!');
 GO
 
+--Insert [MessageThread]
+INSERT INTO [dbo].[MessageThread] ( userID, sellerID ,messageName)
+VALUES 
+(1, 2,  N'Lang1')
+GO
+

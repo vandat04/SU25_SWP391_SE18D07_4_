@@ -398,11 +398,11 @@ GO
 --Table [MessageThread]---Dư thì lma
 CREATE TABLE [dbo].[MessageThread](
 	[threadID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[userID1] [int] NOT NULL,
-	[sellerID2] [int] NOT NULL,
+	[userID] [int] NOT NULL,
+	[sellerID] [int] NOT NULL,
 	[messageName] [varchar](max) NULL,
-	CONSTRAINT [FK_MessageThread_User1] FOREIGN KEY([userID1]) REFERENCES [dbo].[Account] ([userID]),
-	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([sellerID2]) REFERENCES [dbo].[Account] ([userID])
+	CONSTRAINT [FK_MessageThread_User1] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
 

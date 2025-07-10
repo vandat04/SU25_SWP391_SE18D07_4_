@@ -103,7 +103,7 @@
                 position: relative;
                 z-index: 1;
                 overflow: hidden;
-                margin-bottom: 80px;
+                margin-bottom: 140px;
             }
 
             .desc-expand iframe {
@@ -267,6 +267,7 @@
                                          onmouseout="this.style.borderColor = 'transparent'"></li>
                             </ul>
                         </div>
+
                         <div class="village-attribute">
                             <h3 class="title">${villageDetails.villageName}</h3>
 
@@ -316,6 +317,18 @@
                                         </c:forEach>
                                     </ul>
                                 </li>
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.acc}">
+                                        <li><strong>Contact to Artist:</strong>
+                                            <a href="contact-artist?villageID=${villageDetails.villageID}&userID=${sessionScope.acc.userID}&sellerID=${seller.userID}">Here</a>
+                                        </li>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li><strong>Contact to Artist:</strong>
+                                            <a href="Login.jsp">Here</a>
+                                        </li>
+                                    </c:otherwise>
+                                </c:choose>
                             </ul>
                         </div>
                     </div>
@@ -470,10 +483,8 @@
                                             </ol>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -497,13 +508,56 @@
                             </c:otherwise>
                         </c:choose>
                     </div>
+                </div>
 
-                    Product Rela
-
+                <!-- related products -->
+                <div class="village-related-box single-layout">
+                    <div class="biolife-title-box lg-margin-bottom-26px-im">
+                        <span class="subtitle">All the best item for You</span>
+                        <h3 class="main-title">Related Products</h3>
+                    </div>
+                    <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile" data-slick='{"rows":1,"arrows":true,"dots":false,"infinite":false,"speed":400,"slidesMargin":0,"slidesToShow":5, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":20 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":10}}]}'>
+                        <c:forEach var="p" items="${listProduct}">
+                            <li class="product-item">
+                                <div class="contain-product layout-default">
+                                    <div class="product-thumb">
+                                        <a href="detail?pid=${p.id}" class="link-to-product">
+                                            <figure style="margin:0;padding:0;width:100%;height:270px;overflow:hidden;position:relative;border-radius:8px;background-color:#f8f8f8;">
+                                                <img src="${p.img}" alt="${p.name}" class="product-thumnail" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='assets/images/products/placeholder.svg'; this.onerror=null;">
+                                            </figure>
+                                        </a>
+                                    </div>
+                                    <div class="info" style="padding: 15px;">
+                                        <h4 class="product-title" style="margin-bottom: 10px;">
+                                            <a href="detail?pid=${p.id}" class="pr-name" style="color:#333;font-size:16px;font-weight:500;text-decoration:none;">${p.name}</a>
+                                        </h4>
+                                        <div class="price" style="margin-bottom: 15px;">
+                                            <ins><span class="price-amount" style="color:#4CAF50;font-size:18px;font-weight:600;"><fmt:formatNumber value="${p.price}" type="currency"/></span></ins>
+                                        </div>
+                                        <div class="slide-down-box">
+                                            <div class="buttons" style="display:flex;gap:10px;justify-content:center;">
+                                                <form action="wishlist" method="post" style="display:inline;">
+                                                    <input type="hidden" name="action" value="add">
+                                                    <input type="hidden" name="userID" value="<%= session.getAttribute("userID")%>">
+                                                    <input type="hidden" name="productID" value="${p.id}">
+                                                    <input type="hidden" name="returnUrl" value="detail?pid=${detail.id}">
+                                                    <button type="submit" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="return confirm('Thêm sản phẩm vào wishlist?')">
+                                                        <i class="fa fa-heart" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                                <a onclick="addToCart('${p.id}', 1)" class="btn add-to-cart-btn" style="background:#4CAF50;color:#fff;padding:8px 15px;border-radius:4px;text-decoration:none;">
+                                                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Add to Cart
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </c:forEach>
+                    </ul>
                 </div>
             </div>
         </div>
-
 
         <!-- FOOTER -->
         <jsp:include page="Footer.jsp"></jsp:include>
@@ -585,149 +639,31 @@
         <script src="assets/js/biolife.framework.js"></script>
         <script src="assets/js/functions.js"></script>
 
-        <!--        <script>
-                                                                $(document).ready(function () {
-                                                                    const ratingBtns = document.querySelectorAll('.btn-rating');
-                                                                    const ratingInput = document.getElementById('selected-rating');
-        
-                                                                    ratingBtns.forEach((btn, index) => {
-                                                                        btn.addEventListener('click', function (e) {
-                                                                            e.preventDefault();
-        
-                                                                            // Set the rating value (index + 1 because stars are 1-based)
-                                                                            const ratingValue = index + 1;
-                                                                            ratingInput.value = ratingValue;
-        
-                                                                            // Update the visual appearance
-                                                                            ratingBtns.forEach((b, i) => {
-                                                                                const star = b.querySelector('i');
-                                                                                if (i <= index) {
-                                                                                    star.className = 'fa fa-star';
-                                                                                } else {
-                                                                                    star.className = 'fa fa-star-o';
-                                                                                }
-                                                                            });
-                                                                        });
-                                                                    });
-        
-                                                                    // Check if hash contains tab=reviews to activate the reviews tab
-                                                                    if (window.location.hash === '#tab_4th' || window.location.search.includes('tab=reviews')) {
-                                                                        // Find the review tab link and trigger a click
-                                                                        const reviewTabLink = document.querySelector('a[href="#tab_4th"]');
-                                                                        if (reviewTabLink) {
-                                                                            setTimeout(() => {
-                                                                                reviewTabLink.click();
-                                                                            }, 100);
-                                                                        }
-                                                                    }
-                                                                });
-                                                                $(document).ready(function () {
-                                                                    const ratingBtns = document.querySelectorAll('.btn-rating');
-                                                                    const ratingInput = document.getElementById('selected-rating');
-        
-                                                                    // Hiển thị mặc định 5 sao khi trang được tải
-                                                                    function initRating() {
-                                                                        const defaultRating = ratingInput.value || 5;
-                                                                        updateStarsDisplay(defaultRating);
-                                                                    }
-        
-                                                                    // Cập nhật hiển thị sao dựa trên giá trị đánh giá
-                                                                    function updateStarsDisplay(rating) {
-                                                                        ratingBtns.forEach((btn, i) => {
-                                                                            const star = btn.querySelector('i');
-                                                                            if (i < rating) {
-                                                                                star.className = 'fa fa-star'; // Sao đầy đủ
-                                                                            } else {
-                                                                                star.className = 'fa fa-star-o'; // Sao rỗng
-                                                                            }
-                                                                        });
-                                                                    }
-        
-                                                                    // Sự kiện click cho các nút sao
-                                                                    ratingBtns.forEach((btn, index) => {
-                                                                        btn.addEventListener('click', function (e) {
-                                                                            e.preventDefault();
-        
-                                                                            // Set the rating value (index + 1 because stars are 1-based)
-                                                                            const ratingValue = index + 1;
-                                                                            ratingInput.value = ratingValue;
-        
-                                                                            // Update the visual appearance
-                                                                            updateStarsDisplay(ratingValue);
-                                                                        });
-        
-                                                                        // Thêm hiệu ứng hover
-                                                                        btn.addEventListener('mouseenter', function () {
-                                                                            // Hiển thị sao khi hover
-                                                                            ratingBtns.forEach((b, i) => {
-                                                                                const star = b.querySelector('i');
-                                                                                if (i <= index) {
-                                                                                    star.className = 'fa fa-star';
-                                                                                } else {
-                                                                                    star.className = 'fa fa-star-o';
-                                                                                }
-                                                                            });
-                                                                        });
-                                                                    });
-        
-                                                                    // Xử lý sự kiện khi chuột rời khỏi vùng sao
-                                                                    const starsContainer = document.querySelector('.stars');
-                                                                    if (starsContainer) {
-                                                                        starsContainer.addEventListener('mouseleave', function () {
-                                                                            // Khôi phục trạng thái sao dựa trên giá trị đã chọn
-                                                                            const currentRating = parseInt(ratingInput.value) || 5;
-                                                                            updateStarsDisplay(currentRating);
-                                                                        });
-                                                                    }
-        
-                                                                    // Khởi tạo sao khi trang tải
-                                                                    initRating();
-        
-                                                                    // Check if hash contains tab=reviews to activate the reviews tab
-                                                                    if (window.location.hash === '#tab_4th' || window.location.search.includes('tab=reviews')) {
-                                                                        // Find the review tab link and trigger a click
-                                                                        const reviewTabLink = document.querySelector('a[href="#tab_4th"]');
-                                                                        if (reviewTabLink) {
-                                                                            setTimeout(() => {
-                                                                                reviewTabLink.click();
-                                                                            }, 100);
-                                                                        }
-                                                                    }
-        
-                                                                    // Đảm bảo carousel được khởi tạo đúng cách
-                                                                    setTimeout(function () {
-                                                                        $('.biolife-carousel').each(function () {
-                                                                            if (!$(this).hasClass('slick-initialized')) {
-                                                                                $(this).slick();
-                                                                            }
-                                                                        });
-                                                                    }, 500);
-                                                                });
-                </script>-->
+
         <script>
-                                             document.addEventListener("DOMContentLoaded", function () {
-                                                 const tabs = document.querySelectorAll(".tab-link");
-                                                 const tabContents = document.querySelectorAll(".tab-contain");
+                                                    document.addEventListener("DOMContentLoaded", function () {
+                                                        const tabs = document.querySelectorAll(".tab-link");
+                                                        const tabContents = document.querySelectorAll(".tab-contain");
 
-                                                 tabs.forEach(tab => {
-                                                     tab.addEventListener("click", function (e) {
-                                                         e.preventDefault();
+                                                        tabs.forEach(tab => {
+                                                            tab.addEventListener("click", function (e) {
+                                                                e.preventDefault();
 
-                                                         // Remove all active classes
-                                                         document.querySelectorAll(".tab-element").forEach(el => el.classList.remove("active"));
-                                                         document.querySelectorAll(".tab-contain").forEach(el => el.classList.remove("active"));
+                                                                // Remove all active classes
+                                                                document.querySelectorAll(".tab-element").forEach(el => el.classList.remove("active"));
+                                                                document.querySelectorAll(".tab-contain").forEach(el => el.classList.remove("active"));
 
-                                                         // Add active class to the clicked tab
-                                                         this.parentElement.classList.add("active");
+                                                                // Add active class to the clicked tab
+                                                                this.parentElement.classList.add("active");
 
-                                                         // Show the corresponding tab content
-                                                         const target = document.querySelector(this.getAttribute("href"));
-                                                         if (target) {
-                                                             target.classList.add("active");
-                                                         }
-                                                     });
-                                                 });
-                                             });
+                                                                // Show the corresponding tab content
+                                                                const target = document.querySelector(this.getAttribute("href"));
+                                                                if (target) {
+                                                                    target.classList.add("active");
+                                                                }
+                                                            });
+                                                        });
+                                                    });
         </script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
