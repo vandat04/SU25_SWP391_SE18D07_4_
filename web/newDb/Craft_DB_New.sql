@@ -49,6 +49,16 @@ GO
 ALTER TABLE Account
 ADD fullName NVARCHAR(100);
 
+
+--Table [AccountPoints]
+CREATE TABLE [dbo].[AccountPoints](
+	[pointsID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[points]  [int] NOT NULL default(0),
+	CONSTRAINT [FK_AccountPoints_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
 --Table [EmailVerification] 
 CREATE TABLE [dbo].[EmailVerification](
 	[verificationID] [int] IDENTITY(1,1) NOT NULL,

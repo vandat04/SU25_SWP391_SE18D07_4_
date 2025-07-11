@@ -17,6 +17,8 @@ import java.util.Map;
 public interface IProductService {
 
     //CRUD Basic
+    List<Product> getActivateProducts();
+    
     int addProduct(Product product) throws Exception;
 
     boolean updateProduct(Product product);

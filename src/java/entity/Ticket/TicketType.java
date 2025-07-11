@@ -89,9 +89,33 @@ public class TicketType {
         this.updatedDate = updatedDate;
     }
 
+    public boolean isActive() {
+        return status == 1;
+    }
+
     @Override
     public String toString() {
-        return "TicketType{" + "typeID=" + typeID + ", typeName=" + typeName + ", description=" + description + ", ageRange=" + ageRange + ", status=" + status + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + '}';
+        return "TicketType{" +
+                "typeID=" + typeID +
+                ", typeName='" + typeName + '\'' +
+                ", description='" + description + '\'' +
+                ", ageRange='" + ageRange + '\'' +
+                ", status=" + status +
+                ", createdDate=" + createdDate +
+                ", updatedDate=" + updatedDate +
+                '}';
     }
     
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        TicketType that = (TicketType) obj;
+        return typeID == that.typeID;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(typeID);
+    }
 }

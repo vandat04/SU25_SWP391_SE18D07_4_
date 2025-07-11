@@ -578,10 +578,32 @@ public class AccountDAO {
         }
         return null;
     }
-    
+
+    public int getPointsByUserID(int userID) {
+        String query = "SELECT points FROM AccountPoints WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, userID);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("points");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving points for user ID: " + userID, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return 0; // không tìm thấy thì trả về 0
+    }
+
     public static void main(String[] args) {
         System.out.println(new AccountDAO().getAccountById(1));
     }
 
-    
 }

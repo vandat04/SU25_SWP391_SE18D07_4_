@@ -95,4 +95,9 @@ public class AccountService implements IAccountService{
     public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
         return rDAO.getRegistrationSummaryByMonthYear(year);
     }
+
+    @Override
+    public int getPointsByUserID(int userID) {
+        return aDAO.getPointsByUserID(userID);
+    }
 }

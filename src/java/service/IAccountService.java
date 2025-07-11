@@ -43,4 +43,6 @@ public interface IAccountService {
     List<Account> getSearchAccount(int status, int searchID, String contentSearch);
     
     Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year);
+    
+    int getPointsByUserID(int userID);
 }

@@ -21,7 +21,24 @@ public class TicketOrderDetail {
     
     // Constructors-------------------------------------------------------------
     public TicketOrderDetail() {}
+
+    public TicketOrderDetail(int detailID, int orderID, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal) {
+        this.detailID = detailID;
+        this.orderID = orderID;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+        this.subtotal = subtotal;
+    }
+
+    public TicketOrderDetail(int orderID, int ticketID, int quantity, BigDecimal price) {
+        this.orderID = orderID;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+    }
     
+
     //--------------------------------------------------------------------------
     public int getDetailID() {
         return detailID;

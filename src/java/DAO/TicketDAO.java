@@ -215,6 +215,10 @@ public class TicketDAO {
         System.out.println(new TicketDAO().getTicketsByVillage(1));
     }
 
+    public List<Ticket> searchTicketByAdmin(int status, int villageID) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     
 
     

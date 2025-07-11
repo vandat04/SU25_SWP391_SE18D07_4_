@@ -5,7 +5,6 @@
 package entity.CartWishList;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *
@@ -18,9 +17,24 @@ public class CartItem {
     private int quantity;
     private Timestamp createdDate;
     private Timestamp updatedDate;
+    private String productName;
+    private double price;
+    private String imageUrl;
 
     // Constructors-------------------------------------------------------------
     public CartItem() {}
+    
+    public CartItem(int itemID, int cartID, int productID, String productName, 
+                   double price, int quantity, String imageUrl) {
+        this.itemID = itemID;
+        this.cartID = cartID;
+        this.productID = productID;
+        this.productName = productName;
+        this.price = price;
+        this.quantity = quantity;
+        this.imageUrl = imageUrl;
+        this.createdDate = new Timestamp(System.currentTimeMillis());
+    }
     
     //--------------------------------------------------------------------------
     public int getItemID() {
@@ -69,6 +83,43 @@ public class CartItem {
 
     public void setUpdatedDate(Timestamp updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public double getSubtotal() {
+        return price * quantity;
+    }
+
+    // Alias methods for compatibility
+    public int getCartItemID() {
+        return itemID;
+    }
+
+    public void setCartItemID(int cartItemID) {
+        this.itemID = cartItemID;
     }
 
     @Override
