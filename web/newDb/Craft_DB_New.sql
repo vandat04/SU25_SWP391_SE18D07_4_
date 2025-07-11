@@ -241,6 +241,15 @@ CREATE TABLE [dbo].[ProductReview](
 )
 GO
 
+--Table [Product3D]
+CREATE TABLE [dbo].[Product3D](
+	[product3dID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[productID] [int] NOT NULL,
+	[modelFile] [nvarchar](max) NULL,
+	CONSTRAINT [FK_Product3D_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid])
+)
+GO
+
 --Table [Wishlist]
 CREATE TABLE [dbo].[Wishlist](
 	[wishlistID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,

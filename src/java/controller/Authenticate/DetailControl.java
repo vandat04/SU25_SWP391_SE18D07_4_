@@ -56,6 +56,7 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("price", product.getPrice());
         request.setAttribute("description", product.getDescription());
         request.setAttribute("img", product.getMainImageUrl());
+        request.setAttribute("product3D", new ProductService().getProduct3D(product.getPid()));
 
         // Lấy danh sách tất cả sản phẩm
         List<Product> listP = productService.getAllProducts();

@@ -187,4 +187,9 @@ public class ProductService implements IProductService{
     public List<Product> getTopRatedByAdmin() {
         return pDAO.getTopRatedByAdmin();
     }
+
+    @Override
+    public String getProduct3D(int productID) {
+        return pDAO.getProduct3D(productID);
+    }
 }
