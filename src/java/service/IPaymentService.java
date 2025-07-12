@@ -4,7 +4,6 @@
  */
 package service;
 
-import entity.Orders.Payment;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -13,9 +12,8 @@ import java.util.Map;
 /**
  *
  * @author ACER
+ * Note: Payment entity methods removed due to system cleanup
  */
 public interface IPaymentService {
-    Map<Date,BigDecimal> getRevenue();
-    List<Payment> getAllPayment();
-    Map<Integer,BigDecimal> getRevenueByYear(int year);
+    // Payment-related methods removed
 }

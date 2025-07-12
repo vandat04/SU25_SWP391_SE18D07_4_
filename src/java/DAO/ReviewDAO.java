@@ -477,33 +477,314 @@ public class ReviewDAO {
             return false;
         }
         
-        String query = "INSERT INTO ProductReview (productID, userID, rating, reviewText, reviewDate) " +
-                      "VALUES (?, ?, ?, ?, GETDATE())";
+        // Use stored procedure to add review with order validation
+        String sql = "{call sp_addProductReviewWithOrderValidation(?, ?, ?, ?, ?, ?)}";
+        
+        try (Connection con = DBContext.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            
+            cs.setInt(1, review.getProductID());
+            cs.setInt(2, review.getUserID());
+            cs.setInt(3, orderID);
+            cs.setString(4, review.getReviewText());
+            cs.setInt(5, review.getRating());
+            cs.registerOutParameter(6, Types.INTEGER);
+            
+            cs.execute();
+            
+            int result = cs.getInt(6);
+            if (result == 1) {
+                return true;
+            } else if (result == -1) {
+                LOGGER.log(Level.WARNING, "Order {0} is not eligible for review", orderID);
+                return false;
+            } else if (result == -2) {
+                LOGGER.log(Level.WARNING, "User {0} has already reviewed product {1}", 
+                          new Object[]{review.getUserID(), review.getProductID()});
+                return false;
+            } else {
+                LOGGER.log(Level.WARNING, "Failed to add product review, result code: {0}", result);
+                return false;
+            }
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding product review: " + e.getMessage(), e);
+            return false;
+        }
+    }
+    
+    /**
+     * Add a simple product review without order validation
+     * @param review The product review
+     * @return true if review was added successfully
+     */
+    public boolean addProductReview(ProductReview review) {
+        String sql = "{call sp_addProductReview(?, ?, ?, ?, ?)}";
+
+        try (Connection con = DBContext.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, review.getProductID());
+            cs.setInt(2, review.getUserID());
+            cs.setString(3, review.getReviewText());
+            cs.setInt(4, review.getRating());
+            cs.registerOutParameter(5, Types.INTEGER);
+
+            cs.execute();
+
+            int result = cs.getInt(5);
+            return result == 1;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding product review: " + e.getMessage(), e);
+            return false;
+        }
+    }
+    
+    /**
+     * Add a village review with ticket order validation
+     * @param review The village review
+     * @param orderID The ticket order ID this review relates to
+     * @return true if review was added successfully
+     */
+    public boolean addVillageReviewFromOrder(CraftReview review, int orderID) {
+        String sql = "{call sp_addVillageReviewWithOrderValidation(?, ?, ?, ?, ?, ?)}";
+        
+        try (Connection con = DBContext.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            
+            cs.setInt(1, review.getVillageID());
+            cs.setInt(2, review.getUserID());
+            cs.setInt(3, orderID);
+            cs.setString(4, review.getReviewText());
+            cs.setInt(5, review.getRating());
+            cs.registerOutParameter(6, Types.INTEGER);
+            
+            cs.execute();
+            
+            int result = cs.getInt(6);
+            if (result == 1) {
+                return true;
+            } else if (result == -1) {
+                LOGGER.log(Level.WARNING, "Ticket order {0} is not eligible for review", orderID);
+                return false;
+            } else if (result == -2) {
+                LOGGER.log(Level.WARNING, "User {0} has already reviewed village {1}", 
+                          new Object[]{review.getUserID(), review.getVillageID()});
+                return false;
+            } else {
+                LOGGER.log(Level.WARNING, "Failed to add village review, result code: {0}", result);
+                return false;
+            }
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding village review: " + e.getMessage(), e);
+            return false;
+        }
+    }
+    
+    /**
+     * Check if ticket order is eligible for review (delivered + paid)
+     * @param orderID The ticket order ID to check
+     * @return true if order status=1 (delivered) AND paymentStatus=1 (paid)
+     */
+    public boolean isTicketOrderEligibleForReview(int villageID, int userID) {
+        String sql = "SELECT COUNT(*) FROM TicketOrder WHERE userID = ? AND villageID = ? AND status = 1 AND paymentStatus = 1";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userID);
+            ps.setInt(2, villageID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Thêm review làng nghề từ ticket
+     * @param villageID The village ID
+     * @param userID The user ID
+     * @param rating The rating
+     * @param content The review text
+     * @return true if review was added successfully
+     */
+    public boolean addVillageReviewFromTicket(int villageID, int userID, int rating, String content) {
+        String sql = "INSERT INTO VillageReview (villageID, userID, rating, reviewText, reviewDate) VALUES (?, ?, ?, ?, GETDATE())";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, villageID);
+            ps.setInt(2, userID);
+            ps.setInt(3, rating);
+            ps.setString(4, content);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Get all village reviews for a specific seller
+     * @param sellerID The seller ID
+     * @return List of village reviews for the seller's villages
+     */
+    public List<CraftReview> getAllVillageReviewsBySeller(int sellerID) {
+        List<CraftReview> list = new ArrayList<>();
+        String query = "SELECT vr.* FROM VillageReview vr " +
+                      "JOIN CraftVillage cv ON vr.villageID = cv.villageID " +
+                      "WHERE cv.sellerId = ? AND cv.status = 1 " +
+                      "ORDER BY vr.reviewDate DESC";
         
         Connection conn = null;
         PreparedStatement ps = null;
+        ResultSet rs = null;
         
         try {
             conn = DBContext.getConnection();
             ps = conn.prepareStatement(query);
-            ps.setInt(1, review.getProductID());
-            ps.setInt(2, review.getUserID());
-            ps.setInt(3, review.getRating());
-            ps.setString(4, review.getReviewText());
+            ps.setInt(1, sellerID);
+            rs = ps.executeQuery();
             
-            int result = ps.executeUpdate();
-            return result > 0;
-            
+            while (rs.next()) {
+                list.add(mapResultSetToCraftReview(rs));
+            }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error adding product review: " + e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Error getting village reviews by seller: " + e.getMessage(), e);
         } finally {
-            closeResources(conn, ps, null);
+            closeResources(conn, ps, rs);
         }
         
-        return false;
+        return list;
     }
     
-    // Test thử
+    /**
+     * Get all product reviews for a specific seller
+     * @param sellerID The seller ID
+     * @return List of product reviews for the seller's products
+     */
+    public List<ProductReview> getAllProductReviewsBySeller(int sellerID) {
+        List<ProductReview> list = new ArrayList<>();
+        String query = "SELECT pr.* FROM ProductReview pr " +
+                      "JOIN Product p ON pr.productID = p.pid " +
+                      "JOIN CraftVillage cv ON p.villageID = cv.villageID " +
+                      "WHERE cv.sellerId = ? AND cv.status = 1 AND p.status = 1 " +
+                      "ORDER BY pr.reviewDate DESC";
+        
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, sellerID);
+            rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                list.add(mapResultSetToProductReview(rs));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting product reviews by seller: " + e.getMessage(), e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        
+        return list;
+    }
+    
+    /**
+     * Get a village review by ID
+     * @param reviewID The review ID
+     * @return The village review or null if not found
+     */
+    public CraftReview getVillageReviewById(int reviewID) {
+        String query = "SELECT * FROM VillageReview WHERE reviewID = ?";
+        
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, reviewID);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return mapResultSetToCraftReview(rs);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting village review by ID: " + e.getMessage(), e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get a product review by ID
+     * @param reviewID The review ID
+     * @return The product review or null if not found
+     */
+    public ProductReview getProductReviewById(int reviewID) {
+        String query = "SELECT * FROM ProductReview WHERE reviewID = ?";
+        
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, reviewID);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return mapResultSetToProductReview(rs);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting product review by ID: " + e.getMessage(), e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        
+        return null;
+    }
+
+    // Lấy productID từ orderID
+    public Integer getProductIdByOrderId(int orderID) {
+        String sql = "SELECT productID FROM Orders WHERE orderID = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("productID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Kiểm tra điều kiện review cho product
+    public boolean isProductOrderEligibleForReview(int productID, int userID) {
+        String sql = "SELECT COUNT(*) FROM Orders WHERE userID = ? AND productID = ? AND status = 1 AND paymentStatus = 1";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userID);
+            ps.setInt(2, productID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         ReviewDAO dao = new ReviewDAO();
         System.out.println(dao.addVillageReview(new CraftReview(6, 1, 2, "Huhu")));

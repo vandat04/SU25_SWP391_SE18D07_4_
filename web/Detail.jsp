@@ -372,69 +372,32 @@
                                         <div class="review-form-wrapper">
                                             <span class="title">Submit your review</span>
                                             <c:choose>
-                                                <c:when test="${sessionScope.acc != null}">
-                                                    <!-- Check if user can review products from their orders -->
-                                                    <c:set var="canReview" value="false" />
-                                                    <c:set var="reviewMessage" value="" />
-                                                    
-                                                    <!-- This will be populated by the controller -->
+                                                <c:when test="${not empty sessionScope.acc}">
                                                     <c:choose>
-                                                        <c:when test="${canUserReviewProduct == true}">
-                                                            <c:set var="canReview" value="true" />
-                                                        </c:when>
-                                                        <c:when test="${canUserReviewProduct == false && reviewMessage != null}">
-                                                            <c:set var="reviewMessage" value="${reviewMessage}" />
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <c:set var="reviewMessage" value="You can only review products from orders that have been delivered and paid." />
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                    
-                                                    <c:choose>
-                                                        <c:when test="${canReview == true}">
-                                                            <form action="review" method="post" name="frm-review">
-                                                                <input type="hidden" name="action" value="submit-from-order">
-                                                                <input type="hidden" name="productID" value="${detail.id}">
-                                                                <input type="hidden" name="orderID" value="${orderIDForReview}">
-                                                                <div class="comment-form-rating">
-                                                                    <label>1. Your rating of this product:</label>
-                                                                    <p class="stars">
-                                                                        <span>
-                                                                            <a class="btn-rating" data-value="star-1" href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                                            <a class="btn-rating" data-value="star-2" href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                                            <a class="btn-rating" data-value="star-3" href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                                            <a class="btn-rating" data-value="star-4" href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                                            <a class="btn-rating" data-value="star-5" href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                                        </span>
-                                                                    </p>
-                                                                    <input type="hidden" name="rating" id="selected-rating" value="5">
-                                                                </div>
-                                                                <p class="form-row">
-                                                                    <textarea name="reviewText" id="txt-comment" cols="30" rows="10" placeholder="Write your review here..." required></textarea>
-                                                                </p>
-                                                                <p class="form-row">
-                                                                    <button type="submit" name="submit">Submit Review</button>
-                                                                </p>
+                                                        <c:when test="${canUserReviewProduct}">
+                                                            <form action="review" method="post">
+                                                                <label>1. Đánh giá của bạn:</label>
+                                                                <input type="hidden" name="productID" value="${detail.id}" />
+                                                                <input type="number" name="rating" min="1" max="5" required />
+                                                                <textarea name="content" placeholder="Viết đánh giá của bạn..." required></textarea>
+                                                                <button type="submit">Gửi đánh giá</button>
                                                             </form>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <div class="review-restriction">
-                                                                <p class="restriction-message">${reviewMessage}</p>
-                                                                <p><strong>To leave a review:</strong></p>
+                                                            <div class="review-warning">
+                                                                <span>${reviewMessageProduct}</span>
                                                                 <ul>
-                                                                    <li>✓ Purchase this product</li>
-                                                                    <li>✓ Wait for order to be delivered</li>
-                                                                    <li>✓ Complete payment</li>
-                                                                    <li>✓ Review each product once per order</li>
+                                                                    <li>✓ Đã mua sản phẩm này</li>
+                                                                    <li>✓ Đơn hàng đã giao và thanh toán thành công</li>
                                                                 </ul>
-                                                                <a href="order-history" class="btn btn-link">Check Your Orders</a>
+                                                                <a href="order-history">Kiểm tra đơn hàng của bạn</a>
                                                             </div>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <div class="login-request">
-                                                        <p>Please <a href="login?returnUrl=detail?pid=${detail.id}">login</a> to submit a review.</p>
+                                                    <div class="review-warning">
+                                                        Vui lòng <a href="login.jsp">đăng nhập</a> để viết đánh giá.
                                                     </div>
                                                 </c:otherwise>
                                             </c:choose>

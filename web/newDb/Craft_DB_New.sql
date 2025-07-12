@@ -288,9 +288,9 @@ CREATE TABLE [dbo].[TicketOrder](
 	[villageID] [int] NOT NULL,
 	[totalPrice] [decimal](10, 2) NOT NULL,
 	[totalQuantity] [int] NOT NULL,
-	[status]  [int] NOT NULL DEFAULT(0), -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
-	[paymentMethod] [nvarchar](50) NOT NULL,
-	[paymentStatus]  [int] NOT NULL DEFAULT(0),
+	[status]  [int] NOT NULL DEFAULT(0), -- 0: đang xử lí, 1: đã giao, 2: đã huỷ, 3: hoàn trả 
+	[paymentMethod] [nvarchar](50) NULL,
+	[paymentStatus]  [int] NOT NULL DEFAULT(0), -- 0: chưa thanh toán, 1: đã thanh toán
 	[customerName] [nvarchar](100) NOT NULL,
 	[customerPhone] [nvarchar](20) NOT NULL,
 	[customerEmail] [nvarchar](100) NULL,

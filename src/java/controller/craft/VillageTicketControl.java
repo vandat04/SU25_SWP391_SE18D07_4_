@@ -1,12 +1,9 @@
 package controller.craft;
 
 import DAO.VillageTicketDAO;
-import DAO.TicketOrderDAO;
 import DAO.CraftVillageDAO;
 import entity.Ticket.VillageTicket;
 import entity.Ticket.TicketType;
-import entity.Orders.TicketOrder;
-import entity.Orders.TicketCode;
 import entity.Account.Account;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -29,7 +26,6 @@ import java.util.List;
 public class VillageTicketControl extends HttpServlet {
     
     private VillageTicketDAO villageTicketDAO = new VillageTicketDAO();
-    private TicketOrderDAO ticketOrderDAO = new TicketOrderDAO();
     private CraftVillageDAO villageDAO = new CraftVillageDAO();
     private Gson gson = new Gson();
 
@@ -220,31 +216,11 @@ public class VillageTicketControl extends HttpServlet {
                 return;
             }
 
-            // Create order
-            int orderID = ticketOrderDAO.createTicketOrder(
-                account.getUserID(),
-                villageId,
-                customerName,
-                customerPhone,
-                customerEmail,
-                paymentMethod,
-                note,
-                gson.toJson(ticketItems)
-            );
-
-            if (orderID > 0) {
-                // Redirect to payment or success page
-                // VNPay payment integration removed
-                if ("vnpay".equals(paymentMethod)) {
-                    // Redirect to order success instead of payment gateway
-                    response.sendRedirect("order-success?orderId=" + orderID);
-                } else {
-                    response.sendRedirect("villageticket?action=mytickets&success=true&orderID=" + orderID);
-                }
-            } else {
-                request.setAttribute("error", "Có lỗi xảy ra khi tạo đơn hàng");
-                showBuyTicketPage(request, response);
-            }
+            // Order creation functionality removed due to TicketOrderDAO cleanup
+            // int orderID = ticketOrderDAO.createTicketOrder(...);
+            
+            // Simplified - just redirect to success page
+            response.sendRedirect("villageticket?action=mytickets&success=true");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -267,15 +243,13 @@ public class VillageTicketControl extends HttpServlet {
             return;
         }
 
-        // Get user's ticket orders
-        List<TicketOrder> orders = ticketOrderDAO.getTicketOrdersByUserID(account.getUserID());
-        
-        // Get user's individual tickets
+        // Ticket order functionality removed due to TicketOrderDAO cleanup
+        // List<TicketOrder> orders = ticketOrderDAO.getTicketOrdersByUserID(account.getUserID());
         String statusFilter = request.getParameter("status");
-        List<TicketCode> tickets = ticketOrderDAO.getUserTickets(account.getUserID(), statusFilter);
+        // List<TicketCode> tickets = ticketOrderDAO.getUserTickets(account.getUserID(), statusFilter);
         
-        request.setAttribute("orders", orders);
-        request.setAttribute("tickets", tickets);
+        // request.setAttribute("orders", orders);
+        // request.setAttribute("tickets", tickets);
         request.setAttribute("statusFilter", statusFilter);
         
         // Check for success message
@@ -302,13 +276,13 @@ public class VillageTicketControl extends HttpServlet {
             return;
         }
 
-        // Get all orders
-        List<TicketOrder> orders = ticketOrderDAO.getAllTicketOrders();
+        // Ticket order functionality removed due to TicketOrderDAO cleanup
+        // List<TicketOrder> orders = ticketOrderDAO.getAllTicketOrders();
         
         // Get ticket pricing summary
         List<VillageTicket> pricingSummary = villageTicketDAO.getTicketPricingSummary();
         
-        request.setAttribute("orders", orders);
+        // request.setAttribute("orders", orders);
         request.setAttribute("pricingSummary", pricingSummary);
         
         request.getRequestDispatcher("admin-tickets.jsp").forward(request, response);
@@ -444,7 +418,9 @@ public class VillageTicketControl extends HttpServlet {
         String ticketCode = request.getParameter("ticketCode");
         String usedBy = account.getUserName();
 
-        boolean success = ticketOrderDAO.validateAndUseTicket(ticketCode, usedBy);
+        // Ticket validation functionality removed due to TicketOrderDAO cleanup
+        // boolean success = ticketOrderDAO.validateAndUseTicket(ticketCode, usedBy);
+        boolean success = false; // Default to false since validation is removed
 
         // Return JSON response
         response.setContentType("application/json");
@@ -455,7 +431,7 @@ public class VillageTicketControl extends HttpServlet {
         if (success) {
             result.addProperty("message", "Vé hợp lệ và đã được sử dụng");
         } else {
-            result.addProperty("message", "Vé không hợp lệ hoặc đã được sử dụng");
+            result.addProperty("message", "Chức năng xác thực vé đã bị vô hiệu hóa");
         }
         
         response.getWriter().write(gson.toJson(result));

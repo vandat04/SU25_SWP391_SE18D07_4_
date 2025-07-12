@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import service.ProductService;
 import service.ReviewService;
-import service.OrderService;
+
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -126,74 +126,21 @@ public class DetailControl extends HttpServlet {
     
     /**
      * Check if user can review the product
+     * Note: Order-based review eligibility removed due to OrderService cleanup
      */
     private ReviewEligibilityResult checkReviewEligibility(int userId, int productId) {
-        OrderService orderService = new OrderService();
         ReviewService reviewService = new ReviewService();
         
-        List<entity.Orders.Order> userOrders = orderService.getOrdersByUserId(userId);
-        
-        // Check for eligible orders
-        for (entity.Orders.Order order : userOrders) {
-            if (order.isEligibleForReview() && orderContainsProduct(order, productId, orderService)) {
-                boolean alreadyReviewed = reviewService.hasUserReviewedProduct(userId, productId, order.getOrderID());
-                if (!alreadyReviewed) {
-                    return new ReviewEligibilityResult(true, order.getOrderID(), "");
-                }
-            }
+        // Simplified review eligibility - allow all logged-in users to review
+        boolean alreadyReviewed = reviewService.hasUserReviewedProduct(userId, productId, -1);
+        if (!alreadyReviewed) {
+            return new ReviewEligibilityResult(true, -1, "");
         }
         
-        // Determine why user cannot review
-        String message = determineReviewIneligibilityMessage(userOrders, productId, userId, orderService, reviewService);
-        return new ReviewEligibilityResult(false, -1, message);
+        return new ReviewEligibilityResult(false, -1, "You have already reviewed this product.");
     }
     
-    /**
-     * Check if an order contains the specified product
-     */
-    private boolean orderContainsProduct(entity.Orders.Order order, int productId, OrderService orderService) {
-        List<entity.Orders.OrderDetail> orderDetails = order.getOrderDetails();
-        if (orderDetails == null || orderDetails.isEmpty()) {
-            orderDetails = orderService.getOrderDetailsByOrderId(order.getOrderID());
-        }
-        
-        return orderDetails.stream()
-                .anyMatch(detail -> detail.getProductID() == productId);
-    }
-    
-    /**
-     * Determine why user cannot review the product
-     */
-    private String determineReviewIneligibilityMessage(List<entity.Orders.Order> userOrders, int productId, 
-            int userId, OrderService orderService, ReviewService reviewService) {
-        
-        boolean hasAnyOrderWithProduct = false;
-        boolean hasDeliveredPaidOrder = false;
-        boolean alreadyReviewedAll = false;
-        
-        for (entity.Orders.Order order : userOrders) {
-            if (orderContainsProduct(order, productId, orderService)) {
-                hasAnyOrderWithProduct = true;
-                
-                if (order.isEligibleForReview()) {
-                    hasDeliveredPaidOrder = true;
-                    if (reviewService.hasUserReviewedProduct(userId, productId, order.getOrderID())) {
-                        alreadyReviewedAll = true;
-                    }
-                }
-            }
-        }
-        
-        if (!hasAnyOrderWithProduct) {
-            return "You need to purchase this product before you can review it.";
-        } else if (!hasDeliveredPaidOrder) {
-            return "You can only review products from orders that have been delivered and paid.";
-        } else if (alreadyReviewedAll) {
-            return "You have already reviewed this product.";
-        } else {
-            return "You cannot review this product at this time.";
-        }
-    }
+
     
     /**
      * Set default review attributes when user cannot review

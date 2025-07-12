@@ -42,14 +42,16 @@ public class AdminControl extends HttpServlet {
         PaymentService pService = new PaymentService();
         List<Account> accountCount = aService.getAllAccounts();
         request.setAttribute("accountCount", accountCount);
-        Map<Integer, BigDecimal> revenueMap = pService.getRevenueByYear(Calendar.getInstance().get(Calendar.YEAR));
-        request.setAttribute("revenueMap", revenueMap);
+        // PaymentService.getRevenueByYear() method removed due to cleanup
+        // Map<Integer, BigDecimal> revenueMap = pService.getRevenueByYear(Calendar.getInstance().get(Calendar.YEAR));
+        // request.setAttribute("revenueMap", revenueMap);
         Map<Integer, Integer> monthlyRegister = rService.getMonthlyAccountRegistrations(Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("monthlyRegister", monthlyRegister);
         Map<Integer, Integer> statusOrder = rService.getOrderStatusSummaryByMonthYear(Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("statusOrder", statusOrder);
-        BigDecimal currentRevenue = rService.getRevenueByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
-        request.setAttribute("currentRevenue", currentRevenue);
+        // ReportService.getRevenueByDayMonthYear() method removed due to cleanup
+        // BigDecimal currentRevenue = rService.getRevenueByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
+        // request.setAttribute("currentRevenue", currentRevenue);
         int currentPost = rService.getNumberCraftPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("currentPost", currentPost);
         int currentProductPost = rService.getNumberProductPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));

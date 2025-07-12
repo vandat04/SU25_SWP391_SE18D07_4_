@@ -576,6 +576,59 @@ public class CraftVillageDAO {
         }
         return "";
     }
+    
+    /**
+     * Get all village IDs owned by a specific seller
+     * @param sellerID The seller ID
+     * @return List of village IDs owned by the seller
+     */
+    public List<Integer> getVillageIdsBySeller(int sellerID) {
+        List<Integer> villageIDs = new ArrayList<>();
+        String query = "SELECT villageID FROM CraftVillage WHERE sellerId = ? AND status = 1";
+        
+        try (Connection conn = DBContext.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, sellerID);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    villageIDs.add(rs.getInt("villageID"));
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting village IDs by seller: " + e.getMessage(), e);
+        }
+        
+        return villageIDs;
+    }
+    
+    /**
+     * Check if a village is owned by a specific seller
+     * @param villageID The village ID
+     * @param sellerID The seller ID
+     * @return true if the village is owned by the seller
+     */
+    public boolean isVillageOwnedBySeller(int villageID, int sellerID) {
+        String query = "SELECT COUNT(*) FROM CraftVillage WHERE villageID = ? AND sellerId = ? AND status = 1";
+        
+        try (Connection conn = DBContext.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, villageID);
+            ps.setInt(2, sellerID);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error checking if village is owned by seller: " + e.getMessage(), e);
+        }
+        
+        return false;
+    }
 
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));

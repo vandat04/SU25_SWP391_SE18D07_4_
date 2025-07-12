@@ -8,6 +8,14 @@ package service;
 import entity.CartWishList.Cart;
 import entity.Product.Product;
 import java.util.Date;
+import entity.CartWishList.StockValidationResult;
+import entity.CartWishList.CartStockValidation;
+import entity.CartWishList.CartWithStockInfo;
+import entity.CartWishList.CartItem;
+import entity.CartWishList.TicketValidationResult;
+import entity.CartWishList.CartTicketValidation;
+import entity.CartWishList.CartWithValidationInfo;
+import entity.CartWishList.CartTicket;
 
 public interface ICartService {
     // ===== PRODUCT CART METHODS =====
@@ -46,6 +54,42 @@ public interface ICartService {
      */
     boolean removeCartItemByUser(int userId, int productId);
 
+    // ===== STOCK VALIDATION METHODS =====
+    /**
+     * Get current stock level for a product
+     */
+    int getCurrentStock(int productId);
+    
+    /**
+     * Check if product is currently available
+     */
+    boolean isProductAvailable(int productId);
+    
+    /**
+     * Validate stock for a specific cart item
+     */
+    StockValidationResult validateCartItemStock(CartItem item);
+    
+    /**
+     * Validate stock for all items in cart
+     */
+    CartStockValidation validateCartStock(Cart cart);
+    
+    /**
+     * Get cart with stock validation
+     */
+    CartWithStockInfo getCartWithStockValidation(int userId);
+    
+    /**
+     * Remove out-of-stock items from cart
+     */
+    boolean removeOutOfStockItems(int userId);
+    
+    /**
+     * Auto-adjust quantities for items with insufficient stock
+     */
+    boolean autoAdjustQuantities(int userId);
+
     // ===== TICKET METHODS =====
     void addTicketToCart(Cart cart, int ticketId, Date ticketDate, int quantity);
     void updateTicketInCart(Cart cart, int cartTicketId, int quantity);
@@ -65,4 +109,40 @@ public interface ICartService {
      * Remove ticket from cart using user ID
      */
     boolean removeTicketByUser(int userId, int cartTicketId);
+
+    // ===== TICKET VALIDATION METHODS =====
+    /**
+     * Get current available slots for a ticket on specific date
+     */
+    int getCurrentAvailableSlots(int ticketId, Date ticketDate);
+    
+    /**
+     * Check if ticket is available on specific date
+     */
+    boolean isTicketAvailable(int ticketId, Date ticketDate, int quantity);
+    
+    /**
+     * Validate availability for a specific cart ticket
+     */
+    TicketValidationResult validateCartTicketAvailability(CartTicket ticket);
+    
+    /**
+     * Validate availability for all tickets in cart
+     */
+    CartTicketValidation validateCartTickets(Cart cart);
+    
+    /**
+     * Get cart with comprehensive validation (both products and tickets)
+     */
+    CartWithValidationInfo getCartWithComprehensiveValidation(int userId);
+    
+    /**
+     * Remove sold-out tickets from cart
+     */
+    boolean removeSoldOutTickets(int userId);
+    
+    /**
+     * Auto-adjust ticket quantities to available slots
+     */
+    boolean autoAdjustTicketQuantities(int userId);
 }

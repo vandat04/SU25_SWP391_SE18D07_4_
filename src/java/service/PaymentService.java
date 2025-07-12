@@ -5,7 +5,6 @@
 package service;
 
 import DAO.ReportDAO;
-import entity.Orders.Payment;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -14,22 +13,10 @@ import java.util.Map;
 /**
  *
  * @author ACER
+ * Note: Payment entity methods removed due to system cleanup
  */
 public class PaymentService implements IPaymentService{
     ReportDAO rDAO = new ReportDAO();
     
-    @Override
-    public Map<Date, BigDecimal> getRevenue() {
-        return rDAO.getRevenue();
-    }
-    
-    @Override
-    public Map<Integer, BigDecimal> getRevenueByYear(int year) {
-        return rDAO.getRevenueByYear(year);
-    }
-
-    @Override
-    public List<Payment> getAllPayment() {
-        return rDAO.getAllPayments();
-    }
+    // Payment-related methods removed
 }

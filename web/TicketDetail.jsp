@@ -517,31 +517,35 @@
                                     <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
                                         <div class="review-form-wrapper">
                                             <span class="title">Add your review</span>
-                                            <form action="#" class="review-form">
-                                                <div class="comment-form-rating">
-                                                    <label>Rating:</label>
-                                                    <div class="stars">
-                                                        <a href="#" class="btn-rating" data-rating="1"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn-rating" data-rating="2"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn-rating" data-rating="3"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn-rating" data-rating="4"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn-rating" data-rating="5"><i class="fa fa-star-o" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                                <div class="form-row">
-                                                    <div class="form-col-6">
-                                                        <input type="text" name="reviewer-name" value="" placeholder="Name" class="txt-input">
-                                                    </div>
-                                                    <div class="form-col-6">
-                                                        <input type="email" name="email" value="" placeholder="Email" class="txt-input">
-                                                    </div>
-                                                    <div class="form-col-12">
-                                                        <textarea name="comment" class="txt-input" placeholder="Your review" rows="4"></textarea>
-                                                    </div>
-                                                    <div class="form-col-12">
-                                                        <button type="submit" name="submit-review" value="ok" class="btn-submit">Submit Review</button>
-                                                    </div>
-                                                </div>
+                                            <form action="TicketDetailControl" method="post">
+                                                <input type="hidden" name="villageID" value="${villageID}" />
+                                                <c:choose>
+                                                    <c:when test="${not empty sessionScope.acc}">
+                                                        <c:choose>
+                                                            <c:when test="${canUserReviewVillage}">
+                                                                <label>1. Đánh giá của bạn về làng nghề:</label>
+                                                                <input type="number" name="rating" min="1" max="5" required />
+                                                                <textarea name="content" placeholder="Viết đánh giá của bạn..." required></textarea>
+                                                                <button type="submit">Gửi đánh giá</button>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <div class="review-warning">
+                                                                    <span>${reviewMessageVillage}</span>
+                                                                    <ul>
+                                                                        <li>✓ Đã đặt vé tham quan làng nghề này</li>
+                                                                        <li>✓ Vé đã sử dụng và thanh toán thành công</li>
+                                                                    </ul>
+                                                                    <a href="ticket-history">Kiểm tra vé của bạn</a>
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div class="review-warning">
+                                                            Vui lòng <a href="login.jsp">đăng nhập</a> để viết đánh giá.
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </form>
                                         </div>
                                         

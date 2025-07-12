@@ -722,20 +722,56 @@ public class ProductDAO {
 
     public List<Product> getProductsByVillage(int villageId) {
         List<Product> list = new ArrayList<>();
-        String query = "SELECT * FROM Product WHERE  villageID = ? and status = 1";
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT * FROM Product WHERE villageID = ? AND status = 1";
+            ps = conn.prepareStatement(sql);
             ps.setInt(1, villageId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToProduct1(rs));
-                }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Ghi log tốt hơn
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
         }
         return list;
     }
     
+    /**
+     * Check if a product is owned by a specific seller
+     * @param productID The product ID
+     * @param sellerID The seller ID
+     * @return true if the product is owned by the seller
+     */
+    public boolean isProductOwnedBySeller(int productID, int sellerID) {
+        String query = "SELECT COUNT(*) FROM Product p " +
+                      "JOIN CraftVillage cv ON p.villageID = cv.villageID " +
+                      "WHERE p.pid = ? AND cv.sellerId = ? AND p.status = 1 AND cv.status = 1";
+        
+        try (Connection conn = DBContext.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, productID);
+            ps.setInt(2, sellerID);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.severe("Error checking if product is owned by seller: " + e.getMessage());
+        }
+        
+        return false;
+    }
+
     public static void main(String[] args) {
         // System.out.println(new ProductDAO().createProductByAdmin(new Product("New3", BigDecimal.valueOf(1000000.00), "A", 1, 1, 1, 1, "A", 1, "A", BigDecimal.valueOf(10), "A", "A", "A", "A")));
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));

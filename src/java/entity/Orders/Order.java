@@ -5,322 +5,287 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Order entity class representing the Orders table in the database
+ * @author ACER
+ */
 public class Order {
-    private int orderID;
+    private int id;
     private int userID;
-    private Timestamp orderDate;
-    private BigDecimal totalAmount;
-    private int status; // Changed from String to int: 0=processing, 1=completed, 2=cancelled, 3=refunded
+    private BigDecimal totalPrice;
+    private int status;  // 0: pending, 1: delivered, 2: cancelled
     private String shippingAddress;
-    private String phoneNumber;
-    private String email;
+    private String shippingPhone;
+    private String shippingName;
     private String paymentMethod;
-    private int paymentStatus; // Changed from String to int: 0=unpaid, 1=paid
+    private int paymentStatus;  // 0: unpaid, 1: paid
+    private String note;
     private Timestamp createdDate;
     private Timestamp updatedDate;
-    private List<OrderDetail> orderDetails;
-
+    private String trackingNumber;
+    private Timestamp estimatedDeliveryDate;
+    private Timestamp actualDeliveryDate;
+    private String cancelReason;
+    private Timestamp cancelDate;
+    private BigDecimal refundAmount;
+    private Timestamp refundDate;
+    private String refundReason;
+    
+    // Order details relationship (removed due to OrderDetail cleanup)
+    // private List<OrderDetail> orderDetails;
+    
+    // Default constructor
     public Order() {
-        this.orderDetails = new ArrayList<>();
-        this.status = 0; // Changed from "pending" to 0
-        this.paymentStatus = 0; // Changed from "pending" to 0
-        this.createdDate = new Timestamp(System.currentTimeMillis());
-    }
-
-    public Order(int orderID, int userID, Timestamp orderDate, BigDecimal totalAmount, 
-                int status, String shippingAddress, String phoneNumber, String email,
-                String paymentMethod, int paymentStatus, Timestamp createdDate, Timestamp updatedDate) {
-        this.orderID = orderID;
-        this.userID = userID;
-        this.orderDate = orderDate;
-        this.totalAmount = totalAmount;
-        this.status = status;
-        this.shippingAddress = shippingAddress;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.paymentMethod = paymentMethod;
-        this.paymentStatus = paymentStatus;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
-        this.orderDetails = new ArrayList<>();
-    }
-
-    // Constructor tương thích code cũ
-    public Order(int orderID, int userID, String orderDate, double totalAmount, String status) {
-        this.orderID = orderID;
-        this.userID = userID;
-        this.orderDate = null; // Chuyển đổi String sang Timestamp nếu cần
-        this.totalAmount = java.math.BigDecimal.valueOf(totalAmount);
-        // Convert String status to int
-        this.status = convertStringStatusToInt(status);
-        this.orderDetails = new java.util.ArrayList<>();
-        this.createdDate = new java.sql.Timestamp(System.currentTimeMillis());
+        // this.orderDetails = new ArrayList<>();
     }
     
-    // Helper method to convert old String status to new int status
-    private int convertStringStatusToInt(String statusString) {
-        if (statusString == null) return 0;
-        switch (statusString.toLowerCase()) {
-            case "pending": case "processing": return 0;
-            case "completed": case "delivered": return 1;
-            case "cancelled": return 2;
-            case "refunded": return 3;
-            default: return 0;
-        }
+    // Constructor with essential fields
+    public Order(int userID, BigDecimal totalPrice, String shippingAddress, 
+                String shippingPhone, String shippingName, String paymentMethod) {
+        this();
+        this.userID = userID;
+        this.totalPrice = totalPrice;
+        this.shippingAddress = shippingAddress;
+        this.shippingPhone = shippingPhone;
+        this.shippingName = shippingName;
+        this.paymentMethod = paymentMethod;
+        this.status = 0;  // Default: pending
+        this.paymentStatus = 0;  // Default: unpaid
+        this.createdDate = new Timestamp(System.currentTimeMillis());
     }
-
+    
+    // Full constructor
+    public Order(int id, int userID, BigDecimal totalPrice, int status, 
+                String shippingAddress, String shippingPhone, String shippingName,
+                String paymentMethod, int paymentStatus, String note,
+                Timestamp createdDate, Timestamp updatedDate, String trackingNumber,
+                Timestamp estimatedDeliveryDate, Timestamp actualDeliveryDate,
+                String cancelReason, Timestamp cancelDate, BigDecimal refundAmount,
+                Timestamp refundDate, String refundReason) {
+        this();
+        this.id = id;
+        this.userID = userID;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.shippingAddress = shippingAddress;
+        this.shippingPhone = shippingPhone;
+        this.shippingName = shippingName;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.note = note;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+        this.trackingNumber = trackingNumber;
+        this.estimatedDeliveryDate = estimatedDeliveryDate;
+        this.actualDeliveryDate = actualDeliveryDate;
+        this.cancelReason = cancelReason;
+        this.cancelDate = cancelDate;
+        this.refundAmount = refundAmount;
+        this.refundDate = refundDate;
+        this.refundReason = refundReason;
+    }
+    
     // Getters and Setters
-    public int getOrderID() {
-        return orderID;
+    public int getId() {
+        return id;
     }
-
-    public void setOrderID(int orderID) {
-        this.orderID = orderID;
+    
+    public void setId(int id) {
+        this.id = id;
     }
-
+    
     public int getUserID() {
         return userID;
     }
-
+    
     public void setUserID(int userID) {
         this.userID = userID;
     }
-
-    public Timestamp getOrderDate() {
-        return orderDate;
+    
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
     }
-
-    public void setOrderDate(Timestamp orderDate) {
-        this.orderDate = orderDate;
+    
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
+    
     public int getStatus() {
         return status;
     }
-
+    
     public void setStatus(int status) {
         this.status = status;
     }
     
-    // Helper method for backward compatibility
-    public void setStatus(String statusString) {
-        this.status = convertStringStatusToInt(statusString);
-    }
-
     public String getShippingAddress() {
         return shippingAddress;
     }
-
+    
     public void setShippingAddress(String shippingAddress) {
         this.shippingAddress = shippingAddress;
     }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
+    
+    public String getShippingPhone() {
+        return shippingPhone;
     }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    
+    public void setShippingPhone(String shippingPhone) {
+        this.shippingPhone = shippingPhone;
     }
-
-    public String getEmail() {
-        return email;
+    
+    public String getShippingName() {
+        return shippingName;
     }
-
-    public void setEmail(String email) {
-        this.email = email;
+    
+    public void setShippingName(String shippingName) {
+        this.shippingName = shippingName;
     }
-
+    
     public String getPaymentMethod() {
         return paymentMethod;
     }
-
+    
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-
+    
     public int getPaymentStatus() {
         return paymentStatus;
     }
-
+    
     public void setPaymentStatus(int paymentStatus) {
         this.paymentStatus = paymentStatus;
     }
     
-    // Helper method for backward compatibility
-    public void setPaymentStatus(String paymentStatusString) {
-        if (paymentStatusString == null) {
-            this.paymentStatus = 0;
-            return;
-        }
-        switch (paymentStatusString.toLowerCase()) {
-            case "paid": case "completed": 
-                this.paymentStatus = 1; 
-                break;
-            case "unpaid": case "pending": default: 
-                this.paymentStatus = 0; 
-                break;
-        }
+    public String getNote() {
+        return note;
     }
-
+    
+    public void setNote(String note) {
+        this.note = note;
+    }
+    
     public Timestamp getCreatedDate() {
         return createdDate;
     }
-
+    
     public void setCreatedDate(Timestamp createdDate) {
         this.createdDate = createdDate;
     }
-
+    
     public Timestamp getUpdatedDate() {
         return updatedDate;
     }
-
+    
     public void setUpdatedDate(Timestamp updatedDate) {
         this.updatedDate = updatedDate;
     }
-
-    public List<OrderDetail> getOrderDetails() {
-        return orderDetails;
-    }
-
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
-        this.orderDetails = orderDetails;
-    }
-
-    // Chuẩn hóa cho generic DAO
-    public int getId() {
-        return orderID;
-    }
-    public void setId(int id) {
-        this.orderID = id;
-    }
-    public String getName() {
-        return shippingAddress; // hoặc trường phù hợp nhất, ở đây không có name nên dùng shippingAddress
-    }
-    public void setName(String name) {
-        this.shippingAddress = name;
-    }
-
-    // Helper methods with new int status
-    public boolean isPending() {
-        return status == 0;
-    }
-
-    public boolean isProcessing() {
-        return status == 0; // Same as pending
-    }
-
-    public boolean isCompleted() {
-        return status == 1;
+    
+    public String getTrackingNumber() {
+        return trackingNumber;
     }
     
-    // Keep for backward compatibility
-    public boolean isDelivered() {
-        return status == 1; // Same as completed
-    }
-
-    public boolean isCancelled() {
-        return status == 2;
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
     }
     
-    public boolean isRefunded() {
-        return status == 3;
-    }
-
-    public boolean isPaid() {
-        return paymentStatus == 1;
-    }
-
-    public boolean isUnpaid() {
-        return paymentStatus == 0;
+    public Timestamp getEstimatedDeliveryDate() {
+        return estimatedDeliveryDate;
     }
     
-    // NEW: Check if order is eligible for review
-    public boolean isEligibleForReview() {
-        return status == 1 && paymentStatus == 1; // Completed AND Paid
+    public void setEstimatedDeliveryDate(Timestamp estimatedDeliveryDate) {
+        this.estimatedDeliveryDate = estimatedDeliveryDate;
     }
     
-    // Helper methods to get status as String (for display purposes)
+    public Timestamp getActualDeliveryDate() {
+        return actualDeliveryDate;
+    }
+    
+    public void setActualDeliveryDate(Timestamp actualDeliveryDate) {
+        this.actualDeliveryDate = actualDeliveryDate;
+    }
+    
+    public String getCancelReason() {
+        return cancelReason;
+    }
+    
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+    
+    public Timestamp getCancelDate() {
+        return cancelDate;
+    }
+    
+    public void setCancelDate(Timestamp cancelDate) {
+        this.cancelDate = cancelDate;
+    }
+    
+    public BigDecimal getRefundAmount() {
+        return refundAmount;
+    }
+    
+    public void setRefundAmount(BigDecimal refundAmount) {
+        this.refundAmount = refundAmount;
+    }
+    
+    public Timestamp getRefundDate() {
+        return refundDate;
+    }
+    
+    public void setRefundDate(Timestamp refundDate) {
+        this.refundDate = refundDate;
+    }
+    
+    public String getRefundReason() {
+        return refundReason;
+    }
+    
+    public void setRefundReason(String refundReason) {
+        this.refundReason = refundReason;
+    }
+    
+    // OrderDetail methods removed due to OrderDetail cleanup
+    // public List<OrderDetail> getOrderDetails() {
+    //     return orderDetails;
+    // }
+    
+    // public void setOrderDetails(List<OrderDetail> orderDetails) {
+    //     this.orderDetails = orderDetails;
+    // }
+    
+    // public void addOrderDetail(OrderDetail orderDetail) {
+    //     if (this.orderDetails == null) {
+    //         this.orderDetails = new ArrayList<>();
+    //     }
+    //     this.orderDetails.add(orderDetail);
+    // }
+    
+    // Utility methods
     public String getStatusString() {
         switch (status) {
-            case 0: return "Processing";
-            case 1: return "Completed";
+            case 0: return "Pending";
+            case 1: return "Delivered";
             case 2: return "Cancelled";
-            case 3: return "Refunded";
             default: return "Unknown";
         }
     }
     
     public String getPaymentStatusString() {
-        switch (paymentStatus) {
-            case 0: return "Unpaid";
-            case 1: return "Paid";
-            default: return "Unknown";
-        }
+        return paymentStatus == 0 ? "Unpaid" : "Paid";
     }
-
-    public void addOrderDetail(OrderDetail detail) {
-        if (detail != null) {
-            this.orderDetails.add(detail);
-            recalculateTotalAmount();
-        }
-    }
-
-    public void removeOrderDetail(OrderDetail detail) {
-        if (detail != null && this.orderDetails.contains(detail)) {
-            this.orderDetails.remove(detail);
-            recalculateTotalAmount();
-        }
-    }
-
-    private void recalculateTotalAmount() {
-        BigDecimal total = BigDecimal.ZERO;
-        for (OrderDetail detail : orderDetails) {
-            total = total.add(BigDecimal.valueOf(detail.getSubtotal()));
-        }
-        this.totalAmount = total;
-    }
-
+    
     @Override
     public String toString() {
         return "Order{" +
-                "orderID=" + orderID +
+                "id=" + id +
                 ", userID=" + userID +
-                ", orderDate=" + orderDate +
-                ", totalAmount=" + totalAmount +
-                ", status=" + status + " (" + getStatusString() + ")" +
+                ", totalPrice=" + totalPrice +
+                ", status=" + status +
                 ", shippingAddress='" + shippingAddress + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", email='" + email + '\'' +
                 ", paymentMethod='" + paymentMethod + '\'' +
-                ", paymentStatus=" + paymentStatus + " (" + getPaymentStatusString() + ")" +
                 ", createdDate=" + createdDate +
-                ", updatedDate=" + updatedDate +
-                ", orderDetailsCount=" + (orderDetails != null ? orderDetails.size() : 0) +
                 '}';
-    }
-
-    public static Order fromResultSet(java.sql.ResultSet rs) throws java.sql.SQLException {
-        Order order = new Order();
-        order.setOrderID(rs.getInt("id"));
-        order.setUserID(rs.getInt("userID"));
-        order.setTotalAmount(rs.getBigDecimal("total_price"));
-        order.setStatus(rs.getInt("status")); // Now reading as int
-        order.setPaymentStatus(rs.getInt("paymentStatus")); // Now reading as int
-        order.setShippingAddress(rs.getString("shippingAddress"));
-        order.setPhoneNumber(rs.getString("shippingPhone"));
-        order.setEmail(rs.getString("email"));
-        order.setPaymentMethod(rs.getString("paymentMethod"));
-        order.setCreatedDate(rs.getTimestamp("createdDate"));
-        order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-        return order;
     }
 } 

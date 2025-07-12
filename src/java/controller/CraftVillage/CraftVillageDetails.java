@@ -66,6 +66,9 @@ public class CraftVillageDetails extends HttpServlet {
             Account seller = aService.getAccountById(villageDetails.getSellerId());
             List<TicketType> ticketType = tService.getAllTicketType();
 
+            // Handle review eligibility logic
+            handleReviewEligibility(request, villageID);
+
             // Tính trung bình rating (nếu có review)
             double totalRating = 0;
             for (CraftReview review : listReview) {
@@ -92,6 +95,67 @@ public class CraftVillageDetails extends HttpServlet {
             ex.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error loading village details");
         }
+    }
+    
+    /**
+     * Handle review eligibility logic for village reviews
+     */
+    private void handleReviewEligibility(HttpServletRequest request, int villageID) {
+        Account user = (Account) request.getSession().getAttribute("acc");
+        
+        if (user == null) {
+            setDefaultReviewAttributes(request, "Please log in to leave a review.");
+            return;
+        }
+        
+        try {
+            // Check if user has any eligible ticket orders for this village
+            // For now, we'll allow general reviews but also check for verified reviews
+            boolean hasEligibleTicketOrder = checkForEligibleTicketOrders(user.getUserID(), villageID);
+            
+            if (hasEligibleTicketOrder) {
+                // User has eligible ticket orders - can leave verified review
+                request.setAttribute("canUserReviewVillage", true);
+                request.setAttribute("orderIDForReview", getEligibleTicketOrderId(user.getUserID(), villageID));
+                request.setAttribute("reviewMessage", "You can leave a verified review based on your ticket order.");
+            } else {
+                // User doesn't have eligible ticket orders - can still leave general review
+                request.setAttribute("canUserReviewVillage", true);
+                request.setAttribute("reviewMessage", "You can leave a general review. Purchase a ticket for verified review.");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error checking review eligibility: " + e.getMessage());
+            setDefaultReviewAttributes(request, "Unable to check review eligibility at this time.");
+        }
+    }
+    
+    /**
+     * Check if user has eligible ticket orders for this village
+     * TODO: Implement actual ticket order checking logic
+     */
+    private boolean checkForEligibleTicketOrders(int userID, int villageID) {
+        // For now, return false - this would check ticket orders with status=1 and paymentStatus=1
+        // In a real implementation, this would query TicketOrder table
+        return false;
+    }
+    
+    /**
+     * Get the eligible ticket order ID for review
+     * TODO: Implement actual ticket order retrieval logic
+     */
+    private int getEligibleTicketOrderId(int userID, int villageID) {
+        // For now, return -1 - this would return the actual ticket order ID
+        // In a real implementation, this would query TicketOrder table
+        return -1;
+    }
+    
+    /**
+     * Set default review attributes when user cannot review
+     */
+    private void setDefaultReviewAttributes(HttpServletRequest request, String message) {
+        request.setAttribute("canUserReviewVillage", false);
+        request.setAttribute("reviewMessage", message);
     }
 
 }

@@ -112,4 +112,23 @@ public class VillageService implements IVillageService {
         return vDAO.getVillageByCategory(typeID);
     }
 
+    /**
+     * Get all village IDs owned by a specific seller
+     * @param sellerID The seller ID
+     * @return List of village IDs owned by the seller
+     */
+    public List<Integer> getVillageIdsBySeller(int sellerID) {
+        return vDAO.getVillageIdsBySeller(sellerID);
+    }
+    
+    /**
+     * Check if a village is owned by a specific seller
+     * @param villageID The village ID
+     * @param sellerID The seller ID
+     * @return true if the village is owned by the seller
+     */
+    public boolean isVillageOwnedBySeller(int villageID, int sellerID) {
+        return vDAO.isVillageOwnedBySeller(villageID, sellerID);
+    }
+
 }

@@ -14,7 +14,7 @@ import java.util.Map;
 public interface IReportService {
     Map<Integer, Integer> getMonthlyAccountRegistrations(int month, int year);
     Map<Integer, Integer> getOrderStatusSummaryByMonthYear(int month, int year);
-    BigDecimal getRevenueByDayMonthYear(int date, int month, int year);
+    // BigDecimal getRevenueByDayMonthYear(int date, int month, int year); // Removed due to ReportDAO cleanup
     int getNumberCraftPostByDayMonthYear(int day, int month, int year);
     int getNumberProductPostByDayMonthYear(int day, int month, int year);
     int getNumberTicketPostByDayMonthYear(int day, int month, int year);

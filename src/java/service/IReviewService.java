@@ -53,4 +53,10 @@ public interface IReviewService {
     boolean hasUserReviewedProduct(int userID, int productID, int orderID);
     List<Integer> getReviewableProductsFromOrder(int userID, int orderID);
     boolean isOrderEligibleForReview(int orderID);
+    
+    // NEW METHODS: Add reviews with order validation and automatic rating updates
+    boolean addProductReviewFromOrder(ProductReview review, int orderID);
+    boolean addVillageReviewFromOrder(CraftReview review, int orderID);
+    boolean isTicketOrderEligibleForReview(int villageID, int userID);
+    boolean addVillageReviewFromTicket(int villageID, int userID, int rating, String content);
 }

@@ -1507,3 +1507,221 @@ BEGIN
     END CATCH
 END
 GO
+
+/////////////thêm mới khi review////////////////////
+
+CREATE PROCEDURE sp_addProductReview
+    @productID INT,
+    @userID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Insert review
+        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
+        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM Product
+        WHERE pid = @productID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại Product
+        UPDATE Product
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE pid = @productID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_addProductReviewWithOrderValidation
+    @productID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Check if order is eligible for review (status=1 AND paymentStatus=1)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM Orders o
+        INNER JOIN OrderDetail od ON o.id = od.order_id
+        WHERE o.id = @orderID 
+          AND o.userID = @userID 
+          AND od.product_id = @productID
+          AND o.status = 1 
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1; -- Order not eligible
+            RETURN;
+        END
+
+        -- Check if user has already reviewed this product from this order
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM ProductReview pr
+        WHERE pr.userID = @userID 
+          AND pr.productID = @productID
+          AND EXISTS (
+              SELECT 1 FROM OrderDetail od 
+              WHERE od.order_id = @orderID 
+                AND od.product_id = @productID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2; -- Already reviewed
+            RETURN;
+        END
+
+        -- Insert review
+        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
+        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM Product
+        WHERE pid = @productID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại Product
+        UPDATE Product
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE pid = @productID;
+
+        SET @result = 1; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Error
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_addVillageReviewWithOrderValidation
+    @villageID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Check if ticket order is eligible for review (status=1 AND paymentStatus=1)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM TicketOrder o
+        WHERE o.orderID = @orderID 
+          AND o.userID = @userID 
+          AND o.villageID = @villageID
+          AND o.status = 1 
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1; -- Order not eligible
+            RETURN;
+        END
+
+        -- Check if user has already reviewed this village from this order
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM VillageReview vr
+        WHERE vr.userID = @userID 
+          AND vr.villageID = @villageID
+          AND EXISTS (
+              SELECT 1 FROM TicketOrder to_check
+              WHERE to_check.orderID = @orderID 
+                AND to_check.villageID = @villageID
+                AND to_check.userID = @userID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2; -- Already reviewed
+            RETURN;
+        END
+
+        -- Insert review
+        INSERT INTO VillageReview (villageID, userID, reviewText, rating, reviewDate)
+        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại CraftVillage
+        UPDATE CraftVillage
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE villageID = @villageID;
+
+        SET @result = 1; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Error
+    END CATCH
+END
+GO

@@ -396,36 +396,93 @@
                                                 <span class="title">Submit your review</span>
                                                 <c:choose>
                                                     <c:when test="${sessionScope.acc != null}">
-                                                        <form action="village" method="post" name="frm-review">
-                                                            <input type="hidden" name="villageID" value="${villageDetails.villageID}">
-                                                            <input type="hidden" name="userID" value="${sessionScope.account.userID}">
-                                                            <div class="comment-form-rating">
-                                                                <label>1. Your rating of this village:</label>
-                                                                <p class="stars">
-                                                                    <span>
-                                                                        <c:forEach var="star" begin="1" end="5">
-                                                                            <a class="btn-rating" data-value="star-${star}" href="#">
-                                                                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                                                            </a>
-                                                                        </c:forEach>
-                                                                    </span>
-                                                                </p>
-                                                                <input type="hidden" name="rating" id="selected-rating" value="5">
-                                                            </div>
+                                                        <!-- Check if user can review village from their ticket orders -->
+                                                        <c:set var="canReview" value="false" />
+                                                        <c:set var="reviewMessage" value="" />
+                                                        
+                                                        <!-- This will be populated by the controller -->
+                                                        <c:choose>
+                                                            <c:when test="${canUserReviewVillage == true}">
+                                                                <c:set var="canReview" value="true" />
+                                                            </c:when>
+                                                            <c:when test="${canUserReviewVillage == false && reviewMessage != null}">
+                                                                <c:set var="reviewMessage" value="${reviewMessage}" />
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <c:set var="canReview" value="true" />
+                                                                <c:set var="reviewMessage" value="You can review this village. For verified reviews, complete a ticket order first." />
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                        
+                                                        <c:choose>
+                                                            <c:when test="${canReview == true}">
+                                                                <form action="village-review" method="post" name="frm-review">
+                                                                    <c:choose>
+                                                                        <c:when test="${not empty orderIDForReview}">
+                                                                            <input type="hidden" name="action" value="submit-from-order">
+                                                                            <input type="hidden" name="orderID" value="${orderIDForReview}">
+                                                                            <div class="review-type-notice" style="background: #e8f5e8; padding: 10px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
+                                                                                <i class="fa fa-check-circle" style="color: #4CAF50;"></i>
+                                                                                <strong>Verified Review</strong> - Based on your ticket order
+                                                                            </div>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <input type="hidden" name="action" value="submit">
+                                                                            <div class="review-type-notice" style="background: #fff3cd; padding: 10px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                                                                                <i class="fa fa-info-circle" style="color: #ffc107;"></i>
+                                                                                <strong>General Review</strong> - Purchase a ticket for verified review
+                                                                            </div>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                    
+                                                                    <input type="hidden" name="villageID" value="${villageDetails.villageID}">
+                                                                    <input type="hidden" name="userID" value="${sessionScope.acc.userID}">
+                                                                    
+                                                                    <div class="comment-form-rating">
+                                                                        <label>1. Your rating of this village:</label>
+                                                                        <p class="stars">
+                                                                            <span>
+                                                                                <c:forEach var="star" begin="1" end="5">
+                                                                                    <a class="btn-rating" data-value="star-${star}" href="#">
+                                                                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                                                                    </a>
+                                                                                </c:forEach>
+                                                                            </span>
+                                                                        </p>
+                                                                        <input type="hidden" name="rating" id="selected-rating" value="5">
+                                                                    </div>
 
-                                                            <p class="form-row">
-                                                                <textarea name="reviewText" id="txt-comment" cols="30" rows="10" placeholder="Write your review here..." required></textarea>
-                                                            </p>
-                                                            <p class="form-row">
-                                                                <button type="submit" name="submit">Submit Review</button>
-                                                            </p>
-                                                        </form>
+                                                                    <p class="form-row">
+                                                                        <textarea name="reviewText" id="txt-comment" cols="30" rows="10" placeholder="Write your review here..." required></textarea>
+                                                                    </p>
+                                                                    <p class="form-row">
+                                                                        <button type="submit" name="submit">Submit Review</button>
+                                                                    </p>
+                                                                </form>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <div class="review-restriction">
+                                                                    <p class="restriction-message">${reviewMessage}</p>
+                                                                    <p><strong>To leave a verified review:</strong></p>
+                                                                    <ul>
+                                                                        <li>✓ Purchase a village ticket</li>
+                                                                        <li>✓ Complete your visit</li>
+                                                                        <li>✓ Ensure payment is completed</li>
+                                                                        <li>✓ Review each village once per ticket order</li>
+                                                                    </ul>
+                                                                    <div style="margin-top: 15px;">
+                                                                        <a href="ticket-order-history" class="btn btn-link">Check Your Ticket Orders</a>
+                                                                        <a href="ticket-list?villageID=${villageDetails.villageID}" class="btn btn-primary">Book Village Ticket</a>
+                                                                    </div>
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </c:when>
                                                     <c:otherwise>
                                                         <div class="login-request">
                                                             <p>
                                                                 Please
-                                                                <a href="login?returnUrl=detail?villageID=${villageDetails.villageID}">
+                                                                <a href="login?returnUrl=village-details?villageID=${villageDetails.villageID}">
                                                                     login
                                                                 </a>
                                                                 to submit a review.

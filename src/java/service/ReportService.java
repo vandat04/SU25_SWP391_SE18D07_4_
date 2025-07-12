@@ -26,9 +26,10 @@ public class ReportService implements IReportService{
        return rDAO.getOrderStatusSummaryByMonthYear(month, year);
     }
 
-    public BigDecimal getRevenueByDayMonthYear(int date, int month, int year) {
-        return rDAO.getRevenueByDayMonthYear(date, month, year);
-    }
+    // getRevenueByDayMonthYear() method removed due to ReportDAO cleanup
+    // public BigDecimal getRevenueByDayMonthYear(int date, int month, int year) {
+    //     return rDAO.getRevenueByDayMonthYear(date, month, year);
+    // }
 
     @Override
     public int getNumberCraftPostByDayMonthYear(int day, int month, int year) {

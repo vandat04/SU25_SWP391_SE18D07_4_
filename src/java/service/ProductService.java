@@ -269,13 +269,16 @@ public class ProductService implements IProductService{
      * Order products by specified criteria
      */
     private List<Product> orderProducts(List<Product> products, String orderBy) {
-        // Basic implementation - can be enhanced
-        switch (orderBy) {
+        if (orderBy == null || orderBy.isEmpty()) {
+            return products;
+        }
+        
+        switch (orderBy.toLowerCase()) {
             case "price_asc":
-                products.sort((p1, p2) -> Double.compare(p1.getPrice().doubleValue(), p2.getPrice().doubleValue()));
+                products.sort((p1, p2) -> p1.getPrice().compareTo(p2.getPrice()));
                 break;
             case "price_desc":
-                products.sort((p1, p2) -> Double.compare(p2.getPrice().doubleValue(), p1.getPrice().doubleValue()));
+                products.sort((p1, p2) -> p2.getPrice().compareTo(p1.getPrice()));
                 break;
             case "name_asc":
                 products.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
@@ -284,9 +287,21 @@ public class ProductService implements IProductService{
                 products.sort((p1, p2) -> p2.getName().compareToIgnoreCase(p1.getName()));
                 break;
             default:
-                // menu_order - keep original order
-                break;
+                // Default sorting by ID
+                products.sort((p1, p2) -> Integer.compare(p1.getPid(), p2.getPid()));
         }
+        
         return products;
     }
+    
+    /**
+     * Check if a product is owned by a specific seller
+     * @param productID The product ID
+     * @param sellerID The seller ID
+     * @return true if the product is owned by the seller
+     */
+    public boolean isProductOwnedBySeller(int productID, int sellerID) {
+        return pDAO.isProductOwnedBySeller(productID, sellerID);
+    }
+
 }

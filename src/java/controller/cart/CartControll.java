@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.cart_order;
+package controller.cart;
 
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import entity.CartWishList.Cart;
 import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Product.Product;
+import java.util.ArrayList;
 import entity.Account.Account;
 import entity.Product.Category;
 import java.util.List;
@@ -28,10 +29,11 @@ import service.IProductService;
 import service.CartService;
 import service.ICartService;
 import entity.Orders.Order;
-import service.OrderService;
 import service.CartTicketService;
 import service.ICartTicketService;
 import java.io.FileWriter;
+import entity.CartWishList.CartWithStockInfo;
+import entity.CartWishList.CartWithValidationInfo;
 
 /**
  *
@@ -326,16 +328,91 @@ public class CartControll extends HttpServlet {
         }
         
         try {
-            // ✅ ONLY SERVICE CALL - NO DAO CALL
-            Cart cart = cartService.getCartByUser(account.getUserID());
+            // ✅ NEW: Get cart with comprehensive validation (both products and tickets)
+            CartWithValidationInfo cartWithValidationInfo = cartService.getCartWithComprehensiveValidation(account.getUserID());
+            Cart cart = cartWithValidationInfo.getCart();
+            
             session.setAttribute("cart", cart);
+            
+            // ✅ NEW: Handle comprehensive validation results
+            if (cartWithValidationInfo.hasAnyIssues()) {
+                // Get the action parameter to determine what to do with issues
+                String stockAction = request.getParameter("stockAction");
+                
+                if ("removeOutOfStock".equals(stockAction)) {
+                    // Remove out-of-stock products and sold-out tickets
+                    boolean productChanges = cartService.removeOutOfStockItems(account.getUserID());
+                    boolean ticketChanges = cartService.removeSoldOutTickets(account.getUserID());
+                    
+                    if (productChanges || ticketChanges) {
+                        // Refresh cart after removal
+                        cartWithValidationInfo = cartService.getCartWithComprehensiveValidation(account.getUserID());
+                        cart = cartWithValidationInfo.getCart();
+                        session.setAttribute("cart", cart);
+                        
+                        // Add success message
+                        String message = "Đã xóa ";
+                        if (productChanges && ticketChanges) {
+                            message += "sản phẩm hết hàng và vé đã hết khỏi giỏ hàng";
+                        } else if (productChanges) {
+                            message += "sản phẩm hết hàng khỏi giỏ hàng";
+                        } else {
+                            message += "vé đã hết khỏi giỏ hàng";
+                        }
+                        request.setAttribute("stockMessage", message);
+                        request.setAttribute("stockMessageType", "success");
+                    }
+                } else if ("adjustQuantities".equals(stockAction)) {
+                    // Auto-adjust quantities for both products and tickets
+                    boolean productChanges = cartService.autoAdjustQuantities(account.getUserID());
+                    boolean ticketChanges = cartService.autoAdjustTicketQuantities(account.getUserID());
+                    
+                    if (productChanges || ticketChanges) {
+                        // Refresh cart after adjustment
+                        cartWithValidationInfo = cartService.getCartWithComprehensiveValidation(account.getUserID());
+                        cart = cartWithValidationInfo.getCart();
+                        session.setAttribute("cart", cart);
+                        
+                        // Add success message
+                        String message = "Đã điều chỉnh số lượng ";
+                        if (productChanges && ticketChanges) {
+                            message += "sản phẩm và vé theo tình trạng có sẵn";
+                        } else if (productChanges) {
+                            message += "sản phẩm theo tồn kho";
+                        } else {
+                            message += "vé theo tình trạng có sẵn";
+                        }
+                        request.setAttribute("stockMessage", message);
+                        request.setAttribute("stockMessageType", "success");
+                    }
+                }
+            }
             
             // Set attributes cho JSP
             if (cart != null) {
-                request.setAttribute("cartItems", cart.getItems());
-                request.setAttribute("cartTickets", cart.getTickets());
+                List<CartItem> items = cart.getItems();
+                List<CartTicket> tickets = cart.getTickets();
+                
+                request.setAttribute("cartItems", items != null ? items : new ArrayList<>());
+                request.setAttribute("cartTickets", tickets != null ? tickets : new ArrayList<>());
                 request.setAttribute("grandTotal", cart.getTotalAmount());
-                System.out.println("[DEBUG] Cart loaded - Items: " + cart.getItems().size() + ", Tickets: " + cart.getTickets().size() + ", Total: " + cart.getTotalAmount());
+                
+                System.out.println("[DEBUG] Cart loaded - Items: " + (items != null ? items.size() : 0) + 
+                                 ", Tickets: " + (tickets != null ? tickets.size() : 0) + 
+                                 ", Total: " + cart.getTotalAmount());
+                
+                // ✅ DEBUG: Print actual ticket details being set to JSP
+                if (tickets != null && !tickets.isEmpty()) {
+                    System.out.println("[DEBUG] Setting cartTickets attribute with " + tickets.size() + " tickets:");
+                    for (CartTicket ticket : tickets) {
+                        System.out.println("  - CartTicketId: " + ticket.getCartTicketId() + 
+                                         ", TicketId: " + ticket.getTicketId() + 
+                                         ", Date: " + ticket.getFormattedTicketDate() + 
+                                         ", Quantity: " + ticket.getQuantity());
+                    }
+                } else {
+                    System.out.println("[DEBUG] cartTickets is null or empty - will show 'Không có vé trong giỏ hàng'");
+                }
             } else {
                 request.setAttribute("cartItems", new java.util.ArrayList<>());
                 request.setAttribute("cartTickets", new java.util.ArrayList<>());
@@ -343,11 +420,65 @@ public class CartControll extends HttpServlet {
                 System.out.println("[DEBUG] No cart found for user: " + account.getUserID());
             }
             
+            // ✅ NEW: Add comprehensive validation information to request
+            request.setAttribute("stockValidation", cartWithValidationInfo.getStockValidation());
+            request.setAttribute("ticketValidation", cartWithValidationInfo.getTicketValidation());
+            request.setAttribute("hasStockIssues", cartWithValidationInfo.hasProductStockIssues());
+            request.setAttribute("hasTicketIssues", cartWithValidationInfo.hasTicketAvailabilityIssues());
+            request.setAttribute("hasAnyIssues", cartWithValidationInfo.hasAnyIssues());
+            request.setAttribute("stockValidationSummary", cartWithValidationInfo.getComprehensiveValidationSummary());
+            request.setAttribute("issuePriority", cartWithValidationInfo.getIssuePriority());
+            request.setAttribute("canCheckout", cartWithValidationInfo.canProceedToCheckout());
+            
+            // ✅ NEW: Add detailed validation info for each item type
+            if (cartWithValidationInfo.getStockValidation() != null) {
+                request.setAttribute("invalidItems", cartWithValidationInfo.getStockValidation().getInvalidItems());
+                request.setAttribute("validItems", cartWithValidationInfo.getStockValidation().getValidItems());
+            }
+            
+            if (cartWithValidationInfo.getTicketValidation() != null) {
+                var ticketValidation = cartWithValidationInfo.getTicketValidation();
+                request.setAttribute("invalidTickets", ticketValidation.getInvalidTickets());
+                request.setAttribute("validTickets", ticketValidation.getValidTickets());
+                
+                // ✅ DEBUG: Print ticket validation details
+                System.out.println("[DEBUG] Ticket validation details:");
+                System.out.println("  - Invalid tickets: " + ticketValidation.getInvalidTickets().size());
+                System.out.println("  - Valid tickets: " + ticketValidation.getValidTickets().size());
+                System.out.println("  - Has issues: " + ticketValidation.hasAnyTicketIssues());
+                
+                for (var invalidTicket : ticketValidation.getInvalidTickets()) {
+                    System.out.println("  - Invalid ticket: CartTicketId=" + invalidTicket.getTicket().getCartTicketId() + 
+                                     ", Message=" + invalidTicket.getResult().getMessage() + 
+                                     ", AvailableSlots=" + invalidTicket.getResult().getAvailableSlots() + 
+                                     ", RequestedQuantity=" + invalidTicket.getTicket().getQuantity());
+                }
+            } else {
+                System.out.println("[DEBUG] No ticket validation found");
+            }
+            
+            // Forward to JSP only if no errors occurred
             request.getRequestDispatcher("ShoppingCart.jsp").forward(request, response);
+            
         } catch (Exception e) {
             System.out.println("Error viewing cart: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            
+            // Handle error without redirect since response might be committed
+            request.setAttribute("error", "Lỗi khi tải giỏ hàng: " + e.getMessage());
+            request.setAttribute("cartItems", new java.util.ArrayList<>());
+            request.setAttribute("cartTickets", new java.util.ArrayList<>());
+            request.setAttribute("grandTotal", 0.0);
+            
+            // Try to forward to cart page with error message
+            try {
+                request.getRequestDispatcher("ShoppingCart.jsp").forward(request, response);
+            } catch (Exception forwardException) {
+                // If forward fails, try to write directly to response
+                if (!response.isCommitted()) {
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Cart loading error");
+                }
+            }
         }
     }
 
@@ -394,7 +525,7 @@ public class CartControll extends HttpServlet {
     }
 
     /**
-     * ✅ REFACTORED: Add ticket to cart - Only calls Service layer
+     * ✅ REFACTORED: Add ticket to cart - Only calls Service layer, no validation exceptions
      */
     private void addTicketToCart(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -421,7 +552,7 @@ public class CartControll extends HttpServlet {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date ticketDate = sdf.parse(ticketDateStr);
             
-            // ✅ ONLY SERVICE CALL - NO DAO CALL
+            // ✅ ONLY SERVICE CALL - NO DAO CALL - No validation exceptions thrown
             boolean success = cartService.addTicketToCartByUser(account.getUserID(), ticketId, ticketDate, quantity);
             
             if (success) {
