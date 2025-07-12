@@ -279,4 +279,9 @@ public class ProductService implements IProductService{
         }
         return products;
     }
+
+    @Override
+    public int getVillageIDByProductID(int productID) {
+        return pDAO.getVillageIDByProductID(productID);
+    }
 }

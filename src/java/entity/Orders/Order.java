@@ -2,39 +2,71 @@ package entity.Orders;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Order {
+
     private int orderID;
     private int userID;
-    private Timestamp orderDate;
     private BigDecimal totalAmount;
-    private String status;
     private String shippingAddress;
+    private String shippingName;
     private String phoneNumber;
     private String email;
     private String paymentMethod;
-    private String paymentStatus;
+    private int paymentStatus;
+    private String note;
     private Timestamp createdDate;
     private Timestamp updatedDate;
-    private List<OrderDetail> orderDetails;
+    private String trackingNumber;
+    private Timestamp estimatedDeliveryDate;
+    private Timestamp actualDeliveryDate;
+    private String cancelReason;
+    private Timestamp cancelDate;
+    private BigDecimal refundAmount;
+    private Timestamp refundDate;
+    private String refundReason;
+    private String fullName;
+    private int points;
 
     public Order() {
-        this.orderDetails = new ArrayList<>();
-        this.status = "pending";
-        this.paymentStatus = "pending";
-        this.createdDate = new Timestamp(System.currentTimeMillis());
     }
 
-    public Order(int orderID, int userID, Timestamp orderDate, BigDecimal totalAmount, 
-                String status, String shippingAddress, String phoneNumber, String email,
-                String paymentMethod, String paymentStatus, Timestamp createdDate, Timestamp updatedDate) {
+    // Full constructor
+    public Order(int orderID, int userID, BigDecimal totalAmount, 
+                 String shippingAddress, String shippingName, String phoneNumber, String email,
+                 String paymentMethod, int paymentStatus, String note, Timestamp createdDate,
+                 Timestamp updatedDate, String trackingNumber, Timestamp estimatedDeliveryDate,
+                 Timestamp actualDeliveryDate, String cancelReason, Timestamp cancelDate,
+                 BigDecimal refundAmount, Timestamp refundDate, String refundReason) {
         this.orderID = orderID;
         this.userID = userID;
-        this.orderDate = orderDate;
         this.totalAmount = totalAmount;
-        this.status = status;
+        this.shippingAddress = shippingAddress;
+        this.shippingName = shippingName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.note = note;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+        this.trackingNumber = trackingNumber;
+        this.estimatedDeliveryDate = estimatedDeliveryDate;
+        this.actualDeliveryDate = actualDeliveryDate;
+        this.cancelReason = cancelReason;
+        this.cancelDate = cancelDate;
+        this.refundAmount = refundAmount;
+        this.refundDate = refundDate;
+        this.refundReason = refundReason;
+    }
+
+    // Giữ nguyên constructor partial của bạn:
+    public Order(int orderID, int userID, BigDecimal totalAmount,  String shippingAddress,
+                 String phoneNumber, String email, String paymentMethod, int paymentStatus,
+                 Timestamp createdDate, Timestamp updatedDate) {
+        this.orderID = orderID;
+        this.userID = userID;
+        this.totalAmount = totalAmount;
         this.shippingAddress = shippingAddress;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -42,21 +74,30 @@ public class Order {
         this.paymentStatus = paymentStatus;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
-        this.orderDetails = new ArrayList<>();
     }
 
-    // Constructor tương thích code cũ
-    public Order(int orderID, int userID, String orderDate, double totalAmount, String status) {
-        this.orderID = orderID;
+    public Order(int userID, BigDecimal totalAmount, String shippingAddress,
+                 String phoneNumber, String email, String paymentMethod, int paymentStatus, String note, String fullName, int points) {
         this.userID = userID;
-        this.orderDate = null; // Chuyển đổi String sang Timestamp nếu cần
-        this.totalAmount = java.math.BigDecimal.valueOf(totalAmount);
-        this.status = status;
-        this.orderDetails = new java.util.ArrayList<>();
-        this.createdDate = new java.sql.Timestamp(System.currentTimeMillis());
+        this.totalAmount = totalAmount;
+        this.shippingAddress = shippingAddress;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.note = note;
+        this.fullName = fullName;
+        this.points = points;
     }
 
-    // Getters and Setters
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
     public int getOrderID() {
         return orderID;
     }
@@ -73,14 +114,6 @@ public class Order {
         this.userID = userID;
     }
 
-    public Timestamp getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(Timestamp orderDate) {
-        this.orderDate = orderDate;
-    }
-
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
@@ -89,20 +122,21 @@ public class Order {
         this.totalAmount = totalAmount;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
+    
     public String getShippingAddress() {
         return shippingAddress;
     }
 
     public void setShippingAddress(String shippingAddress) {
         this.shippingAddress = shippingAddress;
+    }
+
+    public String getShippingName() {
+        return shippingName;
+    }
+
+    public void setShippingName(String shippingName) {
+        this.shippingName = shippingName;
     }
 
     public String getPhoneNumber() {
@@ -129,12 +163,20 @@ public class Order {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getPaymentStatus() {
+    public int getPaymentStatus() {
         return paymentStatus;
     }
 
-    public void setPaymentStatus(String paymentStatus) {
+    public void setPaymentStatus(int paymentStatus) {
         this.paymentStatus = paymentStatus;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public Timestamp getCreatedDate() {
@@ -153,112 +195,82 @@ public class Order {
         this.updatedDate = updatedDate;
     }
 
-    public List<OrderDetail> getOrderDetails() {
-        return orderDetails;
+    public String getTrackingNumber() {
+        return trackingNumber;
     }
 
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
-        this.orderDetails = orderDetails;
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
     }
 
-    // Chuẩn hóa cho generic DAO
-    public int getId() {
-        return orderID;
-    }
-    public void setId(int id) {
-        this.orderID = id;
-    }
-    public String getName() {
-        return shippingAddress; // hoặc trường phù hợp nhất, ở đây không có name nên dùng shippingAddress
-    }
-    public void setName(String name) {
-        this.shippingAddress = name;
+    public Timestamp getEstimatedDeliveryDate() {
+        return estimatedDeliveryDate;
     }
 
-    // Helper methods
-    public boolean isPending() {
-        return "pending".equalsIgnoreCase(status);
+    public void setEstimatedDeliveryDate(Timestamp estimatedDeliveryDate) {
+        this.estimatedDeliveryDate = estimatedDeliveryDate;
     }
 
-    public boolean isProcessing() {
-        return "processing".equalsIgnoreCase(status);
+    public Timestamp getActualDeliveryDate() {
+        return actualDeliveryDate;
     }
 
-    public boolean isShipped() {
-        return "shipped".equalsIgnoreCase(status);
+    public void setActualDeliveryDate(Timestamp actualDeliveryDate) {
+        this.actualDeliveryDate = actualDeliveryDate;
     }
 
-    public boolean isDelivered() {
-        return "delivered".equalsIgnoreCase(status);
+    public String getCancelReason() {
+        return cancelReason;
     }
 
-    public boolean isCancelled() {
-        return "cancelled".equalsIgnoreCase(status);
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
     }
 
-    public boolean isPaid() {
-        return "paid".equalsIgnoreCase(paymentStatus);
+    public Timestamp getCancelDate() {
+        return cancelDate;
     }
 
-    public boolean isUnpaid() {
-        return "unpaid".equalsIgnoreCase(paymentStatus) || "pending".equalsIgnoreCase(paymentStatus);
+    public void setCancelDate(Timestamp cancelDate) {
+        this.cancelDate = cancelDate;
     }
 
-    public void addOrderDetail(OrderDetail detail) {
-        if (detail != null) {
-            this.orderDetails.add(detail);
-            recalculateTotalAmount();
-        }
+    public BigDecimal getRefundAmount() {
+        return refundAmount;
     }
 
-    public void removeOrderDetail(OrderDetail detail) {
-        if (detail != null && this.orderDetails.contains(detail)) {
-            this.orderDetails.remove(detail);
-            recalculateTotalAmount();
-        }
+    public void setRefundAmount(BigDecimal refundAmount) {
+        this.refundAmount = refundAmount;
     }
 
-    private void recalculateTotalAmount() {
-        BigDecimal total = BigDecimal.ZERO;
-        for (OrderDetail detail : orderDetails) {
-            total = total.add(BigDecimal.valueOf(detail.getSubtotal()));
-        }
-        this.totalAmount = total;
+    public Timestamp getRefundDate() {
+        return refundDate;
+    }
+
+    public void setRefundDate(Timestamp refundDate) {
+        this.refundDate = refundDate;
+    }
+
+    public String getRefundReason() {
+        return refundReason;
+    }
+
+    public void setRefundReason(String refundReason) {
+        this.refundReason = refundReason;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     @Override
     public String toString() {
-        return "Order{" +
-                "orderID=" + orderID +
-                ", userID=" + userID +
-                ", orderDate=" + orderDate +
-                ", totalAmount=" + totalAmount +
-                ", status='" + status + '\'' +
-                ", shippingAddress='" + shippingAddress + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", paymentMethod='" + paymentMethod + '\'' +
-                ", paymentStatus='" + paymentStatus + '\'' +
-                ", createdDate=" + createdDate +
-                ", updatedDate=" + updatedDate +
-                ", orderDetailsCount=" + (orderDetails != null ? orderDetails.size() : 0) +
-                '}';
+        return "Order{" + "orderID=" + orderID + ", userID=" + userID + ", totalAmount=" + totalAmount + ", shippingAddress=" + shippingAddress + ", shippingName=" + shippingName + ", phoneNumber=" + phoneNumber + ", email=" + email + ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", note=" + note + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", trackingNumber=" + trackingNumber + ", estimatedDeliveryDate=" + estimatedDeliveryDate + ", actualDeliveryDate=" + actualDeliveryDate + ", cancelReason=" + cancelReason + ", cancelDate=" + cancelDate + ", refundAmount=" + refundAmount + ", refundDate=" + refundDate + ", refundReason=" + refundReason + '}';
     }
-
-    public static Order fromResultSet(java.sql.ResultSet rs) throws java.sql.SQLException {
-        Order order = new Order();
-        order.setOrderID(rs.getInt("id"));
-        order.setUserID(rs.getInt("userID"));
-        order.setOrderDate(rs.getTimestamp("orderDate"));
-        order.setTotalAmount(rs.getBigDecimal("total_price"));
-        order.setStatus(rs.getString("status"));
-        order.setShippingAddress(rs.getString("shippingAddress"));
-        order.setPhoneNumber(rs.getString("shippingPhone"));
-        order.setEmail(rs.getString("email"));
-        order.setPaymentMethod(rs.getString("paymentMethod"));
-        order.setPaymentStatus(rs.getString("paymentStatus"));
-        order.setCreatedDate(rs.getTimestamp("createdDate"));
-        order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-        return order;
-    }
-} 
+    
+    
+}

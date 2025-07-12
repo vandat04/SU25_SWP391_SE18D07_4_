@@ -88,4 +88,6 @@ public interface IProductService {
     List<Product> getTop5NewestProducts();
     
     String getProduct3D(int productID);
+    
+    int getVillageIDByProductID(int productID);
 }

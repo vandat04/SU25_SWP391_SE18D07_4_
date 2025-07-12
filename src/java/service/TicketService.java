@@ -361,4 +361,8 @@ public class TicketService implements ITicketService {
     public List<Ticket> searchTicketByAdmin(int status, int villageID) {
         return tDAO.searchTicketByAdmin(status,villageID);
     }
+
+    public int getVillageIDByTicketID(int ticketId) {
+        return tDAO.getVillageIDByTicketID(ticketId);
+    }
 }

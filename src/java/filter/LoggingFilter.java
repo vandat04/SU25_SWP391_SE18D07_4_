@@ -39,7 +39,7 @@ public class LoggingFilter implements Filter {
         // Authorization logic
         if (path.startsWith("/managerAccount")) {
             if (!isAdmin) {
-                LOGGER.warning("Access denied for user " + acc.getUserName()+ " to " + path);
+                LOGGER.warning("Access denied for user " + acc.getUserName() + " to " + path);
                 res.sendRedirect(req.getContextPath() + "/login"); // Or a 403 forbidden page
                 return;
             }
@@ -52,7 +52,7 @@ public class LoggingFilter implements Filter {
                 return;
             }
         }
-        
+
         // If all checks pass, continue to the requested resource
         chain.doFilter(request, response);
     }

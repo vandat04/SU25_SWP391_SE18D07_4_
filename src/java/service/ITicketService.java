@@ -207,4 +207,5 @@ public interface ITicketService {
     String getTicketNameByID(int typeID);
     List<Ticket> searchTicketByAdmin(int status, int villageID);
     List<TicketType> getAllTicketType();
+    int getVillageIDByTicketID(int ticketId);
 }

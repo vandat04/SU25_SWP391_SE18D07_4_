@@ -753,12 +753,30 @@ public class ProductDAO {
         return "";
     }
     
+    public int getVillageIDByProductID(int productID) {
+        String query = "SELECT villageID FROM Product WHERE pid = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, productID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("villageID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return 0;
+    }
+    
+    
     public static void main(String[] args) {
         // System.out.println(new ProductDAO().createProductByAdmin(new Product("New3", BigDecimal.valueOf(1000000.00), "A", 1, 1, 1, 1, "A", 1, "A", BigDecimal.valueOf(10), "A", "A", "A", "A")));
         // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));
         // System.out.println(new ProductDAO().getProductOutOfStockByAdmin());
         //System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
-        System.out.println(new ProductDAO().getProductsByVillage(1));
+        System.out.println(new ProductDAO().getVillageIDByProductID(1));
     }
     
 }

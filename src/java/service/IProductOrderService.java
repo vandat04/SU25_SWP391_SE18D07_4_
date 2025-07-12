@@ -4,8 +4,8 @@
  */
 package service;
 
+import entity.Orders.OrderDetail;
 import entity.Orders.ProductOrder;
-import entity.Orders.ProductOrderDetail;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public interface IProductOrderService {
     // Truy vấn đơn hàng
     ProductOrder getOrderById(int orderId);
     List<ProductOrder> getOrdersByUserId(int userId);
-    List<ProductOrderDetail> getOrderDetailsByOrderId(int orderId);
+    List<OrderDetail> getOrderDetailsByOrderId(int orderId);
     // Cập nhật trạng thái đơn hàng
     boolean updateOrderStatus(int orderId, int status);
     boolean updatePaymentStatus(int orderId, int paymentStatus);

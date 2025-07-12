@@ -1,16 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package controller.Deposit;
+package controller.Payment;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URLEncoder;
+import entity.Orders.Config;
+import java.io.IOException;import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,31 +12,44 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author ACER
+ * @author CTT VNPAY
  */
 @WebServlet(name = "ajaxServlet", urlPatterns = {"/ajaxServlet"})
 public class ajaxServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse resp) 
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
             throws ServletException, IOException {
-        String bankCode = request.getParameter("bankCode");
-        String userID = request.getParameter("userID");
-        double amountDouble = Double.parseDouble(request.getParameter("value"));
-        String randomString = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        
+        if(req.getParameter("value") == null) {
+         resp.sendRedirect("cart");//create cart servlet
+         return;
+        }
+        double amountDouble = Double.parseDouble(req.getParameter("value"));
+        
 
+        int orderId = Integer.parseInt(req.getParameter("orderID"));
+        
+        if(orderId < 1) {
+          resp.sendRedirect("cart");
+          return;
+        }
         
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
         
         long amount = (long) (amountDouble * 100);
-        String vnp_TxnRef = userID + "&&" +randomString;
-        String vnp_IpAddr = Config.getIpAddress(request);
+        String vnp_TxnRef = orderId+"";//dky ma rieng
+        String vnp_IpAddr = Config.getIpAddress(req);
 
         String vnp_TmnCode = Config.vnp_TmnCode;
         
@@ -56,14 +60,11 @@ public class ajaxServlet extends HttpServlet {
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", "VND");
         
-        if (bankCode != null && !bankCode.isEmpty()) {
-            vnp_Params.put("vnp_BankCode", bankCode);
-        }
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo",vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
 
-        String locate = request.getParameter("language");
+        String locate = req.getParameter("language");
         if (locate != null && !locate.isEmpty()) {
             vnp_Params.put("vnp_Locale", locate);
         } else {
@@ -108,7 +109,6 @@ public class ajaxServlet extends HttpServlet {
         String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
-        
         resp.sendRedirect(paymentUrl);
     }
 }

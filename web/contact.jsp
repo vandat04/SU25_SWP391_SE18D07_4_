@@ -1,8 +1,3 @@
-<%-- 
-    Document   : contact
-    Created on : Jul 10, 2025, 10:47:57 PM
-    Author     : ACER
---%>
 
 <%-- 
     Document   : contact-artist

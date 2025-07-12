@@ -4,13 +4,11 @@
  */
 package filter;
 
-import DAO.CraftVillageDAO;
-import entity.CraftVillage.CraftType;
-import entity.CraftVillage.CraftVillage;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -18,29 +16,42 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
-import java.util.List;
+import jakarta.servlet.annotation.WebInitParam;
 
 /**
  *
  * @author ACER
  */
-@WebFilter(filterName = "CraftVillageCategoryFilter", urlPatterns = {"/*"})
-public class CraftVillageCategoryFilter implements Filter {
+@WebFilter(filterName = "ControlOrderFilter", urlPatterns = {"/*"}, dispatcherTypes = {DispatcherType.REQUEST}, initParams = {
+    @WebInitParam(name = "Name", value = "Value")})
+public class ControlOrderFilter implements Filter {
 
-    private static final boolean debug = false;
+    private static final boolean debug = true;
 
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured.
     private FilterConfig filterConfig = null;
 
-    public CraftVillageCategoryFilter() {
+    public ControlOrderFilter() {
     }
 
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("CraftVillageCategoryFilter:DoBeforeProcessing");
+            log("ControlOrderFilter:DoBeforeProcessing");
+        }
+
+        // Chạy cleanup nếu URL không phải /manager
+        if (request instanceof jakarta.servlet.http.HttpServletRequest) {
+            jakarta.servlet.http.HttpServletRequest httpReq = (jakarta.servlet.http.HttpServletRequest) request;
+            String path = httpReq.getRequestURI();
+
+            if (!path.startsWith(httpReq.getContextPath() + "/manager")) {
+                filter.CleanupManager.runCleanupIfNeeded();
+            } else {
+                log("ControlOrderFilter: Bỏ qua cleanup cho path: " + path);
+            }
         }
 
         // Write code here to process the request and/or response before
@@ -68,7 +79,7 @@ public class CraftVillageCategoryFilter implements Filter {
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("CraftVillageCategoryFilter:DoAfterProcessing");
+            log("ControlOrderFilter:DoAfterProcessing");
         }
 
         // Write code here to process the request and/or response after
@@ -103,15 +114,36 @@ public class CraftVillageCategoryFilter implements Filter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (request.getAttribute("listVillages") == null) {
-            List<CraftType> listC = new CraftVillageDAO().getAllCraftType();
-            request.setAttribute("listVillages", listC);
+        if (debug) {
+            log("ControlOrderFilter:doFilter()");
         }
-        if (request.getAttribute("listAllVillage") == null) {
-            List<CraftVillage> listAllVillage = new CraftVillageDAO().getAllCraftVillageActive();
-            request.setAttribute("listAllVillage", listAllVillage);
+
+        doBeforeProcessing(request, response);
+
+        Throwable problem = null;
+        try {
+            chain.doFilter(request, response);
+        } catch (Throwable t) {
+            // If an exception is thrown somewhere down the filter chain,
+            // we still want to execute our after processing, and then
+            // rethrow the problem after that.
+            problem = t;
+            t.printStackTrace();
         }
-        chain.doFilter(request, response);
+
+        doAfterProcessing(request, response);
+
+        // If there was a problem, we want to rethrow it if it is
+        // a known type, otherwise log it.
+        if (problem != null) {
+            if (problem instanceof ServletException) {
+                throw (ServletException) problem;
+            }
+            if (problem instanceof IOException) {
+                throw (IOException) problem;
+            }
+            sendProcessingError(problem, response);
+        }
     }
 
     /**
@@ -143,7 +175,7 @@ public class CraftVillageCategoryFilter implements Filter {
         this.filterConfig = filterConfig;
         if (filterConfig != null) {
             if (debug) {
-                log("CraftVillageCategoryFilter:Initializing filter");
+                log("ControlOrderFilter:Initializing filter");
             }
         }
     }
@@ -154,9 +186,9 @@ public class CraftVillageCategoryFilter implements Filter {
     @Override
     public String toString() {
         if (filterConfig == null) {
-            return ("CraftVillageCategoryFilter()");
+            return ("ControlOrderFilter()");
         }
-        StringBuffer sb = new StringBuffer("CraftVillageCategoryFilter(");
+        StringBuffer sb = new StringBuffer("ControlOrderFilter(");
         sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());

@@ -212,15 +212,27 @@ public class TicketDAO {
     }
     
     public static void main(String[] args) {
-        System.out.println(new TicketDAO().getTicketsByVillage(1));
+        System.out.println(new TicketDAO().getVillageIDByTicketID(1));
     }
 
     public List<Ticket> searchTicketByAdmin(int status, int villageID) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    
+    public int getVillageIDByTicketID(int ticketId) {
+        String query = "SELECT villageID FROM VillageTicket WHERE ticketID = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
 
-    
-    
+            ps.setInt(1, ticketId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("villageID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return 0;
+    }  
 }

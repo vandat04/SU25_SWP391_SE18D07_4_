@@ -130,37 +130,73 @@
 
         <!-- HEADER -->
         <jsp:include page="Menu.jsp"></jsp:include>
-
-            <!-- Hero Section -->
-            <div class="hero-section hero-background">
-                <h1 class="page-title">Checkout</h1>
+        <c:if test="${not empty noti}">
+            <div id="notification" class="alert alert-danger">
+                ${noti}
             </div>
 
-            <!-- Page Contain -->
-            <div class="page-contain">
-                <div id="main-content" class="main-content">
-                    <!-- Navigation section -->
-                    <div class="container">
-                        <nav class="biolife-nav">
-                            <ul>
-                                <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                                <li class="nav-item"><span class="curent-page"><strong>Checkout</strong></span></li>
-                            </ul>
-                        </nav>
-                    </div>
-                    <div class="container">
-                        <div class="contact-container">
-                            <div class="profile-header">
-                                <h2>Your Order Summary</h2>
-                            </div>
+            <script>
+                // Đợi DOM load xong
+                document.addEventListener("DOMContentLoaded", function () {
+                    const noti = document.getElementById("notification");
+                    if (noti) {
+                        // Tự ẩn sau 5 giây
+                        setTimeout(() => {
+                            noti.style.opacity = "0";
+                            setTimeout(() => noti.remove(), 500);
+                        }, 5000);
+                    }
+                });
+            </script>
 
-                            <form action="checkout-before" method="post">
+            <style>
+                #notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #dc3545; /* màu đỏ */
+                    color: #fff;
+                    padding: 15px 20px;
+                    border-radius: 4px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+                    z-index: 9999;
+                    opacity: 1;
+                    transition: opacity 0.5s ease;
+                    font-family: sans-serif;
+                    max-width: 300px;
+                }
+            </style>
+        </c:if>
+        <!-- Hero Section -->
+        <div class="hero-section hero-background">
+            <h1 class="page-title">Checkout</h1>
+        </div>
 
-                                <!-- Recipient Information -->
-                                <fieldset class="form-section">
-                                    <legend>Recipient Information</legend>
+        <!-- Page Contain -->
+        <div class="page-contain">
+            <div id="main-content" class="main-content">
+                <!-- Navigation section -->
+                <div class="container">
+                    <nav class="biolife-nav">
+                        <ul>
+                            <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
+                            <li class="nav-item"><span class="curent-page"><strong>Checkout</strong></span></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="container">
+                    <div class="contact-container">
+                        <div class="profile-header">
+                            <h2>Your Order Summary</h2>
+                        </div>
 
-                                    <input type="hidden" name="userID" value="${user.userID}">
+                        <form action="checkout-before" method="post">
+
+                            <!-- Recipient Information -->
+                            <fieldset class="form-section">
+                                <legend>Recipient Information</legend>
+
+                                <input type="hidden" name="userID" value="${user.userID}">
 
                                 <div class="form-group row">
                                     <label for="fullName" class="col-sm-3 col-form-label">Full Name</label>
@@ -254,42 +290,50 @@
                             <!-- Payment Method -->
                             <fieldset class="form-section">
                                 <legend>Payment Method </legend>
+
+                                <c:choose>
+                                    <c:when test="${point >= totalPrice}">
+                                        <!-- Radio button cho phép chọn -->
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="paymentMethod" id="payByPoints" value="points" required>
+                                            <label class="form-check-label" for="payByPoints">
+                                                Pay by Points (<c:out value="${point}" default="0"/>)
+                                            </label>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <!-- Radio button disabled -->
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="paymentMethod" id="payByPoints" value="points" disabled>
+                                            <label class="form-check-label text-muted" for="payByPoints">
+                                                Pay by Points (<c:out value="${point}" default="0"/>) - Not enough points
+                                            </label>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+
                                 <div class="form-check">
-                                    <c:choose>
-                                        <c:when test="${point >= totalPrice}">
-                                            <!-- Radio button cho phép chọn -->
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="paymentMethod" id="payByPoints" value="points" required>
-                                                <label class="form-check-label" for="payByPoints">
-                                                    Pay by Points (<c:out value="${point}" default="0"/>)
-                                                </label>
-                                                <input type="hidden" name="points" value="${point}">
-                                            </div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <!-- Radio button disabled -->
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="paymentMethod" id="payByPoints" value="points" disabled>
-                                                <label class="form-check-label text-muted" for="payByPoints">
-                                                    Pay by Points (<c:out value="${point}" default="0"/>) - Not enough points
-                                                </label>
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer" value="bankTransfer">
-                                    <label class="form-check-label" for="bankTransfer">
-                                        Bank Transfer - Get rewards (${totalPrice * 1 / 100} points)
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer" value="bankTransfer"
+                                           <c:if test="${point < totalPrice}">required</c:if> >
+                                           <label class="form-check-label" for="bankTransfer">
+                                               Bank Transfer - Get rewards (${points} points)
                                     </label>
-                                    <input type="hidden" name="points" value="${totalPrice * 1 / 100}">
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="cod">
                                     <label class="form-check-label" for="cod">
-                                        Cash on Delivery - Get rewards (${totalPrice * 1 / 100} points)
+                                        Cash on Delivery - Get rewards (${points} points)
                                     </label>
-                                    <input type="hidden" name="points" value="${totalPrice * 1 / 100}">
+                                </div>
+                            </fieldset>
+                            <input type="hidden" name="points" id="points" value="${points}">
+                            <!--NOTE-->
+                            <fieldset class="form-section">
+                                <legend>Note</legend>
+                                <div class="form-group row">
+                                    <div class="col-sm-9">     
+                                        <textarea id="note" name="note" class="form-control" rows="3" ></textarea>
+                                    </div>
                                 </div>
                             </fieldset>
 

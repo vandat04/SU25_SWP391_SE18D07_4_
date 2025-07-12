@@ -4,8 +4,8 @@
  */
 package service;
 
+import entity.Orders.OrderDetail;
 import entity.Orders.ProductOrder;
-import entity.Orders.ProductOrderDetail;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +36,7 @@ public class ProductOrderService implements IProductOrderService{
     }
 
     @Override
-    public List<ProductOrderDetail> getOrderDetailsByOrderId(int orderId) {
+    public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

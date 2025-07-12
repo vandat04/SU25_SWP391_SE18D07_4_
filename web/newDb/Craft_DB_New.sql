@@ -43,12 +43,10 @@ CREATE TABLE [dbo].[Account](
 	[lockedUntil] [datetime] NULL, 
 	[avatarUrl] [varchar](max) NULL,
 	[preferredLanguage] [varchar](10) DEFAULT('vi'),
+	fullName NVARCHAR(100),
 	CONSTRAINT FK_Account_Role FOREIGN KEY (roleID) REFERENCES [dbo].[Role](roleID)
 )
 GO
-ALTER TABLE Account
-ADD fullName NVARCHAR(100);
-
 
 --Table [AccountPoints]
 CREATE TABLE [dbo].[AccountPoints](
@@ -300,24 +298,60 @@ CREATE TABLE [dbo].[VillageTicket](
 )
 GO
 
---Table [TicketOrder] 
-CREATE TABLE [dbo].[TicketOrder](
-	[orderID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+----------------------------------------------------Order-------------
+--Table [Orders] -- 
+CREATE TABLE [dbo].[Orders](
+	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	[userID] [int] NOT NULL,
-	[villageID] [int] NOT NULL,
-	[totalPrice] [decimal](10, 2) NOT NULL,
-	[totalQuantity] [int] NOT NULL,
-	[status]  [int] NOT NULL DEFAULT(0), -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
+	[total_price] [decimal](10, 2) NOT NULL,
+	[shippingAddress] [nvarchar](200) NOT NULL,
+	[shippingPhone] [nvarchar](20) NOT NULL,
+	[shippingName] [nvarchar](100) NOT NULL,
 	[paymentMethod] [nvarchar](50) NOT NULL,
-	[paymentStatus]  [int] NOT NULL DEFAULT(0),
-	[customerName] [nvarchar](100) NOT NULL,
-	[customerPhone] [nvarchar](20) NOT NULL,
-	[customerEmail] [nvarchar](100) NULL,
+	[paymentStatus] [int] DEFAULT(0) NOT NULL, --0: CHƯA, 1: ĐÃ THANH TOÁN
 	[note] [nvarchar](max) NULL,
 	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[updatedDate] [datetime] NULL,
-	CONSTRAINT [FK_TicketOrder_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
-	CONSTRAINT [FK_TicketOrder_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID])
+	[trackingNumber] [varchar](100) NULL,
+	[estimatedDeliveryDate] [datetime] NULL,
+	[actualDeliveryDate] [datetime] NULL,
+	[cancelReason] [nvarchar](500) NULL,
+	[cancelDate] [datetime] NULL,
+	[refundAmount] [decimal](10, 2) NULL,
+	[refundDate] [datetime] NULL,
+	[refundReason] [nvarchar](500) NULL,
+	email NVARCHAR(100),
+	points int,
+	CONSTRAINT FK_Orders_Account FOREIGN KEY (userID) REFERENCES [dbo].[Account](userID)
+)
+GO
+alter table TicketOrderDetail
+add [createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+
+--Table [OrderDetail]
+CREATE TABLE [dbo].[OrderDetail](
+	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[order_id] [int] NOT NULL,
+	[product_id] [int] NOT NULL,
+	[quantity] [int] NOT NULL,
+	[price] [decimal](10, 2) NOT NULL,
+	[subtotal] [decimal](10, 2) NOT NULL,
+	[status] int default(0),
+	[villageID] int,
+	paymentMethod [nvarchar](50),
+	paymentStatus int,
+	[cancelReason] [nvarchar](500) NULL,
+	[cancelDate] [datetime] NULL,
+	[refundAmount] [decimal](10, 2) NULL,
+	[refundDate] [datetime] NULL,
+	[refundReason] [nvarchar](500) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	 points int ,
+	CONSTRAINT FK_OrderDetail_Orders FOREIGN KEY (order_id) REFERENCES [dbo].[Orders](id),
+	CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (product_id) REFERENCES [dbo].[Product](pid),
+	CONSTRAINT FK_OrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
 )
 GO
 
@@ -329,8 +363,21 @@ CREATE TABLE [dbo].[TicketOrderDetail](
 	[quantity] [int] NOT NULL,
 	[price] [decimal](10, 2) NOT NULL,
 	[subtotal] [decimal](10, 2) NOT NULL,
-	CONSTRAINT [FK_TicketOrderDetail_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[TicketOrder] ([orderID]),
+	[status] int default(0),
+	[villageID] int,
+	paymentMethod [nvarchar](50),
+	paymentStatus int,
+	[cancelReason] [nvarchar](500) NULL,
+	[cancelDate] [datetime] NULL,
+	[refundAmount] [decimal](10, 2) NULL,
+	[refundDate] [datetime] NULL,
+	[refundReason] [nvarchar](500) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	points int ,
+	CONSTRAINT [FK_TicketOrderDetail_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[Orders] (id),
 	CONSTRAINT [FK_TicketOrderDetail_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]),
+	CONSTRAINT FK_TicketOrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
 )
 GO
 
@@ -350,45 +397,6 @@ CREATE TABLE [dbo].[TicketCode](
 )
 GO
 
-----------------------------------------------------Order-------------
---Table [Orders] -- 
-CREATE TABLE [dbo].[Orders](
-	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[userID] [int] NOT NULL,
-	[total_price] [decimal](10, 2) NOT NULL,
-	[status]  [int] DEFAULT(0) NOT NULL,  -- 0: đang xử lí, 1: đã thanh toán, 2: đã huỷ, 3: hoàn trả 
-	[shippingAddress] [nvarchar](200) NOT NULL,
-	[shippingPhone] [nvarchar](20) NOT NULL,
-	[shippingName] [nvarchar](100) NOT NULL,
-	[paymentMethod] [nvarchar](50) NOT NULL,
-	[paymentStatus] [int] DEFAULT(0) NOT NULL, --0: CHƯA, 1: ĐÃ THANH TOÁN
-	[note] [nvarchar](max) NULL,
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[updatedDate] [datetime] NULL,
-	[trackingNumber] [varchar](100) NULL,
-	[estimatedDeliveryDate] [datetime] NULL,
-	[actualDeliveryDate] [datetime] NULL,
-	[cancelReason] [nvarchar](500) NULL,
-	[cancelDate] [datetime] NULL,
-	[refundAmount] [decimal](10, 2) NULL,
-	[refundDate] [datetime] NULL,
-	[refundReason] [nvarchar](500) NULL,
-	CONSTRAINT FK_Orders_Account FOREIGN KEY (userID) REFERENCES [dbo].[Account](userID)
-)
-GO
-
---Table [OrderDetail]
-CREATE TABLE [dbo].[OrderDetail](
-	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[order_id] [int] NOT NULL,
-	[product_id] [int] NOT NULL,
-	[quantity] [int] NOT NULL,
-	[price] [decimal](10, 2) NOT NULL,
-	[subtotal] [decimal](10, 2) NOT NULL,
-	CONSTRAINT FK_OrderDetail_Orders FOREIGN KEY (order_id) REFERENCES [dbo].[Orders](id),
-	CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (product_id) REFERENCES [dbo].[Product](pid)
-)
-GO
 
 --Table [Cart]
 CREATE TABLE [dbo].[Cart](
@@ -621,3 +629,6 @@ ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([totalSlots] > 0)
 Go
 ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CONSTRAINT [CK_TicketAvailability_BookedSlots] CHECK ([bookedSlots] <= [totalSlots]);
 Go
+
+--Xoa Quan he + bỏ ticketorder giua TicketOrder-->TicketOrderDetail->TicketCode sang Orders->TicketOrderDetail
+--Trong Orders Bỏ status> Vì order chung nhưng nhiều sản phẩm từ làng nghề nên cần quản lí riêng bằng details
