@@ -436,6 +436,7 @@ CREATE PROCEDURE [dbo].[UpdateProductFull]
     @materials NVARCHAR(500) = NULL,
     @careInstructions NVARCHAR(MAX) = NULL,
     @warranty NVARCHAR(200) = NULL,
+	@modelFile [nvarchar](max) NULL,
     @result INT OUTPUT
 AS
 BEGIN
@@ -470,6 +471,7 @@ BEGIN
             [materials] = @materials,
             [careInstructions] = @careInstructions,
             [warranty] = @warranty,
+			[modelFile] = @modelFile,
             [updatedDate] = GETDATE()
         WHERE pid = @pid;
 
@@ -504,6 +506,7 @@ CREATE PROCEDURE CreateProductFull
     @Materials NVARCHAR(500),
     @CareInstructions NVARCHAR(1000),
     @Warranty NVARCHAR(255),
+	@modelFile [nvarchar](max) NULL,
     @Result INT OUTPUT
 AS
 BEGIN
@@ -522,11 +525,11 @@ BEGIN
         -- Thêm sản phẩm mới
         INSERT INTO Product (
             Name, Price,  Description, Stock,  Status,  VillageID, CategoryID,  MainImageUrl,
-            CraftTypeID, SKU,  Weight, Dimensions, Materials, CareInstructions,  Warranty,  createdDate
+            CraftTypeID, SKU,  Weight, Dimensions, Materials, CareInstructions,  Warranty,  createdDate, modelFile
         )
         VALUES (
             @Name, @Price,  @Description,  @Stock, @Status,  @VillageID,  @CategoryID, @MainImageUrl,
-            @CraftTypeID, @Sku, @Weight, @Dimensions, @Materials, @CareInstructions, @Warranty, GETDATE()
+            @CraftTypeID, @Sku, @Weight, @Dimensions, @Materials, @CareInstructions, @Warranty, GETDATE(), @modelFile
         );
 
         SET @Result = 1; -- Thành công

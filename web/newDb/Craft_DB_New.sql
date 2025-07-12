@@ -217,6 +217,7 @@ CREATE TABLE [dbo].[Product]( --22 trường
 	[isFeatured] [bit] NOT NULL DEFAULT(0), -- Bỏ
 	[averageRating] [decimal](3, 2) NULL,
 	[totalReviews] [int] NOT NULL DEFAULT(0),
+	[modelFile] [nvarchar](max) NULL,
 	CONSTRAINT [FK_Product_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
 	CONSTRAINT [FK_Product_Category] FOREIGN KEY([categoryID]) REFERENCES [dbo].[ProductCategory] ([categoryID]),
 	CONSTRAINT [FK_Product_CraftType] FOREIGN KEY([craftTypeID]) REFERENCES [dbo].[CraftType] ([typeID])
@@ -249,14 +250,6 @@ CREATE TABLE [dbo].[ProductReview](
 )
 GO
 
---Table [Product3D]
-CREATE TABLE [dbo].[Product3D](
-	[product3dID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[productID] [int] NOT NULL,
-	[modelFile] [nvarchar](max) NULL,
-	CONSTRAINT [FK_Product3D_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid])
-)
-GO
 
 --Table [Wishlist]
 CREATE TABLE [dbo].[Wishlist](

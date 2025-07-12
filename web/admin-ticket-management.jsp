@@ -89,7 +89,7 @@
                         <form action="admin-ticket-management" method="post" class="flex flex-wrap gap-2 items-center">
                             <input type="hidden" name="typeName" value="searchTicket"/>
                             <select name="status" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                <option value="">All Status</option>
+                                <option value="2">All Status</option>
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
                             </select>

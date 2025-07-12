@@ -24,9 +24,9 @@ import java.sql.Types;
  * @author ACER
  */
 public class TicketDAO {
-    
+
     private static final Logger LOGGER = Logger.getLogger(TicketDAO.class.getName());
-    
+
     private TicketType mapResultSetToTicketType(ResultSet rs) throws SQLException {
         return new TicketType(
                 rs.getInt("typeID"),
@@ -38,7 +38,7 @@ public class TicketDAO {
                 rs.getTimestamp("updatedDate")
         );
     }
-    
+
     private Ticket mapResultSetToTicket(ResultSet rs) throws SQLException {
         return new Ticket(
                 rs.getInt("ticketID"),
@@ -50,7 +50,7 @@ public class TicketDAO {
                 rs.getTimestamp("updatedDate")
         );
     }
-    
+
     private void closeResources(java.sql.Connection conn, PreparedStatement ps, ResultSet rs) {
         try {
             if (rs != null) {
@@ -65,13 +65,13 @@ public class TicketDAO {
         } catch (SQLException e) {
         }
     }
-    
+
     public List<TicketType> getAllTicketType() {
         List<TicketType> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             conn = new DBContext().getConnection();
             // Query cho user - chỉ lấy sản phẩm active của seller
@@ -88,7 +88,7 @@ public class TicketDAO {
         }
         return list;
     }
-    
+
     public boolean createTicketByAdmin(Ticket ticket) {
         String query = "{? = CALL AddTicketByAdmin(?, ?, ?, ?)}";
         Connection conn = null;
@@ -96,18 +96,18 @@ public class TicketDAO {
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
-            
+
             cs.registerOutParameter(1, java.sql.Types.INTEGER);
             cs.setInt(2, ticket.getVillageID());
             cs.setInt(3, ticket.getTypeID());
             cs.setBigDecimal(4, ticket.getPrice());
             cs.setInt(5, ticket.getStatus());
-            
+
             cs.execute();
-            
+
             int result = cs.getInt(1);
             LOGGER.log(Level.INFO, "AddTicketByAdmin result code: {0}", result);
-            
+
             return result == 1;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error creating ticket with villageID: "
@@ -117,28 +117,28 @@ public class TicketDAO {
         }
         return false;
     }
-    
+
     public boolean updateTicketByAdmin(Ticket ticket) {
         String sql = "{? = CALL UpdateTicketByAdmin(?, ?, ?)}";
         try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
-            
+
             cs.registerOutParameter(1, Types.INTEGER);
-            
+
             cs.setInt(2, ticket.getTicketID());
             cs.setBigDecimal(3, ticket.getPrice());
             cs.setInt(4, ticket.getStatus());
-            
+
             cs.execute();
-            
+
             int result = cs.getInt(1);
             return result == 1;
-            
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating ticket: " + e.getMessage(), e);
         }
         return false;
     }
-    
+
     public boolean deleteTicketByAdmin(int ticketID) {
         String sql = "{? = CALL DeleteTicketByAdmin(?)}";
         try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
@@ -154,7 +154,7 @@ public class TicketDAO {
         }
         return false;
     }
-    
+
     public List<Ticket> getTickeReportByAdmin(int status) {
         String query;
         List<Ticket> list = new ArrayList<>();
@@ -176,14 +176,14 @@ public class TicketDAO {
         }
         return list;
     }
-    
+
     public String getTicketNameByID(int typeID) {
         String query = "SELECT typeName FROM TicketType WHERE status = 1 AND typeID = ?";
-        
+
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-            
+
             ps.setInt(1, typeID);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getString("typeName");
@@ -194,7 +194,7 @@ public class TicketDAO {
         }
         return null;
     }
-    
+
     public List<Ticket> getTicketsByVillage(int villageId) {
         List<Ticket> list = new ArrayList<>();
         String query = "SELECT * FROM VillageTicket WHERE  villageID = ? and status = 1";
@@ -210,13 +210,33 @@ public class TicketDAO {
         }
         return list;
     }
-    
+
     public static void main(String[] args) {
-        System.out.println(new TicketDAO().getVillageIDByTicketID(1));
+        System.out.println(new TicketDAO().searchTicketByAdmin(0, 3));
     }
 
     public List<Ticket> searchTicketByAdmin(int status, int villageID) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        List<Ticket> list = new ArrayList<>();
+        String query;
+        if (status == 2) {
+            query = "SELECT * FROM VillageTicket WHERE villageID = ?";
+        } else {
+            query = "SELECT * FROM VillageTicket WHERE villageID = ? AND status = ?";
+        }
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, villageID);
+            if (status != 2) {
+                ps.setInt(2, status);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToTicket(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public int getVillageIDByTicketID(int ticketId) {
@@ -234,5 +254,5 @@ public class TicketDAO {
             e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
         }
         return 0;
-    }  
+    }
 }

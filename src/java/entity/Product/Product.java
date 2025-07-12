@@ -29,12 +29,13 @@ public class Product {
     private boolean isFeatured;
     private BigDecimal averageRating;
     private int totalReviews;
-
+    private String modelFile;
+    
     // Constructors-------------------------------------------------------------
     public Product() {
     }
 
-    public Product(int pid,String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID,int craftTypeID, String mainImageUrl, int clickCount, Timestamp lastClicked, Timestamp createdDate, Timestamp updatedDate, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty, BigDecimal averageRating, int totalReviews) {
+    public Product(int pid,String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID,int craftTypeID, String mainImageUrl, int clickCount, Timestamp lastClicked, Timestamp createdDate, Timestamp updatedDate, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty, BigDecimal averageRating, int totalReviews, String modelFile) {
         this.pid = pid;
         this.name = name;
         this.price = price;
@@ -57,6 +58,7 @@ public class Product {
         this.warranty = warranty;
         this.averageRating = averageRating;
         this.totalReviews = totalReviews;
+        this.modelFile = modelFile;
     }
     
     public Product(int pid, String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID, String mainImageUrl, int clickCount, Timestamp lastClicked, Timestamp createdDate, Timestamp updatedDate) {
@@ -75,7 +77,7 @@ public class Product {
         this.updatedDate = updatedDate;
     }
 
-    public Product(int pid, String name, BigDecimal price, String description, int stock, int stockAdd, int status, int villageID, int categoryID, String mainImageUrl, int craftTypeID, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty) {
+    public Product(int pid, String name, BigDecimal price, String description, int stock, int stockAdd, int status, int villageID, int categoryID, String mainImageUrl, int craftTypeID, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty, String modelFile) {
         this.pid = pid;
         this.name = name;
         this.price = price;
@@ -93,9 +95,10 @@ public class Product {
         this.materials = materials;
         this.careInstructions = careInstructions;
         this.warranty = warranty;
+        this.modelFile = modelFile;
     }
 
-    public Product(String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID, String mainImageUrl, int craftTypeID, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty) {
+    public Product(String name, BigDecimal price, String description, int stock, int status, int villageID, int categoryID, String mainImageUrl, int craftTypeID, String sku, BigDecimal weight, String dimensions, String materials, String careInstructions, String warranty, String modelFile) {
         this.name = name;
         this.price = price;
         this.description = description;
@@ -111,6 +114,7 @@ public class Product {
         this.materials = materials;
         this.careInstructions = careInstructions;
         this.warranty = warranty;
+        this.modelFile = modelFile;
     }
   
     
@@ -319,7 +323,7 @@ public class Product {
 
     @Override
     public String toString() {
-        return "Product{" + "pid=" + pid + ", name=" + name + ", price=" + price + ", description=" + description + ", stock=" + stock + ", status=" + status + ", villageID=" + villageID + ", categoryID=" + categoryID + ", mainImageUrl=" + mainImageUrl + ", clickCount=" + clickCount + ", lastClicked=" + lastClicked + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", craftTypeID=" + craftTypeID + ", sku=" + sku + ", weight=" + weight + ", dimensions=" + dimensions + ", materials=" + materials + ", careInstructions=" + careInstructions + ", warranty=" + warranty + ", isFeatured=" + isFeatured + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews + '}';
+        return "Product{" + "pid=" + pid + ", name=" + name + ", price=" + price + ", description=" + description + ", stock=" + stock + ", stockAdd=" + stockAdd + ", status=" + status + ", villageID=" + villageID + ", categoryID=" + categoryID + ", mainImageUrl=" + mainImageUrl + ", clickCount=" + clickCount + ", lastClicked=" + lastClicked + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", craftTypeID=" + craftTypeID + ", sku=" + sku + ", weight=" + weight + ", dimensions=" + dimensions + ", materials=" + materials + ", careInstructions=" + careInstructions + ", warranty=" + warranty + ", isFeatured=" + isFeatured + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews + ", modelFile=" + modelFile + '}';
     }
 
     public int getStockAdd() {
@@ -330,5 +334,11 @@ public class Product {
         this.stockAdd = stockAdd;
     }
 
-    
+    public String getModelFile() {
+        return modelFile;
+    }
+
+    public void setModelFile(String modelFile) {
+        this.modelFile = modelFile;
+    }   
 }

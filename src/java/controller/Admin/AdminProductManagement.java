@@ -90,11 +90,12 @@ public class AdminProductManagement extends HttpServlet {
         String status = request.getParameter("status");
         String searchID = request.getParameter("searchID");
         String contentSearch = request.getParameter("contentSearch");
+        String modelFile = request.getParameter("modelFile");
 
         switch (typeName) {
             case "updateProduct":
                 try {
-                    Product product = new Product(Integer.parseInt(pidStr), name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(stockAddStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty);
+                    Product product = new Product(Integer.parseInt(pidStr), name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(stockAddStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty, modelFile);
                     boolean result = pService.updateProductByAdmin(product);
                     if (result) {
                         request.setAttribute("error", "1");
@@ -112,7 +113,7 @@ public class AdminProductManagement extends HttpServlet {
                 break;
             case "createProduct":
                 try {
-                    Product product = new Product(name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty);
+                    Product product = new Product(name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty,modelFile);
                     boolean result = pService.createProductByAdmin(product);
                     if (result) {
                         request.setAttribute("error", "1");
