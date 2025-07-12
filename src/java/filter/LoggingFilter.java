@@ -52,7 +52,7 @@ public class LoggingFilter implements Filter {
                 return;
             }
         }
-        
+
         // If all checks pass, continue to the requested resource
         chain.doFilter(request, response);
     }

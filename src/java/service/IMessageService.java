@@ -24,3 +24,4 @@ public interface IMessageService {
     List<MessageThread> getMessageThreadByUserID(int userId);
     int getThreadID(int userID, int sellerID);
 }
+

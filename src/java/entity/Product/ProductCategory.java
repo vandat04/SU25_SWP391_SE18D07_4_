@@ -107,6 +107,7 @@ public class ProductCategory {
         this.categoryName = name;
     }
 
+
     @Override
     public String toString() {
         return "ProductCategory{" + "categoryID=" + categoryID + ", categoryName=" + categoryName + ", description=" + description + ", status=" + status + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + '}';

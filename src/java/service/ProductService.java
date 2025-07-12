@@ -16,18 +16,18 @@ import java.util.ArrayList;
  *
  * @author ACER
  */
-public class ProductService implements IProductService{
+public class ProductService implements IProductService {
 
     ProductDAO pDAO = new ProductDAO();
-    
+
     @Override
     public int addProduct(Product product) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public boolean updateProduct(Product product){
-                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public boolean updateProduct(Product product) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ProductService implements IProductService{
     public List<Product> searchProducts(String keyword) {
         return pDAO.searchByName(keyword);
     }
-    
+
     /**
      * Search products by name - additional method for compatibility
      */
@@ -139,7 +139,7 @@ public class ProductService implements IProductService{
     public List<Product> getActivateProducts() {
         return pDAO.getAllProductActive();
     }
-    
+
     @Override
     public List<ProductCategory> getAllCategory() {
         return pDAO.getAllCategory();
@@ -168,27 +168,27 @@ public class ProductService implements IProductService{
     public List<Product> getAllProductActiveByAdmin() {
         return pDAO.getAllProductActiveByAdmin();
     }
-    
+
     @Override
     public boolean addProductByAdmin(Product product) {
         return true;
     }
-    
+
     @Override
-    public boolean updateProductByAdmin(Product product){
+    public boolean updateProductByAdmin(Product product) {
         return pDAO.updateProductByAdmin(product);
     }
-    
+
     @Override
-    public boolean createProductByAdmin(Product product){
+    public boolean createProductByAdmin(Product product) {
         return pDAO.createProductByAdmin(product);
     }
-    
+
     @Override
     public boolean deleteProductByAdmin(int productId) {
         return pDAO.deleteProductByAdmin(productId);
     }
-    
+
     @Override
     public List<Product> getSearchProductByAdmin(int status, int searchID, String contentSearch) {
         return pDAO.getSearchProductByAdmin(status, searchID, contentSearch);
@@ -213,58 +213,63 @@ public class ProductService implements IProductService{
     public List<Product> getTopRatedByAdmin() {
         return pDAO.getTopRatedByAdmin();
     }
-    
+
+    @Override
+    public String getProduct3D(int productID) {
+        return pDAO.getProduct3D(productID);
+    }
+
     /**
-     * Get products by name with price range and order filtering
-     * This method provides advanced filtering capabilities
+     * Get products by name with price range and order filtering This method
+     * provides advanced filtering capabilities
      */
     public List<Product> getProductsByNameAndPriceRangeAndOrder(String name, String priceRange, String orderBy) {
         try {
             // For now, just return basic search results
             // Advanced filtering can be implemented in DAO layer later
             List<Product> products = searchByName(name);
-            
+
             // Basic price filtering
             if (priceRange != null && !priceRange.equals("all")) {
                 products = filterByPriceRange(products, priceRange);
             }
-            
+
             // Basic ordering
             if (orderBy != null && !orderBy.equals("menu_order")) {
                 products = orderProducts(products, orderBy);
             }
-            
+
             return products;
         } catch (Exception e) {
             // Fallback to basic search if filtering fails
             return searchByName(name);
         }
     }
-    
+
     /**
      * Filter products by price range
      */
     private List<Product> filterByPriceRange(List<Product> products, String priceRange) {
         // Basic implementation - can be enhanced
         return products.stream()
-            .filter(product -> {
-                double price = product.getPrice().doubleValue();
-                switch (priceRange) {
-                    case "0-100000":
-                        return price <= 100000;
-                    case "100000-500000":
-                        return price > 100000 && price <= 500000;
-                    case "500000-1000000":
-                        return price > 500000 && price <= 1000000;
-                    case "1000000+":
-                        return price > 1000000;
-                    default:
-                        return true;
-                }
-            })
-            .collect(java.util.stream.Collectors.toList());
+                .filter(product -> {
+                    double price = product.getPrice().doubleValue();
+                    switch (priceRange) {
+                        case "0-100000":
+                            return price <= 100000;
+                        case "100000-500000":
+                            return price > 100000 && price <= 500000;
+                        case "500000-1000000":
+                            return price > 500000 && price <= 1000000;
+                        case "1000000+":
+                            return price > 1000000;
+                        default:
+                            return true;
+                    }
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
-    
+
     /**
      * Order products by specified criteria
      */
@@ -272,7 +277,7 @@ public class ProductService implements IProductService{
         if (orderBy == null || orderBy.isEmpty()) {
             return products;
         }
-        
+
         switch (orderBy.toLowerCase()) {
             case "price_asc":
                 products.sort((p1, p2) -> p1.getPrice().compareTo(p2.getPrice()));
@@ -290,12 +295,13 @@ public class ProductService implements IProductService{
                 // Default sorting by ID
                 products.sort((p1, p2) -> Integer.compare(p1.getPid(), p2.getPid()));
         }
-        
+
         return products;
     }
-    
+
     /**
      * Check if a product is owned by a specific seller
+     *
      * @param productID The product ID
      * @param sellerID The seller ID
      * @return true if the product is owned by the seller
@@ -304,4 +310,8 @@ public class ProductService implements IProductService{
         return pDAO.isProductOwnedBySeller(productID, sellerID);
     }
 
+    @Override
+    public int getVillageIDByProductID(int productID) {
+        return pDAO.getVillageIDByProductID(productID);
+    }
 }

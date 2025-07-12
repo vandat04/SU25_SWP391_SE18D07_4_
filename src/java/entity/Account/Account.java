@@ -44,7 +44,6 @@ public class Account {
         this.fullName = fullName;
     }
 
-
     public Account(int userID, String userName, String password, String email, String address, String phoneNumber, int status, int roleID, String fullName) {
         this.userID = userID;
         this.userName = userName;
@@ -68,7 +67,6 @@ public class Account {
         this.fullName = fullName;
     }
     
-  
     public String getFullName() {
         return fullName;
     }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Compiled class files
 *.class
 
@@ -64,3 +65,7 @@ src/java/context/DBContext.java
 
 # Cache files
 .cache/
+=======
+/dist/
+/build/
+>>>>>>> dat2

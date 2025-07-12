@@ -6,7 +6,6 @@ package controller.Authenticate;
 
 import entity.Account.SellerVerification;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -82,3 +81,4 @@ public class ListRequest extends HttpServlet {
     }// </editor-fold>
 
 }
+

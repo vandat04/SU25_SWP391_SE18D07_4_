@@ -543,7 +543,7 @@
                                         <input type="hidden" name="timestamp" value="<%= System.currentTimeMillis()%>">
                                         <button type="submit" class="btn btn-clear">Clear Cart</button>
                                     </form>
-                                    <a href="checkoutBefor" class="btn btn-update">Checkout</a>
+                                     <a href="checkout-before?grandTotal=${grandTotal}" class="btn btn-update">Checkout</a>
                                 </div>
                             </div>
                         </div>

@@ -5,7 +5,6 @@
 package entity.Product;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *

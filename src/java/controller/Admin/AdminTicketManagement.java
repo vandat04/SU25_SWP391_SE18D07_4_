@@ -132,17 +132,17 @@ public class AdminTicketManagement extends HttpServlet {
                 listTicket = tService.getAllTicketActive();
                 request.setAttribute("listTicket", listTicket);
                 break;
-            case "searchTicket":
-                try {
-                    listTicket = tService.searchTicketByAdmin(Integer.parseInt(status), Integer.parseInt(villageID));
-                    request.setAttribute("error", "1");
-                    request.setAttribute("message", "Search Success");
-                    request.setAttribute("listTicket", listTicket);
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Search Fail");
-                }
-                break;
+//            case "searchProduct":
+//                try {
+//                    listProduct = new ProductService().getSearchProductByAdmin(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
+//                    request.setAttribute("error", "1");
+//                    request.setAttribute("message", "Search Success");
+//                    request.setAttribute("listProduct", listProduct);
+//                } catch (Exception e) {
+//                    request.setAttribute("error", "0");
+//                    request.setAttribute("message", "Search Fail");
+//                }
+//                break;
             default:
                 throw new AssertionError();
         }

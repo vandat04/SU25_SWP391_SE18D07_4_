@@ -26,17 +26,17 @@ import java.util.List;
  */
 @WebFilter(filterName = "CraftVillageCategoryFilter", urlPatterns = {"/*"})
 public class CraftVillageCategoryFilter implements Filter {
-    
+
     private static final boolean debug = false;
 
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured.
     private FilterConfig filterConfig = null;
-    
+
     public CraftVillageCategoryFilter() {
     }
-    
+
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
@@ -64,7 +64,7 @@ public class CraftVillageCategoryFilter implements Filter {
 	}
          */
     }
-    
+
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
@@ -102,8 +102,7 @@ public class CraftVillageCategoryFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        
-        
+
         if (request.getAttribute("listVillages") == null) {
             List<CraftType> listC = new CraftVillageDAO().getAllCraftType();
             request.setAttribute("listVillages", listC);
@@ -162,10 +161,12 @@ public class CraftVillageCategoryFilter implements Filter {
         sb.append(")");
         return (sb.toString());
     }
+
     
+
     private void sendProcessingError(Throwable t, ServletResponse response) {
         String stackTrace = getStackTrace(t);
-        
+
         if (stackTrace != null && !stackTrace.equals("")) {
             try {
                 response.setContentType("text/html");
@@ -192,7 +193,7 @@ public class CraftVillageCategoryFilter implements Filter {
             }
         }
     }
-    
+
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -206,9 +207,9 @@ public class CraftVillageCategoryFilter implements Filter {
         }
         return stackTrace;
     }
-    
+
     public void log(String msg) {
         filterConfig.getServletContext().log(msg);
     }
-    
+
 }

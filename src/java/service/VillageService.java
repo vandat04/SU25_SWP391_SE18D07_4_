@@ -5,7 +5,6 @@
 package service;
 
 import DAO.CraftVillageDAO;
-import entity.CraftVillage.CraftReview;
 import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import java.util.List;

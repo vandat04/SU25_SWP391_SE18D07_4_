@@ -18,5 +18,5 @@ public interface ISellerVerification {
     List<SellerVerification> getSellerVertificationForm(int verificationStatus, int sellerID);
     boolean approvedUpgradeAccount(SellerVerification sellerForm);
     boolean rejectedUpgradeAccount(SellerVerification sellerForm);
+    
 }
-

@@ -8,15 +8,10 @@ import entity.CartWishList.Cart;
 import entity.Product.Product;
 import DAO.CartDAO;
 import entity.CartWishList.CartItem;
-import entity.CartWishList.CartTicket;
 import DAO.CartTicketDAO;
-
-import service.TicketAvailabilityService;
 import entity.CartWishList.CartTicket;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import entity.CartWishList.StockValidationResult;
 import entity.CartWishList.CartStockValidation;

@@ -9,11 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import listener.SessionCounterListener;
 
-/**
- * ✅ MERGED: Combined LogoutControl + InvalidateSessionServlet
- * Servlet xử lý đăng xuất người dùng với session counter management
- */
+
 @WebServlet(name = "LogoutControl", urlPatterns = {"/logout", "/invalidateSession"})
+
 public class LogoutControl extends HttpServlet {
 
     /**
@@ -26,7 +24,12 @@ public class LogoutControl extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processLogout(request, response);
+        // Lấy session hiện tại, không tạo mới nếu chưa có
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // Hủy toàn bộ session để đăng xuất người dùng
+        }
+        response.sendRedirect("login"); // Chuyển hướng về trang đăng nhập
     }
 
     /**
@@ -73,6 +76,7 @@ public class LogoutControl extends HttpServlet {
             // Default behavior - redirect to login page  
             response.sendRedirect("login");
         }
+        doGet(request, response);
     }
 
     /**

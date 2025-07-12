@@ -27,7 +27,7 @@ public class AccountService implements IAccountService{
         return aDAO.loginAccount(username,password);
     }
 
-    @Override
+   @Override
     public boolean updateProfile(Account account) {
         // Try stored procedure first
         boolean success = aDAO.updateAccount(account);
@@ -133,5 +133,10 @@ public class AccountService implements IAccountService{
 
     public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
         return rDAO.getRegistrationSummaryByMonthYear(year);
+    }
+
+    @Override
+    public int getPointsByUserID(int userID) {
+        return aDAO.getPointsByUserID(userID);
     }
 }

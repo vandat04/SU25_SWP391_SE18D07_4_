@@ -5,7 +5,6 @@
 package DAO;
 
 
-
 import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import context.DBContext;
@@ -76,6 +75,7 @@ public class CraftVillageDAO {
         } catch (SQLException e) {
         }
     }
+
 
     public CraftVillage getVillageById(int villageId) {
         CraftVillage village = null;
@@ -249,7 +249,6 @@ public class CraftVillageDAO {
         }
         return false;
     }
-
     
     // Additional methods for compatibility
     public List<CraftVillage> getAllCraftVillages(int offset, int limit) {

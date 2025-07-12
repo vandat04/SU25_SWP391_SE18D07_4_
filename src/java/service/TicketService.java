@@ -9,7 +9,8 @@ import entity.Ticket.VillageTicket;
 import entity.Ticket.TicketAvailability;
 import entity.CartWishList.CartTicket;
 import DAO.TicketDAO;
-
+import entity.Orders.TicketCode;
+import entity.Orders.TicketOrder;
 import entity.Ticket.Ticket;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -44,9 +45,18 @@ public class TicketService implements ITicketService {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    public TicketOrder createTicketOrder(TicketOrder order) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 
+    public boolean cancelTicketOrder(int orderId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public List<TicketCode> getTicketCodesByOrderDetail(int detailId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
-
     @Override
     public List<Ticket> getAllTicketActive() {
         return pDAO.getAllTicketActive();
@@ -349,5 +359,9 @@ public class TicketService implements ITicketService {
 
     public List<Ticket> searchTicketByAdmin(int status, int villageID) {
         return tDAO.searchTicketByAdmin(status,villageID);
+    }
+
+    public int getVillageIDByTicketID(int ticketId) {
+        return tDAO.getVillageIDByTicketID(ticketId);
     }
 }

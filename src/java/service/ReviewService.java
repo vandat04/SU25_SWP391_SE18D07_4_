@@ -12,17 +12,21 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.ArrayList;
 
+
 /**
  *
  * @author ACER
  */
 public class ReviewService implements IReviewService {
 
+
     private static final Logger LOGGER = Logger.getLogger(ReviewService.class.getName());
+
     ReviewDAO rDAO = new ReviewDAO();
 
     @Override
     public boolean addProductReview(ProductReview review) {
+
         try {
             // Validate input
             if (review == null || review.getUserID() <= 0 || review.getProductID() <= 0) {
@@ -161,7 +165,7 @@ public class ReviewService implements IReviewService {
     //     }
     // }
 
-    @Override
+     @Override
     public List<ProductReview> getProductReviews(int productId) {
         try {
             if (productId <= 0) {
@@ -174,6 +178,7 @@ public class ReviewService implements IReviewService {
             return null;
         }
     }
+
 
     @Override
     public List<CraftReview> getVillageReviews(int villageId) {
@@ -436,6 +441,7 @@ public class ReviewService implements IReviewService {
             return null;
         }
     }
+
 
     @Override
     public List<ProductReview> searchProductReviewToday(int productID) {

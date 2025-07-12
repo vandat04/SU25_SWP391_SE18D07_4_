@@ -153,10 +153,7 @@ public class SellerVerification {
         this.verifiedBy = verifiedBy;
         this.rejectReason = rejectReason;
     }
-    
-   
-    
-    
+
     public int getVerificationID() {
         return verificationID;
     }
@@ -364,7 +361,6 @@ public class SellerVerification {
     public String toString() {
         return "SellerVerification{" + "verificationID=" + verificationID + ", sellerID=" + sellerID + ", businessType=" + businessType + ", businessVillageCategry=" + businessVillageCategry + ", businessVillageName=" + businessVillageName + ", businessVillageAddress=" + businessVillageAddress + ", productProductCategory=" + productProductCategory + ", profileVillagePictureUrl=" + profileVillagePictureUrl + ", contactPerson=" + contactPerson + ", contactPhone=" + contactPhone + ", contactEmail=" + contactEmail + ", idCardNumber=" + idCardNumber + ", idCardFrontUrl=" + idCardFrontUrl + ", idCardBackUrl=" + idCardBackUrl + ", businessLicense=" + businessLicense + ", taxCode=" + taxCode + ", documentUrl=" + documentUrl + ", note=" + note + ", verificationStatus=" + verificationStatus + ", verifiedBy=" + verifiedBy + ", verifiedDate=" + verifiedDate + ", rejectReason=" + rejectReason + ", createdDate=" + createdDate + '}';
     }
-
-
 }
+
 

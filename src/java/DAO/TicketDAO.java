@@ -96,7 +96,6 @@ public class TicketDAO {
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
-
             cs.registerOutParameter(1, java.sql.Types.INTEGER);
             cs.setInt(2, ticket.getVillageID());
             cs.setInt(3, ticket.getTypeID());
@@ -195,7 +194,7 @@ public class TicketDAO {
         return null;
     }
 
-       public List<Ticket> searchTicketByAdmin(int status, int villageID) {
+    public List<Ticket> searchTicketByAdmin(int status, int villageID) {
         String query;
         List<Ticket> list = new ArrayList<>();
 
@@ -256,7 +255,23 @@ public class TicketDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new TicketDAO().searchTicketByAdmin(2, 1));
+        System.out.println(new TicketDAO().getVillageIDByTicketID(1));
     }
 
+    public int getVillageIDByTicketID(int ticketId) {
+        String query = "SELECT villageID FROM VillageTicket WHERE ticketID = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, ticketId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("villageID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return 0;
+    }
 }

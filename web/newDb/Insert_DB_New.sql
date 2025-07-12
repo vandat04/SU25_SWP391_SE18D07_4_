@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 USE [CraftDB]
+=======
+﻿USE [CraftDB]
+>>>>>>> dat2
 GO
 
 --Insert [Role]
@@ -183,3 +187,11 @@ VALUES
 (1, 2,  N'Lang1')
 GO
 
+<<<<<<< HEAD
+=======
+--Insert [Product3D]
+INSERT INTO [dbo].[Product3D] ( productID, modelFile)
+VALUES 
+(1,  N'3D-product/teapot/teapot.glb')
+GO
+>>>>>>> dat2

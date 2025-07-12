@@ -5,7 +5,6 @@
 
 package controller.cart;
 
-import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -17,22 +16,16 @@ import jakarta.servlet.http.HttpSession;
 import entity.CartWishList.Cart;
 import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
-import entity.Product.Product;
 import java.util.ArrayList;
 import entity.Account.Account;
-import entity.Product.Category;
 import java.util.List;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import service.ProductService;
-import service.IProductService;
 import service.CartService;
 import service.ICartService;
-import entity.Orders.Order;
 import service.CartTicketService;
 import service.ICartTicketService;
-import java.io.FileWriter;
-import entity.CartWishList.CartWithStockInfo;
 import entity.CartWishList.CartWithValidationInfo;
 
 /**

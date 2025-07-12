@@ -334,6 +334,7 @@ public class AccountDAO {
         }
     }
 
+
     public Account getAccountById(int id) {
         String query = "SELECT * FROM Account WHERE userID = ?";
         Connection conn = null;
@@ -529,17 +530,15 @@ public class AccountDAO {
     }
 
     public boolean approvedUpgradeAccount(SellerVerification sellerForm) {
-        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
 
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
-
             // Register the RETURN parameter
             cs.registerOutParameter(1, java.sql.Types.INTEGER);
-
             // Set input parameters
             cs.setInt(2, sellerForm.getVerificationID());
             cs.setInt(3, sellerForm.getSellerID());
@@ -553,18 +552,9 @@ public class AccountDAO {
             cs.setString(11, sellerForm.getContactEmail());
             cs.setInt(12, sellerForm.getVerificationStatus());
             cs.setInt(13, sellerForm.getVerifiedBy());
-
-            // Register OUTPUT parameter @newVillageID
-            cs.registerOutParameter(14, java.sql.Types.INTEGER);
-
             cs.execute();
-
             int result = cs.getInt(1);
-            int newVillageId = cs.getInt(14);
-
-            LOGGER.log(Level.INFO, "sp_ApprovedUpgradeAccount result code: {0}", result);
-            LOGGER.log(Level.INFO, "New VillageID: {0}", newVillageId);
-
+            LOGGER.log(Level.INFO, "sp_RequestUpgradeAccount result code: {0}", result);
             return result == 1;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
@@ -607,6 +597,7 @@ public class AccountDAO {
 
         return false;
     }
+
 
     public boolean checkPassword(int userId, String password) {
         String query = "SELECT COUNT(*) FROM Account WHERE userID = ? AND password = dbo.HashPassword(?)";
@@ -676,6 +667,29 @@ public class AccountDAO {
         return null;
     }
 
+     public int getPointsByUserID(int userID) {
+        String query = "SELECT points FROM AccountPoints WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, userID);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("points");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving points for user ID: " + userID, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return 0; // không tìm thấy thì trả về 0
+    }
+
     public boolean addAccount(String username, String password, String email, String fullName, String address, String phone, int roleId) {
         Account account = new Account();
         account.setUserName(username);
@@ -732,10 +746,4 @@ public class AccountDAO {
             closeResources(conn, ps, null);
         }
     }
-    
-    public static void main(String[] args) {
-        System.out.println(new AccountDAO().getAccountById(1));
-    }
-
-    
 }

@@ -7,7 +7,6 @@ package controller.Authenticate;
 import DAO.CraftVillageDAO;
 import DAO.ProductDAO;
 import entity.Account.SellerVerification;
-import entity.CraftVillage.CraftType;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

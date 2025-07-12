@@ -127,3 +127,4 @@ public class CartItem {
         return "CartItem{" + "itemID=" + itemID + ", cartID=" + cartID + ", productID=" + productID + ", quantity=" + quantity + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + '}';
     }
 }
+

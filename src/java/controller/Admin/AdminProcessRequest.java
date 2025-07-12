@@ -107,7 +107,7 @@ public class AdminProcessRequest extends HttpServlet {
                     result = sService.rejectedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), Integer.parseInt(verificationStatus), Integer.parseInt(verifiedBy), rejectReason));
                 } else {
                     //Approved
-                    result = sService.approvedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), Integer.parseInt(sellerID), businessVillageCategry, businessVillageName, businessVillageAddress, productProductCategory, profileVillagePictureUrl, contactPerson, contactPhone, contactEmail, Integer.parseInt(verificationStatus), Integer.parseInt(verifiedBy)));
+                    result = sService.rejectedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), Integer.parseInt(sellerID), businessVillageCategry, businessVillageName, businessVillageAddress, productProductCategory, profileVillagePictureUrl, contactPerson, contactPhone, contactEmail, Integer.parseInt(verificationStatus), Integer.parseInt(verifiedBy)));
                 }
                 if (result) {
                     request.setAttribute("error", "1");

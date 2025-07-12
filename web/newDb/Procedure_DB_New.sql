@@ -1,4 +1,4 @@
-USE [CraftDB]
+﻿USE [CraftDB]
 GO
 
 --PROCEDURE [AddAccount]
@@ -1506,6 +1506,131 @@ BEGIN
         SET @result = 0;
     END CATCH
 END
+GO
+
+--11/7--
+CREATE PROCEDURE AddOrder
+    @userID INT,
+    @total_price DECIMAL(18,2),
+    @shippingAddress NVARCHAR(500),
+    @shippingPhone NVARCHAR(50),
+    @email NVARCHAR(255),
+    @paymentMethod NVARCHAR(100),
+    @paymentStatus INT,
+	@note NVARCHAR(255),
+	@shippingName NVARCHAR(255),
+	@points int,
+    @orderIDnew INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO Orders
+    (
+        userID,  total_price, shippingAddress,
+        shippingPhone, email,   paymentMethod, paymentStatus, note, shippingName, points
+    )
+    VALUES
+    (
+        @userID, @total_price,@shippingAddress,
+        @shippingPhone, @email, @paymentMethod, @paymentStatus, @note, @shippingName, @points
+    );
+
+    -- Lấy ID vừa insert (SQL Server)
+    SET @orderIDnew = SCOPE_IDENTITY();
+END;
+go 
+
+
+CREATE PROCEDURE AddOrderDetail
+    @order_id INT,
+    @product_id INT,
+    @quantity INT,
+    @price DECIMAL(10, 2),
+	@status int,
+	@villageID int,
+	@paymentMethod nvarchar(50),
+	@paymentStatus int
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO OrderDetail (order_id, product_id, quantity, price, subtotal, status, villageID, paymentMethod, paymentStatus, points)
+    VALUES (
+        @order_id,
+        @product_id,
+        @quantity,
+        @price,
+        @quantity * @price,
+		@status,
+		@villageID,
+		@paymentMethod,
+		@paymentStatus,
+		@quantity * @price / 100
+    );
+END;
+GO
+ 
+CREATE PROCEDURE AddTicketOrderDetail
+    @order_id INT,
+    @ticketid INT,
+    @quantity INT,
+    @price DECIMAL(10, 2),
+	@status int,
+	@villageID int,
+	@paymentMethod nvarchar(50),
+	@paymentStatus int
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO TicketOrderDetail (orderID, ticketID, quantity, price, subtotal, status, villageID, paymentMethod, paymentStatus, points)
+    VALUES (
+        @order_id,
+        @ticketid,
+        @quantity,
+        @price,
+        @quantity * @price,
+		@status,
+		@villageID,
+		@paymentMethod,
+		@paymentStatus,
+		@quantity * @price / 100
+    );
+END;
+GO
+
+CREATE PROCEDURE CheckOutOfStockItems
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT p.name
+    FROM CartItem ci
+    INNER JOIN Product p ON ci.productID = p.pid
+    WHERE ci.quantity > p.stock;
+END;
+GO
+
+CREATE PROCEDURE PayPoints
+    @userID INT,
+    @points INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check tồn tại User
+    IF EXISTS (SELECT 1 FROM AccountPoints WHERE userID = @userID)
+    BEGIN
+        -- Update trừ điểm, đảm bảo không âm
+        UPDATE AccountPoints
+        SET points = CASE 
+                        WHEN points >= @points THEN points - @points
+                        ELSE 0
+                     END
+        WHERE userID = @userID;
+    END
+END;
 GO
 
 /////////////thêm mới khi review////////////////////
