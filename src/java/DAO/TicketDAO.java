@@ -194,50 +194,6 @@ public class TicketDAO {
         return null;
     }
 
-    public List<Ticket> searchTicketByAdmin(int status, int villageID) {
-        String query;
-        List<Ticket> list = new ArrayList<>();
-
-        if (status == 2) {
-            if (villageID == 0) {
-                query = "SELECT * FROM VillageTicket";
-            } else {
-                query = "SELECT * FROM VillageTicket WHERE villageID = ?";
-            }
-        } else {
-            if (villageID == 0) {
-                query = "SELECT * FROM VillageTicket WHERE status = ?";
-            } else {
-                query = "SELECT * FROM VillageTicket WHERE villageID = ? AND status = ?";
-            }
-        }
-
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            if (status == 2) {
-                if (villageID != 0) {
-                    ps.setInt(1, villageID);
-                }
-            } else {
-                if (villageID == 0) {
-                    ps.setInt(1, status);
-                } else {
-                    ps.setInt(1, villageID);
-                    ps.setInt(2, status);
-                }
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToTicket(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // hoặc log ra file log
-        }
-        return list;
-    }
-
     public List<Ticket> getTicketsByVillage(int villageId) {
         List<Ticket> list = new ArrayList<>();
         String query = "SELECT * FROM VillageTicket WHERE  villageID = ? and status = 1";
@@ -255,7 +211,31 @@ public class TicketDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new TicketDAO().getVillageIDByTicketID(1));
+        System.out.println(new TicketDAO().searchTicketByAdmin(0, 3));
+    }
+
+    public List<Ticket> searchTicketByAdmin(int status, int villageID) {
+        List<Ticket> list = new ArrayList<>();
+        String query;
+        if (status == 2) {
+            query = "SELECT * FROM VillageTicket WHERE villageID = ?";
+        } else {
+            query = "SELECT * FROM VillageTicket WHERE villageID = ? AND status = ?";
+        }
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, villageID);
+            if (status != 2) {
+                ps.setInt(2, status);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToTicket(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public int getVillageIDByTicketID(int ticketId) {

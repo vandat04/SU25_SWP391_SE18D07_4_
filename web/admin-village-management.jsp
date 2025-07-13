@@ -238,8 +238,8 @@
                                 </div>
                                 <div class="col-span-2"><label>Description</label><textarea name="description" class="w-full border p-2"></textarea></div>
                                 <div class="col-span-2"><label>Address</label><input type="text" name="address" class="w-full border p-2" required/></div>
-                                <div><label>Latitude</label><input type="text" name="latitude" class="w-full border p-2"/></div>
-                                <div><label>Longitude</label><input type="text" name="longitude" class="w-full border p-2"/></div>
+                                <div><input type="hidden" name="latitude" class="w-full border p-2"/></div>
+                                <div><input type="hidden" name="longitude" class="w-full border p-2"/></div>
                                 <div><label>Phone</label><input type="text" name="contactPhone" class="w-full border p-2" pattern="^\d{10}$" title="Phone number must be exactly 10 digits"/></div>
                                 <div><label>Email</label><input type="text" name="contactEmail" class="w-full border p-2"/></div>
                                 <div><label>Status</label>
@@ -290,8 +290,8 @@
                                 </div>
                                 <div class="col-span-2"><label>Description</label><textarea name="description" id="description" class="w-full border p-2"></textarea></div>
                                 <div class="col-span-2"><label>Address</label><input type="text" name="address" id="address" class="w-full border p-2" required /></div>
-                                <div><label>Latitude</label><input type="text" name="latitude" id="latitude" class="w-full border p-2" /></div>
-                                <div><label>Longitude</label><input type="text" name="longitude" id="longitude" class="w-full border p-2" /></div>
+                                <div><input type="hidden" name="latitude" id="latitude" class="w-full border p-2" /></div>
+                                <div><input type="hidden" name="longitude" id="longitude" class="w-full border p-2" /></div>
                                 <div><label>Phone</label><input type="text" name="contactPhone" id="contactPhone" class="w-full border p-2" pattern="^\d{10}$" title="Phone number must be exactly 10 digits"/></div>
                                 <div><label>Email</label><input type="text" name="contactEmail" id="contactEmail" class="w-full border p-2" /></div>
                                 <div><label>Status</label>

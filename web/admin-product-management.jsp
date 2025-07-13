@@ -21,7 +21,7 @@
             function showProductDetail(pid, name, price, description, stock, status, villageID, categoryID, craftTypeID,
                     mainImageUrl, clickCount, createdDate, updatedDate,
                     sku, weight, dimensions, materials, careInstructions,
-                    warranty, averageRating, totalReviews) {
+                    warranty, averageRating, totalReviews, modelFile) {
                 const form = document.getElementById('detailForm');
                 form.querySelector('[name="pid"]').value = pid;
                 form.name.value = name;
@@ -44,6 +44,7 @@
                 form.warranty.value = warranty;
                 form.averageRating.value = averageRating;
                 form.totalReviews.value = totalReviews;
+                form.modelFile.value = modelFile;
                 document.getElementById('modal').classList.remove('hidden');
             }
 
@@ -258,7 +259,8 @@
                                                                     '${empty product.careInstructions ? '' : product.careInstructions}',
                                                                     '${empty product.warranty ? '' : product.warranty}',
                                                                     '${empty product.averageRating ? '' : product.averageRating}',
-                                                                    '${empty product.totalReviews ? '' : product.totalReviews}'
+                                                                    '${empty product.totalReviews ? '' : product.totalReviews}',
+                                                                    '${empty product.modelFile ? '' : product.modelFile}'
                                                                     )">
                                                 View
                                             </button>
@@ -354,6 +356,7 @@
                             <div><label>Warranty</label><input type="text" name="warranty" class="w-full border p-2" /></div>
                             <div><label>Average Rating</label><input type="number" name="averageRating" class="w-full border p-2 bg-gray-100" readonly /></div>
                             <div><label>Total Reviews</label><input type="number" name="totalReviews" class="w-full border p-2 bg-gray-100" readonly /></div>
+                            <div><label>Model File</label><input type="text" name="modelFile" class="w-full border p-2"  /></div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
                             <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
@@ -411,6 +414,7 @@
                             <div><label>Materials</label><input type="text" name="materials" class="w-full border p-2" /></div>
                             <div><label>Care Instructions</label><input type="text" name="careInstructions" class="w-full border p-2" /></div>
                             <div><label>Warranty</label><input type="text" name="warranty" class="w-full border p-2" /></div>
+                            <div><label>Model File</label><input type="text" name="modelFile" class="w-full border p-2"  /></div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
                             <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Close</button>

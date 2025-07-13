@@ -314,4 +314,8 @@ public class ProductService implements IProductService {
     public int getVillageIDByProductID(int productID) {
         return pDAO.getVillageIDByProductID(productID);
     }
+
+    public String getModelFileByProductID(int productID) {
+        return pDAO.getModelFileByProductID(productID);
+    }
 }

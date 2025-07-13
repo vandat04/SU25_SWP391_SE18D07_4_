@@ -6,7 +6,6 @@ package controller.Admin;
 
 import entity.Ticket.Ticket;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -132,17 +131,17 @@ public class AdminTicketManagement extends HttpServlet {
                 listTicket = tService.getAllTicketActive();
                 request.setAttribute("listTicket", listTicket);
                 break;
-//            case "searchProduct":
-//                try {
-//                    listProduct = new ProductService().getSearchProductByAdmin(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
-//                    request.setAttribute("error", "1");
-//                    request.setAttribute("message", "Search Success");
-//                    request.setAttribute("listProduct", listProduct);
-//                } catch (Exception e) {
-//                    request.setAttribute("error", "0");
-//                    request.setAttribute("message", "Search Fail");
-//                }
-//                break;
+            case "searchTicket":
+                try {
+                    listTicket = new TicketService().searchTicketByAdmin(Integer.parseInt(status), Integer.parseInt(villageID));
+                    request.setAttribute("error", "1");
+                    request.setAttribute("message", "Search Success");
+                    request.setAttribute("listTicket", listTicket);
+                } catch (Exception e) {
+                    request.setAttribute("error", "0");
+                    request.setAttribute("message", "Search Fail");
+                }
+                break;
             default:
                 throw new AssertionError();
         }

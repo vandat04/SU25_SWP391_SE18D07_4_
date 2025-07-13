@@ -78,7 +78,8 @@ public class ProductDAO {
                 rs.getString("careInstructions"),
                 rs.getString("warranty"),
                 rs.getBigDecimal("averageRating"),
-                rs.getInt("totalReviews")
+                rs.getInt("totalReviews"),
+                rs.getString("modelFile")
         );
     }
 
@@ -329,7 +330,7 @@ public class ProductDAO {
     }
 
     public boolean updateProductByAdmin(Product product) {
-        String sql = "{CALL UpdateProductFull(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL UpdateProductFull(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
 
             cs.setInt(1, product.getPid());
@@ -349,13 +350,14 @@ public class ProductDAO {
             cs.setString(15, product.getMaterials());
             cs.setString(16, product.getCareInstructions());
             cs.setString(17, product.getWarranty());
+            cs.setString(18, product.getModelFile());
 
             // Output param
-            cs.registerOutParameter(18, Types.INTEGER);
+            cs.registerOutParameter(19, Types.INTEGER);
 
             cs.execute();
 
-            int result = cs.getInt(18);
+            int result = cs.getInt(19);
             return result == 1;
 
         } catch (Exception e) {
@@ -365,7 +367,7 @@ public class ProductDAO {
     }
 
     public boolean createProductByAdmin(Product product) {
-        String sql = "{CALL CreateProductFull( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL CreateProductFull( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
 
             cs.setString(1, product.getName());
@@ -383,13 +385,14 @@ public class ProductDAO {
             cs.setString(13, product.getMaterials());
             cs.setString(14, product.getCareInstructions());
             cs.setString(15, product.getWarranty());
+            cs.setString(16, product.getModelFile());
 
             // Output parameter
-            cs.registerOutParameter(16, Types.INTEGER);
+            cs.registerOutParameter(17, Types.INTEGER);
 
             cs.execute();
 
-            int result = cs.getInt(16);
+            int result = cs.getInt(17);
 
             switch (result) {
                 case 1:
@@ -772,10 +775,10 @@ public class ProductDAO {
         
         return false;
     }
-
+   
 
     public String getProduct3D(int productID) {
-        String query = "SELECT modelFile FROM Product3D WHERE productID = ?";
+        String query = "SELECT modelFile FROM Product WHERE productID = ?";
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
 
             ps.setInt(1, productID);
@@ -790,7 +793,7 @@ public class ProductDAO {
         }
         return "";
     }
-    
+
     public int getVillageIDByProductID(int productID) {
         String query = "SELECT villageID FROM Product WHERE pid = ?";
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -807,15 +810,21 @@ public class ProductDAO {
         }
         return 0;
     }
-    
-    
 
-    public static void main(String[] args) {
-        // System.out.println(new ProductDAO().createProductByAdmin(new Product("New3", BigDecimal.valueOf(1000000.00), "A", 1, 1, 1, 1, "A", 1, "A", BigDecimal.valueOf(10), "A", "A", "A", "A")));
-        // System.out.println(new ProductDAO().getSearchProductByAdmin(1, 3, "Ne"));
-        // System.out.println(new ProductDAO().getProductOutOfStockByAdmin());
-        //System.out.println(new ProductDAO().getCategoryNameByCategoryID(1));
-        System.out.println(new ProductDAO().getVillageIDByProductID(1));
+    public String getModelFileByProductID(int productID) {
+        String query = "SELECT modelFile FROM Product WHERE pid = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, productID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("modelFile");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return "";
     }
-    
 }

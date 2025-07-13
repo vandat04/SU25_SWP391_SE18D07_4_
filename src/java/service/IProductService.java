@@ -90,5 +90,7 @@ public interface IProductService {
     String getProduct3D(int productID);
     
     int getVillageIDByProductID(int productID);
+    
+     String getModelFileByProductID(int productID);
 }
 

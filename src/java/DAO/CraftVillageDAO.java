@@ -511,7 +511,9 @@ public class CraftVillageDAO {
             ps.setInt(1, status);
 
             if (query.contains("? AND") || query.contains("LIKE")) {
-                ps.setString(2, contentSearch);
+                if (!query.contains("CONVERT")) {
+                    ps.setString(2, contentSearch);
+                }
             }
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -631,7 +633,7 @@ public class CraftVillageDAO {
 
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
-        System.out.println(new CraftVillageDAO().getVillageById(1));
+        System.out.println(new CraftVillageDAO().getSearchVillageByAdmin(1, 6, "Quang Nam"));
     }
 
 }

@@ -58,8 +58,6 @@ public class DetailControl extends HttpServlet {
         // Set additional product data
         setAdditionalProductData(request, productService, product);
         
-        request.setAttribute("product3D", new ProductService().getProduct3D(product.getPid()));
-        
         request.getRequestDispatcher("Detail.jsp").forward(request, response);
     }
     
@@ -92,6 +90,7 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("price", product.getPrice());
         request.setAttribute("description", product.getDescription());
         request.setAttribute("img", product.getMainImageUrl());
+        request.setAttribute("product3D", new ProductService().getModelFileByProductID(Integer.parseInt(request.getParameter("pid"))));
     }
     
     /**
