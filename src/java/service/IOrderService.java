@@ -2,6 +2,8 @@ package service;
 
 import entity.CartWishList.CartItem;
 import entity.Orders.Order;
+import entity.Orders.OrderDetail;
+import entity.Orders.TicketOrderDetail;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +18,8 @@ public interface IOrderService {
     boolean cancelOrder(int orderId);
     
     // Business operations
-    void addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) ;
-    void addTicketOrderDetail(int orderId, int ticketId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus);
+    int addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) ;
+    int addTicketOrderDetail(int orderId, int ticketId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus);
     void deleteCartItem(int cartID);
     void deleteCartTicket(int cartID);
     // Analytics operations
@@ -39,4 +41,6 @@ public interface IOrderService {
     int getUserIDByOrderID(int orderID);
     double getOrderTotal(int parseInt);
     void deletePendingOrdersOlderThan(int i);
+    List<OrderDetail> getAllOrderDetailByUserId(int userID);
+    List<TicketOrderDetail> getAllTicketOrderDetailByUserId(int userID) ;
 } 

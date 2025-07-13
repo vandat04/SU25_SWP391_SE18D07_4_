@@ -1,5 +1,6 @@
 package entity.Orders;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class OrderDetail {
@@ -92,6 +93,29 @@ public class OrderDetail {
         this.createdDate = new java.sql.Timestamp(System.currentTimeMillis());
     }
 
+    public OrderDetail(int orderDetailID, int orderID, int productID, String productName, double price, int quantity, double subtotal, int status, String paymentMethod, Integer paymentStatus, String cancelReason, Timestamp cancelDate, Double refundAmount, Timestamp refundDate, String refundReason,Timestamp createdDate, Timestamp updatedDate, Integer points) {
+        this.orderDetailID = orderDetailID;
+        this.orderID = orderID;
+        this.productID = productID;
+        this.productName = productName;
+        this.price = price;
+        this.quantity = quantity;
+        this.subtotal = subtotal;
+        this.status = status;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.cancelReason = cancelReason;
+        this.cancelDate = cancelDate;
+        this.refundAmount = refundAmount;
+        this.refundDate = refundDate;
+        this.refundReason = refundReason;
+        this.updatedDate = updatedDate;
+        this.createdDate = createdDate;
+        this.points = points;
+    }
+
+    
+    
     public int getOrderDetailID() {
         return orderDetailID;
     }

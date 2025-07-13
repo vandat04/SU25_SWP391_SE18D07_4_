@@ -9,6 +9,7 @@ import entity.Account.Account;
 import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Orders.Order;
+import entity.Orders.Payment;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,6 +23,7 @@ import service.AccountService;
 import service.CartService;
 import service.OrderService;
 import service.ProductService;
+import service.ReportService;
 import service.TicketService;
 
 /**
@@ -131,6 +133,7 @@ public class CheckoutBefor extends HttpServlet {
         int paymentStatus = 0;
         List<CartItem> listItem;
         List<CartTicket> listTicket;
+        ReportService rService = new ReportService();
 
         try {
             Cart cart = (Cart) session.getAttribute("cart");
@@ -189,13 +192,19 @@ public class CheckoutBefor extends HttpServlet {
             }
 
             for (CartItem p : listItem) {
-                oService.addOrderDetail(orderID, p.getProductID(), p.getQuantity(), p.getPrice(),
+                int newOrderID = oService.addOrderDetail(orderID, p.getProductID(), p.getQuantity(), p.getPrice(),
                         0, pService.getVillageIDByProductID(p.getProductID()), paymentMethod, paymentStatus);
+                if (paymentMethod.equals("points")){
+                    rService.addPaymentManagement(new Payment(rService.getSellerIdByProductId(p.getProductID()), newOrderID, null, BigDecimal.valueOf(p.getQuantity()*p.getPrice()), paymentMethod, 1), 0, 0);
+                }
             }
 
             for (CartTicket t : listTicket) {
-                oService.addTicketOrderDetail(orderID, t.getTicketId(), t.getQuantity(), t.getPrice(),
+                int newTicketOrderID = oService.addTicketOrderDetail(orderID, t.getTicketId(), t.getQuantity(), t.getPrice(),
                         0, tService.getVillageIDByTicketID(t.getTicketId()), paymentMethod, paymentStatus);
+                if (paymentMethod.equals("points")){
+                    rService.addPaymentManagement(new Payment(rService.getSellerIdByTicketId(t.getTicketId()), null, newTicketOrderID, BigDecimal.valueOf(t.getQuantity()*t.getPrice()), paymentMethod, 1), 0, 0);
+                }
             }
 
             int cartID = oService.getCartIDByUserID(Integer.parseInt(userID));

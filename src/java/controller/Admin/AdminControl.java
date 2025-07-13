@@ -40,22 +40,31 @@ public class AdminControl extends HttpServlet {
         ReportService rService = new ReportService();
         AccountService aService = new AccountService();
         PaymentService pService = new PaymentService();
+        //-------------------------------------------------------
         List<Account> accountCount = aService.getAllAccounts();
         request.setAttribute("accountCount", accountCount);
+        //-------------------------------------------------------
         Map<Integer, BigDecimal> revenueMap = pService.getRevenueByYear(Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("revenueMap", revenueMap);
+        //--------------------------------------------------------
         Map<Integer, Integer> monthlyRegister = rService.getMonthlyAccountRegistrations(Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("monthlyRegister", monthlyRegister);
+        //--------------------------------------------------------
         Map<Integer, Integer> statusOrder = rService.getOrderStatusSummaryByMonthYear(Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("statusOrder", statusOrder);
+        //
         BigDecimal currentRevenue = rService.getRevenueByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("currentRevenue", currentRevenue);
+        //-------------------------------------------------------------------
         int currentPost = rService.getNumberCraftPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("currentPost", currentPost);
+        //--------------------------------------------------------------------
         int currentProductPost = rService.getNumberProductPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("currentProductPost", currentProductPost);
+        //--------------------------------------------------------------------
         int currentTicketPost = rService.getNumberTicketPostByDayMonthYear(Calendar.getInstance().get(Calendar.DATE),Calendar.getInstance().get(Calendar.MONTH)+1, Calendar.getInstance().get(Calendar.YEAR));
         request.setAttribute("currentTicketPost", currentTicketPost);
+        
         request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
     }
 

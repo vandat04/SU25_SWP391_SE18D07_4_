@@ -5,6 +5,7 @@
 package service;
 
 import DAO.ReportDAO;
+import entity.Orders.Payment;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -46,5 +47,16 @@ public class ReportService implements IReportService{
     public int getNumberTicketPostByDayMonthYear(int day, int month, int year) {
         return rDAO.getNumberTicketPostByDayMonthYear(day, month, year);
     }
+
+    @Override
+    public void addPaymentManagement(Payment payment, int paymentStatus, int status) {
+        rDAO.addPaymentManagement(payment, paymentStatus, status);
+    }
     
+    public int getSellerIdByProductId(int pid){ 
+        return rDAO.getSellerIdByProductId(pid);
+    }
+    public int getSellerIdByTicketId(int ticketId){ 
+        return rDAO.getSellerIdByTicketId(ticketId);
+    }
 }

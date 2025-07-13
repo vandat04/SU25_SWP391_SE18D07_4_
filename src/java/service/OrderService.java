@@ -7,6 +7,8 @@ package service;
 import DAO.OrderDAO;
 import entity.CartWishList.CartItem;
 import entity.Orders.Order;
+import entity.Orders.OrderDetail;
+import entity.Orders.TicketOrderDetail;
 import java.util.List;
 import java.util.Map;
 
@@ -54,13 +56,13 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public void addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus)  {
-        oDAO.addOrderDetail(orderId,productId,quantity,price,  status,  villageID,  paymentMethod,  paymentStatus);
+    public int addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus)  {
+       return oDAO.addOrderDetail(orderId,productId,quantity,price,  status,  villageID,  paymentMethod,  paymentStatus);
     }
 
     @Override
-    public void addTicketOrderDetail(int orderId, int ticketId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) {
-        oDAO.addTicketOrderDetail(orderId,ticketId,quantity,price,  status,  villageID,  paymentMethod,  paymentStatus);
+    public int addTicketOrderDetail(int orderId, int ticketId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) {
+       return oDAO.addTicketOrderDetail(orderId,ticketId,quantity,price,  status,  villageID,  paymentMethod,  paymentStatus);
     }
     
     @Override
@@ -157,6 +159,15 @@ public class OrderService implements IOrderService{
 
     public Order setPaymentStatusByOrderID(int parseInt, int i) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+
+    public List<OrderDetail> getAllOrderDetailByUserId(int userID){
+        return oDAO.getAllOrderDetailByUserId(userID);
+    }
+
+    public List<TicketOrderDetail> getAllTicketOrderDetailByUserId(int userID) {
+        return oDAO.getAllTicketOrderDetailByUserId(userID);
     }
     
 }

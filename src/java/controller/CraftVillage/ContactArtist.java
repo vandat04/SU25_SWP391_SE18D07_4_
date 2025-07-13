@@ -65,11 +65,11 @@ public class ContactArtist extends HttpServlet {
 
             messageThread = mService.getMessageThread(Integer.parseInt(userID), Integer.parseInt(sellerID));
             request.setAttribute("messageThread", messageThread);
-request.getRequestDispatcher("contact-artist.jsp").forward(request, response);
+            request.getRequestDispatcher("contact-artist.jsp").forward(request, response);
         } catch (Exception e) {
-           
+
         }
-         
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

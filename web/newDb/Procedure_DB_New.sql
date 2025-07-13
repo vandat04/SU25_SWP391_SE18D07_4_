@@ -958,17 +958,70 @@ CREATE PROCEDURE sp_DeleteProductReviewByAdmin
     @result INT OUTPUT
 AS
 BEGIN
-    IF EXISTS (SELECT 1 FROM ProductReview WHERE reviewID = @reviewID)
+    SET NOCOUNT ON;
+
+    DECLARE @productID INT;
+    DECLARE @rating INT;
+    DECLARE @averageRating DECIMAL(10,2);
+    DECLARE @totalReview INT;
+
+    -- Lấy thông tin review cần xóa
+    SELECT 
+        @productID = productID,
+        @rating = rating
+    FROM ProductReview
+    WHERE reviewID = @reviewID;
+
+    -- Nếu không tìm thấy review
+    IF (@productID IS NULL)
     BEGIN
-        DELETE FROM ProductReview WHERE reviewID = @reviewID;
-        SET @result = 1; -- Thành công
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Lấy thông tin Product hiện tại
+    SELECT 
+        @averageRating = averageRating,
+        @totalReview = totalReviews
+    FROM Product
+    WHERE pid = @productID;
+
+    -- Nếu chỉ còn 1 review, reset về 0
+    IF (@totalReview <= 1)
+    BEGIN
+        UPDATE Product
+        SET 
+            averageRating = 0,
+            totalReviews = 0
+        WHERE pid = @productID;
     END
     ELSE
     BEGIN
-        SET @result = 0; -- Không tìm thấy review để xóa
+        DECLARE @newAverage DECIMAL(10,2);
+        DECLARE @newTotal INT;
+
+        SET @newTotal = @totalReview - 1;
+        SET @newAverage = 
+            CASE 
+                WHEN @newTotal > 0 
+                THEN ROUND(((@averageRating * @totalReview) - @rating) / @newTotal, 2)
+                ELSE 0
+            END;
+
+        UPDATE Product
+        SET
+            averageRating = @newAverage,
+            totalReviews = @newTotal
+        WHERE pid = @productID;
     END
+
+    -- Xóa review
+    DELETE FROM ProductReview
+    WHERE reviewID = @reviewID;
+
+    SET @result = 1;
 END
-go
+GO
 
 CREATE PROCEDURE sp_ResponseVillageReviewByAdmin
     @reviewID INT,
@@ -997,17 +1050,62 @@ CREATE PROCEDURE sp_DeleteVillageReviewByAdmin
     @result INT OUTPUT
 AS
 BEGIN
-    IF EXISTS (SELECT 1 FROM VillageReview WHERE reviewID = @reviewID)
+    SET NOCOUNT ON;
+
+    DECLARE @villageID INT;
+    DECLARE @rating INT;
+    DECLARE @averageRating FLOAT;
+    DECLARE @totalReview INT;
+
+    -- Lấy thông tin review cần xóa
+    SELECT 
+        @villageID = villageID,
+        @rating = rating
+    FROM VillageReview
+    WHERE reviewID = @reviewID;
+    -- Nếu không tìm thấy review
+    IF (@villageID IS NULL)
     BEGIN
-        DELETE FROM VillageReview WHERE reviewID = @reviewID;
-        SET @result = 1; -- Thành công
+        SET @result = 0;
+        RETURN;
+    END
+    -- Lấy thông tin CraftVillage hiện tại
+    SELECT 
+        @averageRating = averageRating,
+        @totalReview = totalReviews
+    FROM CraftVillage
+    WHERE villageID = @villageID;
+    -- Nếu totalReview <= 1, sau khi xóa sẽ còn 0 review
+    IF (@totalReview <= 1)
+    BEGIN
+        -- Reset rating về 0
+        UPDATE CraftVillage
+        SET 
+            averageRating = 0,
+            totalReviews = 0
+        WHERE villageID = @villageID;
     END
     ELSE
     BEGIN
-        SET @result = 0; -- Không tìm thấy review để xóa
+        DECLARE @newAverage FLOAT;
+        DECLARE @newTotal INT;
+        SET @newTotal = @totalReview - 1;
+        SET @newAverage = (@averageRating * @totalReview - @rating) / @newTotal;
+        -- Cập nhật CraftVillage
+        UPDATE CraftVillage
+        SET
+            averageRating = @newAverage,
+            totalReviews = @newTotal
+        WHERE villageID = @villageID;
     END
+    -- Xóa review
+    DELETE FROM VillageReview
+    WHERE reviewID = @reviewID;
+    SET @result = 1;
 END
+GO
 go
+
 CREATE PROCEDURE UpdateVillageFullByAdmin
     @villageID int,
     @villageName nvarchar(255),
@@ -1553,7 +1651,8 @@ CREATE PROCEDURE AddOrderDetail
 	@status int,
 	@villageID int,
 	@paymentMethod nvarchar(50),
-	@paymentStatus int
+	@paymentStatus int,
+	 @newDetailID INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1571,6 +1670,7 @@ BEGIN
 		@paymentStatus,
 		@quantity * @price / 100
     );
+	 SET @newDetailID = SCOPE_IDENTITY();
 END;
 GO
  
@@ -1582,7 +1682,8 @@ CREATE PROCEDURE AddTicketOrderDetail
 	@status int,
 	@villageID int,
 	@paymentMethod nvarchar(50),
-	@paymentStatus int
+	@paymentStatus int,
+	 @TicketOrderDetailID INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1600,6 +1701,7 @@ BEGIN
 		@paymentStatus,
 		@quantity * @price / 100
     );
+	SET @TicketOrderDetailID = SCOPE_IDENTITY();
 END;
 GO
 
@@ -1636,6 +1738,7 @@ BEGIN
 END;
 GO
 
+<<<<<<< HEAD
 /////////////thêm mới khi review////////////////////
 
 CREATE PROCEDURE sp_addProductReview
@@ -1853,3 +1956,25 @@ BEGIN
     END CATCH
 END
 GO
+=======
+--13/7---------
+CREATE PROCEDURE sp_AddNewPayment
+    @sellerID INT,
+    @orderID INT = NULL,
+    @ticketOrderID INT = NULL,
+    @amount DECIMAL(10,2),
+    @paymentMethod NVARCHAR(50),
+    @paymentStatus INT,
+    @newPaymentID INT OUTPUT
+AS
+BEGIN
+    INSERT INTO Payment
+    ( sellerID, orderID,  ticketOrderID, amount, paymentMethod, paymentStatus )
+    VALUES
+    (@sellerID, @orderID,  @ticketOrderID,  @amount, @paymentMethod, @paymentStatus );
+    -- Trả về ID mới được sinh ra
+    SET @newPaymentID = SCOPE_IDENTITY();
+END
+GO
+---------------
+>>>>>>> dat2

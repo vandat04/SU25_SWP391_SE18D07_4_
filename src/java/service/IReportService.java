@@ -4,6 +4,7 @@
  */
 package service;
 
+import entity.Orders.Payment;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -18,4 +19,7 @@ public interface IReportService {
     int getNumberCraftPostByDayMonthYear(int day, int month, int year);
     int getNumberProductPostByDayMonthYear(int day, int month, int year);
     int getNumberTicketPostByDayMonthYear(int day, int month, int year);
+    void addPaymentManagement(Payment payment, int paymentStatus, int status);
+     int getSellerIdByProductId(int pid);
+     int getSellerIdByTicketId(int ticketId);
 }

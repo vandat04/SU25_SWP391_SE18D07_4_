@@ -5,13 +5,12 @@
 package DAO;
 
 import entity.Orders.Order;
-import java.util.logging.Logger;
 import context.DBContext;
-import entity.Account.Account;
-import entity.Account.SellerVerification;
 import entity.CartWishList.CartItem;
+import entity.CraftVillage.CraftVillage;
 import entity.Orders.OrderDetail;
 import entity.Orders.TicketOrderDetail;
+import entity.Product.Product;
 import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,10 +19,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Types;
+import service.ProductService;
+import service.VillageService;
 
 /**
  *
@@ -45,6 +45,53 @@ public class OrderDAO {
                 rs.getInt("paymentStatus"),
                 rs.getTimestamp("createdDate"),
                 rs.getTimestamp("updatedDate")
+        );
+    }
+
+    private OrderDetail mapResultSetToOrderDetail(ResultSet rs) throws SQLException {
+        return new OrderDetail(
+                rs.getInt("id"),
+                rs.getInt("order_id"),
+                rs.getInt("product_id"),
+                "",
+                rs.getDouble("price"),
+                rs.getInt("quantity"),
+                rs.getDouble("subtotal"),
+                rs.getInt("status"),
+                rs.getString("paymentMethod"),
+                rs.getInt("paymentStatus"),
+                rs.getString("cancelReason"),
+                rs.getTimestamp("cancelDate"),
+                rs.getDouble("refundAmount"),
+                rs.getTimestamp("refundDate"),
+                rs.getString("refundReason"),
+                rs.getTimestamp("createdDate"),
+                rs.getTimestamp("updatedDate"),
+                rs.getInt("points")
+        );
+    }
+
+    private TicketOrderDetail mapResultSetToTicketOrderDetail(ResultSet rs) throws SQLException {
+        return new TicketOrderDetail(
+                rs.getInt("detailID"),
+                rs.getInt("orderID"),
+                rs.getInt("ticketID"),
+                "",
+                rs.getInt("quantity"),
+                rs.getBigDecimal("price"),
+                rs.getBigDecimal("subtotal"),
+                rs.getInt("status"),
+                rs.getInt("villageID"),
+                rs.getString("paymentMethod"),
+                rs.getInt("paymentStatus"),
+                rs.getString("cancelReason"),
+                rs.getTimestamp("cancelDate"),
+                rs.getBigDecimal("refundAmount"),
+                rs.getTimestamp("refundDate"),
+                rs.getString("refundReason"),
+                rs.getTimestamp("createdDate"),
+                rs.getTimestamp("updatedDate"),
+                rs.getInt("points")
         );
     }
 
@@ -158,14 +205,19 @@ public class OrderDAO {
         return -1; // trả về -1 nếu không tìm thấy
     }
 
-    public void addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) {
-        String sql = "{CALL AddOrderDetail(?, ?, ?, ?,? ,?,?,?)}";
+    public Integer addOrderDetail(int orderId, int productId, int quantity,
+            double price, int status, int villageID,
+            String paymentMethod, int paymentStatus) {
+
+        String sql = "{CALL AddOrderDetail(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
+        Integer newDetailId = null;
 
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(sql);
+
             cs.setInt(1, orderId);
             cs.setInt(2, productId);
             cs.setInt(3, quantity);
@@ -175,23 +227,34 @@ public class OrderDAO {
             cs.setString(7, paymentMethod);
             cs.setInt(8, paymentStatus);
 
+            // Đăng ký OUT parameter
+            cs.registerOutParameter(9, java.sql.Types.INTEGER);
+
             cs.execute();
-            System.out.println("OrderDetail added successfully for order ID: " + orderId);
+
+            newDetailId = cs.getInt(9);
+
+            System.out.println("OrderDetail added successfully. New Detail ID: " + newDetailId);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeResources(conn, cs, null);
         }
+
+        return newDetailId;
     }
 
-    public void addTicketOrderDetail(int orderId, int ticketID, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) {
-        String sql = "{CALL AddTicketOrderDetail(?, ?, ?, ?, ? ,? ,? ,?)}";
+    public Integer addTicketOrderDetail(int orderId, int ticketID, int quantity, double price,
+            int status, int villageID, String paymentMethod, int paymentStatus) {
+        String sql = "{CALL AddTicketOrderDetail(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
+        Integer newDetailId = null;
 
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(sql);
+
             cs.setInt(1, orderId);
             cs.setInt(2, ticketID);
             cs.setInt(3, quantity);
@@ -201,13 +264,23 @@ public class OrderDAO {
             cs.setString(7, paymentMethod);
             cs.setInt(8, paymentStatus);
 
+            // Đăng ký biến OUT để nhận ID mới
+            cs.registerOutParameter(9, java.sql.Types.INTEGER);
+
             cs.execute();
-            System.out.println("OrderDetail added successfully for order ID: " + orderId);
+
+            newDetailId = cs.getInt(9);
+
+            System.out.println("[INFO] AddTicketOrderDetail executed successfully. New DetailID = " + newDetailId);
+
         } catch (Exception e) {
+            System.err.println("[ERROR] Failed to add TicketOrderDetail. " + e.getMessage());
             e.printStackTrace();
         } finally {
             closeResources(conn, cs, null);
         }
+
+        return newDetailId;
     }
 
     public String checkItemStock(List<CartItem> listItem) {
@@ -301,7 +374,7 @@ public class OrderDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new OrderDAO().getOrderById(78));
+        System.out.println(new OrderDAO().getAllTicketOrderDetailByUserId(1).size());
     }
 
     public double getOrderTotal(int orderID) {
@@ -409,43 +482,161 @@ public class OrderDAO {
     }
 
     public Order getOrderById(int orderId) {
-    String sql = " SELECT * FROM Orders WHERE id = ?";
+        String sql = " SELECT * FROM Orders WHERE id = ?";
 
-    try (Connection conn = DBContext.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        
-        ps.setInt(1, orderId);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                Order order = new Order();
-                order.setOrderID(rs.getInt("id"));
-                order.setUserID(rs.getInt("userID"));
-                order.setTotalAmount(rs.getBigDecimal("total_price"));
-                order.setShippingAddress(rs.getString("shippingAddress"));
-                order.setPhoneNumber(rs.getString("shippingPhone"));
-                order.setShippingName(rs.getString("shippingName"));
-                order.setPaymentMethod(rs.getString("paymentMethod"));
-                order.setPaymentStatus(rs.getInt("paymentStatus"));
-                order.setNote(rs.getString("note"));
-                order.setCreatedDate(rs.getTimestamp("createdDate"));
-                order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-                order.setTrackingNumber(rs.getString("trackingNumber"));
-                order.setEstimatedDeliveryDate(rs.getTimestamp("estimatedDeliveryDate"));
-                order.setActualDeliveryDate(rs.getTimestamp("actualDeliveryDate"));
-                order.setCancelReason(rs.getString("cancelReason"));
-                order.setCancelDate(rs.getTimestamp("cancelDate"));
-                order.setRefundAmount(rs.getBigDecimal("refundAmount"));
-                order.setRefundDate(rs.getTimestamp("refundDate"));
-                order.setRefundReason(rs.getString("refundReason"));
-                order.setEmail(rs.getString("email"));
-                order.setPoints(rs.getInt("points"));
-                return order;
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Order order = new Order();
+                    order.setOrderID(rs.getInt("id"));
+                    order.setUserID(rs.getInt("userID"));
+                    order.setTotalAmount(rs.getBigDecimal("total_price"));
+                    order.setShippingAddress(rs.getString("shippingAddress"));
+                    order.setPhoneNumber(rs.getString("shippingPhone"));
+                    order.setShippingName(rs.getString("shippingName"));
+                    order.setPaymentMethod(rs.getString("paymentMethod"));
+                    order.setPaymentStatus(rs.getInt("paymentStatus"));
+                    order.setNote(rs.getString("note"));
+                    order.setCreatedDate(rs.getTimestamp("createdDate"));
+                    order.setUpdatedDate(rs.getTimestamp("updatedDate"));
+                    order.setTrackingNumber(rs.getString("trackingNumber"));
+                    order.setEstimatedDeliveryDate(rs.getTimestamp("estimatedDeliveryDate"));
+                    order.setActualDeliveryDate(rs.getTimestamp("actualDeliveryDate"));
+                    order.setCancelReason(rs.getString("cancelReason"));
+                    order.setCancelDate(rs.getTimestamp("cancelDate"));
+                    order.setRefundAmount(rs.getBigDecimal("refundAmount"));
+                    order.setRefundDate(rs.getTimestamp("refundDate"));
+                    order.setRefundReason(rs.getString("refundReason"));
+                    order.setEmail(rs.getString("email"));
+                    order.setPoints(rs.getInt("points"));
+                    return order;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Order> getAllOrderByUserID(int userID) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM Orders WHERE userID = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, userID);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToOrder(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return null;
-}
+
+    public List<OrderDetail> getAllOrderDetailByUserId(int userID) {
+        List<OrderDetail> list = new ArrayList<>();
+        List<Order> listOrder = new OrderDAO().getAllOrderByUserID(userID);
+        String sql = "SELECT * FROM OrderDetail WHERE order_id = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        for (Order o : listOrder) {
+            try {
+                conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+                ps = conn.prepareStatement(sql);
+                ps.setInt(1, o.getOrderID());
+                rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    OrderDetail od = mapResultSetToOrderDetail(rs);
+                    Product p = new ProductService().getProductById(od.getProductID());
+                    od.setProductName(p.getName());
+                    list.add(od);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                    if (ps != null) {
+                        ps.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<TicketOrderDetail> getAllTicketOrderDetailByUserId(int userID) {
+        List<TicketOrderDetail> list = new ArrayList<>();
+        List<Order> listOrder = new OrderDAO().getAllOrderByUserID(userID);
+        String sql = "SELECT * FROM TicketOrderDetail WHERE orderID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        for (Order o : listOrder) {
+            try {
+                conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+                ps = conn.prepareStatement(sql);
+                ps.setInt(1, o.getOrderID());
+                rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    TicketOrderDetail od = mapResultSetToTicketOrderDetail(rs);
+                    CraftVillage p = new VillageService().getVillageById(od.getVillageID());
+                    od.setVillageName(p.getVillageName());
+                    list.add(od);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                    if (ps != null) {
+                        ps.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return list;
+    }
 
 }

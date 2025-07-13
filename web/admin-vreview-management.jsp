@@ -55,7 +55,7 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between w-full mb-6 gap-4">
                     <!-- Left side -->
                     <div class="flex items-center gap-4">
-                        <a href="admin-product-management"
+                        <a href="admin-village-management"
                            class="text-gray-500 hover:text-gray-700 underline text-sm">
                             ← Back
                         </a>

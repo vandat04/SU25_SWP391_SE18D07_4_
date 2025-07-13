@@ -49,7 +49,7 @@
             <%
                 Map<Integer, Integer> statusOrder = (Map<Integer, Integer>) request.getAttribute("statusOrder");
                 int processing = statusOrder != null && statusOrder.containsKey(0) ? statusOrder.get(0) : 0;
-                int paid = statusOrder != null && statusOrder.containsKey(1) ? statusOrder.get(1) : 0;
+                int delivery = statusOrder != null && statusOrder.containsKey(1) ? statusOrder.get(1) : 0;
                 int cancelled = statusOrder != null && statusOrder.containsKey(2) ? statusOrder.get(2) : 0;
                 int refunded = statusOrder != null && statusOrder.containsKey(3) ? statusOrder.get(3) : 0;
             %>
@@ -115,7 +115,7 @@
                                 </div>
                                 <div class="flex items-left">
                                     <span class="w-4 h-4 bg-green-500 rounded mr-2"></span>
-                                    Paid: <strong class="ml-1 text-gray-800"><%= paid%></strong>
+                                    On delivery: <strong class="ml-1 text-gray-800"><%= delivery%></strong>
                                 </div>
                                 <div class="flex items-left">
                                     <span class="w-4 h-4 bg-red-500 rounded mr-2"></span>
@@ -204,8 +204,8 @@
             });
 
             // Pie Chart - Order Status
-            const pieLabels = ['Processing', 'Paid', 'Canceled', 'Refund'];
-            const pieData = [<%= processing%>, <%= paid%>, <%= cancelled%>, <%= refunded%>];
+            const pieLabels = ['Processing', 'on delivery', 'Canceled', 'Refund'];
+            const pieData = [<%= processing%>, <%= delivery%>, <%= cancelled%>, <%= refunded%>];
 
             new Chart(document.getElementById('pieChart'), {
                 type: 'pie',

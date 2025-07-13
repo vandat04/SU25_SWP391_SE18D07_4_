@@ -249,8 +249,6 @@ CREATE TABLE [dbo].[ProductReview](
 	CONSTRAINT [FK_ProductReview_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
-
-
 --Table [Wishlist]
 CREATE TABLE [dbo].[Wishlist](
 	[wishlistID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
@@ -317,10 +315,6 @@ CREATE TABLE [dbo].[Orders](
 	points int,
 	CONSTRAINT FK_Orders_Account FOREIGN KEY (userID) REFERENCES [dbo].[Account](userID)
 )
-GO
-alter table TicketOrderDetail
-add [createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[updatedDate] [datetime] NULL,
 
 --Table [OrderDetail]
 CREATE TABLE [dbo].[OrderDetail](
@@ -347,6 +341,7 @@ CREATE TABLE [dbo].[OrderDetail](
 	CONSTRAINT FK_OrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
 )
 GO
+
 
 --Table [TicketOrderDetail]
 CREATE TABLE [dbo].[TicketOrderDetail](
@@ -492,22 +487,23 @@ GO
 
 ----------------------------------------------------Payment-------------
 --Table [Payment]
-Drop table Payment
 CREATE TABLE [dbo].[Payment](
 	[paymentID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[sellerID] int,
 	[orderID] [int] NULL,
-	[tourBookingID] [int] NULL,
+	[ticketOrderID] [int] NULL,
 	[amount] [decimal](10, 2) NOT NULL,
 	[paymentMethod] [nvarchar](50) NOT NULL,
-	[paymentStatus] int default(0) NOT NULL, -- 0: Chưa thanh toán, 1: đã thanh toán
+	[paymentStatus] int default(0) NOT NULL, -- 0: Trả tiền , 1: đã thanh toán
 	[transactionID] [nvarchar](100) NULL,
 	[paymentDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[updatedDate] [datetime] NULL,
 	CONSTRAINT [FK_Payment_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[Orders] ([id]),
-	CONSTRAINT [FK_Payment_TicketOrder] FOREIGN KEY([tourBookingID]) REFERENCES [dbo].[TicketOrder] ([orderID])
+	CONSTRAINT [FK_Payment_TicketOrderDetails] FOREIGN KEY([ticketOrderID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID]),
+	CONSTRAINT [FK_Payment_Account] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
+
 
 ----------------------------------------------------Admin-Seller-------------
 --Table [SalesReport]

@@ -21,6 +21,7 @@ public class TicketOrderDetail {
     private BigDecimal subtotal;
     private int status;
     private Integer villageID;
+    private String villageName;
     private String paymentMethod;
     private Integer paymentStatus;
     private String cancelReason;
@@ -52,7 +53,7 @@ public class TicketOrderDetail {
         this.price = price;
     }
 
-    public TicketOrderDetail(int detailID, int orderID, int ticketID, int quantity,
+    public TicketOrderDetail(int detailID, int orderID, int ticketID, String villageName, int quantity,
             BigDecimal price, BigDecimal subtotal, int status,
             Integer villageID, String paymentMethod, Integer paymentStatus,
             String cancelReason, Timestamp cancelDate,
@@ -62,6 +63,7 @@ public class TicketOrderDetail {
         this.detailID = detailID;
         this.orderID = orderID;
         this.ticketID = ticketID;
+        this.villageName = villageName;
         this.quantity = quantity;
         this.price = price;
         this.subtotal = subtotal;
@@ -78,8 +80,16 @@ public class TicketOrderDetail {
         this.updatedDate = updatedDate;
         this.points = points;
     }
+    
+    public String getVillageName() {
+        return villageName;
+    }
 
     //--------------------------------------------------------------------------
+    public void setVillageName(String villageName) {    
+        this.villageName = villageName;
+    }
+
     public int getDetailID() {
         return detailID;
     }

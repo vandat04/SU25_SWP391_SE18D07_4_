@@ -372,6 +372,13 @@ public class ReviewDAO {
         }
         return false;
     }
+    
+ 
+    // Test thử
+    public static void main(String[] args) {
+        ReviewDAO dao = new ReviewDAO();
+        System.out.println(dao.getAllVillageReviewByAdmin(6));
+    }
 
     /**
      * Get all products from an order that user can review
@@ -791,11 +798,6 @@ public class ReviewDAO {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        ReviewDAO dao = new ReviewDAO();
-        System.out.println(new ReviewDAO().getVillageIdByOrderId(79));
     }
 
     public Integer getVillageIdByOrderId(int orderID) {

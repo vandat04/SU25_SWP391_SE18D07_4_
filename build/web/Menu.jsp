@@ -64,6 +64,25 @@
                                 <c:when test="${not empty sessionScope.acc}">
                                     <!-- Đã đăng nhập -->
                                     <li class="menu-item">
+                                        <a href="order?userID=${sessionScope.acc.userID}&cas=1" class="menu-name" data-title="Order">
+                                            Orders
+                                        </a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- Chưa đăng nhập -->
+                                    <li class="menu-item">
+                                        <a href="Login.jsp" class="menu-name" data-title="Order">
+                                            Orders
+                                        </a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                            
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.acc}">
+                                    <!-- Đã đăng nhập -->
+                                    <li class="menu-item">
                                         <a href="contact?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">
                                             Contact
                                         </a>

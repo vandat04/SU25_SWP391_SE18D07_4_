@@ -38,11 +38,15 @@ public class ReportDAO {
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         return new Payment(
                 rs.getInt("paymentID"),
+                rs.getInt("sellerID"),
                 rs.getInt("orderID"),
-                rs.getInt("tourBookingID"),
+                rs.getInt("ticketOrderID"),
                 rs.getBigDecimal("amount"),
                 rs.getString("paymentMethod"),
-                rs.getTimestamp("paymentDate")
+                rs.getInt("paymentStatus"),
+                rs.getString("transactionID"),
+                rs.getTimestamp("paymentDate"),
+                rs.getTimestamp("updatedDate")
         );
     }
 
@@ -416,12 +420,13 @@ public class ReportDAO {
     }
 
     public Map<Integer, Integer> getOrderStatusSummaryByMonthYear(int month, int year) {
-        String query = "SELECT status, COUNT(*) AS total "
+        String query
+                = "SELECT status, COUNT(*) AS total "
                 + "FROM ( "
-                + "   SELECT status FROM Orders "
+                + "   SELECT status FROM OrderDetail "
                 + "   WHERE MONTH(createdDate) = ? AND YEAR(createdDate) = ? "
                 + "   UNION ALL "
-                + "   SELECT status FROM TicketOrder "
+                + "   SELECT status FROM TicketOrderDetail "
                 + "   WHERE MONTH(createdDate) = ? AND YEAR(createdDate) = ? "
                 + ") AS Combined "
                 + "GROUP BY status "
@@ -435,13 +440,15 @@ public class ReportDAO {
         try {
             conn = DBContext.getConnection();
             ps = conn.prepareStatement(query);
-            // Gán giá trị tham số
+
+            // Bind tham số
             ps.setInt(1, month);
             ps.setInt(2, year);
             ps.setInt(3, month);
             ps.setInt(4, year);
 
             rs = ps.executeQuery();
+
             while (rs.next()) {
                 int status = rs.getInt("status");
                 int total = rs.getInt("total");
@@ -454,13 +461,12 @@ public class ReportDAO {
         }
 
         return statusMap;
-
     }
 
 //---- Product/Ticket Report
     public int getNumberProductPostByDayMonthYear(int day, int month, int year) {
         String query = "SELECT COUNT(*) AS total "
-                + "FROM Product "
+                + "FROM OrderDetail "
                 + "WHERE status = 1 "
                 + "AND DAY(createdDate) = ? "
                 + "AND MONTH(createdDate) = ? "
@@ -492,8 +498,8 @@ public class ReportDAO {
 
     public int getNumberTicketPostByDayMonthYear(int day, int month, int year) {
         String query = "SELECT COUNT(*) AS total "
-                + "FROM VillageTicket "
-                + "WHERE status = 1 "
+                + "FROM TicketOrderDetail "
+                + "WHERE status = 0 "
                 + "AND DAY(createdDate) = ? "
                 + "AND MONTH(createdDate) = ? "
                 + "AND YEAR(createdDate) = ?";
@@ -555,10 +561,101 @@ public class ReportDAO {
         return totalPosts;
     }
 
+   public boolean addPaymentManagement(Payment payment, int paymentStatus, int status) {
+    String paymentMethod = payment.getPaymentMethod();
+    boolean shouldAddPayment = false;
 
+    if (paymentMethod != null &&
+        (paymentMethod.equalsIgnoreCase("bankTransfer") || paymentMethod.equalsIgnoreCase("points"))) {
+        shouldAddPayment = true;
+    } else {
+        if (paymentStatus == 1 && status == 2) {
+            shouldAddPayment = true;
+        }
+    }
+
+    if (shouldAddPayment) {
+        String sql = "INSERT INTO Payment "
+                   + "(sellerID, orderID, ticketOrderID, amount, paymentMethod, paymentStatus) "
+                   + "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, payment.getSellerID());
+            
+            if (payment.getOrderID() != null) {
+                ps.setInt(2, payment.getOrderID());
+            } else {
+                ps.setNull(2, java.sql.Types.INTEGER);
+            }
+            
+            if (payment.getTicketOrderID() != null) {
+                ps.setInt(3, payment.getTicketOrderID());
+            } else {
+                ps.setNull(3, java.sql.Types.INTEGER);
+            }
+            
+            ps.setBigDecimal(4, payment.getAmount());
+            ps.setString(5, payment.getPaymentMethod());
+            ps.setInt(6, payment.getPaymentStatus());
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    return false;
+}
+
+    public int getSellerIdByProductId(int pid) {
+        String sql = "SELECT cv.sellerId "
+                + "FROM Product p "
+                + "JOIN CraftVillage cv ON p.villageID = cv.villageID "
+                + "WHERE p.pid = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, pid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("sellerId");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getSellerIdByTicketId(int ticketId) {
+        String sql = "SELECT cv.sellerId "
+                + "FROM VillageTicket p "
+                + "JOIN CraftVillage cv ON p.villageID = cv.villageID "
+                + "WHERE p.ticketID = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ticketId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("sellerId");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
 //----Main test    
+
     public static void main(String[] args) {
         //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
-        System.out.println(new ReportDAO().getSearchAccount(1, 11, ""));
+        new ReportDAO().addPaymentManagement(new Payment(2, 92, null, BigDecimal.valueOf(500000), "bankTranfer", 1),0,0);
     }
+
+    
 }
