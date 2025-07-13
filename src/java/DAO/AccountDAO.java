@@ -746,4 +746,33 @@ public class AccountDAO {
             closeResources(conn, ps, null);
         }
     }
+
+    public Account getAccountByID(int userID) {
+        String query = "SELECT userID, userName, password, email, address, phoneNumber, roleID, status, createdDate, updatedDate, fullName FROM Account WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Account account = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, userID);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                // Sử dụng mapResultSetToAccount để ánh xạ kết quả
+                account = mapResultSetToAccount(rs);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "SQL Error while getting account by ID: " + userID, e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "General Error while getting account by ID: " + userID, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return account;
+    }
+
+    
 }

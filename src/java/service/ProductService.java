@@ -30,13 +30,9 @@ public class ProductService implements IProductService {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    @Override
+   @Override 
     public Product getProductById(int productId) {
-        return pDAO.getProductByID(String.valueOf(productId));
-    }
-
-    public Product getProductByID(String id) {
-        return pDAO.getProductByID(id);
+        return pDAO.getProductByID(productId);
     }
 
     @Override
@@ -245,6 +241,7 @@ public class ProductService implements IProductService {
             return searchByName(name);
         }
     }
+    
 
     /**
      * Filter products by price range
@@ -313,5 +310,9 @@ public class ProductService implements IProductService {
     @Override
     public int getVillageIDByProductID(int productID) {
         return pDAO.getVillageIDByProductID(productID);
+    }
+
+    public Product getProductByID(String productId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

@@ -8,6 +8,7 @@ import context.DBContext;
 import entity.Account.Account;
 
 import entity.Orders.Payment;
+import entity.SalesReport.SalesReport;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Types;
+import java.time.LocalDate;
 
 
 /**
@@ -555,10 +557,132 @@ public class ReportDAO {
         return totalPosts;
     }
 
+    private SalesReport mapResultSetToSalesReport(ResultSet rs) throws SQLException {
+    return new SalesReport(
+            rs.getInt("reportID"),
+            rs.getInt("sellerID"),
+            rs.getInt("reportMonth"),
+            rs.getInt("reportYear"),
+            rs.getInt("totalOrders"),
+            rs.getBigDecimal("totalRevenue"),
+            rs.getInt("totalProducts"),
+            rs.getBigDecimal("commission"),
+            rs.getBigDecimal("netRevenue"),
+            rs.getTimestamp("generatedDate")
+    );
+}
+
+// Example: Get seller-specific order counts by status
+public Map<Integer, Integer> getSellerOrderCountsByStatus(int sellerId) {
+    String query = "SELECT status, COUNT(*) AS total "
+                 + "FROM ( "
+                 + "    SELECT o.status FROM Orders o JOIN Product p ON o.productID = p.productID WHERE p.sellerID = ? "
+                 + "    UNION ALL "
+                 + "    SELECT to.status FROM TicketOrder to JOIN VillageTicket vt ON to.ticketID = vt.ticketID WHERE vt.sellerID = ? "
+                 + ") AS CombinedSellerOrders "
+                 + "GROUP BY status ORDER BY status";
+
+    Map<Integer, Integer> statusMap = new LinkedHashMap<>();
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DBContext.getConnection();
+        ps = conn.prepareStatement(query);
+        ps.setInt(1, sellerId);
+        ps.setInt(2, sellerId);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            int status = rs.getInt("status");
+            int total = rs.getInt("total");
+            statusMap.put(status, total);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        closeResources(conn, ps, rs);
+    }
+    return statusMap;
+}
+
+// Example: Get seller's daily revenue
+public BigDecimal getSellerDailyRevenue(int sellerId, LocalDate date) {
+    String query = "SELECT SUM(p.amount) AS totalRevenue "
+                 + "FROM Payment p "
+                 + "JOIN Orders o ON p.orderID = o.orderID "
+                 + "JOIN Product prod ON o.productID = prod.productID "
+                 + "WHERE p.paymentStatus = 1 AND prod.sellerID = ? "
+                 + "AND DAY(p.paymentDate) = ? AND MONTH(p.paymentDate) = ? AND YEAR(p.paymentDate) = ? "
+                 + "UNION ALL "
+                 + "SELECT SUM(p.amount) AS totalRevenue "
+                 + "FROM Payment p "
+                 + "JOIN TicketOrder to ON p.tourBookingID = to.tourBookingID " // Assuming tourBookingID in Payment links to TicketOrder
+                 + "JOIN VillageTicket vt ON to.ticketID = vt.ticketID "
+                 + "WHERE p.paymentStatus = 1 AND vt.sellerID = ? "
+                 + "AND DAY(p.paymentDate) = ? AND MONTH(p.paymentDate) = ? AND YEAR(p.paymentDate) = ?";
+
+    BigDecimal totalRevenue = BigDecimal.ZERO;
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DBContext.getConnection();
+        ps = conn.prepareStatement(query);
+        ps.setInt(1, sellerId);
+        ps.setInt(2, date.getDayOfMonth());
+        ps.setInt(3, date.getMonthValue());
+        ps.setInt(4, date.getYear());
+        ps.setInt(5, sellerId);
+        ps.setInt(6, date.getDayOfMonth());
+        ps.setInt(7, date.getMonthValue());
+        ps.setInt(8, date.getYear());
+
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            BigDecimal currentRevenue = rs.getBigDecimal("totalRevenue");
+            if (currentRevenue != null) {
+                totalRevenue = totalRevenue.add(currentRevenue);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        closeResources(conn, ps, rs);
+    }
+    return totalRevenue;
+}
+        public List<SalesReport> getMonthlySalesReportsBySeller(int sellerId) {
+            String query = "SELECT reportID, sellerID, reportMonth, reportYear, totalOrders, totalRevenue, totalProducts, commission, netRevenue, generatedDate "
+                         + "FROM SalesReport WHERE sellerID = ? ORDER BY reportYear DESC, reportMonth DESC";
+
+            List<SalesReport> reports = new ArrayList<>();
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+
+            try {
+                conn = DBContext.getConnection();
+                ps = conn.prepareStatement(query);
+                ps.setInt(1, sellerId);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    reports.add(mapResultSetToSalesReport(rs));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                closeResources(conn, ps, rs);
+            }
+            return reports;
+        }
 
 //----Main test    
     public static void main(String[] args) {
         //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
         System.out.println(new ReportDAO().getSearchAccount(1, 11, ""));
     }
+
+    
 }

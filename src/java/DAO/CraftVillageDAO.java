@@ -524,6 +524,26 @@ public class CraftVillageDAO {
         }
         return list;
     }
+    public CraftVillage getCraftVillageBySellerID(int sellerId) {
+            String sql = "SELECT villageID, villageName, sellerId FROM CraftVillage WHERE sellerId = ?";
+            try (Connection conn = new DBContext().getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, sellerId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        CraftVillage cv = new CraftVillage();
+                        cv.setVillageID(rs.getInt("villageID"));
+                        cv.setVillageName(rs.getString("villageName"));
+                        cv.setSellerId(rs.getInt("sellerId"));
+                        return cv;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
 
     public List<CraftVillage> getTopRatedByAdmin() {
         List<CraftVillage> list = new ArrayList<>();
@@ -628,7 +648,17 @@ public class CraftVillageDAO {
         
         return false;
     }
-
+    
+    public void deleteVillage(int villageId) {
+        String sql = "UPDATE CraftVillage SET status = 0 WHERE villageID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, villageId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
         System.out.println(new CraftVillageDAO().getVillageById(1));

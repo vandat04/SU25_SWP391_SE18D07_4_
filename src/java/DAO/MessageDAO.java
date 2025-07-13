@@ -216,6 +216,26 @@ public class MessageDAO {
         return 0;
     }
 
+    
+    public List<MessageThread> getMessageThreadsBySellerID(int sellerID) {
+        String query = "SELECT * FROM MessageThread WHERE sellerID = ?";
+        List<MessageThread> list = new ArrayList<>();
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, sellerID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToMessageThread(rs)); // Chỉ thêm đối tượng MessageThread cơ bản
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting message threads for sellerID=" + sellerID, e);
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         System.out.println(new MessageDAO().getThreadID(6, 2));
     }
