@@ -1738,7 +1738,6 @@ BEGIN
 END;
 GO
 
-<<<<<<< HEAD
 /////////////thêm mới khi review////////////////////
 
 CREATE PROCEDURE sp_addProductReview
@@ -1956,7 +1955,7 @@ BEGIN
     END CATCH
 END
 GO
-=======
+
 --13/7---------
 CREATE PROCEDURE sp_AddNewPayment
     @sellerID INT,
@@ -1977,4 +1976,4 @@ BEGIN
 END
 GO
 ---------------
->>>>>>> dat2
+
