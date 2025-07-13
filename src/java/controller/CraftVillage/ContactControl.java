@@ -18,7 +18,7 @@ import service.MessageService;
  *
  * @author ACER
  */
-@WebServlet(name = "ContactControl", urlPatterns = {"/contact"})
+@WebServlet(name = "ContactControl", urlPatterns = {"/contacts"})
 public class ContactControl extends HttpServlet {
 
     MessageService mService = new MessageService();

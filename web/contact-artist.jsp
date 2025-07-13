@@ -193,7 +193,7 @@
                         <nav class="biolife-nav">
                             <ul>
                                 <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                                <li class="nav-item"><a href="contact?userID=${sessionScope.acc.userID}" class="permal-link">Contact</a></li>
+                                <li class="nav-item"><a href="contacts?userID=${sessionScope.acc.userID}" class="permal-link">Contact</a></li>
                                 <li class="nav-item"><span class="#">${messageThread.messageName}</span></li>
                         </ul>
                     </nav>

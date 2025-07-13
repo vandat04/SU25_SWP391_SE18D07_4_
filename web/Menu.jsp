@@ -83,7 +83,7 @@
                                 <c:when test="${not empty sessionScope.acc}">
                                     <!-- Đã đăng nhập -->
                                     <li class="menu-item">
-                                        <a href="contact?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">
+                                        <a href="contacts?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">
                                             Contact
                                         </a>
                                     </li>
