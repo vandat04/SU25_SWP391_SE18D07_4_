@@ -129,7 +129,7 @@
                         <nav class="biolife-nav">
                             <ul>
                                 <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                                <li class="nav-item"><span class="contact?userID=${sessionScope.acc.userID}"><strong>Contact</strong></span></li>
+                                <li class="nav-item"><span class="contacts?userID=${sessionScope.acc.userID}"><strong>Contact</strong></span></li>
                         </ul>
                     </nav>
                 </div>
