@@ -3,9 +3,18 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/service/ReviewService.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/controller/CraftVillage/VillageReviewController.java</file>
-            <file>file:/D:/CODE/SWP/SU25_SWP391_SE18D07_4_/src/java/context/DBContext.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/CheckoutBefor.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/CraftVillage/ContactArtist.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/contact-artist.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Admin/AdminControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/PaymentService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/CraftVillage/ContactControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/ControlOrderFilter.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Payment/AddOrderByTranfer.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/CraftVillage/CraftVillageDetails.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ReportService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ReportDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Menu.jsp</file>
         </group>
     </open-files>
 </project-private>
