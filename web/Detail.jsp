@@ -94,6 +94,251 @@
                 width: 20%;
                 float: left;
             }
+
+            /* Enhanced Product Details Styles */
+            .product-details-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+
+            .detail-section {
+                background: #f9f9f9;
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+            }
+
+            .detail-section h4 {
+                color: #4CAF50;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #4CAF50;
+                padding-bottom: 5px;
+            }
+
+            .detail-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .detail-table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #e0e0e0;
+                vertical-align: top;
+            }
+
+            .detail-table td:first-child {
+                font-weight: 600;
+                color: #333;
+                width: 40%;
+            }
+
+            .detail-table td:last-child {
+                color: #666;
+            }
+
+            /* Status indicators */
+            .status-active {
+                color: #4CAF50;
+                font-weight: bold;
+            }
+
+            .status-hidden {
+                color: #f44336;
+                font-weight: bold;
+            }
+
+            .status-pending {
+                color: #ff9800;
+                font-weight: bold;
+            }
+
+            .status-unknown {
+                color: #9e9e9e;
+                font-weight: bold;
+            }
+
+            .featured-yes {
+                color: #4CAF50;
+                font-weight: bold;
+            }
+
+            .featured-no {
+                color: #9e9e9e;
+            }
+
+            /* Seller Information Styles */
+            .seller-info-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-top: 20px;
+            }
+
+            .seller-profile {
+                background: #f9f9f9;
+                padding: 25px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .seller-avatar {
+                flex-shrink: 0;
+            }
+
+            .seller-details h4 {
+                color: #4CAF50;
+                margin-bottom: 15px;
+                font-size: 20px;
+            }
+
+            .seller-details p {
+                margin: 8px 0;
+                color: #666;
+            }
+
+            .seller-details strong {
+                color: #333;
+            }
+
+            .seller-contact {
+                background: #f9f9f9;
+                padding: 25px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+            }
+
+            .seller-contact h4 {
+                color: #4CAF50;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .contact-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .contact-buttons .btn {
+                padding: 12px 20px;
+                border-radius: 6px;
+                text-decoration: none;
+                text-align: center;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+            }
+
+            .contact-buttons .btn-primary {
+                background: #007bff;
+                color: white;
+            }
+
+            .contact-buttons .btn-primary:hover {
+                background: #0056b3;
+            }
+
+            .contact-buttons .btn-success {
+                background: #28a745;
+                color: white;
+            }
+
+            .contact-buttons .btn-success:hover {
+                background: #1e7e34;
+            }
+
+            .contact-buttons .btn-info {
+                background: #17a2b8;
+                color: white;
+            }
+
+            .contact-buttons .btn-info:hover {
+                background: #117a8b;
+            }
+
+            /* Enhanced Review Styles */
+            .review-response {
+                margin-top: 15px;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+            }
+
+            .review-response:hover {
+                transform: translateX(5px);
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .product-details-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .seller-info-container {
+                    grid-template-columns: 1fr;
+                }
+
+                .seller-profile {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .contact-buttons {
+                    flex-direction: column;
+                }
+            }
+
+            /* Tab Styles Enhancement */
+            .tab-head .tabs {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .tab-head .tab-element {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .tab-head .tab-link {
+                padding: 12px 20px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            /* Review Warning Enhancement */
+            .review-warning {
+                background: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 6px;
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .review-warning ul {
+                margin: 10px 0;
+                padding-left: 20px;
+            }
+
+            .review-warning li {
+                color: #856404;
+                margin: 5px 0;
+            }
+
+            .review-warning a {
+                color: #4CAF50;
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+            .review-warning a:hover {
+                text-decoration: underline;
+            }
         </style>
         <script>
             function addToCart(productId, quantity) {
@@ -318,16 +563,217 @@
                         <div class="tab-head">
                             <ul class="tabs">
                                 <li class="tab-element active"><a href="#tab_1st" class="tab-link">Products Descriptions</a></li>
-                                <li class="tab-element"><a href="#tab_4th" class="tab-link">Customer Reviews <sup>(3)</sup></a></li>
+                                <li class="tab-element"><a href="#tab_2nd" class="tab-link">Product Details</a></li>
+                                <li class="tab-element"><a href="#tab_3rd" class="tab-link">Seller Information</a></li>
+                                <li class="tab-element"><a href="#tab_4th" class="tab-link">Customer Reviews <sup>(${reviewCount})</sup></a></li>
                             </ul>
                         </div>
                         <div class="tab-content">
                             <div id="tab_1st" class="tab-contain desc-tab active">
+                                <h3>Product Description</h3>
                                 <p class="desc">${description}</p>
                                 <div class="desc-expand">
                                     <!-- Additional product information can go here -->
                                 </div>
                             </div>
+                            
+                            <div id="tab_2nd" class="tab-contain product-details-tab">
+                                <h3>Complete Product Information</h3>
+                                <div class="product-details-grid">
+                                    <div class="detail-section">
+                                        <h4>Basic Information</h4>
+                                        <table class="detail-table">
+                                            <tr>
+                                                <td><strong>Product ID:</strong></td>
+                                                <td>${completeProductInfo.pid}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Name:</strong></td>
+                                                <td>${completeProductInfo.name}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Category:</strong></td>
+                                                <td>${completeProductInfo.categoryName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Craft Type:</strong></td>
+                                                <td>${completeProductInfo.craftTypeName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>SKU:</strong></td>
+                                                <td>${completeProductInfo.sku}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Status:</strong></td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${completeProductInfo.status == 1}">
+                                                            <span class="status-active">Active</span>
+                                                        </c:when>
+                                                        <c:when test="${completeProductInfo.status == 2}">
+                                                            <span class="status-hidden">Hidden</span>
+                                                        </c:when>
+                                                        <c:when test="${completeProductInfo.status == 3}">
+                                                            <span class="status-pending">Pending Approval</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="status-unknown">Unknown</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="detail-section">
+                                        <h4>Pricing & Inventory</h4>
+                                        <table class="detail-table">
+                                            <tr>
+                                                <td><strong>Price:</strong></td>
+                                                <td><fmt:formatNumber value="${completeProductInfo.price}" type="currency"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Stock:</strong></td>
+                                                <td>${completeProductInfo.stock} units</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Weight:</strong></td>
+                                                <td>${completeProductInfo.weight} kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Dimensions:</strong></td>
+                                                <td>${completeProductInfo.dimensions}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Featured:</strong></td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${completeProductInfo.isFeatured}">
+                                                            <span class="featured-yes">Yes</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="featured-no">No</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="detail-section">
+                                        <h4>Materials & Care</h4>
+                                        <table class="detail-table">
+                                            <tr>
+                                                <td><strong>Materials:</strong></td>
+                                                <td>${completeProductInfo.materials}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Care Instructions:</strong></td>
+                                                <td>${completeProductInfo.careInstructions}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Warranty:</strong></td>
+                                                <td>${completeProductInfo.warranty}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="detail-section">
+                                        <h4>Village Information</h4>
+                                        <table class="detail-table">
+                                            <tr>
+                                                <td><strong>Village Name:</strong></td>
+                                                <td>${completeProductInfo.villageName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Village Address:</strong></td>
+                                                <td>${completeProductInfo.villageAddress}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Village Phone:</strong></td>
+                                                <td>${completeProductInfo.villagePhone}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Village Email:</strong></td>
+                                                <td>${completeProductInfo.villageEmail}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="detail-section">
+                                        <h4>Product Statistics</h4>
+                                        <table class="detail-table">
+                                            <tr>
+                                                <td><strong>Average Rating:</strong></td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${completeProductInfo.averageRating != null and completeProductInfo.averageRating > 0}">
+                                                            <fmt:formatNumber value="${completeProductInfo.averageRating}" pattern="0.0"/> / 5.0
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            No ratings yet
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Total Reviews:</strong></td>
+                                                <td>${completeProductInfo.totalReviews}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Created Date:</strong></td>
+                                                <td><fmt:formatDate pattern="dd/MM/yyyy HH:mm" value="${completeProductInfo.createdDate}" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Last Updated:</strong></td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${completeProductInfo.updatedDate != null}">
+                                                            <fmt:formatDate pattern="dd/MM/yyyy HH:mm" value="${completeProductInfo.updatedDate}" />
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            Never updated
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="tab_3rd" class="tab-contain seller-info-tab">
+                                <h3>Seller Information</h3>
+                                <div class="seller-info-container">
+                                    <div class="seller-profile">
+                                        <div class="seller-avatar">
+                                            <i class="fa fa-user-circle" style="font-size: 80px; color: #4CAF50;"></i>
+                                        </div>
+                                        <div class="seller-details">
+                                            <h4>${completeProductInfo.sellerName}</h4>
+                                            <p><strong>Email:</strong> ${completeProductInfo.sellerEmail}</p>
+                                            <p><strong>Phone:</strong> ${completeProductInfo.sellerPhone}</p>
+                                            <p><strong>Village:</strong> ${completeProductInfo.villageName}</p>
+                                            <p><strong>Address:</strong> ${completeProductInfo.villageAddress}</p>
+                                        </div>
+                                    </div>
+                                    <div class="seller-contact">
+                                        <h4>Contact Seller</h4>
+                                        <div class="contact-buttons">
+                                            <a href="mailto:${completeProductInfo.sellerEmail}" class="btn btn-primary">
+                                                <i class="fa fa-envelope"></i> Send Email
+                                            </a>
+                                            <a href="tel:${completeProductInfo.sellerPhone}" class="btn btn-success">
+                                                <i class="fa fa-phone"></i> Call Seller
+                                            </a>
+                                            <a href="village-details?villageID=${completeProductInfo.villageID}" class="btn btn-info">
+                                                <i class="fa fa-map-marker"></i> Visit Village
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div id="tab_4th" class="tab-contain review-tab">
                                 <div class="container">
                                     <div class="row">
@@ -417,7 +863,7 @@
                                                                     <span>${reviewMessageProduct}</span>
                                                                     <ul>
                                                                         <li>✓ Đã mua sản phẩm này</li>
-                                                                        <li>✓ Đơn hàng đã giao và thanh toán thành công</li>
+                                                                        <li>✓ Đơn hàng đã giao (status=2) và thanh toán thành công (paymentStatus=1)</li>
                                                                     </ul>
                                                                     <a href="order-history">Kiểm tra đơn hàng của bạn</a>
                                                                 </div>
@@ -426,7 +872,7 @@
                                                     </c:when>
                                                     <c:otherwise>
                                                         <div class="review-warning">
-                                                            Vui lòng <a href="login.jsp">đăng nhập</a> để viết đánh giá.
+                                                            Vui lòng <a href="Login.jsp">đăng nhập</a> để viết đánh giá.
                                                         </div>
                                                     </c:otherwise>
                                                 </c:choose>
@@ -458,6 +904,25 @@
                                                                     </p>
                                                                 </div>
                                                                 <p class="author">by: <b>${review.userName}</b></p>
+                                                                
+                                                                <!-- Admin Response Section -->
+                                                                <c:choose>
+                                                                    <c:when test="${not empty review.response}">
+                                                                        <div class="review-response" style="background: #f7f7f7; padding: 10px; margin-top: 10px; border-left: 3px solid #4CAF50;">
+                                                                            <strong>Admin Response:</strong>
+                                                                            <p style="margin:0;">${review.response}</p>
+                                                                            <small style="color: #666;">
+                                                                                <fmt:formatDate pattern="dd/MM/yyyy HH:mm" value="${review.responseDate}" />
+                                                                            </small>
+                                                                        </div>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <div class="review-response" style="background: #f9f9f9; padding: 10px; margin-top: 10px; border-left: 3px solid #ccc; color: #666;">
+                                                                            <strong>Admin Response:</strong>
+                                                                            <p style="margin:0; font-style: italic;">No response from admin yet.</p>
+                                                                        </div>
+                                                                    </c:otherwise>
+                                                                </c:choose>
                                                             </div>
                                                             <div class="comment-review-form col-lg-3 col-lg-offset-1 col-md-3 col-sm-4 col-xs-12">
                                                                 <span class="title">Was this review helpful?</span>
