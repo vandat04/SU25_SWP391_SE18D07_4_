@@ -4,21 +4,24 @@
  */
 package controller.Payment;
 
+import com.oracle.wls.shaded.org.apache.bcel.generic.AALOAD;
 import entity.CartWishList.Cart;
 import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Orders.Order;
+import entity.Orders.Payment;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.List;
 import service.OrderService;
 import service.ProductService;
+import service.ReportService;
 import service.TicketService;
 
 /**
@@ -45,6 +48,7 @@ public class AddOrderByTranfer extends HttpServlet {
         OrderService oService = new OrderService();
         ProductService pService = new ProductService();
         TicketService tService = new TicketService();
+        ReportService rService = new ReportService();
 
         String codeID = request.getParameter("vnp_TxnRef");
         int orderID = Integer.parseInt(codeID);
@@ -65,19 +69,21 @@ public class AddOrderByTranfer extends HttpServlet {
             }
 
             oService.updatePaymentStatus(orderID, 1);
-            oService.addPoints(userID, order.getPoints());
 
             List<CartItem> listItem = cart.getItems();
             List<CartTicket> listTicket = cart.getTickets();
 
             for (CartItem p : listItem) {
-                oService.addOrderDetail(orderID, p.getProductID(), p.getQuantity(), p.getPrice(),
-                        0, pService.getVillageIDByProductID(p.getProductID()), "bankTranfer", 1);
+                int newOrderID = oService.addOrderDetail(orderID, p.getProductID(), p.getQuantity(), p.getPrice(),
+                        0, pService.getVillageIDByProductID(p.getProductID()), "bankTransfer", 1);
+                rService.addPaymentManagement(new Payment(rService.getSellerIdByProductId(p.getProductID()), newOrderID, null, BigDecimal.valueOf(p.getQuantity() * p.getPrice()), "bankTransfer", 1), 0, 0);
             }
 
             for (CartTicket t : listTicket) {
-                oService.addTicketOrderDetail(orderID, t.getTicketId(), t.getQuantity(), t.getPrice(),
-                        0, tService.getVillageIDByTicketID(t.getTicketId()), "bankTranfer", 1);
+                int newTicketOrderID = oService.addTicketOrderDetail(orderID, t.getTicketId(), t.getQuantity(), t.getPrice(),
+                        0, tService.getVillageIDByTicketID(t.getTicketId()), "bankTransfer", 1);
+                rService.addPaymentManagement(new Payment(rService.getSellerIdByTicketId(t.getTicketId()), null, newTicketOrderID, BigDecimal.valueOf(t.getQuantity() * t.getPrice()), "bankTransfer", 1), 0, 0);
+
             }
 
             int cartID = oService.getCartIDByUserID(userID);

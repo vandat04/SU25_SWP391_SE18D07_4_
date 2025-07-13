@@ -67,7 +67,7 @@ public class AdminVReviewManagement extends HttpServlet {
         String villageName = request.getParameter("villageName");
         
         listVReview = rService.getAllVillageReviewByAdmin(Integer.parseInt(villageID));
-        request.setAttribute("listPReview", listVReview);
+        request.setAttribute("listVReview", listVReview);
         
         request.setAttribute("listReviewToday", rService.searchVillageReviewToday(Integer.parseInt(villageID)));
         

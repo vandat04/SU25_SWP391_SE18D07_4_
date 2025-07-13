@@ -1,47 +1,62 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package entity.Orders;
+package entity.Orders; 
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-/**
- *
- * @author ACER
- */
 public class Payment {
+
     private int paymentID;
+    private Integer sellerID;
     private Integer orderID;
-    private Integer tourBookingID;
+    private Integer ticketOrderID;
     private BigDecimal amount;
     private String paymentMethod;
-    private String paymentStatus;
+    private int paymentStatus;
     private String transactionID;
     private Timestamp paymentDate;
-    private Timestamp createdDate;
     private Timestamp updatedDate;
 
-    // Constructors-------------------------------------------------------------
-    public Payment() {}
+    public Payment() {
+    }
 
-    public Payment(int paymentID, Integer orderID, Integer tourBookingID, BigDecimal amount, String paymentMethod, Timestamp paymentDate) {
+    public Payment(int paymentID, Integer sellerID, Integer orderID, Integer ticketOrderID,
+                   BigDecimal amount, String paymentMethod, int paymentStatus,
+                   String transactionID, Timestamp paymentDate, Timestamp updatedDate) {
         this.paymentID = paymentID;
+        this.sellerID = sellerID;
         this.orderID = orderID;
-        this.tourBookingID = tourBookingID;
+        this.ticketOrderID = ticketOrderID;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.transactionID = transactionID;
         this.paymentDate = paymentDate;
+        this.updatedDate = updatedDate;
     }
-    
-    //--------------------------------------------------------------------------
+
+    public Payment(Integer sellerID, Integer orderID, Integer ticketOrderID, BigDecimal amount, String paymentMethod, int paymentStatus) {
+        this.sellerID = sellerID;
+        this.orderID = orderID;
+        this.ticketOrderID = ticketOrderID;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+    }
+
     public int getPaymentID() {
         return paymentID;
     }
 
     public void setPaymentID(int paymentID) {
         this.paymentID = paymentID;
+    }
+
+    public Integer getSellerID() {
+        return sellerID;
+    }
+
+    public void setSellerID(Integer sellerID) {
+        this.sellerID = sellerID;
     }
 
     public Integer getOrderID() {
@@ -52,15 +67,13 @@ public class Payment {
         this.orderID = orderID;
     }
 
-    public Integer getTourBookingID() {
-        return tourBookingID;
+    public Integer getTicketOrderID() {
+        return ticketOrderID;
     }
 
-    public void getTourBookingID(Integer tourBookingID) {
-        this.tourBookingID = tourBookingID;
+    public void setTicketOrderID(Integer ticketOrderID) {
+        this.ticketOrderID = ticketOrderID;
     }
-
-   
 
     public BigDecimal getAmount() {
         return amount;
@@ -78,11 +91,11 @@ public class Payment {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getPaymentStatus() {
+    public int getPaymentStatus() {
         return paymentStatus;
     }
 
-    public void setPaymentStatus(String paymentStatus) {
+    public void setPaymentStatus(int paymentStatus) {
         this.paymentStatus = paymentStatus;
     }
 
@@ -102,14 +115,6 @@ public class Payment {
         this.paymentDate = paymentDate;
     }
 
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public Timestamp getUpdatedDate() {
         return updatedDate;
     }
@@ -120,7 +125,6 @@ public class Payment {
 
     @Override
     public String toString() {
-        return "Payment{" + "paymentID=" + paymentID + ", orderID=" + orderID + ", tourBookingID=" + tourBookingID + ", amount=" + amount + ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", transactionID=" + transactionID + ", paymentDate=" + paymentDate + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + '}';
+        return "Payment{" + "paymentID=" + paymentID + ", sellerID=" + sellerID + ", orderID=" + orderID + ", ticketOrderID=" + ticketOrderID + ", amount=" + amount + ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", transactionID=" + transactionID + ", paymentDate=" + paymentDate + ", updatedDate=" + updatedDate + '}';
     }
-    
 }

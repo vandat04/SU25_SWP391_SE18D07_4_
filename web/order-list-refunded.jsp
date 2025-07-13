@@ -1,9 +1,8 @@
 <%-- 
-    Document   : contact-artist
-    Created on : Jul 10, 2025, 6:28:03 PM
+    Document   : order-list
+    Created on : Jul 13, 2025, 6:39:50 PM
     Author     : ACER
 --%>
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -15,7 +14,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>User Profile - Da Nang Craft Village</title>
+        <title>List of Refunded List - Da Nang Craft Village</title>
         <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&amp;display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Poppins:600&amp;display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
@@ -167,6 +166,12 @@
                 }
             }
         </style>
+        <style>
+            .btn {
+                border-radius: 20px;
+                font-weight: 600;
+            }
+        </style>
     </head>
     <body class="biolife-body">
         <div id="biof-loading">
@@ -183,7 +188,7 @@
         <jsp:include page="Menu.jsp"></jsp:include>
             <!--Hero Section-->
             <div class="hero-section hero-background">
-                <h1 class="page-title">Contact</h1>
+                <h1 class="page-title">List of Refunded List</h1>
             </div>
             <!-- Page Contain -->
             <div class="page-contain">
@@ -193,78 +198,113 @@
                         <nav class="biolife-nav">
                             <ul>
                                 <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                                <li class="nav-item"><a href="contact?userID=${sessionScope.acc.userID}" class="permal-link">Contact</a></li>
-                                <li class="nav-item"><span class="#">${messageThread.messageName}</span></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="container">
-                    <div class="contact-container">
-                        <div class="profile-header">
-                            <h4>Contact Artist: ${messageThread.messageName}</h4>
-                        </div>
-
-                        <!-- Lịch sử trò chuyện -->
-                        <div class="message-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-                            <c:forEach var="msg" items="${listMessage}">
-                                <c:choose>
-                                    <c:when test="${msg.senderID == sessionScope.acc.userID}">
-                                        <div class="message-item message-sent">
-                                            <div class="message-content">
-                                                <p>${msg.messageContent}</p>
-                                                <c:if test="${not empty msg.attachmentUrl}">
-                                                    <p>
-                                                        <a href="${msg.attachmentUrl}" target="_blank">
-                                                            Download Attachment
-                                                        </a>
-                                                    </p>
-                                                </c:if>
-                                                <span class="text-muted">
-                                                    <fmt:formatDate value="${msg.sentDate}" pattern="dd/MM/yyyy HH:mm"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:otherwise>
-                                        <div class="message-item message-received">
-                                            <div class="message-content">
-                                                <p>${msg.messageContent}</p>
-                                                <c:if test="${not empty msg.attachmentUrl}">
-                                                    <p>
-                                                        <a href="${msg.attachmentUrl}" target="_blank">
-                                                            Download Attachment
-                                                        </a>
-                                                    </p>
-                                                </c:if>
-                                                <span class="text-muted">
-                                                    <fmt:formatDate value="${msg.sentDate}" pattern="dd/MM/yyyy HH:mm"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </c:forEach>
-                        </div>
-
-                        <!-- Form gửi tin nhắn -->
-                        <form action="contact-artist" method="post" >
-                            <input type="hidden" name="sellerID" value="${messageThread.sellerID}" />
-                            <input type="hidden" name="threadID" value="${messageThread.threadID}" />
-                            <input type="hidden" name="senderID" value="${sessionScope.acc.userID}" />
-                            <div class="form-group">
-                                <label for="messageContent">Your Message</label>
-                                <textarea id="messageContent" name="messageContent" class="form-control" rows="3" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="attachmentUrl">Attachment (Optional)</label>
-                                <input type="text" name="attachmentUrl" class="form-control" id="attachmentUrl">
-                            </div>
-                            <div class="text-right">
-                                <button type="submit" class="btn-update">Send Message</button>
-                            </div>
-                        </form>
+                                <li class="nav-item"><span class="#">Refunded List</span></li>
+                            </ul>
+                        </nav>
                     </div>
+
+                    <div class="container">
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <a href="order?userID=${sessionScope.acc.userID}&cas=1" class="btn btn-success">Processing List</a>
+                        <a href="order?userID=${sessionScope.acc.userID}&cas=2" class="btn btn-primary">Delivering List</a>
+                        <a href="order?userID=${sessionScope.acc.userID}&cas=3" class="btn btn-info">Received List</a>
+                        <a href="order?userID=${sessionScope.acc.userID}&cas=4" class="btn btn-danger">Canceled List</a>
+                        <a href="order?userID=${sessionScope.acc.userID}&cas=5" class="btn btn-warning">Refunded List</a>
+                    </div>
+
+                    <!-- PHẦN HIỂN THỊ DATA -->
+                    <h2 class="mt-4" style="color: #4CAF50;">Order Details</h2>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
+                                <th>Created Date</th>
+                                <th>Points</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="od" items="${deliveryOrderDetail}">
+                                <tr>
+                                    <td>${od.orderDetailID}</td>
+                                    <td>${od.productID}</td>
+                                    <td>${od.productName}</td>
+                                    <td><fmt:formatNumber value="${od.price}" type="currency"/></td>
+                                    <td>${od.quantity}</td>
+                                    <td><fmt:formatNumber value="${od.subtotal}" type="currency"/></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${od.status == 4}">Refunded</c:when>
+                                            <c:when test="${od.status == 5}">Refunding</c:when>
+                                            <c:otherwise>Unknown</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>${od.paymentMethod}</td>
+                                    <td>
+                                        <fmt:formatDate value="${od.createdDate}" pattern="dd/MM/yyyy HH:mm:ss"/>
+                                    </td>
+                                    <td>${od.points}</td>
+                                    <td>
+                                        <a href="detail?pid=${od.productID}" class="btn btn-primary btn-sm">View Product</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+
+                    <h2 class="mt-5" style="color: #4CAF50;">Ticket Order Details</h2>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Ticket ID</th>
+                                <th>Village Name</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
+                                <th>Created Date</th>
+                                <th>Points</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="tod" items="${deliveryTicketOrderDetail}">
+                                <tr>
+                                    <td>${tod.detailID}</td>
+                                    <td>${tod.ticketID}</td>
+                                    <td>${tod.villageName}</td>
+                                    <td>${tod.quantity}</td>
+                                    <td><fmt:formatNumber value="${tod.price}" type="currency"/></td>
+                                    <td><fmt:formatNumber value="${tod.subtotal}" type="currency"/></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${od.status == 4}">Refunded</c:when>
+                                            <c:when test="${od.status == 5}">Refunding</c:when>
+                                            <c:otherwise>Unknown</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>${tod.paymentMethod}</td>
+                                    <td>
+                                        <fmt:formatDate value="${tod.createdDate}" pattern="dd/MM/yyyy HH:mm:ss"/>
+                                    </td>
+                                    <td>${tod.points}</td>
+                                    <td>
+                                        <a href="ticket-detail?ticketId=${tod.ticketID}" class="btn btn-primary btn-sm">View Ticket</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+
                 </div>
             </div>
         </div>

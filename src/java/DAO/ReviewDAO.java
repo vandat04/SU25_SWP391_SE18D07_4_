@@ -313,7 +313,7 @@ public class ReviewDAO {
     // Test thử
     public static void main(String[] args) {
         ReviewDAO dao = new ReviewDAO();
-        System.out.println(dao.addVillageReview(new CraftReview(6, 1, 2, "Huhu")));
+        System.out.println(dao.getAllVillageReviewByAdmin(6));
     }
 
    

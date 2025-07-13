@@ -30,7 +30,7 @@ public class Order {
 
     public Order() {
     }
-
+    
     // Full constructor
     public Order(int orderID, int userID, BigDecimal totalAmount, 
                  String shippingAddress, String shippingName, String phoneNumber, String email,
