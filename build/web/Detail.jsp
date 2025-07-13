@@ -24,6 +24,8 @@
         <link rel="stylesheet" href="assets/css/style.css">
         <link rel="stylesheet" href="assets/css/main-color.css">
         <link rel="stylesheet" href="assets/css/main-color03-green.css">
+        <script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+        
         <style>
             /* Làm đẹp cho phần đánh giá sao */
             .comment-form-rating .stars {
@@ -296,7 +298,7 @@
                             <c:choose>
                                 <c:when test="${not empty product3D}">
                                     <model-viewer
-                                        src="${pageContext.request.contextPath}/${product3D}"
+                                        src="${pageContext.request.contextPath}/3D-product/teapot/teapot.glb"
                                         alt="${productName}"
                                         camera-controls
                                         auto-rotate
@@ -743,6 +745,23 @@
                                                             }, 500);
                                                         });
         </script>
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var btn = document.getElementById('toggle3dBtn');
+            var viewerContainer = document.getElementById('viewerContainer');
+            var isVisible = false;
 
+            btn.addEventListener('click', function () {
+                isVisible = !isVisible;
+                if (isVisible) {
+                    viewerContainer.style.display = 'block';
+                    btn.textContent = 'Hide 3D Model';
+                } else {
+                    viewerContainer.style.display = 'none';
+                    btn.textContent = 'View 3D Model';
+                }
+            });
+        });
+    </script>
     </body>
 </html> 
