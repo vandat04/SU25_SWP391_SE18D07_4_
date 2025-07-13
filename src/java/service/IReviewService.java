@@ -58,5 +58,31 @@ public interface IReviewService {
     boolean addProductReviewFromOrder(ProductReview review, int orderID);
     boolean addVillageReviewFromOrder(CraftReview review, int orderID);
     boolean isTicketOrderEligibleForReview(int villageID, int userID);
-    boolean addVillageReviewFromTicket(int villageID, int userID, int rating, String content);
+    
+    // NEW METHODS: Seller-specific review retrieval
+    List<CraftReview> getAllVillageReviewsBySeller(int sellerID);
+    List<ProductReview> getAllProductReviewsBySeller(int sellerID);
+    
+    // NEW METHODS: Individual review retrieval
+    CraftReview getVillageReviewById(int reviewID);
+    ProductReview getProductReviewById(int reviewID);
+    
+    // NEW METHODS: Order ID to entity ID mapping
+    Integer getProductIdByOrderId(int orderID);
+    Integer getVillageIdByOrderId(int orderID);
+    
+    // ENHANCED METHODS: Complete information retrieval for review display
+    java.util.Map<String, Object> getCompleteProductInfo(int productID);
+    java.util.Map<String, Object> getCompleteVillageInfo(int villageID);
+    java.util.Map<String, Object> getCompleteTicketInfo(int ticketID);
+    
+    // ENHANCED METHODS: User reviewable items
+    List<java.util.Map<String, Object>> getUserReviewableProducts(int userID);
+    List<java.util.Map<String, Object>> getUserReviewableVillages(int userID);
+    
+    // ENHANCED METHODS: Updated validation with status=2 condition
+    boolean canUserReviewProduct_v2(int userID, int productID, int orderID);
+    boolean canUserReviewVillage_v2(int userID, int villageID, int orderID);
+    boolean addProductReviewFromOrder_v2(ProductReview review, int orderID);
+    boolean addVillageReviewFromOrder_v2(CraftReview review, int orderID);
 }

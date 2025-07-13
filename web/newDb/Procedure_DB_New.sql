@@ -1698,7 +1698,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        -- Check if order is eligible for review (status=1 AND paymentStatus=1)
+        -- Check if order is eligible for review (status=2 AND paymentStatus=1)
         DECLARE @orderEligible INT = 0;
         SELECT @orderEligible = COUNT(*)
         FROM Orders o
@@ -1782,7 +1782,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        -- Check if ticket order is eligible for review (status=1 AND paymentStatus=1)
+        -- Check if ticket order is eligible for review (status=2 AND paymentStatus=1)
         DECLARE @orderEligible INT = 0;
         SELECT @orderEligible = COUNT(*)
         FROM TicketOrder o
@@ -1851,5 +1851,491 @@ BEGIN
     BEGIN CATCH
         SET @result = 0; -- Error
     END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục thêm đánh giá sản phẩm
+DROP PROCEDURE IF EXISTS sp_addProductReviewWithOrderValidation_v2;
+GO
+CREATE PROCEDURE sp_addProductReviewWithOrderValidation_v2
+    @productID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Kiểm tra đơn hàng hợp lệ (đã giao và đã thanh toán)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM Orders o
+        INNER JOIN OrderDetail od ON o.id = od.order_id
+        WHERE o.id = @orderID 
+          AND o.userID = @userID 
+          AND od.product_id = @productID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        -- Kiểm tra đã đánh giá chưa
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM ProductReview pr
+        WHERE pr.userID = @userID 
+          AND pr.productID = @productID
+          AND EXISTS (
+              SELECT 1 FROM OrderDetail od 
+              WHERE od.order_id = @orderID 
+                AND od.product_id = @productID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        -- Thêm đánh giá
+        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
+        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM Product
+        WHERE pid = @productID;
+
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        UPDATE Product
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE pid = @productID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục thêm đánh giá làng nghề
+DROP PROCEDURE IF EXISTS sp_addVillageReviewWithOrderValidation_v2;
+GO
+CREATE PROCEDURE sp_addVillageReviewWithOrderValidation_v2
+    @villageID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Kiểm tra đơn vé hợp lệ (đã giao và đã thanh toán)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM TicketOrder o
+        WHERE o.orderID = @orderID 
+          AND o.userID = @userID 
+          AND o.villageID = @villageID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        -- Kiểm tra đã đánh giá chưa
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM VillageReview vr
+        WHERE vr.userID = @userID 
+          AND vr.villageID = @villageID
+          AND EXISTS (
+              SELECT 1 FROM TicketOrder to_check
+              WHERE to_check.orderID = @orderID 
+                AND to_check.villageID = @villageID
+                AND to_check.userID = @userID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        -- Thêm đánh giá
+        INSERT INTO VillageReview (villageID, userID, reviewText, rating, reviewDate)
+        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        UPDATE CraftVillage
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE villageID = @villageID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục kiểm tra điều kiện đánh giá sản phẩm
+DROP PROCEDURE IF EXISTS sp_CheckProductReviewEligibility;
+GO
+CREATE PROCEDURE sp_CheckProductReviewEligibility
+    @userID INT,
+    @productID INT,
+    @orderID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM Orders o
+        INNER JOIN OrderDetail od ON o.id = od.order_id
+        WHERE o.id = @orderID 
+          AND o.userID = @userID 
+          AND od.product_id = @productID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM ProductReview pr
+        WHERE pr.userID = @userID 
+          AND pr.productID = @productID
+          AND EXISTS (
+              SELECT 1 FROM OrderDetail od 
+              WHERE od.order_id = @orderID 
+                AND od.product_id = @productID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục kiểm tra điều kiện đánh giá làng nghề
+DROP PROCEDURE IF EXISTS sp_CheckVillageReviewEligibility;
+GO
+CREATE PROCEDURE sp_CheckVillageReviewEligibility
+    @userID INT,
+    @villageID INT,
+    @orderID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM TicketOrder o
+        WHERE o.orderID = @orderID 
+          AND o.userID = @userID 
+          AND o.villageID = @villageID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM VillageReview vr
+        WHERE vr.userID = @userID 
+          AND vr.villageID = @villageID
+          AND EXISTS (
+              SELECT 1 FROM TicketOrder to_check
+              WHERE to_check.orderID = @orderID 
+                AND to_check.villageID = @villageID
+                AND to_check.userID = @userID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy thông tin sản phẩm đầy đủ
+DROP PROCEDURE IF EXISTS sp_GetCompleteProductInfo;
+GO
+CREATE PROCEDURE sp_GetCompleteProductInfo
+    @productID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        p.pid,
+        p.name,
+        p.price,
+        p.description,
+        p.stock,
+        p.status,
+        p.sku,
+        p.weight,
+        p.dimensions,
+        p.materials,
+        p.careInstructions,
+        p.warranty,
+        p.isFeatured,
+        p.averageRating,
+        p.totalReviews,
+        p.createdDate,
+        p.updatedDate,
+        pc.categoryName,
+        cv.villageName,
+        cv.address as villageAddress,
+        cv.contactPhone as villagePhone,
+        cv.contactEmail as villageEmail,
+        ct.typeName as craftTypeName,
+        a.userName as sellerName,
+        a.email as sellerEmail,
+        a.phoneNumber as sellerPhone
+    FROM Product p
+    INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
+    INNER JOIN CraftVillage cv ON p.villageID = cv.villageID
+    LEFT JOIN CraftType ct ON p.craftTypeID = ct.typeID
+    LEFT JOIN Account a ON cv.sellerId = a.userID
+    WHERE p.pid = @productID AND p.status = 1;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy thông tin làng nghề đầy đủ
+DROP PROCEDURE IF EXISTS sp_GetCompleteVillageInfo;
+GO
+CREATE PROCEDURE sp_GetCompleteVillageInfo
+    @villageID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        cv.villageID,
+        cv.villageName,
+        cv.description,
+        cv.address,
+        cv.latitude,
+        cv.longitude,
+        cv.contactPhone,
+        cv.contactEmail,
+        cv.status,
+        cv.clickCount,
+        cv.lastClicked,
+        cv.mainImageUrl,
+        cv.createdDate,
+        cv.updatedDate,
+        cv.openingHours,
+        cv.closingDays,
+        cv.averageRating,
+        cv.totalReviews,
+        cv.mapEmbedUrl,
+        cv.virtualTourUrl,
+        cv.history,
+        cv.specialFeatures,
+        cv.famousProducts,
+        cv.culturalEvents,
+        cv.craftProcess,
+        cv.videoDescriptionUrl,
+        cv.travelTips,
+        ct.typeName as craftTypeName,
+        ct.description as craftTypeDescription,
+        a.userName as sellerName,
+        a.email as sellerEmail,
+        a.phoneNumber as sellerPhone,
+        a.address as sellerAddress
+    FROM CraftVillage cv
+    LEFT JOIN CraftType ct ON cv.typeID = ct.typeID
+    LEFT JOIN Account a ON cv.sellerId = a.userID
+    WHERE cv.villageID = @villageID AND cv.status = 1;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy thông tin vé đầy đủ
+DROP PROCEDURE IF EXISTS sp_GetCompleteTicketInfo;
+GO
+CREATE PROCEDURE sp_GetCompleteTicketInfo
+    @ticketID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        vt.ticketID,
+        vt.price,
+        vt.status as ticketStatus,
+        vt.createdDate as ticketCreatedDate,
+        vt.updatedDate as ticketUpdatedDate,
+        tt.typeName as ticketTypeName,
+        tt.description as ticketTypeDescription,
+        tt.ageRange,
+        cv.villageID,
+        cv.villageName,
+        cv.description as villageDescription,
+        cv.address as villageAddress,
+        cv.contactPhone as villagePhone,
+        cv.contactEmail as villageEmail,
+        cv.openingHours,
+        cv.closingDays,
+        cv.averageRating as villageRating,
+        cv.totalReviews as villageTotalReviews,
+        cv.mainImageUrl as villageImage,
+        ct.typeName as craftTypeName,
+        a.userName as sellerName,
+        a.email as sellerEmail,
+        a.phoneNumber as sellerPhone
+    FROM VillageTicket vt
+    INNER JOIN TicketType tt ON vt.typeID = tt.typeID
+    INNER JOIN CraftVillage cv ON vt.villageID = cv.villageID
+    LEFT JOIN CraftType ct ON cv.typeID = ct.typeID
+    LEFT JOIN Account a ON cv.sellerId = a.userID
+    WHERE vt.ticketID = @ticketID AND vt.status = 1;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy danh sách sản phẩm có thể đánh giá
+DROP PROCEDURE IF EXISTS sp_GetUserReviewableProducts;
+GO
+CREATE PROCEDURE sp_GetUserReviewableProducts
+    @userID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT DISTINCT
+        p.pid as productID,
+        p.name as productName,
+        p.mainImageUrl as productImage,
+        p.price,
+        pc.categoryName,
+        cv.villageName,
+        o.id as orderID,
+        o.createdDate as orderDate,
+        o.status as orderStatus,
+        o.paymentStatus,
+        od.quantity,
+        od.subtotal
+    FROM Orders o
+    INNER JOIN OrderDetail od ON o.id = od.order_id
+    INNER JOIN Product p ON od.product_id = p.pid
+    INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
+    INNER JOIN CraftVillage cv ON p.villageID = cv.villageID
+    WHERE o.userID = @userID 
+      AND o.status = 2
+      AND o.paymentStatus = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM ProductReview pr 
+          WHERE pr.userID = @userID 
+            AND pr.productID = p.pid
+      )
+    ORDER BY o.createdDate DESC;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy danh sách làng nghề có thể đánh giá
+DROP PROCEDURE IF EXISTS sp_GetUserReviewableVillages;
+GO
+CREATE PROCEDURE sp_GetUserReviewableVillages
+    @userID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT DISTINCT
+        cv.villageID,
+        cv.villageName,
+        cv.mainImageUrl as villageImage,
+        cv.address as villageAddress,
+        tk.orderID,
+        tk.createdDate as orderDate,
+        tk.status as orderStatus,
+        tk.paymentStatus,
+        tk.totalPrice,
+        tk.totalQuantity
+    FROM TicketOrder tk
+    INNER JOIN CraftVillage cv ON tk.villageID = cv.villageID
+    WHERE tk.userID = @userID 
+      AND tk.status = 2
+      AND tk.paymentStatus = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM VillageReview vr 
+          WHERE vr.userID = @userID 
+            AND vr.villageID = cv.villageID
+      )
+    ORDER BY tk.createdDate DESC;
 END
 GO

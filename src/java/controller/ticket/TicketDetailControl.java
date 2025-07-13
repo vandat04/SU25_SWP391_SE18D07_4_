@@ -19,6 +19,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import service.ITicketAvailabilityService;
 import service.TicketAvailabilityService;
+import service.ReviewService;
+import entity.Account.Account;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -40,6 +43,7 @@ public class TicketDetailControl extends HttpServlet {
     private CraftVillageDAO villageDAO = new CraftVillageDAO();
     private TicketAvailabilityDAO availabilityDAO = new TicketAvailabilityDAO();
     private ITicketAvailabilityService availabilityService = new TicketAvailabilityService();
+    private ReviewService reviewService = new ReviewService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -68,6 +72,14 @@ public class TicketDetailControl extends HttpServlet {
                 return;
             }
 
+            // Get complete ticket information for enhanced display
+            java.util.Map<String, Object> completeTicketInfo = reviewService.getCompleteTicketInfo(ticketId);
+            request.setAttribute("completeTicketInfo", completeTicketInfo);
+
+            // Get complete village information for enhanced display
+            java.util.Map<String, Object> completeVillageInfo = reviewService.getCompleteVillageInfo(village.getVillageID());
+            request.setAttribute("completeVillageInfo", completeVillageInfo);
+
             // Get available dates for this ticket (next 30 days) using service
             List<TicketAvailability> availableDates = availabilityService.getAvailableDatesForTicket(ticketId);
             
@@ -89,10 +101,42 @@ public class TicketDetailControl extends HttpServlet {
             List<VillageTicket> otherTickets = villageTicketDAO.getTicketsByVillageId(village.getVillageID());
             otherTickets.removeIf(t -> t.getTicketID() == ticketId);
 
+            // Handle review eligibility
+            handleReviewEligibility(request, village.getVillageID());
+
+            // Get village reviews
+            List<entity.CraftVillage.CraftReview> villageReviews = reviewService.getVillageReviews(village.getVillageID());
+            request.setAttribute("villageReviews", villageReviews);
+            request.setAttribute("hasReviews", villageReviews != null && !villageReviews.isEmpty());
+
+            // Calculate average rating and rating distribution for village
+            if (villageReviews != null && !villageReviews.isEmpty()) {
+                double averageRating = villageReviews.stream()
+                        .mapToInt(review -> review.getRating())
+                        .average()
+                        .orElse(0.0);
+                request.setAttribute("averageRating", averageRating);
+
+                // Calculate rating distribution
+                int[] ratingDistribution = new int[5];
+                for (entity.CraftVillage.CraftReview review : villageReviews) {
+                    if (review.getRating() >= 1 && review.getRating() <= 5) {
+                        ratingDistribution[review.getRating() - 1]++;
+                    }
+                }
+                request.setAttribute("ratingDistribution", ratingDistribution);
+                request.setAttribute("totalReviews", villageReviews.size());
+            } else {
+                request.setAttribute("averageRating", 0.0);
+                request.setAttribute("ratingDistribution", new int[5]);
+                request.setAttribute("totalReviews", 0);
+            }
+
             // Set attributes for JSP
             request.setAttribute("selectedTicket", ticket);
             request.setAttribute("ticket", ticket);
             request.setAttribute("village", village);
+            request.setAttribute("villageID", village.getVillageID());
             request.setAttribute("availableDates", availableDates);
             request.setAttribute("availabilities", availableDates);
             request.setAttribute("allTicketTypes", allTicketTypes);
@@ -105,6 +149,36 @@ public class TicketDetailControl extends HttpServlet {
             
         } catch (NumberFormatException e) {
             response.sendRedirect("ticket-list");
+        }
+    }
+
+    /**
+     * Handle review eligibility logic for village reviews
+     */
+    private void handleReviewEligibility(HttpServletRequest request, int villageID) {
+        HttpSession session = request.getSession();
+        Account user = (Account) session.getAttribute("acc");
+        
+        if (user == null) {
+            request.setAttribute("canUserReviewVillage", false);
+            request.setAttribute("reviewMessageVillage", "Please log in to leave a review.");
+            return;
+        }
+        
+        try {
+            // Check if user has any eligible ticket orders for this village
+            List<java.util.Map<String, Object>> reviewableVillages = reviewService.getUserReviewableVillages(user.getUserID());
+            boolean canReview = reviewableVillages.stream()
+                    .anyMatch(village -> (Integer) village.get("villageID") == villageID);
+            
+            request.setAttribute("canUserReviewVillage", canReview);
+            if (!canReview) {
+                request.setAttribute("reviewMessageVillage", "You need to purchase and use a ticket for this village before you can review it.");
+            }
+            
+        } catch (Exception e) {
+            request.setAttribute("canUserReviewVillage", false);
+            request.setAttribute("reviewMessageVillage", "Unable to check review eligibility at this time.");
         }
     }
 

@@ -88,9 +88,36 @@ public class ReviewDAO {
         return list;
     }
 
+    // Lấy tất cả đánh giá sản phẩm theo productID với userName
+    public List<ProductReview> getAllProductReviewWithUserName(int productID) {
+        String query = "SELECT pr.*, a.fullName AS userName FROM ProductReview pr JOIN Account a ON pr.userID = a.userID WHERE pr.productID = ? ORDER BY pr.reviewDate DESC";
+        List<ProductReview> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, productID);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ProductReview review = mapResultSetToProductReview(rs);
+                review.setUserName(rs.getString("userName"));
+                list.add(review);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
     // Lấy tất cả đánh giá làng nghề theo villageID
     public List<CraftReview> getAllVillageReviewByAdmin(int villageID) {
-        String query = "SELECT * FROM VillageReview WHERE villageID = ? ORDER BY reviewDate DESC";
+        String query = "SELECT vr.*, a.fullName AS userName FROM VillageReview vr JOIN Account a ON vr.userID = a.userID WHERE vr.villageID = ? ORDER BY vr.reviewDate DESC";
         List<CraftReview> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -103,7 +130,9 @@ public class ReviewDAO {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(mapResultSetToCraftReview(rs));
+                CraftReview review = mapResultSetToCraftReview(rs);
+                review.setUserName(rs.getString("userName"));
+                list.add(review);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -795,7 +824,7 @@ public class ReviewDAO {
 
     public static void main(String[] args) {
         ReviewDAO dao = new ReviewDAO();
-        System.out.println(new ReviewDAO().getVillageIdByOrderId(79));
+        System.out.println(new ReviewDAO().addProductReviewFromOrder_v2(new ProductReview(1,1,1,"J"), 1));
     }
 
     public Integer getVillageIdByOrderId(int orderID) {
@@ -810,5 +839,380 @@ public class ReviewDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    /**
+     * Get complete product information for review display
+     *
+     * @param productID The product ID
+     * @return Map containing complete product information
+     */
+    public java.util.Map<String, Object> getCompleteProductInfo(int productID) {
+        String sql = "{call sp_GetCompleteProductInfo(?)}";
+        java.util.Map<String, Object> productInfo = new java.util.HashMap<>();
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, productID);
+            ResultSet rs = cs.executeQuery();
+            
+            if (rs.next()) {
+                productInfo.put("pid", rs.getInt("pid"));
+                productInfo.put("name", rs.getString("name"));
+                productInfo.put("price", rs.getBigDecimal("price"));
+                productInfo.put("description", rs.getString("description"));
+                productInfo.put("stock", rs.getInt("stock"));
+                productInfo.put("status", rs.getInt("status"));
+                productInfo.put("sku", rs.getString("sku"));
+                productInfo.put("weight", rs.getBigDecimal("weight"));
+                productInfo.put("dimensions", rs.getString("dimensions"));
+                productInfo.put("materials", rs.getString("materials"));
+                productInfo.put("careInstructions", rs.getString("careInstructions"));
+                productInfo.put("warranty", rs.getString("warranty"));
+                productInfo.put("isFeatured", rs.getBoolean("isFeatured"));
+                productInfo.put("averageRating", rs.getBigDecimal("averageRating"));
+                productInfo.put("totalReviews", rs.getInt("totalReviews"));
+                productInfo.put("createdDate", rs.getTimestamp("createdDate"));
+                productInfo.put("updatedDate", rs.getTimestamp("updatedDate"));
+                productInfo.put("categoryName", rs.getString("categoryName"));
+                productInfo.put("villageName", rs.getString("villageName"));
+                productInfo.put("villageAddress", rs.getString("villageAddress"));
+                productInfo.put("villagePhone", rs.getString("villagePhone"));
+                productInfo.put("villageEmail", rs.getString("villageEmail"));
+                productInfo.put("craftTypeName", rs.getString("craftTypeName"));
+                productInfo.put("sellerName", rs.getString("sellerName"));
+                productInfo.put("sellerEmail", rs.getString("sellerEmail"));
+                productInfo.put("sellerPhone", rs.getString("sellerPhone"));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting complete product info: " + e.getMessage(), e);
+        }
+        
+        return productInfo;
+    }
+
+    /**
+     * Get complete village information for review display
+     *
+     * @param villageID The village ID
+     * @return Map containing complete village information
+     */
+    public java.util.Map<String, Object> getCompleteVillageInfo(int villageID) {
+        String sql = "{call sp_GetCompleteVillageInfo(?)}";
+        java.util.Map<String, Object> villageInfo = new java.util.HashMap<>();
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, villageID);
+            ResultSet rs = cs.executeQuery();
+            
+            if (rs.next()) {
+                villageInfo.put("villageID", rs.getInt("villageID"));
+                villageInfo.put("villageName", rs.getString("villageName"));
+                villageInfo.put("description", rs.getString("description"));
+                villageInfo.put("address", rs.getString("address"));
+                villageInfo.put("latitude", rs.getDouble("latitude"));
+                villageInfo.put("longitude", rs.getDouble("longitude"));
+                villageInfo.put("contactPhone", rs.getString("contactPhone"));
+                villageInfo.put("contactEmail", rs.getString("contactEmail"));
+                villageInfo.put("status", rs.getInt("status"));
+                villageInfo.put("clickCount", rs.getInt("clickCount"));
+                villageInfo.put("lastClicked", rs.getTimestamp("lastClicked"));
+                villageInfo.put("mainImageUrl", rs.getString("mainImageUrl"));
+                villageInfo.put("createdDate", rs.getTimestamp("createdDate"));
+                villageInfo.put("updatedDate", rs.getTimestamp("updatedDate"));
+                villageInfo.put("openingHours", rs.getString("openingHours"));
+                villageInfo.put("closingDays", rs.getString("closingDays"));
+                villageInfo.put("averageRating", rs.getBigDecimal("averageRating"));
+                villageInfo.put("totalReviews", rs.getInt("totalReviews"));
+                villageInfo.put("mapEmbedUrl", rs.getString("mapEmbedUrl"));
+                villageInfo.put("virtualTourUrl", rs.getString("virtualTourUrl"));
+                villageInfo.put("history", rs.getString("history"));
+                villageInfo.put("specialFeatures", rs.getString("specialFeatures"));
+                villageInfo.put("famousProducts", rs.getString("famousProducts"));
+                villageInfo.put("culturalEvents", rs.getString("culturalEvents"));
+                villageInfo.put("craftProcess", rs.getString("craftProcess"));
+                villageInfo.put("videoDescriptionUrl", rs.getString("videoDescriptionUrl"));
+                villageInfo.put("travelTips", rs.getString("travelTips"));
+                villageInfo.put("craftTypeName", rs.getString("craftTypeName"));
+                villageInfo.put("craftTypeDescription", rs.getString("craftTypeDescription"));
+                villageInfo.put("sellerName", rs.getString("sellerName"));
+                villageInfo.put("sellerEmail", rs.getString("sellerEmail"));
+                villageInfo.put("sellerPhone", rs.getString("sellerPhone"));
+                villageInfo.put("sellerAddress", rs.getString("sellerAddress"));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting complete village info: " + e.getMessage(), e);
+        }
+        
+        return villageInfo;
+    }
+
+    /**
+     * Get complete ticket information for review display
+     *
+     * @param ticketID The ticket ID
+     * @return Map containing complete ticket information
+     */
+    public java.util.Map<String, Object> getCompleteTicketInfo(int ticketID) {
+        String sql = "{call sp_GetCompleteTicketInfo(?)}";
+        java.util.Map<String, Object> ticketInfo = new java.util.HashMap<>();
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, ticketID);
+            ResultSet rs = cs.executeQuery();
+            
+            if (rs.next()) {
+                ticketInfo.put("ticketID", rs.getInt("ticketID"));
+                ticketInfo.put("price", rs.getBigDecimal("price"));
+                ticketInfo.put("ticketStatus", rs.getInt("ticketStatus"));
+                ticketInfo.put("ticketCreatedDate", rs.getTimestamp("ticketCreatedDate"));
+                ticketInfo.put("ticketUpdatedDate", rs.getTimestamp("ticketUpdatedDate"));
+                ticketInfo.put("ticketTypeName", rs.getString("ticketTypeName"));
+                ticketInfo.put("ticketTypeDescription", rs.getString("ticketTypeDescription"));
+                ticketInfo.put("ageRange", rs.getString("ageRange"));
+                ticketInfo.put("villageID", rs.getInt("villageID"));
+                ticketInfo.put("villageName", rs.getString("villageName"));
+                ticketInfo.put("villageDescription", rs.getString("villageDescription"));
+                ticketInfo.put("villageAddress", rs.getString("villageAddress"));
+                ticketInfo.put("villagePhone", rs.getString("villagePhone"));
+                ticketInfo.put("villageEmail", rs.getString("villageEmail"));
+                ticketInfo.put("openingHours", rs.getString("openingHours"));
+                ticketInfo.put("closingDays", rs.getString("closingDays"));
+                ticketInfo.put("villageRating", rs.getBigDecimal("villageRating"));
+                ticketInfo.put("villageTotalReviews", rs.getInt("villageTotalReviews"));
+                ticketInfo.put("villageImage", rs.getString("villageImage"));
+                ticketInfo.put("craftTypeName", rs.getString("craftTypeName"));
+                ticketInfo.put("sellerName", rs.getString("sellerName"));
+                ticketInfo.put("sellerEmail", rs.getString("sellerEmail"));
+                ticketInfo.put("sellerPhone", rs.getString("sellerPhone"));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting complete ticket info: " + e.getMessage(), e);
+        }
+        
+        return ticketInfo;
+    }
+
+    /**
+     * Get user's reviewable products from orders
+     *
+     * @param userID The user ID
+     * @return List of reviewable products
+     */
+    public List<java.util.Map<String, Object>> getUserReviewableProducts(int userID) {
+        String sql = "{call sp_GetUserReviewableProducts(?)}";
+        List<java.util.Map<String, Object>> reviewableProducts = new ArrayList<>();
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, userID);
+            ResultSet rs = cs.executeQuery();
+            
+            while (rs.next()) {
+                java.util.Map<String, Object> product = new java.util.HashMap<>();
+                product.put("productID", rs.getInt("productID"));
+                product.put("productName", rs.getString("productName"));
+                product.put("productImage", rs.getString("productImage"));
+                product.put("price", rs.getBigDecimal("price"));
+                product.put("categoryName", rs.getString("categoryName"));
+                product.put("villageName", rs.getString("villageName"));
+                product.put("orderID", rs.getInt("orderID"));
+                product.put("orderDate", rs.getTimestamp("orderDate"));
+                product.put("orderStatus", rs.getInt("orderStatus"));
+                product.put("paymentStatus", rs.getInt("paymentStatus"));
+                product.put("quantity", rs.getInt("quantity"));
+                product.put("subtotal", rs.getBigDecimal("subtotal"));
+                reviewableProducts.add(product);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting user reviewable products: " + e.getMessage(), e);
+        }
+        
+        return reviewableProducts;
+    }
+
+    /**
+     * Get user's reviewable villages from ticket orders
+     *
+     * @param userID The user ID
+     * @return List of reviewable villages
+     */
+    public List<java.util.Map<String, Object>> getUserReviewableVillages(int userID) {
+        String sql = "{call sp_GetUserReviewableVillages(?)}";
+        List<java.util.Map<String, Object>> reviewableVillages = new ArrayList<>();
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, userID);
+            ResultSet rs = cs.executeQuery();
+            
+            while (rs.next()) {
+                java.util.Map<String, Object> village = new java.util.HashMap<>();
+                village.put("villageID", rs.getInt("villageID"));
+                village.put("villageName", rs.getString("villageName"));
+                village.put("villageImage", rs.getString("villageImage"));
+                village.put("villageAddress", rs.getString("villageAddress"));
+                village.put("orderID", rs.getInt("orderID"));
+                village.put("orderDate", rs.getTimestamp("orderDate"));
+                village.put("orderStatus", rs.getInt("orderStatus"));
+                village.put("paymentStatus", rs.getInt("paymentStatus"));
+                village.put("totalPrice", rs.getBigDecimal("totalPrice"));
+                village.put("totalQuantity", rs.getInt("totalQuantity"));
+                reviewableVillages.add(village);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting user reviewable villages: " + e.getMessage(), e);
+        }
+        
+        return reviewableVillages;
+    }
+
+    /**
+     * Check product review eligibility with updated status condition (status=2)
+     *
+     * @param userID The user ID
+     * @param productID The product ID
+     * @param orderID The order ID
+     * @return true if user can review this product
+     */
+    public boolean canUserReviewProduct_v2(int userID, int productID, int orderID) {
+        String sql = "{call sp_CheckProductReviewEligibility(?, ?, ?, ?)}";
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, userID);
+            cs.setInt(2, productID);
+            cs.setInt(3, orderID);
+            cs.registerOutParameter(4, Types.INTEGER);
+            
+            cs.execute();
+            
+            int result = cs.getInt(4);
+            return result == 1; // Eligible for review
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error checking product review eligibility: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Check village review eligibility with updated status condition (status=2)
+     *
+     * @param userID The user ID
+     * @param villageID The village ID
+     * @param orderID The order ID
+     * @return true if user can review this village
+     */
+    public boolean canUserReviewVillage_v2(int userID, int villageID, int orderID) {
+        String sql = "{call sp_CheckVillageReviewEligibility(?, ?, ?, ?)}";
+        
+        try (Connection conn = DBContext.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+            
+            cs.setInt(1, userID);
+            cs.setInt(2, villageID);
+            cs.setInt(3, orderID);
+            cs.registerOutParameter(4, Types.INTEGER);
+            
+            cs.execute();
+            
+            int result = cs.getInt(4);
+            return result == 1; // Eligible for review
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error checking village review eligibility: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Add product review with updated order validation (status=2, paymentStatus=1)
+     *
+     * @param review The product review
+     * @param orderID The order ID this review relates to
+     * @return true if review was added successfully
+     */
+    public boolean addProductReviewFromOrder_v2(ProductReview review, int orderID) {
+        String sql = "{call sp_addProductReviewWithOrderValidation_v2(?, ?, ?, ?, ?, ?)}";
+
+        try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, review.getProductID());
+            cs.setInt(2, review.getUserID());
+            cs.setInt(3, orderID);
+            cs.setString(4, review.getReviewText());
+            cs.setInt(5, review.getRating());
+            cs.registerOutParameter(6, Types.INTEGER);
+
+            cs.execute();
+
+            int result = cs.getInt(6);
+            if (result == 1) {
+                return true;
+            } else if (result == -1) {
+                LOGGER.log(Level.WARNING, "Order {0} is not eligible for review (status=2, paymentStatus=1)", orderID);
+                return false;
+            } else if (result == -2) {
+                LOGGER.log(Level.WARNING, "User {0} has already reviewed product {1}",
+                        new Object[]{review.getUserID(), review.getProductID()});
+                return false;
+            } else {
+                LOGGER.log(Level.WARNING, "Failed to add product review, result code: {0}", result);
+                return false;
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding product review: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Add village review with updated ticket order validation (status=2, paymentStatus=1)
+     *
+     * @param review The village review
+     * @param orderID The ticket order ID this review relates to
+     * @return true if review was added successfully
+     */
+    public boolean addVillageReviewFromOrder_v2(CraftReview review, int orderID) {
+        String sql = "{call sp_addVillageReviewWithOrderValidation_v2(?, ?, ?, ?, ?, ?)}";
+
+        try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, review.getVillageID());
+            cs.setInt(2, review.getUserID());
+            cs.setInt(3, orderID);
+            cs.setString(4, review.getReviewText());
+            cs.setInt(5, review.getRating());
+            cs.registerOutParameter(6, Types.INTEGER);
+
+            cs.execute();
+
+            int result = cs.getInt(6);
+            if (result == 1) {
+                return true;
+            } else if (result == -1) {
+                LOGGER.log(Level.WARNING, "Ticket order {0} is not eligible for review (status=2, paymentStatus=1)", orderID);
+                return false;
+            } else if (result == -2) {
+                LOGGER.log(Level.WARNING, "User {0} has already reviewed village {1}",
+                        new Object[]{review.getUserID(), review.getVillageID()});
+                return false;
+            } else {
+                LOGGER.log(Level.WARNING, "Failed to add village review, result code: {0}", result);
+                return false;
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding village review: " + e.getMessage(), e);
+            return false;
+        }
     }
 }

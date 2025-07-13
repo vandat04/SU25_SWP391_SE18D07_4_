@@ -20,6 +20,7 @@ public class ProductReview {
     private Timestamp reviewDate;
     private String response;
     private Timestamp responseDate;
+    private String userName; // Thêm thuộc tính userName
     
     // Constructors-------------------------------------------------------------
     public ProductReview() {}
@@ -33,6 +34,13 @@ public class ProductReview {
         this.reviewDate = reviewDate;
         this.response = response;
         this.responseDate = responseDate;
+    }
+
+    public ProductReview(int productID, int userID, int rating, String reviewText) {
+        this.productID = productID;
+        this.userID = userID;
+        this.rating = rating;
+        this.reviewText = reviewText;
     }
     
     
@@ -101,9 +109,18 @@ public class ProductReview {
         this.responseDate = responseDate;
     }
 
+    // Thêm getter và setter cho userName
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
-        return "ProductReview{" + "reviewID=" + reviewID + ", productID=" + productID + ", userID=" + userID + ", rating=" + rating + ", reviewText=" + reviewText + ", reviewDate=" + reviewDate + ", response=" + response + ", responseDate=" + responseDate + '}';
+        return "ProductReview{" + "reviewID=" + reviewID + ", productID=" + productID + ", userID=" + userID + ", rating=" + rating + ", reviewText=" + reviewText + ", reviewDate=" + reviewDate + ", response=" + response + ", responseDate=" + responseDate + ", userName=" + userName + '}';
     }
     
 }

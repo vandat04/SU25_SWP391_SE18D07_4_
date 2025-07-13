@@ -240,6 +240,301 @@
                 border-color: #c3e6cb;
                 color: #155724;
             }
+
+            /* Enhanced Ticket Details Styles */
+            .ticket-details-section {
+                margin-top: 40px;
+            }
+
+            .tabs-container {
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+
+            .tab-head .tabs {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                background: #f8f9fa;
+                padding: 0;
+                margin: 0;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .tab-head .tab-element {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .tab-head .tab-link {
+                padding: 15px 20px;
+                font-size: 14px;
+                font-weight: 500;
+                color: #666;
+                text-decoration: none;
+                display: block;
+                text-align: center;
+                transition: all 0.3s ease;
+                border-bottom: 3px solid transparent;
+            }
+
+            .tab-head .tab-link:hover {
+                background: #e9ecef;
+                color: #4CAF50;
+            }
+
+            .tab-head .tab-element.active .tab-link {
+                background: white;
+                color: #4CAF50;
+                border-bottom-color: #4CAF50;
+            }
+
+            .tab-content {
+                padding: 30px;
+            }
+
+            .tab-contain {
+                display: none;
+            }
+
+            .tab-contain.active {
+                display: block;
+            }
+
+            .village-details-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+
+            .ticket-details-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+
+            .detail-section {
+                background: #f9f9f9;
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+            }
+
+            .detail-section h4 {
+                color: #4CAF50;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #4CAF50;
+                padding-bottom: 5px;
+            }
+
+            .detail-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .detail-table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #e0e0e0;
+                vertical-align: top;
+            }
+
+            .detail-table td:first-child {
+                font-weight: 600;
+                color: #333;
+                width: 40%;
+            }
+
+            .detail-table td:last-child {
+                color: #666;
+            }
+
+            /* Status indicators */
+            .status-active {
+                color: #4CAF50;
+                font-weight: bold;
+            }
+
+            .status-hidden {
+                color: #f44336;
+                font-weight: bold;
+            }
+
+            .status-pending {
+                color: #ff9800;
+                font-weight: bold;
+            }
+
+            .status-unknown {
+                color: #9e9e9e;
+                font-weight: bold;
+            }
+
+            /* Seller Information Styles */
+            .seller-info-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-top: 20px;
+            }
+
+            .seller-profile {
+                background: #f9f9f9;
+                padding: 25px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .seller-avatar {
+                flex-shrink: 0;
+            }
+
+            .seller-details h4 {
+                color: #4CAF50;
+                margin-bottom: 15px;
+                font-size: 20px;
+            }
+
+            .seller-details p {
+                margin: 8px 0;
+                color: #666;
+            }
+
+            .seller-details strong {
+                color: #333;
+            }
+
+            .seller-contact {
+                background: #f9f9f9;
+                padding: 25px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+            }
+
+            .seller-contact h4 {
+                color: #4CAF50;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .contact-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .contact-buttons .btn {
+                padding: 12px 20px;
+                border-radius: 6px;
+                text-decoration: none;
+                text-align: center;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+            }
+
+            .contact-buttons .btn-primary {
+                background: #007bff;
+                color: white;
+            }
+
+            .contact-buttons .btn-primary:hover {
+                background: #0056b3;
+            }
+
+            .contact-buttons .btn-success {
+                background: #28a745;
+                color: white;
+            }
+
+            .contact-buttons .btn-success:hover {
+                background: #1e7e34;
+            }
+
+            .contact-buttons .btn-info {
+                background: #17a2b8;
+                color: white;
+            }
+
+            .contact-buttons .btn-info:hover {
+                background: #117a8b;
+            }
+
+            /* Enhanced Review Styles */
+            .review-response {
+                margin-top: 15px;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+            }
+
+            .review-response:hover {
+                transform: translateX(5px);
+            }
+
+            /* Review Warning Enhancement */
+            .review-warning {
+                background: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 6px;
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .review-warning ul {
+                margin: 10px 0;
+                padding-left: 20px;
+            }
+
+            .review-warning li {
+                color: #856404;
+                margin: 5px 0;
+            }
+
+            .review-warning a {
+                color: #4CAF50;
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+            .review-warning a:hover {
+                text-decoration: underline;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .village-details-grid,
+                .ticket-details-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .seller-info-container {
+                    grid-template-columns: 1fr;
+                }
+
+                .seller-profile {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .contact-buttons {
+                    flex-direction: column;
+                }
+
+                .tab-head .tabs {
+                    flex-direction: column;
+                }
+
+                .tab-head .tab-element {
+                    min-width: auto;
+                }
+            }
         </style>
     </head>
 
@@ -424,164 +719,431 @@
                         </div>
                     </div>
 
-                    <!-- Tab info -->
-                    <div class="product-tabs single-layout biolife-tab-contain">
-                        <div class="tab-head">
-                            <ul class="tabs">
-                                <li class="tab-element active"><a href="#tab_1st" class="tab-link">Village Descriptions</a></li>
-                                <li class="tab-element"><a href="#tab_2nd" class="tab-link">Additional information</a></li>
-                                <li class="tab-element"><a href="#tab_3rd" class="tab-link">Customer Reviews <sup>(${village.totalReviews != null ? village.totalReviews : 0})</sup></a></li>
-                            </ul>
-                        </div>
-                        <div class="tab-content">
-                            <!-- Village Description Tab -->
-                            <div id="tab_1st" class="tab-contain desc-tab active">
-                                <p class="desc">${village.description != null ? village.description : 'No description available for this village.'}</p>
-
-                                <c:if test="${village.specialFeatures != null}">
-                                    <h4>Special Features:</h4>
-                                    <p>${village.specialFeatures}</p>
-                                </c:if>
-
-                                <c:if test="${village.famousProducts != null}">
-                                    <h4>Famous Products:</h4>
-                                    <p>${village.famousProducts}</p>
-                                </c:if>
+                    <!-- Complete Ticket Information Section -->
+                    <div class="ticket-details-section single-layout">
+                        <div class="tabs-container">
+                            <div class="tab-head">
+                                <ul class="tabs">
+                                    <li class="tab-element active"><a href="#tab_village" class="tab-link">Village Information</a></li>
+                                    <li class="tab-element"><a href="#tab_ticket" class="tab-link">Ticket Details</a></li>
+                                    <li class="tab-element"><a href="#tab_seller" class="tab-link">Seller Information</a></li>
+                                    <li class="tab-element"><a href="#tab_reviews" class="tab-link">Customer Reviews <sup>(${village.totalReviews != null ? village.totalReviews : 0})</sup></a></li>
+                                </ul>
                             </div>
-
-                            <!-- Village Information Tab -->
-                            <div id="tab_2nd" class="tab-contain">
-                                <div class="village-detailed-info">
-                                    <h4>Contact Information</h4>
-                                    <p><strong>Address:</strong> ${village.address}</p>
-                                    <c:if test="${village.contactPhone != null}">
-                                        <p><strong>Phone:</strong> ${village.contactPhone}</p>
-                                    </c:if>
-                                    <c:if test="${village.contactEmail != null}">
-                                        <p><strong>Email:</strong> ${village.contactEmail}</p>
-                                    </c:if>
-
-                                    <c:if test="${village.openingHours != null}">
-                                        <h4>Opening Hours</h4>
-                                        <p>${village.openingHours}</p>
-                                    </c:if>
-
-                                    <c:if test="${village.history != null}">
-                                        <h4>History</h4>
-                                        <p>${village.history}</p>
-                                    </c:if>
-
-                                    <c:if test="${village.craftProcess != null}">
-                                        <h4>Craft Process</h4>
-                                        <p>${village.craftProcess}</p>
-                                    </c:if>
-
-                                    <c:if test="${village.travelTips != null}">
-                                        <h4>Travel Tips</h4>
-                                        <p>${village.travelTips}</p>
-                                    </c:if>
+                            <div class="tab-content">
+                                <!-- Village Information Tab -->
+                                <div id="tab_village" class="tab-contain active">
+                                    <h3>Complete Village Information</h3>
+                                    <div class="village-details-grid">
+                                        <div class="detail-section">
+                                            <h4>Basic Information</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Village ID:</strong></td>
+                                                    <td>${completeVillageInfo.villageID}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Village Name:</strong></td>
+                                                    <td>${completeVillageInfo.villageName}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Craft Type:</strong></td>
+                                                    <td>${completeVillageInfo.craftTypeName}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Status:</strong></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${completeVillageInfo.status == 1}">
+                                                                <span class="status-active">Active</span>
+                                                            </c:when>
+                                                            <c:when test="${completeVillageInfo.status == 0}">
+                                                                <span class="status-hidden">Hidden</span>
+                                                            </c:when>
+                                                            <c:when test="${completeVillageInfo.status == 2}">
+                                                                <span class="status-pending">Pending Approval</span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="status-unknown">Unknown</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <h4>Location & Contact</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Address:</strong></td>
+                                                    <td>${completeVillageInfo.address}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Phone:</strong></td>
+                                                    <td>${completeVillageInfo.contactPhone}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Email:</strong></td>
+                                                    <td>${completeVillageInfo.contactEmail}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Opening Hours:</strong></td>
+                                                    <td>${completeVillageInfo.openingHours}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Closing Days:</strong></td>
+                                                    <td>${completeVillageInfo.closingDays}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <h4>Village Statistics</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Average Rating:</strong></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${completeVillageInfo.averageRating != null and completeVillageInfo.averageRating > 0}">
+                                                                <fmt:formatNumber value="${completeVillageInfo.averageRating}" pattern="0.0"/> / 5.0
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                No ratings yet
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Total Reviews:</strong></td>
+                                                    <td>${completeVillageInfo.totalReviews}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Click Count:</strong></td>
+                                                    <td>${completeVillageInfo.clickCount}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Created Date:</strong></td>
+                                                    <td><fmt:formatDate pattern="dd/MM/yyyy HH:mm" value="${completeVillageInfo.createdDate}" /></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <h4>Cultural Information</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>History:</strong></td>
+                                                    <td>${completeVillageInfo.history}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Special Features:</strong></td>
+                                                    <td>${completeVillageInfo.specialFeatures}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Famous Products:</strong></td>
+                                                    <td>${completeVillageInfo.famousProducts}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Cultural Events:</strong></td>
+                                                    <td>${completeVillageInfo.culturalEvents}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Craft Process:</strong></td>
+                                                    <td>${completeVillageInfo.craftProcess}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <h4>Travel Information</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Travel Tips:</strong></td>
+                                                    <td>${completeVillageInfo.travelTips}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Virtual Tour:</strong></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${not empty completeVillageInfo.virtualTourUrl}">
+                                                                <a href="${completeVillageInfo.virtualTourUrl}" target="_blank">View Virtual Tour</a>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                Not available
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Map Embed:</strong></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${not empty completeVillageInfo.mapEmbedUrl}">
+                                                                <a href="${completeVillageInfo.mapEmbedUrl}" target="_blank">View on Map</a>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                Not available
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <!-- Village Reviews Tab -->
-                            <div id="tab_3rd" class="tab-contain review-tab">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
-                                            <div class="rating-info">
-                                                <p class="index">
-                                                    <strong class="rating">
-                                                        <fmt:formatNumber value="${village.averageRating != null and village.averageRating > 0 ? village.averageRating : 0.0}" 
-                                                                          type="number" maxFractionDigits="1"/>
-                                                    </strong> out of 5
-                                                </p>
-                                                <div class="rating">
-                                                    <p class="star-rating">
-                                                        <span class="width-${village.averageRating != null and village.averageRating > 0 ? (village.averageRating.doubleValue() * 20) : 0}percent"></span>
-                                                    </p>
-                                                </div>
-                                                <p class="see-all">See all ${village.totalReviews != null ? village.totalReviews : 0} reviews</p>
-
-                                                <!-- Rating Distribution -->
-                                                <ul class="options">
-                                                    <c:forEach var="i" begin="0" end="4">
-                                                        <li>
-                                                            <div class="detail-for">
-                                                                <span class="option-name">${5 - i} stars</span>
-                                                                <span class="progres">
-                                                                    <span class="line-100percent">
-                                                                        <span class="percent width-${totalReviews > 0 ? (ratingDistribution[4 - i] * 100 / totalReviews) : 0}percent"></span>
-                                                                    </span>
-                                                                </span>
-                                                                <span class="number">${ratingDistribution[4 - i]}</span>
-                                                            </div>
-                                                        </li>
-                                                    </c:forEach>
-                                                </ul>
+                                
+                                <!-- Ticket Details Tab -->
+                                <div id="tab_ticket" class="tab-contain">
+                                    <h3>Complete Ticket Information</h3>
+                                    <div class="ticket-details-grid">
+                                        <div class="detail-section">
+                                            <h4>Ticket Information</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Ticket ID:</strong></td>
+                                                    <td>${completeTicketInfo.ticketID}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Ticket Type:</strong></td>
+                                                    <td>${completeTicketInfo.ticketTypeName}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Type Description:</strong></td>
+                                                    <td>${completeTicketInfo.ticketTypeDescription}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Age Range:</strong></td>
+                                                    <td>${completeTicketInfo.ageRange}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Price:</strong></td>
+                                                    <td><fmt:formatNumber value="${completeTicketInfo.price}" type="currency"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Status:</strong></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${completeTicketInfo.ticketStatus == 1}">
+                                                                <span class="status-active">Active</span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="status-hidden">Inactive</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <h4>Village Information</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Village Name:</strong></td>
+                                                    <td>${completeTicketInfo.villageName}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Village Description:</strong></td>
+                                                    <td>${completeTicketInfo.villageDescription}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Village Address:</strong></td>
+                                                    <td>${completeTicketInfo.villageAddress}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Village Phone:</strong></td>
+                                                    <td>${completeTicketInfo.villagePhone}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Village Email:</strong></td>
+                                                    <td>${completeTicketInfo.villageEmail}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <h4>Village Statistics</h4>
+                                            <table class="detail-table">
+                                                <tr>
+                                                    <td><strong>Village Rating:</strong></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${completeTicketInfo.villageRating != null and completeTicketInfo.villageRating > 0}">
+                                                                <fmt:formatNumber value="${completeTicketInfo.villageRating}" pattern="0.0"/> / 5.0
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                No ratings yet
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Total Reviews:</strong></td>
+                                                    <td>${completeTicketInfo.villageTotalReviews}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Opening Hours:</strong></td>
+                                                    <td>${completeTicketInfo.openingHours}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Closing Days:</strong></td>
+                                                    <td>${completeTicketInfo.closingDays}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Seller Information Tab -->
+                                <div id="tab_seller" class="tab-contain">
+                                    <h3>Seller Information</h3>
+                                    <div class="seller-info-container">
+                                        <div class="seller-profile">
+                                            <div class="seller-avatar">
+                                                <i class="fa fa-user-circle" style="font-size: 80px; color: #4CAF50;"></i>
+                                            </div>
+                                            <div class="seller-details">
+                                                <h4>${completeVillageInfo.sellerName}</h4>
+                                                <p><strong>Email:</strong> ${completeVillageInfo.sellerEmail}</p>
+                                                <p><strong>Phone:</strong> ${completeVillageInfo.sellerPhone}</p>
+                                                <p><strong>Address:</strong> ${completeVillageInfo.sellerAddress}</p>
+                                                <p><strong>Village:</strong> ${completeVillageInfo.villageName}</p>
                                             </div>
                                         </div>
-                                        <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
-                                            <div class="review-form-wrapper">
-                                                <span class="title">Add your review</span>
-                                                <form action="TicketDetailControl" method="post">
-                                                    <input type="hidden" name="villageID" value="${villageID}" />
-                                                    <c:choose>
-                                                        <c:when test="${not empty sessionScope.acc}">
-                                                            <c:choose>
-                                                                <c:when test="${canUserReviewVillage}">
-                                                                    <label>1. Đánh giá của bạn về làng nghề:</label>
-                                                                    <input type="number" name="rating" min="1" max="5" required />
-                                                                    <textarea name="content" placeholder="Viết đánh giá của bạn..." required></textarea>
-                                                                    <button type="submit">Gửi đánh giá</button>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <div class="review-warning">
-                                                                        <span>${reviewMessageVillage}</span>
-                                                                        <ul>
-                                                                            <li>✓ Đã đặt vé tham quan làng nghề này</li>
-                                                                            <li>✓ Vé đã sử dụng và thanh toán thành công</li>
-                                                                        </ul>
-                                                                        <a href="ticket-history">Kiểm tra vé của bạn</a>
-                                                                    </div>
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <div class="review-warning">
-                                                                Vui lòng <a href="login.jsp">đăng nhập</a> để viết đánh giá.
-                                                            </div>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </form>
+                                        <div class="seller-contact">
+                                            <h4>Contact Seller</h4>
+                                            <div class="contact-buttons">
+                                                <a href="mailto:${completeVillageInfo.sellerEmail}" class="btn btn-primary">
+                                                    <i class="fa fa-envelope"></i> Send Email
+                                                </a>
+                                                <a href="tel:${completeVillageInfo.sellerPhone}" class="btn btn-success">
+                                                    <i class="fa fa-phone"></i> Call Seller
+                                                </a>
+                                                <a href="village-details?villageID=${completeVillageInfo.villageID}" class="btn btn-info">
+                                                    <i class="fa fa-map-marker"></i> Visit Village
+                                                </a>
                                             </div>
-
-                                            <!-- Display Reviews -->
-                                            <div class="review-list">
-                                                <c:choose>
-                                                    <c:when test="${hasReviews}">
-                                                        <c:forEach var="review" items="${villageReviews}">
-                                                            <div class="review-item">
-                                                                <div class="reviewer-info">
-                                                                    <h4>${review.reviewerName}</h4>
-                                                                    <div class="rating">
-                                                                        <p class="star-rating">
-                                                                            <span class="width-${review.rating * 20}percent"></span>
-                                                                        </p>
-                                                                    </div>
-                                                                    <span class="review-date">
-                                                                        <fmt:formatDate value="${review.reviewDate}" pattern="dd/MM/yyyy"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Reviews Tab -->
+                                <div id="tab_reviews" class="tab-contain">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
+                                                <div class="rating-info">
+                                                    <p class="index"><strong class="rating"><c:choose><c:when test="${village.averageRating != null and village.averageRating > 0}"><fmt:formatNumber value="${village.averageRating}" pattern="0.0"/></c:when><c:otherwise>0.0</c:otherwise></c:choose></strong>out of 5</p>
+                                                    <div class="rating">
+                                                        <p class="star-rating"><span class="width-<c:choose><c:when test="${village.averageRating != null and village.averageRating > 0}">${village.averageRating.doubleValue() * 20}</c:when><c:otherwise>0</c:otherwise></c:choose>percent"></span></p>
+                                                    </div>
+                                                    <p class="see-all">See all <c:choose><c:when test="${village.totalReviews > 0}">${village.totalReviews}</c:when><c:otherwise>0</c:otherwise></c:choose> reviews</p>
+                                                    
+                                                    <!-- Rating Distribution -->
+                                                    <ul class="options">
+                                                        <c:forEach var="i" begin="0" end="4">
+                                                            <li>
+                                                                <div class="detail-for">
+                                                                    <span class="option-name">${5 - i} stars</span>
+                                                                    <span class="progres">
+                                                                        <span class="line-100percent">
+                                                                            <span class="percent width-${totalReviews > 0 ? (ratingDistribution[4 - i] * 100 / totalReviews) : 0}percent"></span>
+                                                                        </span>
                                                                     </span>
+                                                                    <span class="number">${ratingDistribution[4 - i]}</span>
                                                                 </div>
-                                                                <div class="review-content">
-                                                                    <p>${review.comment}</p>
-                                                                </div>
-                                                            </div>
+                                                            </li>
                                                         </c:forEach>
-                                                    </c:when>
-                                                    <c:otherwise>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
+                                                <div class="review-form-wrapper">
+                                                    <span class="title">Add your review</span>
+                                                    <form action="TicketDetailControl" method="post">
+                                                        <input type="hidden" name="villageID" value="${villageID}" />
+                                                        <c:choose>
+                                                            <c:when test="${not empty sessionScope.acc}">
+                                                                <c:choose>
+                                                                    <c:when test="${canUserReviewVillage}">
+                                                                        <label>1. Đánh giá của bạn về làng nghề:</label>
+                                                                        <input type="number" name="rating" min="1" max="5" required />
+                                                                        <textarea name="content" placeholder="Viết đánh giá của bạn..." required></textarea>
+                                                                        <button type="submit">Gửi đánh giá</button>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <div class="review-warning">
+                                                                            <span>${reviewMessageVillage}</span>
+                                                                            <ul>
+                                                                                <li>✓ Đã đặt vé tham quan làng nghề này</li>
+                                                                                <li>✓ Vé đã sử dụng và thanh toán thành công</li>
+                                                                            </ul>
+                                                                            <a href="ticket-history">Kiểm tra vé của bạn</a>
+                                                                        </div>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <div class="review-warning">
+                                                                    Vui lòng <a href="login.jsp">đăng nhập</a> để viết đánh giá.
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </form>
+                                                </div>
+
+                                                <!-- Display Reviews -->
+                                                <div class="review-list">
+                                                    <!-- Debug info -->
+                                                    <div style="background: #f0f0f0; padding: 5px; margin: 5px 0; font-size: 12px;">
+                                                        Debug: villageReviews=${villageReviews != null ? 'NOT NULL' : 'NULL'}, 
+                                                        size=${villageReviews != null ? villageReviews.size() : 'N/A'}
+                                                    </div>
+                                                    <c:if test="${not empty villageReviews}">
+                                                        <div>Test: ${villageReviews.size()}</div>
+                                                        <c:forEach var="review" items="${villageReviews}">
+                                                        <div class="review-item">
+                                                            <div class="reviewer-info">
+                                                                <h4>${review.userName}</h4>
+                                                                <div class="rating">
+                                                                    <p class="star-rating">
+                                                                        <span class="width-${review.rating * 20}percent"></span>
+                                                                    </p>
+                                                                </div>
+                                                                <span class="review-date">
+                                                                    <fmt:formatDate value="${review.reviewDate}" pattern="dd/MM/yyyy"/>
+                                                                </span>
+                                                            </div>
+                                                            <div class="review-content">
+                                                                <p>${review.reviewText}</p>
+                                                                
+                                                                <!-- Admin Response Section -->
+                                                                <c:choose>
+                                                                    <c:when test="${not empty review.response}">
+                                                                        <div class="review-response" style="background: #f7f7f7; padding: 10px; margin-top: 10px; border-left: 3px solid #4CAF50;">
+                                                                            <strong>Admin Response:</strong>
+                                                                            <p style="margin:0;">${review.response}</p>
+                                                                            <small style="color: #666;">
+                                                                                <fmt:formatDate pattern="dd/MM/yyyy HH:mm" value="${review.responseDate}" />
+                                                                            </small>
+                                                                        </div>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <div class="review-response" style="background: #f9f9f9; padding: 10px; margin-top: 10px; border-left: 3px solid #ccc; color: #666;">
+                                                                            <strong>Admin Response:</strong>
+                                                                            <p style="margin:0; font-style: italic;">No response from admin yet.</p>
+                                                                        </div>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </div>
+                                                        </div>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                    <c:if test="${empty villageReviews}">
                                                         <p>No reviews yet. Be the first to review this village!</p>
-                                                    </c:otherwise>
-                                                </c:choose>
+                                                    </c:if>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1129,6 +1691,37 @@
                         });
             }
         </script>
+
+        <script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Tab click handler
+    document.querySelectorAll('.tab-link').forEach(function(tabLink) {
+        tabLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Xóa active ở tất cả tab
+            document.querySelectorAll('.tab-element').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-contain').forEach(function(tabContent) {
+                tabContent.classList.remove('active');
+            });
+            // Thêm active cho tab được chọn
+            this.parentElement.classList.add('active');
+            var target = this.getAttribute('href');
+            document.querySelector(target).classList.add('active');
+        });
+    });
+
+    // Nếu có hash trên URL (ví dụ #tab_reviews), tự động mở tab đó
+    if(window.location.hash) {
+        var hash = window.location.hash;
+        var tabLink = document.querySelector('.tab-link[href="' + hash + '"]');
+        if(tabLink) {
+            tabLink.click();
+        }
+    }
+});
+</script>
 
         <!-- Include JS files -->
         <script src="assets/js/jquery-3.4.1.min.js"></script>

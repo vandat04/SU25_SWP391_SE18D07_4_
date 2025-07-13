@@ -12,21 +12,17 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.ArrayList;
 
-
 /**
  *
  * @author ACER
  */
 public class ReviewService implements IReviewService {
 
-
     private static final Logger LOGGER = Logger.getLogger(ReviewService.class.getName());
-
     ReviewDAO rDAO = new ReviewDAO();
 
     @Override
     public boolean addProductReview(ProductReview review) {
-
         try {
             // Validate input
             if (review == null || review.getUserID() <= 0 || review.getProductID() <= 0) {
@@ -165,7 +161,7 @@ public class ReviewService implements IReviewService {
     //     }
     // }
 
-     @Override
+    @Override
     public List<ProductReview> getProductReviews(int productId) {
         try {
             if (productId <= 0) {
@@ -179,6 +175,23 @@ public class ReviewService implements IReviewService {
         }
     }
 
+    /**
+     * Get product reviews with user names for display
+     * @param productId The product ID
+     * @return List of product reviews with user names
+     */
+    public List<ProductReview> getProductReviewsWithUserName(int productId) {
+        try {
+            if (productId <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid product ID: {0}", productId);
+                return new ArrayList<>();
+            }
+            return rDAO.getAllProductReviewWithUserName(productId);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting product reviews with user names: " + e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
 
     @Override
     public List<CraftReview> getVillageReviews(int villageId) {
@@ -442,7 +455,6 @@ public class ReviewService implements IReviewService {
         }
     }
 
-
     @Override
     public List<ProductReview> searchProductReviewToday(int productID) {
         return rDAO.searchProductReviewToday(productID);
@@ -459,15 +471,229 @@ public class ReviewService implements IReviewService {
         return rDAO.addVillageReviewFromTicket(villageID, userID, rating, content);
     }
 
-    public Integer getVillageIdByOrderId(int orderID) {
-        return rDAO.getVillageIdByOrderId(orderID);
+    public Integer getProductIdByOrderId(int orderID) {
+        try {
+            if (orderID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid order ID: {0}", orderID);
+                return null;
+            }
+            return rDAO.getProductIdByOrderId(orderID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting product ID by order ID: " + e.getMessage(), e);
+            return null;
+        }
     }
 
-    public Integer getProductIdByOrderId(int orderID) {
-        return rDAO.getProductIdByOrderId(orderID);
+    /**
+     * Get village ID by order ID
+     * @param orderID The order ID
+     * @return The village ID or null if not found
+     */
+    public Integer getVillageIdByOrderId(int orderID) {
+        try {
+            if (orderID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid order ID: {0}", orderID);
+                return null;
+            }
+            return rDAO.getVillageIdByOrderId(orderID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting village ID by order ID: " + e.getMessage(), e);
+            return null;
+        }
     }
 
     public boolean isProductOrderEligibleForReview(int productID, int userID) {
         return rDAO.isProductOrderEligibleForReview(productID, userID);
+    }
+
+    /**
+     * Get complete product information for review display
+     *
+     * @param productID The product ID
+     * @return Map containing complete product information
+     */
+    public java.util.Map<String, Object> getCompleteProductInfo(int productID) {
+        try {
+            if (productID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid product ID: {0}", productID);
+                return null;
+            }
+            return rDAO.getCompleteProductInfo(productID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting complete product info: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Get complete village information for review display
+     *
+     * @param villageID The village ID
+     * @return Map containing complete village information
+     */
+    public java.util.Map<String, Object> getCompleteVillageInfo(int villageID) {
+        try {
+            if (villageID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid village ID: {0}", villageID);
+                return null;
+            }
+            return rDAO.getCompleteVillageInfo(villageID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting complete village info: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Get complete ticket information for review display
+     *
+     * @param ticketID The ticket ID
+     * @return Map containing complete ticket information
+     */
+    public java.util.Map<String, Object> getCompleteTicketInfo(int ticketID) {
+        try {
+            if (ticketID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid ticket ID: {0}", ticketID);
+                return null;
+            }
+            return rDAO.getCompleteTicketInfo(ticketID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting complete ticket info: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Get user's reviewable products from orders
+     *
+     * @param userID The user ID
+     * @return List of reviewable products
+     */
+    public List<java.util.Map<String, Object>> getUserReviewableProducts(int userID) {
+        try {
+            if (userID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid user ID: {0}", userID);
+                return new ArrayList<>();
+            }
+            return rDAO.getUserReviewableProducts(userID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting user reviewable products: " + e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Get user's reviewable villages from ticket orders
+     *
+     * @param userID The user ID
+     * @return List of reviewable villages
+     */
+    public List<java.util.Map<String, Object>> getUserReviewableVillages(int userID) {
+        try {
+            if (userID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid user ID: {0}", userID);
+                return new ArrayList<>();
+            }
+            return rDAO.getUserReviewableVillages(userID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting user reviewable villages: " + e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Check product review eligibility with updated status condition (status=2)
+     *
+     * @param userID The user ID
+     * @param productID The product ID
+     * @param orderID The order ID
+     * @return true if user can review this product
+     */
+    public boolean canUserReviewProduct_v2(int userID, int productID, int orderID) {
+        try {
+            if (userID <= 0 || productID <= 0 || orderID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid parameters: userID={0}, productID={1}, orderID={2}", 
+                    new Object[]{userID, productID, orderID});
+                return false;
+            }
+            return rDAO.canUserReviewProduct_v2(userID, productID, orderID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error checking product review eligibility: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Check village review eligibility with updated status condition (status=2)
+     *
+     * @param userID The user ID
+     * @param villageID The village ID
+     * @param orderID The order ID
+     * @return true if user can review this village
+     */
+    public boolean canUserReviewVillage_v2(int userID, int villageID, int orderID) {
+        try {
+            if (userID <= 0 || villageID <= 0 || orderID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid parameters: userID={0}, villageID={1}, orderID={2}", 
+                    new Object[]{userID, villageID, orderID});
+                return false;
+            }
+            return rDAO.canUserReviewVillage_v2(userID, villageID, orderID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error checking village review eligibility: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Add product review with updated order validation (status=2, paymentStatus=1)
+     *
+     * @param review The product review
+     * @param orderID The order ID this review relates to
+     * @return true if review was added successfully
+     */
+    public boolean addProductReviewFromOrder_v2(ProductReview review, int orderID) {
+        try {
+            if (review == null) {
+                LOGGER.log(Level.WARNING, "Review object is null");
+                return false;
+            }
+            
+            if (orderID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid order ID: {0}", orderID);
+                return false;
+            }
+            
+            return rDAO.addProductReviewFromOrder_v2(review, orderID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding product review from order: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Add village review with updated ticket order validation (status=2, paymentStatus=1)
+     *
+     * @param review The village review
+     * @param orderID The ticket order ID this review relates to
+     * @return true if review was added successfully
+     */
+    public boolean addVillageReviewFromOrder_v2(CraftReview review, int orderID) {
+        try {
+            if (review == null) {
+                LOGGER.log(Level.WARNING, "Review object is null");
+                return false;
+            }
+            
+            if (orderID <= 0) {
+                LOGGER.log(Level.WARNING, "Invalid order ID: {0}", orderID);
+                return false;
+            }
+            
+            return rDAO.addVillageReviewFromOrder_v2(review, orderID);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error adding village review from order: " + e.getMessage(), e);
+            return false;
+        }
     }
 }

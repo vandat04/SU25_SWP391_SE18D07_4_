@@ -173,6 +173,37 @@ public class DetailControl extends HttpServlet {
         // Get top 5 newest products
         List<Product> list5 = productService.getTop5NewestProducts();
         request.setAttribute("list5", list5);
+
+        // Get complete product information for enhanced display
+        ReviewService reviewService = new ReviewService();
+        java.util.Map<String, Object> completeProductInfo = reviewService.getCompleteProductInfo(product.getPid());
+        request.setAttribute("completeProductInfo", completeProductInfo);
+
+        // Get reviews for this product with user names
+        List<entity.Product.ProductReview> reviews = reviewService.getProductReviewsWithUserName(product.getPid());
+        request.setAttribute("reviews", reviews);
+        request.setAttribute("reviewCount", reviews != null ? reviews.size() : 0);
+
+        // Calculate average rating and rating distribution
+        if (reviews != null && !reviews.isEmpty()) {
+            double averageRating = reviews.stream()
+                    .mapToInt(review -> review.getRating())
+                    .average()
+                    .orElse(0.0);
+            request.setAttribute("averageRating", averageRating);
+
+            // Calculate rating distribution
+            int[] ratingDistribution = new int[5];
+            for (entity.Product.ProductReview review : reviews) {
+                if (review.getRating() >= 1 && review.getRating() <= 5) {
+                    ratingDistribution[review.getRating() - 1]++;
+                }
+            }
+            request.setAttribute("ratingDistribution", ratingDistribution);
+        } else {
+            request.setAttribute("averageRating", 0.0);
+            request.setAttribute("ratingDistribution", new int[5]);
+        }
     }
     
     /**

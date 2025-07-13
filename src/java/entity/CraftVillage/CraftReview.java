@@ -20,6 +20,7 @@ public class CraftReview {
     private Timestamp reviewDate;
     private String response;
     private Timestamp responseDate;
+    private String userName;
     
     // Constructors-------------------------------------------------------------
     public CraftReview() {
@@ -108,6 +109,14 @@ public class CraftReview {
 
     public void setResponseDate(Timestamp responseDate) {
         this.responseDate = responseDate;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     @Override
