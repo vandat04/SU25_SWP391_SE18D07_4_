@@ -555,7 +555,7 @@ public class AccountDAO {
             cs.execute();
             int result = cs.getInt(1);
             LOGGER.log(Level.INFO, "sp_RequestUpgradeAccount result code: {0}", result);
-            return result == 1;
+            return true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
         } finally {
@@ -564,6 +564,10 @@ public class AccountDAO {
         return false;
     }
 
+    public static void main(String[] args) {
+        System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(12,14,"Tram","Tram","Qnam","Tram Huong","hinhanh/village/kim-bong.jpg","TRƯƠNG VĂN ĐẠT","0777076028","dattruong02112004@gmail.com",1,3)));
+    }
+    
     public boolean rejectedUpgradeAccount(SellerVerification sellerForm) {
         String query = "{? = call sp_RejectedUpgradeAccount(?, ?, ?, ?)}";
         Connection conn = null;
