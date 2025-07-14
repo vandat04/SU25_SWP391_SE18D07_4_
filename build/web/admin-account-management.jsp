@@ -50,17 +50,6 @@
             const exportBtn = document.getElementById("exportBtn");
             const exportMenu = document.getElementById("exportMenu");
 
-            exportBtn.addEventListener("click", function (e) {
-                e.preventDefault();
-                exportMenu.classList.toggle("hidden");
-            });
-
-            document.addEventListener("click", function (e) {
-                if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
-                    exportMenu.classList.add("hidden");
-                }
-            });
-
             function toggleExportMenu() {
                 const menu = document.getElementById("exportMenu");
                 menu.classList.toggle("hidden");
