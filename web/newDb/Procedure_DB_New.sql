@@ -1104,7 +1104,6 @@ BEGIN
     SET @result = 1;
 END
 GO
-go
 
 CREATE PROCEDURE UpdateVillageFullByAdmin
     @villageID int,
@@ -1738,7 +1737,7 @@ BEGIN
 END;
 GO
 
-/////////////thêm mới khi review////////////////////
+---thêm mới khi review-
 
 CREATE PROCEDURE sp_addProductReview
     @productID INT,
@@ -1808,7 +1807,6 @@ BEGIN
         WHERE o.id = @orderID 
           AND o.userID = @userID 
           AND od.product_id = @productID
-          AND o.status = 1 
           AND o.paymentStatus = 1;
 
         IF @orderEligible = 0
@@ -1887,9 +1885,8 @@ BEGIN
         -- Check if ticket order is eligible for review (status=2 AND paymentStatus=1)
         DECLARE @orderEligible INT = 0;
         SELECT @orderEligible = COUNT(*)
-        FROM TicketOrder o
+        FROM TicketOrderDetail o
         WHERE o.orderID = @orderID 
-          AND o.userID = @userID 
           AND o.villageID = @villageID
           AND o.status = 1 
           AND o.paymentStatus = 1;
@@ -1907,10 +1904,9 @@ BEGIN
         WHERE vr.userID = @userID 
           AND vr.villageID = @villageID
           AND EXISTS (
-              SELECT 1 FROM TicketOrder to_check
+              SELECT 1 FROM TicketOrderDetail to_check
               WHERE to_check.orderID = @orderID 
                 AND to_check.villageID = @villageID
-                AND to_check.userID = @userID
           );
 
         IF @alreadyReviewed > 0
@@ -1996,10 +1992,9 @@ BEGIN
         -- Kiểm tra đơn hàng hợp lệ (đã giao và đã thanh toán)
         DECLARE @orderEligible INT = 0;
         SELECT @orderEligible = COUNT(*)
-        FROM Orders o
+        FROM OrderDetail o
         INNER JOIN OrderDetail od ON o.id = od.order_id
         WHERE o.id = @orderID 
-          AND o.userID = @userID 
           AND od.product_id = @productID
           AND o.status = 2
           AND o.paymentStatus = 1;
@@ -2080,9 +2075,8 @@ BEGIN
         -- Kiểm tra đơn vé hợp lệ (đã giao và đã thanh toán)
         DECLARE @orderEligible INT = 0;
         SELECT @orderEligible = COUNT(*)
-        FROM TicketOrder o
-        WHERE o.orderID = @orderID 
-          AND o.userID = @userID 
+        FROM TicketOrderDetail o
+        WHERE o.orderID = @orderID
           AND o.villageID = @villageID
           AND o.status = 2
           AND o.paymentStatus = 1;
@@ -2100,10 +2094,9 @@ BEGIN
         WHERE vr.userID = @userID 
           AND vr.villageID = @villageID
           AND EXISTS (
-              SELECT 1 FROM TicketOrder to_check
+              SELECT 1 FROM TicketOrderDetail to_check
               WHERE to_check.orderID = @orderID 
                 AND to_check.villageID = @villageID
-                AND to_check.userID = @userID
           );
 
         IF @alreadyReviewed > 0
@@ -2166,7 +2159,6 @@ BEGIN
         WHERE o.id = @orderID 
           AND o.userID = @userID 
           AND od.product_id = @productID
-          AND o.status = 2
           AND o.paymentStatus = 1;
 
         IF @orderEligible = 0
@@ -2215,9 +2207,8 @@ BEGIN
     BEGIN TRY
         DECLARE @orderEligible INT = 0;
         SELECT @orderEligible = COUNT(*)
-        FROM TicketOrder o
+        FROM TicketOrderDetail o
         WHERE o.orderID = @orderID 
-          AND o.userID = @userID 
           AND o.villageID = @villageID
           AND o.status = 2
           AND o.paymentStatus = 1;
@@ -2234,10 +2225,9 @@ BEGIN
         WHERE vr.userID = @userID 
           AND vr.villageID = @villageID
           AND EXISTS (
-              SELECT 1 FROM TicketOrder to_check
+              SELECT 1 FROM TicketOrderDetail to_check
               WHERE to_check.orderID = @orderID 
                 AND to_check.villageID = @villageID
-                AND to_check.userID = @userID
           );
 
         IF @alreadyReviewed > 0
@@ -2413,13 +2403,12 @@ BEGIN
         o.paymentStatus,
         od.quantity,
         od.subtotal
-    FROM Orders o
+    FROM OrderDetail o
     INNER JOIN OrderDetail od ON o.id = od.order_id
     INNER JOIN Product p ON od.product_id = p.pid
     INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
     INNER JOIN CraftVillage cv ON p.villageID = cv.villageID
-    WHERE o.userID = @userID 
-      AND o.status = 2
+    WHERE  o.status = 2
       AND o.paymentStatus = 1
       AND NOT EXISTS (
           SELECT 1 FROM ProductReview pr 
@@ -2448,12 +2437,11 @@ BEGIN
         tk.createdDate as orderDate,
         tk.status as orderStatus,
         tk.paymentStatus,
-        tk.totalPrice,
-        tk.totalQuantity
-    FROM TicketOrder tk
+        tk.subtotal,
+        tk.quantity
+    FROM TicketOrderDetail tk
     INNER JOIN CraftVillage cv ON tk.villageID = cv.villageID
-    WHERE tk.userID = @userID 
-      AND tk.status = 2
+    WHERE tk.status = 2
       AND tk.paymentStatus = 1
       AND NOT EXISTS (
           SELECT 1 FROM VillageReview vr 
@@ -2463,3 +2451,13 @@ BEGIN
     ORDER BY tk.createdDate DESC;
 END
 GO
+
+
+DECLARE @sql NVARCHAR(MAX) = N'';
+
+SELECT @sql = @sql + 
+    N'DROP PROCEDURE [' + SCHEMA_NAME(schema_id) + '].[' + name + '];' + CHAR(13)
+FROM sys.objects
+WHERE type = 'P';
+
+EXEC sp_executesql @sql;

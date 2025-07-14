@@ -1,6 +1,5 @@
-﻿
-CREATE DATABASE [CraftDB]
-GO
+create database CraftDB
+go
 
 USE [CraftDB]
 GO
@@ -13,6 +12,7 @@ BEGIN
     RETURN HASHBYTES('SHA2_512', @password);
 END
 GO
+
 
 ----------------------------------------------------Account-------------
 --Table [Role] -- Tạo thêm bảng Role để mô tả về Role
@@ -57,6 +57,7 @@ CREATE TABLE [dbo].[AccountPoints](
 )
 GO
 
+
 --Table [EmailVerification] 
 CREATE TABLE [dbo].[EmailVerification](
 	[verificationID] [int] IDENTITY(1,1) NOT NULL,
@@ -81,6 +82,7 @@ CREATE TABLE [dbo].[PasswordReset](
 	CONSTRAINT [FK_PasswordReset_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
+
 ----------------------------------------------------Craft Village-------------
 --Table [CraftType] 
 CREATE TABLE [dbo].[CraftType](
@@ -179,6 +181,33 @@ CREATE TABLE [dbo].[VillageReview](
 	CONSTRAINT [FK_VillageReview_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID])
 )
 GO
+----------------------------------------------------Ticket-------------
+--Table [TicketType]
+CREATE TABLE [dbo].[TicketType](
+	[typeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[typeName] [nvarchar](50) NOT NULL UNIQUE,
+	[description] [nvarchar](200) NULL,
+	[ageRange] [nvarchar](50) NULL,
+	[status] [int] NOT NULL DEFAULT(1),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL
+)
+GO
+
+--Table [VillageTicket]
+CREATE TABLE [dbo].[VillageTicket](
+	[ticketID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[villageID] [int] NOT NULL,
+	[typeID] [int] NOT NULL,
+	[price] [decimal](10, 2) NOT NULL,
+	[status] [int] NOT NULL  DEFAULT(1),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_VillageTicket_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
+	CONSTRAINT [FK_VillageTicket_TicketType] FOREIGN KEY([typeID]) REFERENCES [dbo].[TicketType] ([typeID]),
+	CONSTRAINT [UC_FavoriteTicket] UNIQUE NONCLUSTERED ([villageID], [typeID])
+)
+GO
 
 ----------------------------------------------------Product-------------
 --Table [ProductCategory]
@@ -261,31 +290,26 @@ CREATE TABLE [dbo].[Wishlist](
 )
 GO
 
-----------------------------------------------------Ticket-------------
---Table [TicketType]
-CREATE TABLE [dbo].[TicketType](
-	[typeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[typeName] [nvarchar](50) NOT NULL UNIQUE,
-	[description] [nvarchar](200) NULL,
-	[ageRange] [nvarchar](50) NULL,
-	[status] [int] NOT NULL DEFAULT(1),
+--Table [Cart]
+CREATE TABLE [dbo].[Cart](
+	[cartID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
 	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[updatedDate] [datetime] NULL
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_Cart_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
 
---Table [VillageTicket]
-CREATE TABLE [dbo].[VillageTicket](
-	[ticketID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[villageID] [int] NOT NULL,
-	[typeID] [int] NOT NULL,
-	[price] [decimal](10, 2) NOT NULL,
-	[status] [int] NOT NULL  DEFAULT(1),
+--Table [CartItem]
+CREATE TABLE [dbo].[CartItem](
+	[itemID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[cartID] [int] NOT NULL,
+	[productID] [int] NOT NULL,
+	[quantity] [int] NOT NULL,
 	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[updatedDate] [datetime] NULL,
-	CONSTRAINT [FK_VillageTicket_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
-	CONSTRAINT [FK_VillageTicket_TicketType] FOREIGN KEY([typeID]) REFERENCES [dbo].[TicketType] ([typeID]),
-	CONSTRAINT [UC_FavoriteTicket] UNIQUE NONCLUSTERED ([villageID], [typeID])
+	CONSTRAINT [FK_CartItem_Cart] FOREIGN KEY([cartID]) REFERENCES [dbo].[Cart] ([cartID]),
+	CONSTRAINT [FK_CartItem_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid])
 )
 GO
 
@@ -386,29 +410,6 @@ CREATE TABLE [dbo].[TicketCode](
 GO
 
 
---Table [Cart]
-CREATE TABLE [dbo].[Cart](
-	[cartID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[userID] [int] NOT NULL,
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[updatedDate] [datetime] NULL,
-	CONSTRAINT [FK_Cart_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
-)
-GO
-
---Table [CartItem]
-CREATE TABLE [dbo].[CartItem](
-	[itemID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[cartID] [int] NOT NULL,
-	[productID] [int] NOT NULL,
-	[quantity] [int] NOT NULL,
-	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[updatedDate] [datetime] NULL,
-	CONSTRAINT [FK_CartItem_Cart] FOREIGN KEY([cartID]) REFERENCES [dbo].[Cart] ([cartID]),
-	CONSTRAINT [FK_CartItem_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid])
-)
-GO
-
 ----------------------------------------------------Support-------------
 --Table [MessageThread]---Dư thì lma
 CREATE TABLE [dbo].[MessageThread](
@@ -429,6 +430,7 @@ CREATE TABLE [dbo].[Message](
 	[messageContent] [nvarchar](max) NOT NULL,
 	[attachmentUrl] [varchar](max) NULL,
 	[sentDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[userRead] int default (0),
 	CONSTRAINT [FK_Message_Sender] FOREIGN KEY([senderID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_Message_Thread] FOREIGN KEY([threadID]) REFERENCES [dbo].[MessageThread] ([threadID])
 )
@@ -619,5 +621,3 @@ Go
 ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CONSTRAINT [CK_TicketAvailability_BookedSlots] CHECK ([bookedSlots] <= [totalSlots]);
 Go
 
---Xoa Quan he + bỏ ticketorder giua TicketOrder-->TicketOrderDetail->TicketCode sang Orders->TicketOrderDetail
---Trong Orders Bỏ status> Vì order chung nhưng nhiều sản phẩm từ làng nghề nên cần quản lí riêng bằng details
