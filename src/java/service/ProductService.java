@@ -318,4 +318,18 @@ public class ProductService implements IProductService {
     public String getModelFileByProductID(int productID) {
         return pDAO.getModelFileByProductID(productID);
     }
+
+    /**
+     * Get products by category with price range and order filtering
+     * This method provides advanced filtering capabilities for category-based searches
+     */
+    public List<Product> getProductsByCategoryAndPriceAndOrder(String categoryId, String priceRange, String orderBy) {
+        try {
+            // Use the DAO method that already exists
+            return pDAO.getProductsByCategoryAndPriceRangeAndOrder(categoryId, priceRange, orderBy);
+        } catch (Exception e) {
+            // Fallback to basic category search if advanced filtering fails
+            return getProductByCategoryID(categoryId);
+        }
+    }
 }

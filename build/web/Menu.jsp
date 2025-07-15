@@ -112,7 +112,7 @@
                         <div class="mobile-search">
                             <a href="javascript:void(0)" class="open-searchbox"><i class="biolife-icon icon-search"></i></a>
                             <div class="mobile-search-content">
-                                <form action="search" method="post" class="form-search" name="mobile-seacrh">
+                                <form action="search" method="post" class="form-search" name="mobile-search">
                                     <a href="#" class="btn-close"><span class="biolife-icon icon-close-menu"></span></a>
                                     <input type="text" name="txt" class="input-text" value="" placeholder="Search here...">
                                     <button type="submit" class="btn-submit">go</button>
@@ -192,10 +192,10 @@
                 </div>
                 <div class="col-lg-9 col-md-8 padding-top-2px">
                     <div class="header-search-bar layout-01">
-                        <form action="search" class="form-search" name="desktop-seacrh" onsubmit="return syncSearch();">
+                        <form action="search" class="form-search" name="desktop-search" method="post">
                             <input type="hidden" name="action" value="search">
-                            <input type="text" name="txt" class="input-text" value="${param.txt}" placeholder="Search here..."
-                                   <button type="submit" class="btn-submit"><i class="biolife-icon icon-search"></i></button>
+                            <input type="text" name="txt" class="input-text" value="${param.txt}" placeholder="Search here...">
+                            <button type="submit" class="btn-submit"><i class="biolife-icon icon-search"></i></button>
                         </form>
                     </div>
                     <div class="live-info">

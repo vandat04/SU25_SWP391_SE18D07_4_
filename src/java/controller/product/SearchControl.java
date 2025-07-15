@@ -89,9 +89,21 @@ public class SearchControl extends HttpServlet {
             orderBy = "menu_order";
         }
         
-        LOGGER.log(Level.INFO, "Search keyword: {0}", searchKeyword);
+        // Handle pagination
+        String pageParam = request.getParameter("page");
+        int page = 1;
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
         
-        return new SearchParameters(searchKeyword, priceRange, orderBy);
+        LOGGER.log(Level.INFO, "Search keyword: {0}, Page: {1}", new Object[]{searchKeyword, page});
+        
+        return new SearchParameters(searchKeyword, priceRange, orderBy, page);
     }
     
     /**
@@ -138,6 +150,7 @@ public class SearchControl extends HttpServlet {
         request.setAttribute("selectedPrice", params.priceRange);
         request.setAttribute("searchKeyword", params.searchKeyword);
         request.setAttribute("txt", params.searchKeyword); // For compatibility
+        request.setAttribute("currentPage", params.page); // For pagination
     }
     
     /**
@@ -163,11 +176,13 @@ public class SearchControl extends HttpServlet {
         final String searchKeyword;
         final String priceRange;
         final String orderBy;
+        final int page;
         
-        SearchParameters(String searchKeyword, String priceRange, String orderBy) {
+        SearchParameters(String searchKeyword, String priceRange, String orderBy, int page) {
             this.searchKeyword = searchKeyword;
             this.priceRange = priceRange;
             this.orderBy = orderBy;
+            this.page = page;
         }
     }
     

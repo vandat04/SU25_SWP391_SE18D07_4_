@@ -139,4 +139,37 @@ public class AccountService implements IAccountService{
     public int getPointsByUserID(int userID) {
         return aDAO.getPointsByUserID(userID);
     }
+
+    @Override
+    public boolean changePasswordByUserId(Integer userId, String newPassword) {
+        try {
+            // Business validation
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                return false;
+            }
+            
+            if (newPassword.length() < 6) {
+                return false;
+            }
+            
+            // Service calls DAO for database operations
+            aDAO.updateAccountPassword(userId, newPassword);
+            
+            return true;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public int findUserIdByUsernameOrEmail(String input) {
+        return aDAO.findUserIdByUsernameOrEmail(input);
+    }
+
+    @Override
+    public String getEmailByUserId(int userId) {
+        return aDAO.getEmailByUserId(userId);
+    }
 }

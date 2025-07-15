@@ -45,4 +45,10 @@ public interface IAccountService {
     Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year);
     
     int getPointsByUserID(int userID);
+
+    public boolean changePasswordByUserId(Integer userIdd, String newPassword);
+    
+    int findUserIdByUsernameOrEmail(String input);
+    
+    String getEmailByUserId(int userId);
 }

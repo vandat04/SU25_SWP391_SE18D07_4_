@@ -194,13 +194,6 @@
                         });
             }
         </script>
-        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-            a {
-                text-decoration: none !important;
-            }
-        </style>
         
     </head>
 
@@ -337,30 +330,6 @@
                                         <li><img src="assets/images/card4.jpg" alt="" width="51" height="36"></li>
                                     </ul>
                                 </div>
-                            </div>
-                        </div>
-                                        
-                        <div>
-                            <button id="toggle3dBtn" type="button" class="btn btn-success">
-                                View 3D Model
-                            </button>
-
-                            <div id="viewerContainer" style="display: none; margin-top: 20px;">
-                                <c:choose>
-                                    <c:when test="${not empty product3D}">
-                                        <model-viewer
-                                            src="${pageContext.request.contextPath}/${product3D}"
-                                            alt="${productName}"
-                                            camera-controls
-                                            auto-rotate
-                                            shadow-intensity="1"
-                                            style="width: 100%; height: 500px;">
-                                        </model-viewer>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <p style="color: red; font-weight: bold;">Model not available</p>
-                                    </c:otherwise>
-                                </c:choose>
                             </div>
                         </div>
 
@@ -797,23 +766,6 @@
                                                                 }, 500);
                                                             });
             </script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    var btn = document.getElementById('toggle3dBtn');
-                    var viewerContainer = document.getElementById('viewerContainer');
-                    var isVisible = false;
-
-                    btn.addEventListener('click', function () {
-                        isVisible = !isVisible;
-                        if (isVisible) {
-                            viewerContainer.style.display = 'block';
-                            btn.textContent = 'Hide 3D Model';
-                        } else {
-                            viewerContainer.style.display = 'none';
-                            btn.textContent = 'View 3D Model';
-                        }
-                    });
-                });
-            </script>
+            
     </body>
 </html> 
