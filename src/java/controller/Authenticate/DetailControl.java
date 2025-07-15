@@ -41,6 +41,12 @@ public class DetailControl extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Kiểm tra session đăng nhập
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("acc") == null) {
+            response.sendRedirect("Login.jsp");
+            return;
+        }
         
         ProductService productService = new ProductService();
         

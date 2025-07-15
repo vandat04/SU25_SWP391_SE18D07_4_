@@ -3,319 +3,265 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
-<html>
+<html class="no-js" lang="vi">
 <head>
-    <title>❤️ Danh sách yêu thích - CraftVillage</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/biolife.css">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh sách yêu thích - Da Nang Craft Village</title>
+
+    <!-- Các link CSS của dự án -->
+    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:600&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/x-icon" href="hinhanh/Logo/cropped-Favicon-1-32x32.png" />
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/animate.min.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/nice-select.css">
+    <link rel="stylesheet" href="assets/css/slick.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/main-color03-green.css">
     
     <style>
-        .wishlist-item {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .wishlist-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .product-image {
+        /* Tùy chỉnh nhỏ cho trang wishlist */
+        .wishlist-table img {
             width: 80px;
             height: 80px;
             object-fit: cover;
+            border-radius: 5px;
+        }
+        .wishlist-table .product-name {
+            font-weight: 600;
+        }
+        .wishlist-table .action-btn {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .btn-add-to-cart-custom {
+            background-color: #4CAF50; /* Green */
+        }
+        .btn-add-to-cart-custom:hover {
+            background-color: #45a049;
+        }
+        .btn-remove-custom {
+            background-color: #f44336; /* Red */
+        }
+        .btn-remove-custom:hover {
+            background-color: #da190b;
+        }
+        .empty-wishlist-container {
+            text-align: center;
+            padding: 80px 20px;
+            background-color: #fff;
             border-radius: 8px;
+            border: 1px dashed #ddd;
         }
-        .price-tag {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #28a745;
+        .empty-wishlist-container i {
+            font-size: 5rem;
+            color: #ccc;
         }
-        .btn-cart {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
+        .empty-wishlist-container h3 {
+            margin-top: 20px;
+            color: #555;
         }
-        .btn-cart:hover {
-            background: linear-gradient(135deg, #20c997, #28a745);
-            transform: translateY(-2px);
-            color: white;
-        }
-        .btn-remove {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            border: none;
-            color: white;
-        }
-        .btn-remove:hover {
-            background: linear-gradient(135deg, #c82333, #dc3545);
-            color: white;
-        }
-        .empty-wishlist {
-            min-height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-        }
-        .breadcrumb {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-        }
-        .wishlist-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-        .btn-action {
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            font-weight: 500;
+        .empty-wishlist-container .btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            font-size: 16px;
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <div class="wishlist-header">
+<body class="biolife-body">
+
+    <!-- HEADER/MENU -->
+    <jsp:include page="Menu.jsp"></jsp:include>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section" style="background-image: url('assets/images/breadcrumb-bg.jpg'); margin-top: 100px;">
         <div class="container">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item">
-                        <a href="home" class="text-white-50">
-                            <i class="fas fa-home"></i> Trang chủ
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active text-white">
-                        <i class="fas fa-heart"></i> Danh sách yêu thích
-                    </li>
-                </ol>
-            </nav>
-            
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="mb-2">
-                        <i class="fas fa-heart text-danger"></i> Danh sách yêu thích của bạn
-                    </h1>
-                    <p class="mb-0 text-white-75">Quản lý các sản phẩm yêu thích và chuyển vào giỏ hàng</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="stats-card">
-                        <h3 class="mb-1">${wishlistWithProducts != null ? wishlistWithProducts.size() : 0}</h3>
-                        <small>Sản phẩm yêu thích</small>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb-text">
+                        <h2>Danh sách yêu thích</h2>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div class="page-contain wishlist-page" style="padding: 60px 0;">
+        <div class="container">
+            
+            <!-- Messages -->
+            <c:if test="${param.error != null}">
+                <div class="alert alert-danger" role="alert">
+                    <strong>Lỗi!</strong> ${param.error}
+                </div>
+            </c:if>
+            <c:if test="${param.success != null}">
+                <div class="alert alert-success" role="alert">
+                    <strong>Thành công!</strong> ${param.success}
+                </div>
+            </c:if>
 
-    <div class="container">
-        <!-- Messages -->
-        <c:if test="${param.error != null}">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Lỗi!</strong> ${param.error}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </c:if>
-        
-        <c:if test="${param.success != null}">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                <strong>Thành công!</strong> ${param.success}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </c:if>
-
-        <!-- Action Buttons -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <a href="home" class="btn btn-outline-secondary btn-action">
-                    <i class="fas fa-arrow-left"></i> Trở về trang chủ
-                </a>
-            </div>
-            <div class="col-md-6 text-end">
-                <c:if test="${wishlistWithProducts != null && wishlistWithProducts.size() > 0}">
-                    <form action="wishlist" method="post" class="d-inline">
-                        <input type="hidden" name="action" value="moveAllToCart">
-                        <input type="hidden" name="userID" value="${userID}">
-                        <button type="submit" class="btn btn-cart btn-action" 
-                                onclick="return confirm('Bạn có muốn chuyển tất cả sản phẩm vào giỏ hàng?')">
-                            <i class="fas fa-cart-plus"></i> Chuyển tất cả vào giỏ hàng
-                        </button>
-                    </form>
-                </c:if>
-            </div>
-        </div>
-
-        <!-- Wishlist Content -->
-        <div class="row">
             <c:choose>
-                <c:when test="${wishlistWithProducts != null && wishlistWithProducts.size() > 0}">
-                    <c:forEach var="item" items="${wishlistWithProducts}" varStatus="status">
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card wishlist-item h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-4">
-                                            <img src="${pageContext.request.contextPath}/${item.productImage != null ? item.productImage : 'assets/images/products/default.jpg'}" 
-                                                 alt="${item.productName}" 
-                                                 class="product-image">
-                                        </div>
-                                        <div class="col-8">
-                                            <h6 class="card-title mb-2">
-                                                <a href="detail?pid=${item.productID}" 
-                                                   class="text-decoration-none text-dark">
-                                                    ${item.productName}
-                                                </a>
-                                            </h6>
-                                            <div class="price-tag mb-2">
-                                                <fmt:formatNumber value="${item.productPrice}" type="currency" 
-                                                                currencyCode="VND" pattern="#,##0 ₫"/>
-                                            </div>
-                                            <small class="text-muted">
-                                                <i class="fas fa-calendar-plus"></i>
-                                                <fmt:formatDate value="${item.addedDate}" pattern="dd/MM/yyyy"/>
-                                            </small>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mt-3 d-flex gap-2">
-                                        <!-- Add to Cart Button -->
-                                        <form action="wishlist" method="post" class="flex-fill">
-                                            <input type="hidden" name="action" value="addToCart">
-                                            <input type="hidden" name="productID" value="${item.productID}">
-                                            <input type="hidden" name="wishlistID" value="${item.wishlistID}">
-                                            <input type="hidden" name="userID" value="${userID}">
-                                            <button type="submit" class="btn btn-cart btn-sm w-100">
-                                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                                            </button>
-                                        </form>
-                                        
-                                        <!-- Remove Button -->
-                                        <form action="wishlist" method="post">
-                                            <input type="hidden" name="action" value="remove">
-                                            <input type="hidden" name="wishlistID" value="${item.wishlistID}">
-                                            <input type="hidden" name="userID" value="${userID}">
-                                            <button type="submit" class="btn btn-remove btn-sm" 
-                                                    onclick="return confirm('Bạn có muốn xóa sản phẩm này khỏi danh sách yêu thích?')"
-                                                    title="Xóa khỏi danh sách yêu thích">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                <c:when test="${wishlistWithProducts != null && !wishlistWithProducts.isEmpty()}">
+                    
+                    <!-- Nút hành động chung -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <a href="product" class="btn btn-outline-success">
+                                <i class="fa fa-arrow-left"></i> Tiếp tục mua sắm
+                            </a>
                         </div>
-                    </c:forEach>
+                        <div class="col-md-6 text-right">
+                            <button type="button" class="btn btn-success" onclick="moveAllToCart()">
+                                <i class="fa fa-cart-plus"></i> Chuyển tất cả vào giỏ hàng
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Bảng danh sách sản phẩm yêu thích -->
+                    <div class="table-responsive">
+                        <table class="table wishlist-table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="2">Sản phẩm</th>
+                                    <th scope="col">Giá</th>
+                                    <th scope="col" class="text-center">Ngày thêm</th>
+                                    <th scope="col" class="text-center">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="item" items="${wishlistWithProducts}">
+                                    <tr>
+                                        <td style="width: 100px;">
+                                            <a href="detail?pid=${item.productID}">
+                                                <img src="${item.productImage != null ? item.productImage : 'assets/images/products/default.jpg'}" alt="${item.productName}">
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="detail?pid=${item.productID}" class="product-name text-dark">${item.productName}</a>
+                                        </td>
+                                        <td>
+                                            <div class="price">
+                                                <ins><span class="price-amount"><fmt:formatNumber value="${item.productPrice}" type="currency"/></span></ins>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <fmt:formatDate value="${item.addedDate}" pattern="dd/MM/yyyy"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <!-- Thêm vào giỏ -->
+                                            <form action="wishlist" method="post" style="display:inline-block;">
+                                                <input type="hidden" name="action" value="addToCart">
+                                                <input type="hidden" name="productID" value="${item.productID}">
+                                                <input type="hidden" name="wishlistID" value="${item.wishlistID}">
+                                                <input type="hidden" name="userID" value="${userID}">
+                                                <button type="submit" class="btn btn-sm btn-add-to-cart-custom" title="Thêm vào giỏ hàng">
+                                                    <i class="fa fa-cart-plus"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            <!-- Xóa khỏi wishlist -->
+                                            <form action="wishlist" method="post" style="display:inline-block;">
+                                                <input type="hidden" name="action" value="remove">
+                                                <input type="hidden" name="wishlistID" value="${item.wishlistID}">
+                                                <input type="hidden" name="userID" value="${userID}">
+                                                <button type="submit" class="btn btn-sm btn-remove-custom" title="Xóa"
+                                                        onclick="return confirm('Xóa sản phẩm này khỏi danh sách yêu thích?')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                 </c:when>
                 <c:otherwise>
-                    <div class="col-12">
-                        <div class="empty-wishlist">
-                            <div class="text-center">
-                                <i class="fas fa-heart-broken fa-5x text-muted mb-4"></i>
-                                <h3 class="text-muted mb-3">Danh sách yêu thích trống</h3>
-                                <p class="text-muted mb-4">
-                                    Bạn chưa có sản phẩm nào trong danh sách yêu thích.<br>
-                                    Hãy khám phá và thêm những sản phẩm bạn yêu thích!
-                                </p>
-                                <div class="d-flex gap-3 justify-content-center">
-                                    <a href="home" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-shopping-bag"></i> Khám phá sản phẩm
-                                    </a>
-                                    <a href="product" class="btn btn-outline-primary btn-lg">
-                                        <i class="fas fa-list"></i> Xem tất cả sản phẩm
-                                    </a>
-                                </div>
+                    <!-- Giao diện khi wishlist rỗng -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="empty-wishlist-container">
+                                <i class="fa fa-heart-o"></i>
+                                <h3>Danh sách yêu thích của bạn trống</h3>
+                                <p class="text-muted">Hãy khám phá cửa hàng và thêm những sản phẩm bạn yêu thích vào đây nhé!</p>
+                                <a href="product" class="btn btn-success">
+                                    <i class="fa fa-shopping-bag"></i> Khám phá ngay
+                                </a>
                             </div>
                         </div>
                     </div>
                 </c:otherwise>
             </c:choose>
         </div>
-
-        <!-- Additional Info -->
-        <c:if test="${wishlistWithProducts != null && wishlistWithProducts.size() > 0}">
-            <div class="row mt-5">
-                <div class="col-12">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">
-                                <i class="fas fa-info-circle text-primary"></i> Thông tin hữu ích
-                            </h5>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <i class="fas fa-heart text-danger fa-2x mb-2"></i>
-                                    <h6>Lưu yêu thích</h6>
-                                    <small class="text-muted">Lưu những sản phẩm bạn quan tâm để xem sau</small>
-                                </div>
-                                <div class="col-md-4">
-                                    <i class="fas fa-cart-plus text-success fa-2x mb-2"></i>
-                                    <h6>Chuyển vào giỏ</h6>
-                                    <small class="text-muted">Dễ dàng thêm sản phẩm từ wishlist vào giỏ hàng</small>
-                                </div>
-                                <div class="col-md-4">
-                                    <i class="fas fa-share-alt text-info fa-2x mb-2"></i>
-                                    <h6>Chia sẻ</h6>
-                                    <small class="text-muted">Chia sẻ danh sách yêu thích với bạn bè</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </c:if>
     </div>
 
-    <!-- Footer spacing -->
-    <div style="height: 60px;"></div>
+    <!-- FOOTER -->
+    <jsp:include page="Footer.jsp"></jsp:include>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Các script của dự án -->
+    <script src="assets/js/jquery-3.4.1.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.countdown.min.js"></script>
+    <script src="assets/js/jquery.nice-select.min.js"></script>
+    <script src="assets/js/jquery.nicescroll.min.js"></script>
+    <script src="assets/js/slick.min.js"></script>
+    <script src="assets/js/biolife.framework.js"></script>
+    <script src="assets/js/functions.js"></script>
     
     <script>
-        // Auto-hide alerts after 5 seconds
+        // Tự động ẩn thông báo sau 5 giây
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
+                let alerts = document.querySelectorAll('.alert');
+                if (alerts) {
+                    alerts.forEach(function(alert) {
+                        alert.style.display = 'none';
+                    });
+                }
             }, 5000);
         });
-
-        // Smooth animations
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.wishlist-item');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.classList.add('animate__animated', 'animate__fadeInUp');
+        // Thêm hàm chuyển tất cả vào giỏ hàng bằng fetch
+        function moveAllToCart() {
+            if (!confirm('Bạn có muốn chuyển tất cả sản phẩm vào giỏ hàng?')) return;
+            const formData = new URLSearchParams();
+            formData.append('action', 'moveAllToCart');
+            formData.append('userID', document.querySelector('input[name="userID"]').value);
+            fetch("wishlist", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    alert("Vui lòng đăng nhập để sử dụng chức năng này!");
+                    window.location.href = 'Login.jsp';
+                    throw new Error('Authentication failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.message) {
+                    alert(data.message);
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                if (error.message !== 'Authentication failed') {
+                    console.error("Lỗi khi chuyển tất cả vào cart:", error);
+                    alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                }
             });
-        });
-
-        // Confirmation for bulk actions
-        function confirmMoveAll() {
-            const count = <c:out value="${wishlistWithProducts != null ? wishlistWithProducts.size() : 0}"/>;
-            return confirm('Bạn có muốn chuyển tất cả ' + count + ' sản phẩm vào giỏ hàng không?');
         }
     </script>
 </body>

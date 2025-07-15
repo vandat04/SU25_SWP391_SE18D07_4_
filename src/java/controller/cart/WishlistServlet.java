@@ -1,4 +1,4 @@
-package controller.cart_order;
+package controller.cart;
 
 import entity.CartWishList.Wishlist;
 import entity.CartWishList.Cart;
@@ -95,11 +95,15 @@ public class WishlistServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        HttpSession session = request.getSession();
-        Integer sessionUserID = (Integer) session.getAttribute("userID");
+        HttpSession session = request.getSession(false); // Không tạo session mới
+        Integer sessionUserID = (session != null) ? (Integer) session.getAttribute("userID") : null;
         
+        // ✅ THAY ĐỔI: Trả về JSON và mã lỗi 401 nếu chưa đăng nhập
         if (sessionUserID == null) {
-            response.sendRedirect("Login.jsp?error=Please login first");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"User not logged in\"}");
             return;
         }
 
@@ -114,13 +118,19 @@ public class WishlistServlet extends HttpServlet {
         try {
             userID = Integer.parseInt(userIDParam);
         } catch (NumberFormatException e) {
-            response.sendRedirect("wishlist?error=Invalid user ID");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Invalid user ID\"}");
             return;
         }
         
         // Security check
         if (userID != sessionUserID) {
-            response.sendRedirect("wishlist?error=Access denied");
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Access denied\"}");
             return;
         }
 
@@ -134,124 +144,131 @@ public class WishlistServlet extends HttpServlet {
             } else if ("add".equals(action)) {
                 handleAddToWishlist(request, response, userID);
             } else {
-                response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid action");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Invalid action\"}");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("wishlist?userID=" + userID + "&error=An error occurred");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"An error occurred\"}");
         }
     }
     
     /**
-     * ✅ REFACTORED: Remove from wishlist - Only calls Service layer
+     * ✅ REFACTORED: Remove from wishlist - Only calls Service layer, always returns JSON
      */
     private void handleRemoveFromWishlist(HttpServletRequest request, HttpServletResponse response, int userID) 
             throws IOException {
         String wishlistIDParam = request.getParameter("wishlistID");
-        
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         if (wishlistIDParam == null || wishlistIDParam.trim().isEmpty()) {
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid wishlist item");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Invalid wishlist item\"}");
             return;
         }
-        
         try {
             int wishlistID = Integer.parseInt(wishlistIDParam);
-            // ✅ ONLY SERVICE CALL - NO DAO CALL
             boolean success = wishlistService.deleteWishlist(wishlistID);
-            
             if (success) {
-                response.sendRedirect("wishlist?userID=" + userID + "&success=Item removed from wishlist");
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Item removed from wishlist\"}");
             } else {
-                response.sendRedirect("wishlist?userID=" + userID + "&error=Failed to remove item");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Failed to remove item\"}");
             }
         } catch (NumberFormatException e) {
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid wishlist item ID");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Invalid wishlist item ID\"}");
         }
     }
     
     /**
-     * ✅ REFACTORED: Add to cart from wishlist - Only calls Service layer
+     * ✅ REFACTORED: Add to cart from wishlist - Only calls Service layer, always returns JSON
      */
     private void handleAddToCart(HttpServletRequest request, HttpServletResponse response, int userID) 
             throws IOException {
         String productIDParam = request.getParameter("productID");
         String wishlistIDParam = request.getParameter("wishlistID");
-        
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         if (productIDParam == null || productIDParam.trim().isEmpty()) {
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid product");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Invalid product\"}");
             return;
         }
-        
         try {
             int productID = Integer.parseInt(productIDParam);
             int wishlistID = -1;
-            
             if (wishlistIDParam != null && !wishlistIDParam.trim().isEmpty()) {
                 wishlistID = Integer.parseInt(wishlistIDParam);
             }
-            
-            // ✅ ONLY SERVICE CALL - NO DAO CALL
             boolean success = wishlistService.moveItemToCart(userID, productID, wishlistID);
-            
             if (success) {
-                response.sendRedirect("wishlist?userID=" + userID + "&success=Item moved to cart");
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Item moved to cart\"}");
             } else {
-                response.sendRedirect("wishlist?userID=" + userID + "&error=Failed to add item to cart");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Failed to add item to cart\"}");
             }
-            
         } catch (NumberFormatException e) {
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid product ID");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Invalid product ID\"}");
         }
     }
     
     /**
-     * ✅ REFACTORED: Move all items to cart - Only calls Service layer
+     * ✅ REFACTORED: Move all items to cart - Only calls Service layer, always returns JSON
      */
     private void handleMoveAllToCart(HttpServletRequest request, HttpServletResponse response, int userID) 
             throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         try {
-            // ✅ ONLY SERVICE CALL - NO DAO CALL
             boolean success = wishlistService.moveAllItemsToCart(userID);
-            
             if (success) {
-                response.sendRedirect("wishlist?userID=" + userID + "&success=All items moved to cart");
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"All items moved to cart\"}");
             } else {
-                response.sendRedirect("wishlist?userID=" + userID + "&error=Wishlist is empty");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Wishlist is empty\"}");
             }
-            
         } catch (Exception e) {
-            System.err.println("Error moving all items to cart: " + e.getMessage());
-            e.printStackTrace();
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Failed to move items to cart");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Failed to move items to cart\"}");
         }
     }
     
     /**
-     * ✅ REFACTORED: Add product to wishlist - Only calls Service layer
+     * ✅ REFACTORED: Add product to wishlist - Only calls Service layer, always returns JSON
      */
     private void handleAddToWishlist(HttpServletRequest request, HttpServletResponse response, int userID) 
             throws IOException {
         String productIDParam = request.getParameter("productID");
-        
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         if (productIDParam == null || productIDParam.trim().isEmpty()) {
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid product");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Mã sản phẩm không hợp lệ.\"}");
             return;
         }
-        
         try {
             int productID = Integer.parseInt(productIDParam);
-            
-            // ✅ ONLY SERVICE CALL - NO DAO CALL
             boolean success = wishlistService.addProductToWishlist(userID, productID);
-            
             if (success) {
-                response.sendRedirect("wishlist?userID=" + userID + "&success=Item added to wishlist");
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đã thêm sản phẩm vào danh sách yêu thích!\"}");
             } else {
-                response.sendRedirect("wishlist?userID=" + userID + "&error=Item already in wishlist or failed to add");
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Sản phẩm này đã có trong danh sách yêu thích.\"}");
             }
-            
         } catch (NumberFormatException e) {
-            response.sendRedirect("wishlist?userID=" + userID + "&error=Invalid product ID");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Mã sản phẩm không hợp lệ.\"}");
         }
     }
 }

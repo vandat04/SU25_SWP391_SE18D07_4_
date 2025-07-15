@@ -762,4 +762,51 @@ public class AccountDAO {
             closeResources(conn, ps, null);
         }
     }
+
+    public int findUserIdByUsernameOrEmail(String input) {
+        String query = "SELECT userID FROM Account WHERE userName = ? OR email = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, input);
+            ps.setString(2, input);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("userID");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error finding user ID by username or email: " + input, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return -1; // Return -1 if not found
+    }
+
+    public String getEmailByUserId(int userId) {
+        String query = "SELECT email FROM Account WHERE userID = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getString("email");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting email by user ID: " + userId, e);
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return null; // Return null if not found
+    }
 }

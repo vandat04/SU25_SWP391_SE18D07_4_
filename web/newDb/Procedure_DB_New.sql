@@ -2407,7 +2407,11 @@ BEGIN
     INNER JOIN OrderDetail od ON o.id = od.order_id
     INNER JOIN Product p ON od.product_id = p.pid
     INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
-    INNER JOIN CraftVillage cv ON p.villageID = cv.villageID
+    INNER JOIN CraftVillage cv ON p.villageID = cv.villageIDMsg 102, Level 15, State 1, Line 1
+
+
+Completion time: 2025-07-15T03:26:22.8670162+07:00
+
     WHERE  o.status = 2
       AND o.paymentStatus = 1
       AND NOT EXISTS (
