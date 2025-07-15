@@ -248,7 +248,8 @@
                                     <td>${od.points}</td>
                                     <td>
                                         <a href="detail?pid=${od.productID}" class="btn btn-primary btn-sm">View Product</a>
-                                        <form action="order" method="post" style="display:inline;" id="canceldForm-${od.orderDetailID}">
+                                        <form action="update-order-list" method="post" style="display:inline;" id="canceldForm-${od.orderDetailID}">
+                                            <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                             <input type="hidden" name="type" value="cancelOrder" />
                                             <input type="hidden" name="orderDetailID" value="${od.orderDetailID}" />
 
@@ -309,7 +310,8 @@
                                     <td>${tod.points}</td>
                                     <td>
                                         <a href="ticket-detail?ticketId=${tod.ticketID}" class="btn btn-primary btn-sm">View Ticket</a>
-                                        <form action="order" method="post" style="display:inline;" id="cancelForm-${tod.detailID}">
+                                        <form action="update-order-list" method="post" style="display:inline;" id="cancelForm-${tod.detailID}">
+                                            <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                             <input type="hidden" name="type" value="cancelTicketOrder" />
                                             <input type="hidden" name="ticketOrderID" value="${tod.detailID}" />
 

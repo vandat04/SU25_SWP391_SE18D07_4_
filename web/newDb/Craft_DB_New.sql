@@ -500,12 +500,11 @@ CREATE TABLE [dbo].[Payment](
 	[transactionID] [nvarchar](100) NULL,
 	[paymentDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[updatedDate] [datetime] NULL,
-	CONSTRAINT [FK_Payment_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[Orders] ([id]),
+	CONSTRAINT [FK_Payment_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[OrderDetail] ([id]),
 	CONSTRAINT [FK_Payment_TicketOrderDetails] FOREIGN KEY([ticketOrderID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID]),
 	CONSTRAINT [FK_Payment_Account] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
 )
 GO
-
 
 ----------------------------------------------------Admin-Seller-------------
 --Table [SalesReport]

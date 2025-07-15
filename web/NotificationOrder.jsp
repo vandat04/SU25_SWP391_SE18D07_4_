@@ -154,7 +154,7 @@
                             </div>
                             <div class="button-group">
                                 <a href="home">Home</a>
-                                <a href="order-history">Order History</a>
+                                <a href="order?userID=${sessionScope.acc.userID}&cas=1">Order History</a>
                             </div>
                         </c:when>
                         <c:otherwise>

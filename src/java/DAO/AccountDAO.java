@@ -334,7 +334,6 @@ public class AccountDAO {
         }
     }
 
-
     public Account getAccountById(int id) {
         String query = "SELECT * FROM Account WHERE userID = ?";
         Connection conn = null;
@@ -530,16 +529,23 @@ public class AccountDAO {
     }
 
     public boolean approvedUpgradeAccount(SellerVerification sellerForm) {
-        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        if (sellerForm == null) {
+            LOGGER.log(Level.WARNING, "sellerForm is null, cannot approve upgrade.");
+            return false;
+        }
+
+        String query = "{? = call sp_ApprovedUpgradeAccount(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
 
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
-            // Register the RETURN parameter
+
+            // Register RETURN value
             cs.registerOutParameter(1, java.sql.Types.INTEGER);
-            // Set input parameters
+
+            // Input parameters
             cs.setInt(2, sellerForm.getVerificationID());
             cs.setInt(3, sellerForm.getSellerID());
             cs.setString(4, sellerForm.getBusinessVillageCategry());
@@ -552,22 +558,29 @@ public class AccountDAO {
             cs.setString(11, sellerForm.getContactEmail());
             cs.setInt(12, sellerForm.getVerificationStatus());
             cs.setInt(13, sellerForm.getVerifiedBy());
+
+            // Vì bạn KHÔNG cần OUTPUT param, chỉ cần set NULL vào param 14
+            cs.registerOutParameter(14, java.sql.Types.INTEGER);
+
             cs.execute();
+
             int result = cs.getInt(1);
-            LOGGER.log(Level.INFO, "sp_RequestUpgradeAccount result code: {0}", result);
-            return true;
+
+            LOGGER.log(Level.INFO, "sp_ApprovedUpgradeAccount result code: {0}", result);
+
+            return result == 1;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error requesting seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+            LOGGER.log(Level.SEVERE, "Error approving seller upgrade for sellerID: " + sellerForm.getSellerID(), e);
+            return false;
         } finally {
             closeResources(conn, cs, null);
         }
-        return false;
     }
 
     public static void main(String[] args) {
-        System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(12,14,"Tram","Tram","Qnam","Tram Huong","hinhanh/village/kim-bong.jpg","TRƯƠNG VĂN ĐẠT","0777076028","dattruong02112004@gmail.com",1,3)));
+        System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(1, 8, "Fish Sauce", "Nam O handmade fish sauce", "Tran Phu Street, Hai Chau District, Da Nang City.", "Fish Sause", "hinhanh/village/nam-o.jpg", "TRƯƠNG VĂN ĐẠT", "0777076028", "dattruong02112004@gmail.com", 1, 7)));
     }
-    
+
     public boolean rejectedUpgradeAccount(SellerVerification sellerForm) {
         String query = "{? = call sp_RejectedUpgradeAccount(?, ?, ?, ?)}";
         Connection conn = null;
@@ -601,7 +614,6 @@ public class AccountDAO {
 
         return false;
     }
-
 
     public boolean checkPassword(int userId, String password) {
         String query = "SELECT COUNT(*) FROM Account WHERE userID = ? AND password = dbo.HashPassword(?)";
@@ -671,7 +683,7 @@ public class AccountDAO {
         return null;
     }
 
-     public int getPointsByUserID(int userID) {
+    public int getPointsByUserID(int userID) {
         String query = "SELECT points FROM AccountPoints WHERE userID = ?";
         Connection conn = null;
         PreparedStatement ps = null;

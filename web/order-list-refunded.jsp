@@ -231,7 +231,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="od" items="${deliveryOrderDetail}">
+                            <c:forEach var="od" items="${refundOrderDetail}">
                                 <tr>
                                     <td>${od.orderDetailID}</td>
                                     <td>${od.productID}</td>
@@ -277,7 +277,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="tod" items="${deliveryTicketOrderDetail}">
+                            <c:forEach var="tod" items="${refundTicketOrderDetail}">
                                 <tr>
                                     <td>${tod.detailID}</td>
                                     <td>${tod.ticketID}</td>

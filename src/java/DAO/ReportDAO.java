@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Types;
 
-
 /**
  *
  * @author ACER
@@ -33,7 +32,6 @@ import java.sql.Types;
 public class ReportDAO {
 
     private static final Logger LOGGER = Logger.getLogger(AccountDAO.class.getName());
-
 
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         return new Payment(
@@ -390,7 +388,6 @@ public class ReportDAO {
         return monthlyRevenue;
     }
 
-
 //---- Order Report
     public Map<Integer, Integer> getOrderStatusSummary() {
         String query = "SELECT status, COUNT(*) AS total FROM ( SELECT status FROM Orders   UNION ALL    SELECT status FROM TicketOrder ) AS Combined GROUP BY status ORDER BY status";
@@ -561,56 +558,51 @@ public class ReportDAO {
         return totalPosts;
     }
 
-   public boolean addPaymentManagement(Payment payment, int paymentStatus, int status) {
-    String paymentMethod = payment.getPaymentMethod();
-    boolean shouldAddPayment = false;
+    public boolean addPaymentManagement(Payment payment, int paymentStatus, int status) {
+        String paymentMethod = payment.getPaymentMethod();
+        boolean shouldAddPayment = false;
 
-    if (paymentMethod != null &&
-        (paymentMethod.equalsIgnoreCase("bankTransfer") || paymentMethod.equalsIgnoreCase("points"))) {
-        shouldAddPayment = true;
-    } else {
-        if (paymentStatus == 1 && status == 2) {
+        if (paymentMethod != null
+                && (paymentMethod.equalsIgnoreCase("bankTransfer") || paymentMethod.equalsIgnoreCase("points"))) {
             shouldAddPayment = true;
-        }
-    }
-
-    if (shouldAddPayment) {
-        String sql = "INSERT INTO Payment "
-                   + "(sellerID, orderID, ticketOrderID, amount, paymentMethod, paymentStatus) "
-                   + "VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DBContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, payment.getSellerID());
-            
-            if (payment.getOrderID() != null) {
-                ps.setInt(2, payment.getOrderID());
-            } else {
-                ps.setNull(2, java.sql.Types.INTEGER);
+            System.out.println("shouldAddPayment oke");
+        } else {
+            if (paymentStatus == 1 && status == 2) {
+                shouldAddPayment = true;
             }
-            
-            if (payment.getTicketOrderID() != null) {
-                ps.setInt(3, payment.getTicketOrderID());
-            } else {
-                ps.setNull(3, java.sql.Types.INTEGER);
-            }
-            
-            ps.setBigDecimal(4, payment.getAmount());
-            ps.setString(5, payment.getPaymentMethod());
-            ps.setInt(6, payment.getPaymentStatus());
-
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
         }
-    }
 
-    return false;
-}
+        if (shouldAddPayment) { 
+            String sql = "INSERT INTO Payment "
+                    + "(sellerID, orderID, ticketOrderID, amount, paymentMethod, paymentStatus) "
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
+            try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, payment.getSellerID());
+
+                if (payment.getOrderID() != null) {
+                    ps.setInt(2, payment.getOrderID());
+                } else {
+                    ps.setNull(2, java.sql.Types.INTEGER);
+                }
+                if (payment.getTicketOrderID() != null) {
+                    ps.setInt(3, payment.getTicketOrderID());
+                } else {
+                    ps.setNull(3, java.sql.Types.INTEGER);
+                }
+                ps.setBigDecimal(4, payment.getAmount());
+                ps.setString(5, payment.getPaymentMethod());
+                ps.setInt(6, payment.getPaymentStatus());
+                int rowsAffected = ps.executeUpdate();
+                return rowsAffected > 0;
+
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error inserting payment", e);
+                return false;
+            }
+        }
+        return false;
+    }
 
     public int getSellerIdByProductId(int pid) {
         String sql = "SELECT cv.sellerId "
@@ -630,7 +622,7 @@ public class ReportDAO {
         }
         return 0;
     }
-    
+
     public int getSellerIdByTicketId(int ticketId) {
         String sql = "SELECT cv.sellerId "
                 + "FROM VillageTicket p "
@@ -649,13 +641,13 @@ public class ReportDAO {
         }
         return 0;
     }
-    
-//----Main test    
 
+//----Main test    
     public static void main(String[] args) {
         //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
-        new ReportDAO().addPaymentManagement(new Payment(2, 92, null, BigDecimal.valueOf(500000), "bankTranfer", 1),0,0);
+        Payment p = new Payment(new ReportDAO().getSellerIdByProductId(1), 9, null, BigDecimal.valueOf(250000), "bankTransfer", 1);
+        System.out.println(p.getPaymentMethod());
+        System.out.println(new ReportDAO().addPaymentManagement(p,0,0));
     }
-
     
 }

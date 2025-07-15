@@ -169,5 +169,42 @@ public class OrderService implements IOrderService{
     public List<TicketOrderDetail> getAllTicketOrderDetailByUserId(int userID) {
         return oDAO.getAllTicketOrderDetailByUserId(userID);
     }
-    
+
+    @Override
+    public boolean cancelOrderDetail(int orderDetailID, String cancelReason) {
+        return oDAO.cancelOrderDetail(orderDetailID, cancelReason);
+    }
+
+    public OrderDetail getOrderDetail(int orderDetailID) {
+        return oDAO.getOrderDetail(orderDetailID);
+    }
+
+    @Override
+    public void refundPayment(int id, int type) {
+        oDAO.refundPayment(id, type);
+    }
+
+    public boolean cancelTicketOrderDetail(int detailID, String cancelReason) {
+        return oDAO.cancelTicketOrderDetail(detailID, cancelReason);
+    }
+
+    public TicketOrderDetail getTicketOrderDetail(int detailID) {
+        return oDAO.getTicketOrderDetail(detailID);
+    }
+
+    public boolean confirmOrderDetail(int orderID) {
+        return oDAO.confirmOrderDetail(orderID);
+    }
+
+    public boolean confirmTicketOrderDetail(int detailID) {
+        return oDAO. confirmTicketOrderDetail(detailID);
+    }
+
+    public boolean refundOrderDetail(int orderDetailID, String refundReason) {
+        return oDAO.refundOrderDetail(orderDetailID,refundReason);
+    }
+
+    public boolean refundTicketOrderDetail(int detailID, String refundReason) {
+        return oDAO.refundOrderDetail(detailID,refundReason);
+    }
 }

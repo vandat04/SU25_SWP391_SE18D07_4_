@@ -261,7 +261,8 @@
                                                 <c:set var="diffDays" value="${diffMillis / (1000*60*60*24)}" />
                                                 <c:if test="${diffDays <= 3}">
                                                     <!-- HIỂN THỊ NÚT REFUND -->
-                                                    <form action="order" method="post" style="display:inline;" id="refundForm-${od.orderDetailID}">
+                                                    <form action="update-order-list" method="post" style="display:inline;" id="refundForm-${od.orderDetailID}">
+                                                        <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                                         <input type="hidden" name="type" value="refundOrder" />
                                                         <input type="hidden" name="orderDetailID" value="${od.orderDetailID}" />
 
@@ -280,8 +281,9 @@
                                             </c:when>
                                             <c:otherwise>
                                                 <!-- Nếu updatedDate null, luôn cho phép refund -->
-                                                <form action="order" method="post" style="display:inline;" id="refundForm-${od.orderDetailID}">
+                                                <form action="update-order-list" method="post" style="display:inline;" id="refundForm-${od.orderDetailID}">
                                                     <input type="hidden" name="type" value="refundOrder" />
+                                                    <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                                     <input type="hidden" name="orderDetailID" value="${od.orderDetailID}" />
 
                                                     <!-- Nút Refund -->
@@ -344,7 +346,8 @@
                                         <a href="ticket-detail?ticketId=${tod.ticketID}" class="btn btn-primary btn-sm">View Ticket</a>
                                         <c:if test="${tod.updatedDate == null}">
                                             <%-- Nếu updatedDate null, luôn cho phép Refund --%>
-                                            <form action="order" method="post" style="display:inline;" id="refundForm-${tod.detailID}">
+                                            <form action="update-order-list" method="post" style="display:inline;" id="refundForm-${tod.detailID}">
+                                                <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                                 <input type="hidden" name="type" value="refundTicketOrder" />
                                                 <input type="hidden" name="detailID" value="${tod.detailID}" />
 
@@ -367,6 +370,7 @@
 
                                             <c:if test="${diffDays <= 3}">
                                                 <form action="order" method="post" style="display:inline;" id="refundForm-${tod.detailID}">
+                                                    <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                                     <input type="hidden" name="type" value="refundTicketOrder" />
                                                     <input type="hidden" name="detailID" value="${tod.detailID}" />
 

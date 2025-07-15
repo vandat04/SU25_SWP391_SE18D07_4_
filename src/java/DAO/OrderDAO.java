@@ -374,7 +374,7 @@ public class OrderDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new OrderDAO().getAllTicketOrderDetailByUserId(1).size());
+        System.out.println(new OrderDAO().refundOrderDetail(21, "sdfsdf"));
     }
 
     public double getOrderTotal(int orderID) {
@@ -637,6 +637,272 @@ public class OrderDAO {
             }
         }
         return list;
+    }
+
+    public boolean cancelOrderDetail(int orderDetailID, String cancelReason) {
+        String query = "{? = call sp_CancelOrder(?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+
+            // Đăng ký RETURN value
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
+            // Set input parameters
+            cs.setInt(2, orderDetailID);
+            cs.setString(3, cancelReason);
+
+            // Thực thi stored procedure
+            cs.execute();
+
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_CancelOrder result code: {0}", result);
+
+            return result == 1;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error cancelling OrderDetail ID: " + orderDetailID, e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public OrderDetail getOrderDetail(int orderDetailID) {
+        String sql = " SELECT * FROM OrderDetail WHERE id = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderDetailID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToOrderDetail(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean cancelTicketOrderDetail(int detailID, String cancelReason) {
+        String query = "{? = call sp_CancelTicketOrder(?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+
+            // Đăng ký RETURN value
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
+            // Set input parameters
+            cs.setInt(2, detailID);
+            cs.setString(3, cancelReason);
+
+            // Thực thi stored procedure
+            cs.execute();
+
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_CancelOrder result code: {0}", result);
+
+            return result == 1;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error cancelling TicketOrderDetail ID: " + detailID, e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public TicketOrderDetail getTicketOrderDetail(int ticketOrderDetaiID) {
+        String sql = " SELECT * FROM TicketOrderDetail WHERE detailID = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, ticketOrderDetaiID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToTicketOrderDetail(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean refundPayment(int id, int type) {
+        String query;
+        OrderDetail order;
+        TicketOrderDetail ticketOrder;
+        int subtotal;
+        int userID;
+
+        if (type == 1) {
+            query = "{? = call sp_RefundOrderPayment(?)}";
+            order = new OrderDAO().getOrderDetail(id);
+            subtotal = BigDecimal.valueOf(order.getSubtotal()).intValue();
+            userID = new OrderDAO().getUserIDByOrderID(order.getOrderID());
+        } else if (type == 2) {
+            query = "{? = call sp_RefundTicketPayment(?)}";
+            ticketOrder = new OrderDAO().getTicketOrderDetail(id);
+            subtotal = ticketOrder.getSubtotal().intValue();
+            userID = new OrderDAO().getUserIDByOrderID(ticketOrder.getOrderID());
+        } else {
+            LOGGER.log(Level.WARNING, "Invalid type for refund: {0}", type);
+            return false;
+        }
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "Refund result code: {0}", result);
+
+            if (result == 1) {
+                new OrderDAO().addPoints(userID, subtotal);
+                System.out.println("oke");
+                System.out.println(userID);
+                System.out.println(subtotal);
+            }
+            return result == 1;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error processing refund for id: " + id + ", type: " + type, e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return false;
+    }
+
+    public boolean confirmOrderDetail(int orderID) {
+        String sql = "UPDATE [CraftDB].[dbo].[OrderDetail] "
+                + "SET status = 2, "
+                + "    paymentStatus = 1, "
+                + "    updatedDate = GETDATE() "
+                + "WHERE id = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderID);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error confirming order details for orderID: " + orderID, e);
+        }
+        return false;
+    }
+
+    public boolean confirmTicketOrderDetail(int detailID) {
+        String sql = "UPDATE [CraftDB].[dbo].[TicketOrderDetail] "
+                + "SET status = 2, "
+                + "    paymentStatus = 1, "
+                + "    updatedDate = GETDATE() "
+                + "WHERE detailID = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, detailID);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error confirming order details for detailID: " + detailID, e);
+        }
+        return false;
+    }
+
+    public boolean refundOrderDetail(int orderDetailID, String refundReason) {
+        String selectSql = "SELECT quantity, price FROM [CraftDB].[dbo].[OrderDetail] "
+                + "WHERE id = ?";
+
+        String updateSql = "UPDATE [CraftDB].[dbo].[OrderDetail] "
+                + "SET status = 5, "
+                + "    refundReason = ?, "
+                + "    refundDate = GETDATE(), "
+                + "    refundAmount = ?, "
+                + "    updatedDate = GETDATE() "
+                + "WHERE id = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+
+            psSelect.setInt(1, orderDetailID);
+            ResultSet rs = psSelect.executeQuery();
+
+            if (rs.next()) {
+                int quantity = rs.getInt("quantity");
+                BigDecimal price = rs.getBigDecimal("price");
+
+                BigDecimal refundAmount = BigDecimal.valueOf(quantity).multiply(price);
+
+                try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+                    psUpdate.setString(1, refundReason);
+                    psUpdate.setBigDecimal(2, refundAmount);
+                    psUpdate.setInt(3, orderDetailID);
+
+                    int rowsAffected = psUpdate.executeUpdate();
+                    return rowsAffected > 0;
+                }
+            } else {
+                LOGGER.log(Level.WARNING, "OrderDetail with id {0} not found.", orderDetailID);
+            }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error refunding OrderDetail with id: " + orderDetailID, e);
+        }
+        return false;
+    }
+
+    public boolean refundTicketOrderDetail(int detailID, String refundReason) {
+        String sql = "UPDATE [CraftDB].[dbo].[TicketOrderDetail] "
+                + "SET status = 5, "
+                + "    refundDate = GETDATE(), "
+                + "    refundReason = ?, "
+                + "    refundAmount = ?, "
+                + "    updatedDate = GETDATE() "
+                + "WHERE detailID = ?";
+
+        String selectSql = "SELECT quantity, price FROM [CraftDB].[dbo].[TicketOrderDetail] "
+                + "WHERE detailID = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+
+            psSelect.setInt(1, detailID);
+            ResultSet rs = psSelect.executeQuery();
+
+            if (rs.next()) {
+                int quantity = rs.getInt("quantity");
+                BigDecimal price = rs.getBigDecimal("price");
+
+                BigDecimal refundAmount = BigDecimal.valueOf(quantity).multiply(price);
+
+                try (PreparedStatement psUpdate = conn.prepareStatement(sql)) {
+                    psUpdate.setString(1, refundReason);
+                    psUpdate.setBigDecimal(2, refundAmount);
+                    psUpdate.setInt(3, detailID);
+
+                    int rowsAffected = psUpdate.executeUpdate();
+                    return rowsAffected > 0;
+                }
+            } else {
+                LOGGER.log(Level.WARNING, "TicketOrderDetail with detailID {0} not found.", detailID);
+            }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error refunding TicketOrderDetail with detailID: " + detailID, e);
+        }
+        return false;
     }
 
 }

@@ -2451,8 +2451,127 @@ BEGIN
     ORDER BY tk.createdDate DESC;
 END
 GO
+--------------------------------------------------------------------
+CREATE PROCEDURE sp_CancelOrder
+(
+    @orderDetailID INT,
+    @cancelReason NVARCHAR(500)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        UPDATE [dbo].[OrderDetail]
+        SET 
+            cancelReason = @cancelReason,
+            cancelDate = GETDATE(),
+            status = 3,
+            updatedDate = GETDATE()
+        WHERE
+            [id] = @orderDetailID;
+
+        -- Kiểm tra xem có row nào được update không
+        IF @@ROWCOUNT = 0
+        BEGIN
+            -- Không tìm thấy orderDetailID
+            RETURN -1;
+        END
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -2; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_CancelTicketOrder
+(
+    @detailID INT,
+    @cancelReason NVARCHAR(500)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        UPDATE [dbo].[TicketOrderDetail]
+        SET 
+            cancelReason = @cancelReason,
+            cancelDate = GETDATE(),
+            status = 3,
+            updatedDate = GETDATE()
+        WHERE
+            [detailID] = @detailID;
+
+        -- Kiểm tra xem có row nào được update không
+        IF @@ROWCOUNT = 0
+        BEGIN
+            -- Không tìm thấy orderDetailID
+            RETURN -1;
+        END
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -2; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_RefundOrderPayment
+(
+    @orderID INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        UPDATE [dbo].[Payment]
+        SET 
+            paymentStatus = 0,
+            updatedDate = GETDATE()
+        WHERE
+            orderID = @orderID;
+
+        IF @@ROWCOUNT = 0
+            RETURN -1; -- Không tìm thấy orderID
+
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -99; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_RefundTicketPayment
+(
+    @ticketOrderID INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        UPDATE [dbo].[Payment]
+        SET 
+            paymentStatus = 0,
+            updatedDate = GETDATE()
+        WHERE
+            ticketOrderID = @ticketOrderID;
+
+        IF @@ROWCOUNT = 0
+            RETURN -2; -- Không tìm thấy ticketOrderID
+
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -99; -- Lỗi hệ thống
+    END CATCH
+END
+GO
 
 
+----------------------------------
 DECLARE @sql NVARCHAR(MAX) = N'';
 
 SELECT @sql = @sql + 
@@ -2461,3 +2580,4 @@ FROM sys.objects
 WHERE type = 'P';
 
 EXEC sp_executesql @sql;
+-----------------------------------

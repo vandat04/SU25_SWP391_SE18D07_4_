@@ -104,10 +104,10 @@ public class AdminProcessRequest extends HttpServlet {
             case "processRequest":
                 if (Integer.parseInt(verificationStatus) == 2) {
                     //Rejected
-                    result = sService.rejectedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), Integer.parseInt(verificationStatus), Integer.parseInt(verifiedBy), rejectReason));
+                    result = sService.rejectedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), 2, Integer.parseInt(verifiedBy), rejectReason));
                 } else {
                     //Approved
-                    result = sService.approvedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), Integer.parseInt(sellerID), businessVillageCategry, businessVillageName, businessVillageAddress, productProductCategory, profileVillagePictureUrl, contactPerson, contactPhone, contactEmail, Integer.parseInt(verificationStatus), Integer.parseInt(verifiedBy)));
+                    result = sService.approvedUpgradeAccount(new SellerVerification(Integer.parseInt(verificationID), Integer.parseInt(sellerID), businessVillageCategry, businessVillageName, businessVillageAddress, productProductCategory, profileVillagePictureUrl, contactPerson, contactPhone, contactEmail, 1, Integer.parseInt(verifiedBy)));
                 }
                 if (result) {
                     request.setAttribute("error", "1");

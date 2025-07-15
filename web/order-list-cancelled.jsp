@@ -231,7 +231,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="od" items="${deliveryOrderDetail}">
+                            <c:forEach var="od" items="${cancelOrderDetail}">
                                 <tr>
                                     <td>${od.orderDetailID}</td>
                                     <td>${od.productID}</td>
@@ -276,7 +276,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="tod" items="${deliveryTicketOrderDetail}">
+                            <c:forEach var="tod" items="${cancelTicketOrderDetail}">
                                 <tr>
                                     <td>${tod.detailID}</td>
                                     <td>${tod.ticketID}</td>
