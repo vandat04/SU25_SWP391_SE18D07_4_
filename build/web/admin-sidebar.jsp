@@ -8,7 +8,7 @@
 <!-- admin-sidebar.jsp -->
 <!-- Sidebar dọc chiếm 1/6 chiều ngang -->
     <div class="w-1/6 bg-gray-800 text-white p-6">
-        <h2 class="text-2xl font-bold mb-6">N4</h2>
+        <h2 class="text-2xl font-bold mb-6"><img src="hinhanh/Logo/logocraft.png" alt="alt"/></h2>
         <ul class="space-y-6 text-xl">
             <li><a href="admin" class="hover:text-yellow-300 block">📋 Dashboard</a></li>
             <li><a href="admin-account-management" class="hover:text-yellow-300 block">📋 Account Management</a></li>
