@@ -6,413 +6,331 @@
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Danh mục sản phẩm - Da Nang Craft Village</title>
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/slick.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/main-color03-green.css">
-    <link rel="shortcut icon" href="hinhanh/Logo/cropped-Favicon-1-32x32.png" />
-    <script>
-        function addToCart(productId, quantity) {
-            fetch("cart?action=add&id=" + productId + "&quantity=" + quantity, {
-                method: "POST",
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (response.redirected) {
-                    alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
-                    window.location.href = 'Login.jsp';
-                    return;
-                }
-                alert("Đã thêm sản phẩm vào giỏ hàng!");
-            })
-            .catch(error => {
-                console.error("Lỗi:", error);
-            });
-        }
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Products - Da Nang Craft Village</title>
+        
+        <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Poppins:600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap" rel="stylesheet">
+        <link rel="shortcut icon" type="image/x-icon" href="hinhanh/Logo/cropped-Favicon-1-32x32.png" />
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/css/animate.min.css">
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+        <link rel="stylesheet" href="assets/css/nice-select.css">
+        <link rel="stylesheet" href="assets/css/slick.min.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/main-color03-green.css">
+        
+        <script>
+            function addToCart(productId, quantity) {
+                fetch("cart?action=add&id=" + productId + "&quantity=" + quantity, {
+                    method: "POST",
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+                        window.location.href = 'Login.jsp';
+                        return;
+                    }
+                    alert("Đã thêm sản phẩm vào giỏ hàng!");
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                });
+            }
+            // Thêm hàm addToWishlist sử dụng fetch
+            function addToWishlist(productId) {
+                const formData = new URLSearchParams();
+                formData.append('action', 'add');
+                formData.append('productID', productId);
+                fetch("wishlist", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        alert("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích!");
+                        window.location.href = 'Login.jsp';
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.message) {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi khi thêm vào wishlist:", error);
+                    alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                });
+            }
+        </script>
+    </head>
+    <body class="biolife-body">
+        <!-- HEADER/MENU -->
+        <jsp:include page="Menu.jsp"></jsp:include>
 
-        function submitForm() {
-            document.getElementById("filterForm").submit();
-        }
-    </script>
-</head>
-<body class="biolife-body">
-
-    <jsp:include page="Menu.jsp"></jsp:include>
-
-<div class="page-contain" style="padding: 60px 0; background: #f9f9f9; margin-top: 100px;">
-    <div class="container">
-        <div class="row">
-            <!-- Sidebar bộ lọc -->
-            <div class="col-12 col-md-3">
-                <div class="top-functions-area">
-                    <div class="flt-item to-left group-on-mobile">
-                        <span class="flt-title">Lọc sản phẩm</span>
-                        <div class="wrap-selectors">
-                            <form id="filterForm" method="get" action="${not empty searchKeyword ? 'search' : 'category'}">
-                                <c:if test="${empty searchKeyword}">
-                                    <input type="hidden" name="cid" value="${cid}">
-                                </c:if>
-                                <c:if test="${not empty searchKeyword}">
-                                    <input type="hidden" name="txt" value="${searchKeyword}">
-                                </c:if>
-                                <!-- Lọc giá -->
-                                <div class="selector-item">
-                                    <label>Giá:</label>
-                                    <select name="price" class="selector" onchange="submitForm()">
-                                        <option value="all" ${selectedPrice == 'all' ? 'selected' : ''}>Tất cả</option>
-                                        <option value="0-100000" ${selectedPrice == '0-100000' ? 'selected' : ''}>Dưới 100.000</option>
-                                        <option value="100000-500000" ${selectedPrice == '100000-500000' ? 'selected' : ''}>100.000 - 500.000</option>
-                                        <option value="500000-1000000" ${selectedPrice == '500000-1000000' ? 'selected' : ''}>500.000 - 1 triệu</option>
-                                        <option value="1000000+" ${selectedPrice == '1000000+' ? 'selected' : ''}>Trên 1 triệu</option>
-                                    </select>
+        <div class="page-contain" style="padding: 60px 0; background: #f9f9f9; margin-top: 100px;">
+            <!-- Main content -->
+            <div class="container">
+                <div class="row">
+                    <!-- Sidebar filters -->
+                    <div class="col-12 col-md-3">
+                        <div class="top-functions-area">
+                            <div class="flt-item to-left group-on-mobile">
+                                <span class="flt-title">Refine</span>
+                                <a href="#" class="icon-for-mobile">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </a>
+                                <div class="wrap-selectors">
+                                    <form id="filterForm" name="frm-refine" method="get" action="product">
+                                        <input type="hidden" name="action" value="${param.action}">
+                                        <%-- Giữ categoryID nếu đang lọc theo category --%>
+                                        <c:if test="${not empty param.categoryID}">
+                                            <input type="hidden" name="categoryID" value="${param.categoryID}">
+                                        </c:if>
+                                        
+                                        <span class="title-for-mobile">Refine Products By</span>
+                                        <div data-title="Price:" class="selector-item">
+                                            <select name="price" class="selector" onchange="submitForm()">
+                                                <option value="all" ${selectedPrice == 'all' ? 'selected' : ''}>All Prices</option>
+                                                <option value="0-100000" ${selectedPrice == '0-100000' ? 'selected' : ''}>Less than 100k</option>
+                                                <option value="100000-500000" ${selectedPrice == '100000-500000' ? 'selected' : ''}>100k - 500k</option>
+                                                <option value="500000-1000000" ${selectedPrice == '500000-1000000' ? 'selected' : ''}>500k - 1M</option>
+                                                <option value="1000000+" ${selectedPrice == '1000000+' ? 'selected' : ''}>More than 1M</option>
+                                            </select>
+                                        </div>
+                                        <div class="flt-item to-right" style="padding-left: 100px">
+                                            <span class="flt-title">Sort</span>
+                                            <div class="wrap-selectors">
+                                                <div class="selector-item orderby-selector">
+                                                    <select name="orderby" class="orderby" aria-label="Shop order" onchange="submitForm()">
+                                                        <option value="menu_order" ${param.orderby == 'menu_order' ? 'selected' : ''}>Mặc định</option>
+                                                        <option value="date" ${param.orderby == 'date' ? 'selected' : ''}>Mới nhất</option>
+                                                        <option value="price" ${param.orderby == 'price' ? 'selected' : ''}>Giá: Thấp đến Cao</option>
+                                                        <option value="price-desc" ${param.orderby == 'price-desc' ? 'selected' : ''}>Giá: Cao đến Thấp</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
-                                <!-- Sắp xếp -->
-                                <div class="selector-item" style="margin-top: 15px;">
-                                    <label>Sắp xếp:</label>
-                                    <select name="orderby" class="selector" onchange="submitForm()">
-                                        <option value="menu_order" ${orderby == 'menu_order' ? 'selected' : ''}>Mặc định</option>
-                                        <option value="name_asc" ${orderby == 'name_asc' ? 'selected' : ''}>Tên A-Z</option>
-                                        <option value="name_desc" ${orderby == 'name_desc' ? 'selected' : ''}>Tên Z-A</option>
-                                        <option value="price_asc" ${orderby == 'price_asc' ? 'selected' : ''}>Giá: Thấp đến Cao</option>
-                                        <option value="price_desc" ${orderby == 'price_desc' ? 'selected' : ''}>Giá: Cao đến Thấp</option>
-                                    </select>
-                                </div>
-                            </form>
+                            </div>
+                        </div>
+
+                        <!-- Newest Products Widget -->
+                        <div class="widget biolife-filter" style="margin-top: 30px;">
+                            <h4 class="wgt-title">Newest</h4>
+                            <div class="wgt-content">
+                                <ul class="products">
+                                    <c:forEach var="p" items="${list5}">
+                                        <li class="pr-item">
+                                            <div class="contain-product style-widget">
+                                                <div class="product-thumb">
+                                                    <a href="detail?pid=${p.id}" class="link-to-product" tabindex="0">
+                                                        <img src="${p.img}" alt="${p.name}" width="270" height="270" class="product-thumnail">
+                                                    </a>
+                                                </div>
+                                                <div class="info">
+                                                    <c:if test="${not empty listCC}">
+                                                        <c:forEach var="cat" items="${listCC}">
+                                                            <c:if test="${cat.categoryID == p.cateID}">
+                                                                <b class="categories">${cat.categoryName}</b>
+                                                            </c:if>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                    <h4 class="product-title"><a href="detail?pid=${p.id}" class="pr-name" tabindex="0">${p.name}</a></h4>
+                                                    <div class="price">
+                                                        <ins><span class="price-amount"><fmt:formatNumber value="${p.price}" type="currency"/></span></ins>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Product listing (ĐÃ ĐƯỢC SỬA ĐỔI) -->
+                    <div class="col-12 col-md-9">
+                        <div class="biolife-title-box">
+                            <span class="subtitle">Tất cả sản phẩm</span>
+                            <h3 class="main-title">Sản phẩm thủ công mỹ nghệ</h3>
+                        </div>
 
-                <!-- Sản phẩm mới -->
-                <div class="widget biolife-filter" style="margin-top: 30px;">
-                    <h4 class="wgt-title">Sản phẩm mới</h4>
-                    <div class="wgt-content">
-                        <ul class="products">
-                            <c:forEach var="p" items="${list5}">
-                                <li class="pr-item">
-                                    <div class="contain-product style-widget">
-                                        <div class="product-thumb">
-                                            <a href="detail?pid=${p.id}" class="link-to-product">
-                                                <img src="${p.img}" alt="${p.name}" width="100" height="100" class="product-thumnail">
-                                            </a>
-                                        </div>
-                                        <div class="info">
-                                            <span class="categories">
-                                                <c:forEach var="cat" items="${listCC}">
-                                                    <c:if test="${cat.categoryID == p.cateID}">${cat.categoryName}</c:if>
-                                                </c:forEach>
-                                            </span>
-                                            <h4 class="product-title"><a href="detail?pid=${p.id}" class="pr-name">${p.name}</a></h4>
-                                            <div class="price">
-                                                <ins><span class="price-amount"><fmt:formatNumber value="${p.price}" type="currency"/></span></ins>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Danh sách sản phẩm -->
-            <div class="col-12 col-md-9">
-                <div class="biolife-title-box">
-                    <c:choose>
-                        <c:when test="${not empty searchKeyword}">
-                            <h3 class="main-title">Kết quả tìm kiếm: "${searchKeyword}"</h3>
-                            <p class="search-results-info">Tìm thấy ${fn:length(listP)} sản phẩm</p>
-                        </c:when>
-                        <c:otherwise>
-                            <h3 class="main-title">Danh mục sản phẩm</h3>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-                <div class="product-grid">
-                    <c:choose>
-                        <c:when test="${empty listP}">
-                            <div class="no-results">
-                                <h4>Không tìm thấy sản phẩm nào</h4>
-                                <p>Không có sản phẩm nào phù hợp với từ khóa "${searchKeyword}". Vui lòng thử lại với từ khóa khác.</p>
-                                <a href="product" class="btn">Xem tất cả sản phẩm</a>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
+                        <div class="product-grid">
                             <div class="row">
-                                <c:set var="pageSize" value="9" />
-                                <c:set var="currentPage" value="${param.page != null ? param.page : 1}" />
-                                <c:set var="start" value="${(currentPage - 1) * pageSize}" />
-                                <c:set var="end" value="${start + pageSize}" />
-                                <c:set var="totalProducts" value="${fn:length(listP)}" />
-                                <c:set var="totalPages" value="${(totalProducts % pageSize == 0) ? (totalProducts / pageSize) : (totalProducts / pageSize + 1)}" />
-                                <c:forEach var="o" items="${listP}" varStatus="status">
-                            <c:if test="${status.index >= start && status.index < end}">
-                                <div class="col-12 col-md-6 col-lg-4">
-                                    <div class="product-item">
-                                        <div class="contain-product layout-default">
-                                            <div class="product-thumb">
-                                                <a href="detail?pid=${o.id}" class="link-to-product">
-                                                    <figure style="width:100%;height:270px;overflow:hidden;background-color:#f8f8f8;border-radius:8px;">
-                                                        <img src="${o.img}" alt="${o.name}" style="width:100%;height:100%;object-fit:contain;">
-                                                    </figure>
-                                                </a>
-                                            </div>
-                                            <div class="info" style="padding: 15px;">
-                                                <span class="categories">
-                                                    <c:forEach var="cat" items="${listCC}">
-                                                        <c:if test="${cat.categoryID == o.cateID}">${cat.categoryName}</c:if>
-                                                    </c:forEach>
-                                                </span>
-                                                <h4 class="product-title"><a href="detail?pid=${o.id}" class="pr-name">${o.name}</a></h4>
-                                                <div class="price">
-                                                    <ins><span class="price-amount"><fmt:formatNumber value="${o.price}" type="currency"/></span></ins>
+                                
+                                <%-- Xử lý trường hợp không tìm thấy sản phẩm --%>
+                                <c:if test="${empty listP}">
+                                    <div class="col-12">
+                                        <p style="text-align: center; font-size: 18px; padding: 20px;">Không tìm thấy sản phẩm nào phù hợp với tiêu chí của bạn.</p>
+                                    </div>
+                                </c:if>
+
+                                <%-- Lặp qua listP (danh sách đã được lọc và phân trang từ Servlet) --%>
+                                <c:forEach var="o" items="${listP}">
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="product-item">
+                                            <div class="contain-product layout-default">
+                                                <div class="product-thumb">
+                                                    <a href="detail?pid=${o.id}" class="link-to-product">
+                                                        <figure style="margin:0;padding:0;width:100%;height:270px;overflow:hidden;position:relative;border-radius:8px;background-color:#f8f8f8;">
+                                                            <img src="${o.img}" alt="${o.name}" class="product-thumnail" style="width:100%;height:100%;object-fit:contain;">
+                                                        </figure>
+                                                    </a>
                                                 </div>
-                                                <div class="slide-down-box">
-                                                    <div class="buttons" style="display:flex;gap:10px;justify-content:center;">
-                                                        <form action="wishlist" method="post">
-                                                            <input type="hidden" name="action" value="add">
-                                                            <input type="hidden" name="userID" value="<%= session.getAttribute("userID") %>">
-                                                            <input type="hidden" name="productID" value="${o.id}">
-                                                            <input type="hidden" name="returnUrl" value="category?cid=${cid}">
-                                                            <button type="submit" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="return confirm('Thêm sản phẩm vào wishlist?')">
-                                                                <i class="fa fa-heart"></i>
+                                                <div class="info" style="padding: 15px;">
+                                                    <c:if test="${not empty listCC}">
+                                                        <c:forEach var="cat" items="${listCC}">
+                                                            <c:if test="${cat.categoryID == o.cateID}">
+                                                                <b class="categories">${cat.categoryName}</b>
+                                                            </c:if>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                    
+                                                    <h4 class="product-title" style="margin-bottom: 10px;">
+                                                        <a href="detail?pid=${o.id}" class="pr-name" style="color:#333;font-size:16px;font-weight:500;text-decoration:none;">${o.name}</a>
+                                                    </h4>
+                                                    <div class="price" style="margin-bottom: 15px;">
+                                                        <ins><span class="price-amount" style="color:#4CAF50;font-size:18px;font-weight:600;"><fmt:formatNumber value="${o.price}" type="currency"/></span></ins>
+                                                    </div>
+                                                    <div class="slide-down-box">
+                                                        <div class="buttons" style="display:flex;gap:10px;justify-content:center;">
+                                                            <button type="button" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="addToWishlist('${o.id}')">
+                                                                <i class="fa fa-heart" aria-hidden="true"></i>
                                                             </button>
-                                                        </form>
-                                                        <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn" style="background:#4CAF50;color:#fff;padding:8px 15px;border-radius:4px;text-decoration:none;">
-                                                            <i class="fa fa-cart-arrow-down"></i> Thêm vào giỏ
-                                                        </a>
+                                                            <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn" style="background:#4CAF50;color:#fff;padding:8px 15px;border-radius:4px;text-decoration:none;">
+                                                                <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Thêm vào giỏ
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </c:if>
-                        </c:forEach>
+                                </c:forEach>
                             </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
+                        </div>
 
-                <!-- Phân trang -->
-                <c:if test="${not empty listP}">
-                    <div class="pagination" style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
-                        <c:choose>
-                            <c:when test="${not empty searchKeyword}">
-                                <!-- Search pagination -->
-                                <c:if test="${currentPage > 1}">
-                                    <a href="search?txt=${searchKeyword}&page=${currentPage - 1}&price=${selectedPrice}&orderby=${orderby}" class="prev">&laquo; Trước</a>
-                                </c:if>
-                                <c:forEach var="i" begin="1" end="${totalPages}">
-                                    <a href="search?txt=${searchKeyword}&page=${i}&price=${selectedPrice}&orderby=${orderby}" class="page-link ${i == currentPage ? 'active' : ''}">${i}</a>
-                                </c:forEach>
-                                <c:if test="${currentPage < totalPages}">
-                                    <a href="search?txt=${searchKeyword}&page=${currentPage + 1}&price=${selectedPrice}&orderby=${orderby}" class="next">Sau &raquo;</a>
-                                </c:if>
-                            </c:when>
-                            <c:otherwise>
-                                <!-- Category pagination -->
-                                <c:if test="${currentPage > 1}">
-                                    <a href="category?cid=${cid}&page=${currentPage - 1}&price=${selectedPrice}&orderby=${orderby}" class="prev">&laquo; Trước</a>
-                                </c:if>
-                                <c:forEach var="i" begin="1" end="${totalPages}">
-                                    <a href="category?cid=${cid}&page=${i}&price=${selectedPrice}&orderby=${orderby}" class="page-link ${i == currentPage ? 'active' : ''}">${i}</a>
-                                </c:forEach>
-                                <c:if test="${currentPage < totalPages}">
-                                    <a href="category?cid=${cid}&page=${currentPage + 1}&price=${selectedPrice}&orderby=${orderby}" class="next">Sau &raquo;</a>
-                                </c:if>
-                            </c:otherwise>
-                        </c:choose>
+                        <!-- Pagination (Sử dụng currentPage và totalPages từ Servlet) -->
+                        <div class="pagination" style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
+                            
+                            <%-- Xây dựng URL cơ sở để giữ các tham số lọc khi chuyển trang --%>
+                            <c:set var="baseUrl" value="product?action=${param.action}&categoryID=${param.categoryID}&price=${param.price}&orderby=${param.orderby}" />
+
+                            <c:if test="${currentPage > 1}">
+                                <a href="${baseUrl}&page=${currentPage - 1}" class="prev">« Previous</a>
+                            </c:if>
+
+                            <c:forEach var="i" begin="1" end="${totalPages}">
+                                <a href="${baseUrl}&page=${i}" class="page-link ${i == currentPage ? 'active' : ''}">${i}</a>
+                            </c:forEach>
+
+                            <c:if test="${currentPage < totalPages}">
+                                <a href="${baseUrl}&page=${currentPage + 1}" class="next">Next »</a>
+                            </c:if>
+                        </div>
+                        
+                        <style>
+                            /* ... (Các CSS cho pagination và product grid giữ nguyên) ... */
+                            .pagination {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                margin-top: 20px;
+                                gap: 4px;
+                            }
+                            .pagination a {
+                                padding: 8px 16px;
+                                margin: 0 2px;
+                                border: 1px solid #ddd;
+                                text-decoration: none;
+                                color: #333;
+                                border-radius: 4px;
+                                display: inline-block;
+                                min-width: 40px;
+                                text-align: center;
+                            }
+                            .pagination a:hover, .pagination a.active {
+                                background-color: #4CAF50;
+                                color: white;
+                            }
+                            .pagination a.prev, .pagination a.next {
+                                font-weight: bold;
+                            }
+                            /* Ensure slide-down-box works properly */
+                            .product-grid .product-item {
+                                overflow: visible;
+                                margin-bottom: 40px; /* Add extra space for slide-down effect */
+                            }
+                            .product-grid .contain-product {
+                                position: relative;
+                                overflow: visible;
+                            }
+                            .product-grid .contain-product .info {
+                                position: relative;
+                                z-index: 1;
+                            }
+                            /* Ensure slide-down-box appears properly on hover */
+                            .product-grid .slide-down-box {
+                                z-index: 10;
+                            }
+                            /* Smooth transition for product hover effect */
+                            .product-grid .contain-product.layout-default {
+                                transition: all 0.3s ease;
+                            }
+                            .product-grid .contain-product.layout-default:hover {
+                                transform: translateY(-2px);
+                            }
+                            /* Make sure buttons are accessible when slide-down appears */
+                            .product-grid .slide-down-box .buttons {
+                                padding: 10px 15px;
+                            }
+                            /* Category styling */
+                            .categories {
+                                color: #4CAF50;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                margin-bottom: 5px;
+                                display: block;
+                            }
+                        </style>
                     </div>
-                </c:if>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<jsp:include page="Footer.jsp" />
+        <!-- FOOTER -->
+        <jsp:include page="Footer.jsp"></jsp:include>
 
-<script src="assets/js/jquery-3.4.1.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/jquery.countdown.min.js"></script>
-<script src="assets/js/jquery.nice-select.min.js"></script>
-<script src="assets/js/jquery.nicescroll.min.js"></script>
-<script src="assets/js/slick.min.js"></script>
-<script src="assets/js/biolife.framework.js"></script>
-<script src="assets/js/functions.js"></script>
-
-<style>
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-        gap: 4px;
-    }
-    .pagination a {
-        padding: 8px 16px;
-        margin: 0 2px;
-        border: 1px solid #ddd;
-        text-decoration: none;
-        color: #333;
-        border-radius: 4px;
-        display: inline-block;
-        min-width: 40px;
-        text-align: center;
-    }
-    .pagination a:hover, .pagination a.active {
-        background-color: #4CAF50;
-        color: white;
-    }
-    .pagination a.prev, .pagination a.next {
-        font-weight: bold;
-    }
-    /* Ensure slide-down-box works properly */
-    .product-grid .product-item {
-        overflow: visible;
-        margin-bottom: 40px; /* Add extra space for slide-down effect */
-    }
-    .product-grid .contain-product {
-        position: relative;
-        overflow: visible;
-    }
-    .product-grid .contain-product .info {
-        position: relative;
-        z-index: 1;
-    }
-    /* Ensure slide-down-box appears properly on hover */
-    .product-grid .slide-down-box {
-        z-index: 10;
-    }
-    /* Smooth transition for product hover effect */
-    .product-grid .contain-product.layout-default {
-        transition: all 0.3s ease;
-    }
-    .product-grid .contain-product.layout-default:hover {
-        transform: translateY(-2px);
-    }
-    /* Make sure buttons are accessible when slide-down appears */
-    .product-grid .slide-down-box .buttons {
-        padding: 10px 15px;
-    }
-    /* Category styling */
-    .categories {
-        color: #4CAF50;
-        font-size: 12px;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-        display: block;
-        font-weight: normal !important;
-    }
-    
-    /* Ensure normal font weight for product titles */
-    .product-title {
-        font-weight: normal !important;
-    }
-    
-    .product-title a {
-        font-weight: normal !important;
-    }
-    
-    /* Ensure normal font weight for price */
-    .price {
-        font-weight: normal !important;
-    }
-    
-    .price-amount {
-        font-weight: 600 !important; /* Only price amount should be bold */
-    }
-    
-    /* Ensure normal font weight for labels */
-    label {
-        font-weight: normal !important;
-    }
-    
-    /* Font weight reset for category page content only */
-    .page-contain .product-grid {
-        font-weight: normal !important;
-    }
-    
-    .page-contain .product-grid * {
-        font-weight: normal !important;
-    }
-    
-    .page-contain .widget {
-        font-weight: normal !important;
-    }
-    
-    .page-contain .widget * {
-        font-weight: normal !important;
-    }
-    
-    /* Exceptions for elements that should be bold */
-    .price-amount,
-    .btn,
-    .pagination a.prev,
-    .pagination a.next,
-    .wgt-title,
-    .main-title,
-    .flt-title {
-        font-weight: bold !important;
-    }
-    
-    /* Ensure menu and navigation are not affected */
-    .biolife-body,
-    .biolife-body *,
-    .biolife-body .biolife-nav,
-    .biolife-body .biolife-nav *,
-    .biolife-body .biolife-header,
-    .biolife-body .biolife-header * {
-        font-weight: inherit !important;
-    }
-    
-    /* Ensure filter forms and selectors are not affected */
-    .top-functions-area,
-    .top-functions-area *,
-    .wrap-selectors,
-    .wrap-selectors *,
-    .selector-item,
-    .selector-item * {
-        font-weight: inherit !important;
-    }
-    
-    /* Search results styling */
-    .search-results-info {
-        color: #666;
-        font-size: 14px;
-        margin-top: 5px;
-        font-style: italic;
-    }
-    
-    /* No results message */
-    .no-results {
-        text-align: center;
-        padding: 40px 20px;
-        color: #666;
-    }
-    
-    .no-results h4 {
-        color: #333;
-        margin-bottom: 10px;
-    }
-    
-    .no-results p {
-        margin-bottom: 20px;
-    }
-    
-    .no-results .btn {
-        background: #4CAF50;
-        color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 4px;
-        display: inline-block;
-    }
-</style>
-</body>
+        <!-- Scripts -->
+        <script src="assets/js/jquery-3.4.1.min.js"></script>
+        <script src="assets/js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery.countdown.min.js"></script>
+        <script src="assets/js/jquery.nice-select.min.js"></script>
+        <script src="assets/js/jquery.nicescroll.min.js"></script>
+        <script src="assets/js/slick.min.js"></script>
+        <script src="assets/js/biolife.framework.js"></script>
+        <script src="assets/js/functions.js"></script>
+        <script>
+        function submitForm() {
+            // Khi submit bộ lọc, reset page về 1
+            document.getElementById('filterForm').submit();
+        }
+        </script>
+    </body>
 </html>

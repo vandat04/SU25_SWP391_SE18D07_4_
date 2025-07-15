@@ -43,6 +43,37 @@
                     console.error("Lỗi:", error);
                 });
             }
+            // Thêm hàm addToWishlist sử dụng fetch
+            function addToWishlist(productId) {
+                const formData = new URLSearchParams();
+                formData.append('action', 'add');
+                formData.append('productID', productId);
+                fetch("wishlist", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        alert("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích!");
+                        window.location.href = 'Login.jsp';
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.message) {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi khi thêm vào wishlist:", error);
+                    alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                });
+            }
         </script>
     </head>
     <body class="biolife-body">
@@ -189,15 +220,9 @@
                                                         </div>
                                                         <div class="slide-down-box">
                                                             <div class="buttons" style="display:flex;gap:10px;justify-content:center;">
-                                                                <form action="wishlist" method="post" style="display:inline;">
-                                                                    <input type="hidden" name="action" value="add">
-                                                                    <input type="hidden" name="userID" value="<%= session.getAttribute("userID") %>">
-                                                                    <input type="hidden" name="productID" value="${o.id}">
-                                                                    <input type="hidden" name="returnUrl" value="product">
-                                                                    <button type="submit" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="return confirm('Thêm sản phẩm vào wishlist?')">
-                                                                        <i class="fa fa-heart" aria-hidden="true"></i>
-                                                                    </button>
-                                                                </form>
+                                                                <button type="button" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="addToWishlist('${o.id}')">
+                                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                                </button>
                                                                 <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn" style="background:#4CAF50;color:#fff;padding:8px 15px;border-radius:4px;text-decoration:none;">
                                                                     <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Thêm vào giỏ
                                                                 </a>
