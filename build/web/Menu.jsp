@@ -124,9 +124,7 @@
                             <a href="wishlist" class="link-to">
                                 <span class="icon-qty-combine">
                                     <i class="icon-heart-bold biolife-icon"></i>
-                                    <span class="qty">
-                                        ${sessionScope.wishlistCount != null ? sessionScope.wishlistCount : "0"}
-                                    </span>
+
                                 </span>
                             </a>
                         </div>

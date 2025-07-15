@@ -102,32 +102,7 @@
         <!-- filepath: d:\KI4\PRJ301\DuanNho\DuAnBanHang\DuAnBanHang\web\Category.jsp -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                // Danh sách tên danh mục
-                var categoryMap = {
-                    1: "Tinh dầu xông phòng",
-                    2: "Tinh dầu xe hơi",
-                    3: "Tinh dầu massage",
-                    4: "Tinh dầu dạng xịt"
-                };
-
-                // Cập nhật tất cả các phần tử có class "categories"
-                var categoryElements = document.querySelectorAll(".categories");
-                categoryElements.forEach(function (element) {
-                    // Lấy cateId từ data attribute của phần tử
-                    var cateid = element.getAttribute('data-category-id');
-                    if (cateid) {
-                        element.textContent = categoryMap[cateid] || "Danh mục sản phẩm";
-                    }
-                });
-
-                // Cập nhật tiêu đề danh mục trong breadcrumb nếu có
-                var breadcrumbCategory = document.querySelector(".permal-link + li span");
-                if (breadcrumbCategory) {
-                    var cateid = breadcrumbCategory.getAttribute('data-category-id');
-                    if (cateid) {
-                        breadcrumbCategory.textContent = categoryMap[cateid] || "Danh mục sản phẩm";
-                    }
-                }
+                // Đã loại bỏ cập nhật tên danh mục bằng JS, dùng JSTL trực tiếp trong JSP
             });
         </script>
     </head>
@@ -160,7 +135,7 @@
                 <nav class="biolife-nav">
                     <ul>
                         <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                        <li class="nav-item"><a href="product" class="permal-link">product</a></li>
+                        <li class="nav-item"><a href="product" class="permal-link">Product</a></li>
                     <li class="nav-item"><span class="current-page">${productName}</span></li>
                 </ul>
             </nav>
@@ -477,20 +452,25 @@
                                             </a>
                                         </div>
                                         <div class="info">
-                                            <b class="categories" data-category-id="${cid}"></b>
+                                            <b class="categories" data-category-id="${p.categoryID}">
+                                              <c:forEach var="cat" items="${categories}">
+                                                <c:if test="${cat.categoryID == p.categoryID}">
+                                                  ${cat.categoryName}
+                                                </c:if>
+                                              </c:forEach>
+                                            </b>
                                             <h4 class="product-title"><a href="detail?pid=${p.id}" class="pr-name">${p.name}</a></h4>
                                             <div class="price">
                                                 <ins><span class="price-amount"><span class="currencySymbol"></span><fmt:formatNumber value="${p.price}" type="currency"/></span></ins>
                                                 <!--<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>-->
                                             </div>
                                             <div class="slide-down-box">
-                                                <p class="message">"Tinh dầu cao cấp, thuần khiết & an toàn."</p>
                                                 <div class="buttons">
                                                     <!--                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>-->
                                                     <a onclick="addToCart(${p.id},1)" class="btn add-to-cart-btn">
                                     <i class="fa fa-cart-plus"></i> Add to cart
                               </a>
-                                                    <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
+                                                
                                                 </div>
                                             </div>
                                         </div>
