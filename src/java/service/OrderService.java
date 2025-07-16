@@ -205,6 +205,6 @@ public class OrderService implements IOrderService{
     }
 
     public boolean refundTicketOrderDetail(int detailID, String refundReason) {
-        return oDAO.refundOrderDetail(detailID,refundReason);
+        return oDAO.refundTicketOrderDetail(detailID,refundReason);
     }
 }

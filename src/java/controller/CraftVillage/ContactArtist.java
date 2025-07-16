@@ -60,14 +60,14 @@ public class ContactArtist extends HttpServlet {
                 threadID = mService.getThreadID(Integer.parseInt(userID), Integer.parseInt(sellerID));
             }
 
-            listMessage = mService.getMessageByThreadID(threadID);
+            listMessage = mService.getMessageByThreadID(threadID, Integer.parseInt(userID));
             request.setAttribute("listMessage", listMessage);
 
             messageThread = mService.getMessageThread(Integer.parseInt(userID), Integer.parseInt(sellerID));
             request.setAttribute("messageThread", messageThread);
             request.getRequestDispatcher("contact-artist.jsp").forward(request, response);
         } catch (Exception e) {
-
+            request.getRequestDispatcher("404Loi.jsp").forward(request, response);
         }
 
     }
@@ -114,17 +114,21 @@ public class ContactArtist extends HttpServlet {
             request.setAttribute("message", success ? "Send Success" : "Send Fail");
 
             // Lấy dữ liệu để hiển thị lại
-            listMessage = mService.getMessageByThreadID(threadID);
+            listMessage = mService.getMessageByThreadID(threadID, senderID);
             request.setAttribute("listMessage", listMessage);
 
             request.setAttribute("messageThread", messageThread);
 
-            request.getRequestDispatcher("contact-artist.jsp").forward(request, response);
+            response.sendRedirect("contact-artist?villageID="
+                    + request.getParameter("villageID")
+                    + "&userID=" + senderID
+                    + "&sellerID=" + messageThread.getSellerID()
+                    + "&threadID=" + threadID);
 
         } catch (Exception e) {
             request.setAttribute("error", "0");
             request.setAttribute("message", "Send Fail");
-            request.getRequestDispatcher("contact-artist.jsp").forward(request, response);
+
         }
     }
 

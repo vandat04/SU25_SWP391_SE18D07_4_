@@ -4,7 +4,6 @@
  */
 package DAO;
 
-
 import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
 import context.DBContext;
@@ -75,7 +74,6 @@ public class CraftVillageDAO {
         } catch (SQLException e) {
         }
     }
-
 
     public CraftVillage getVillageById(int villageId) {
         CraftVillage village = null;
@@ -249,7 +247,7 @@ public class CraftVillageDAO {
         }
         return false;
     }
-    
+
     // Additional methods for compatibility
     public List<CraftVillage> getAllCraftVillages(int offset, int limit) {
         // For now, ignore paging and return all active villages
@@ -275,7 +273,7 @@ public class CraftVillageDAO {
             ps.setString(4, village.getAddress());
             ps.setString(5, village.getContactPhone());
             ps.setString(6, village.getContactEmail());
-            
+
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (Exception e) {
@@ -301,7 +299,7 @@ public class CraftVillageDAO {
             ps.setString(5, village.getContactPhone());
             ps.setString(6, village.getContactEmail());
             ps.setInt(7, village.getVillageID());
-            
+
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (Exception e) {
@@ -322,7 +320,7 @@ public class CraftVillageDAO {
             ps = conn.prepareStatement(sql);
             ps.setInt(1, status);
             ps.setInt(2, villageId);
-            
+
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (Exception e) {
@@ -577,21 +575,21 @@ public class CraftVillageDAO {
         }
         return "";
     }
-    
+
     /**
      * Get all village IDs owned by a specific seller
+     *
      * @param sellerID The seller ID
      * @return List of village IDs owned by the seller
      */
     public List<Integer> getVillageIdsBySeller(int sellerID) {
         List<Integer> villageIDs = new ArrayList<>();
         String query = "SELECT villageID FROM CraftVillage WHERE sellerId = ? AND status = 1";
-        
-        try (Connection conn = DBContext.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setInt(1, sellerID);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     villageIDs.add(rs.getInt("villageID"));
@@ -600,25 +598,25 @@ public class CraftVillageDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting village IDs by seller: " + e.getMessage(), e);
         }
-        
+
         return villageIDs;
     }
-    
+
     /**
      * Check if a village is owned by a specific seller
+     *
      * @param villageID The village ID
      * @param sellerID The seller ID
      * @return true if the village is owned by the seller
      */
     public boolean isVillageOwnedBySeller(int villageID, int sellerID) {
         String query = "SELECT COUNT(*) FROM CraftVillage WHERE villageID = ? AND sellerId = ? AND status = 1";
-        
-        try (Connection conn = DBContext.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setInt(1, villageID);
             ps.setInt(2, sellerID);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
@@ -627,13 +625,81 @@ public class CraftVillageDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error checking if village is owned by seller: " + e.getMessage(), e);
         }
-        
+
         return false;
     }
 
     public static void main(String[] args) {
         //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
-        System.out.println(new CraftVillageDAO().getVillageById(2));
+        System.out.println(new CraftVillageDAO().getVillageByFilter("", "1"));
+    }
+
+    public List<CraftVillage> getVillageByFilter(String provinceCodeSearch, String typeIDStr) {
+        List<CraftVillage> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+
+            String sql = "SELECT * FROM [CraftDB].[dbo].[CraftVillage]";
+
+            List<String> conditions = new ArrayList<>();
+            List<Object> params = new ArrayList<>();
+
+            if (!provinceCodeSearch.equals("")) {
+                conditions.add("address LIKE ?");
+                params.add("%" + provinceCodeSearch + "%");
+            }
+
+            if (!typeIDStr.equals("")) {
+                try {
+                    int typeID = Integer.parseInt(typeIDStr);
+                    conditions.add("typeID = ?");
+                    params.add(typeID);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid typeIDStr: " + typeIDStr);
+                    // hoặc throw ngoại lệ, hoặc bỏ điều kiện lọc typeID
+                    return list; // trả về list rỗng hoặc xử lý theo ý bạn
+                }
+            }
+
+            if (!conditions.isEmpty()) {
+                sql += " WHERE " + String.join(" AND ", conditions);
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToCraftVillage(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return list;
     }
 
 }

@@ -130,4 +130,8 @@ public class VillageService implements IVillageService {
         return vDAO.isVillageOwnedBySeller(villageID, sellerID);
     }
 
+    public List<CraftVillage> getVillageByFilter(String provinceCodeSearch, String typeID) {
+        return vDAO.getVillageByFilter(provinceCodeSearch,typeID);
+    }
+
 }

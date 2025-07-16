@@ -168,7 +168,11 @@
             .tab-contain.active {
                 display: block;
             }
+            .single-layout.product-tabs {
+                margin-top: 70px;
+            }
         </style>
+
         <script>
             function addToCart(productId, quantity) {
                 fetch("cart?action=add&id=" + productId + "&quantity=" + quantity, {
@@ -196,6 +200,43 @@
             }
         </script>
 
+        <style>
+            .contact-btn {
+                display: inline-block;
+                background-color: #FF9800; /* Cam thương mại điện tử */
+                color: #ffffff;
+                padding: 5px 20px;
+                border-radius: 5px;
+                text-decoration: none;
+                font-weight: bold;
+                transition: background-color 0.3s ease;
+            }
+
+            .contact-btn:hover {
+                background-color: #e67e00; /* Cam đậm hơn khi hover */
+                color: #ffffff;
+            }
+        </style>
+        <style>
+            .book-btn {
+                display: inline-block;
+                background-color: #28a745; /* xanh lá tươi */
+                color: #ffffff;
+                padding: 4px 15px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 16px;
+                transition: background-color 0.3s ease;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+
+            .book-btn:hover {
+                background-color: #218838;
+                color: #ffffff;
+                text-decoration: none;
+            }
+        </style>
     </head>
 
     <body class="biolife-body">
@@ -310,7 +351,7 @@
                                                 </c:if>
                                             </c:forEach>
                                             <li>- 
-                                                <a href="ticket-detail?ticketId=${ticket.ticketID}">
+                                                <a href="ticket-detail?ticketId=${ticket.ticketID}" class="book-btn">
                                                     ${typeName}
                                                 </a>
                                             </li>
@@ -320,12 +361,12 @@
                                 <c:choose>
                                     <c:when test="${not empty sessionScope.acc}">
                                         <li><strong>Contact to Artist:</strong>
-                                            <a href="contact-artist?villageID=${villageDetails.villageID}&userID=${sessionScope.acc.userID}&sellerID=${seller.userID}">Here</a>
+                                            <a href="contact-artist?villageID=${villageDetails.villageID}&userID=${sessionScope.acc.userID}&sellerID=${seller.userID}"class="contact-btn">Contact</a>
                                         </li>
                                     </c:when>
                                     <c:otherwise>
                                         <li><strong>Contact to Artist:</strong>
-                                            <a href="Login.jsp">Here</a>
+                                            <a href="Login.jsp"class="contact-btn">Contact</a>
                                         </li>
                                     </c:otherwise>
                                 </c:choose>
@@ -350,194 +391,117 @@
                             </div>
                             <div id="tab_4th" class="tab-contain review-tab">
                                 <div class="container">
-
                                     <div class="row">
-                                        <!-- LEFT: RATING SUMMARY -->
                                         <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
                                             <div class="rating-info">
                                                 <p class="index">
                                                     <strong class="rating">
                                                         <c:choose>
-                                                            <c:when test="${villageDetails.averageRating != null && villageDetails.averageRating > 0}">
-                                                                <fmt:formatNumber value="${villageDetails.averageRating}" pattern="0.0"/>
+                                                            <c:when test="${averageRating != null and averageRating > 0}">
+                                                                <fmt:formatNumber value="${averageRating}" pattern="0.0"/>
                                                             </c:when>
                                                             <c:otherwise>0.0</c:otherwise>
                                                         </c:choose>
                                                     </strong> out of 5
                                                 </p>
-
-                                                <div class="rating">
-                                                    <p class="star-rating">
-                                                        <span class="width-<c:choose>
-                                                                  <c:when test="${villageDetails.averageRating != null && villageDetails.averageRating > 0}">
-                                                                      ${villageDetails.averageRating * 20}
-                                                                  </c:when>
-                                                                  <c:otherwise>0</c:otherwise>
-                                                              </c:choose>percent"></span>
-                                                    </p>
+                                                <div class="star-rating">
+                                                    <c:set var="fullStars" value="${averageRating != null ? averageRating - (averageRating % 1) : 0}" />
+                                                    <c:set var="halfStar" value="${averageRating != null && (averageRating % 1) >= 0.5 ? 1 : 0}" />
+                                                    <c:set var="emptyStars" value="${5 - fullStars - halfStar}" />
+                                                    <c:forEach var="i" begin="1" end="${fullStars}">
+                                                        <i class="fa fa-star" style="color: #ffc107;"></i>
+                                                    </c:forEach>
+                                                    <c:if test="${halfStar == 1}">
+                                                        <i class="fa fa-star-half-o" style="color: #ffc107;"></i>
+                                                    </c:if>
+                                                    <c:forEach var="i" begin="1" end="${emptyStars}">
+                                                        <i class="fa fa-star-o" style="color: #ffc107;"></i>
+                                                    </c:forEach>
                                                 </div>
-
-                                                <p class="see-all">
-                                                    See all 
-                                                    <c:choose>
-                                                        <c:when test="${villageDetails.totalReviews > 0}">
-                                                            ${villageDetails.totalReviews}
-                                                        </c:when>
-                                                        <c:otherwise>0</c:otherwise>
-                                                    </c:choose>
-                                                    reviews
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <!-- RIGHT: REVIEW FORM -->
-                                        <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
-                                            <div class="review-form-wrapper">
-                                                <span class="title">Submit your review</span>
-                                                <c:choose>
-                                                    <c:when test="${sessionScope.acc != null}">
-                                                        <!-- Check if user can review village from their ticket orders -->
-                                                        <c:set var="canReview" value="false" />
-                                                        <c:set var="reviewMessage" value="" />
-                                                        
-                                                        <!-- This will be populated by the controller -->
-                                                        <c:choose>
-                                                            <c:when test="${canUserReviewVillage == true}">
-                                                                <c:set var="canReview" value="true" />
-                                                            </c:when>
-                                                            <c:when test="${canUserReviewVillage == false && reviewMessage != null}">
-                                                                <c:set var="reviewMessage" value="${reviewMessage}" />
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <c:set var="canReview" value="true" />
-                                                                <c:set var="reviewMessage" value="You can review this village. For verified reviews, complete a ticket order first." />
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                        
-                                                        <c:choose>
-                                                            <c:when test="${canReview == true}">
-                                                                <form action="village-review" method="post" name="frm-review">
-                                                                    <c:choose>
-                                                                        <c:when test="${not empty orderIDForReview}">
-                                                                            <input type="hidden" name="action" value="submit-from-order">
-                                                                            <input type="hidden" name="orderID" value="${orderIDForReview}">
-                                                                            <div class="review-type-notice" style="background: #e8f5e8; padding: 10px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
-                                                                                <i class="fa fa-check-circle" style="color: #4CAF50;"></i>
-                                                                                <strong>Verified Review</strong> - Based on your ticket order
-                                                                            </div>
-                                                                        </c:when>
-                                                                        <c:otherwise>
-                                                                            <input type="hidden" name="action" value="submit">
-                                                                            <div class="review-type-notice" style="background: #fff3cd; padding: 10px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
-                                                                                <i class="fa fa-info-circle" style="color: #ffc107;"></i>
-                                                                                <strong>General Review</strong> - Purchase a ticket for verified review
-                                                                            </div>
-                                                                        </c:otherwise>
-                                                                    </c:choose>
-                                                                    
-                                                                    <input type="hidden" name="villageID" value="${villageDetails.villageID}">
-                                                                    <input type="hidden" name="userID" value="${sessionScope.acc.userID}">
-                                                                    
-                                                                    <div class="comment-form-rating">
-                                                                        <label>1. Your rating of this village:</label>
-                                                                        <p class="stars">
-                                                                            <span>
-                                                                                <c:forEach var="star" begin="1" end="5">
-                                                                                    <a class="btn-rating" data-value="star-${star}" href="#">
-                                                                                        <i class="fa fa-star-o" aria-hidden="true"></i>
-                                                                                    </a>
-                                                                                </c:forEach>
-                                                                            </span>
-                                                                        </p>
-                                                                        <input type="hidden" name="rating" id="selected-rating" value="5">
-                                                                    </div>
-
-                                                                    <p class="form-row">
-                                                                        <textarea name="reviewText" id="txt-comment" cols="30" rows="10" placeholder="Write your review here..." required></textarea>
-                                                                    </p>
-                                                                    <p class="form-row">
-                                                                        <button type="submit" name="submit">Submit Review</button>
-                                                                    </p>
-                                                                </form>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <div class="review-restriction">
-                                                                    <p class="restriction-message">${reviewMessage}</p>
-                                                                    <p><strong>To leave a verified review:</strong></p>
-                                                                    <ul>
-                                                                        <li>✓ Purchase a village ticket</li>
-                                                                        <li>✓ Complete your visit</li>
-                                                                        <li>✓ Ensure payment is completed</li>
-                                                                        <li>✓ Review each village once per ticket order</li>
-                                                                    </ul>
-                                                                    <div style="margin-top: 15px;">
-                                                                        <a href="ticket-order-history" class="btn btn-link">Check Your Ticket Orders</a>
-                                                                        <a href="ticket-list?villageID=${villageDetails.villageID}" class="btn btn-primary">Book Village Ticket</a>
-                                                                    </div>
+                                                <p class="see-all">See all <c:out value="${totalReviews > 0 ? totalReviews : 0}"/> reviews</p>
+                                                <ul class="options">
+                                                    <c:set var="total" value="${totalReviews}" />
+                                                    <c:forEach var="i" begin="1" end="5">
+                                                        <c:set var="starCount" value="${6 - i}" />
+                                                        <c:set var="percent" value="${total > 0 ? (ratingDistribution[starCount - 1] * 100.0) / total : 0}" />
+                                                        <fmt:formatNumber var="percentRounded" value="${percent}" maxFractionDigits="0" />
+                                                        <li>
+                                                            <div class="detail-for" style="display: flex; align-items: center; gap: 8px;">
+                                                                <span class="option-name" style="width: 50px;">${starCount} star<c:if test="${starCount > 1}">s</c:if></span>
+                                                                    <div class="rating-bar" style="width: 130px; height: 8px; background: #eee; border-radius: 3px; overflow: hidden;">
+                                                                        <div class="bar-fill"
+                                                                             style="height: 100%; background: #ffc107; border-radius: 3px; transition: width 0.4s; width: ${percentRounded}%;"></div>
                                                                 </div>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <div class="login-request">
-                                                            <p>
-                                                                Please
-                                                                <a href="login?returnUrl=village-details?villageID=${villageDetails.villageID}">
-                                                                    login
-                                                                </a>
-                                                                to submit a review.
-                                                            </p>
-                                                        </div>
-                                                    </c:otherwise>
-                                                </c:choose>
+                                                                <span class="number" style="width: 24px; text-align: right;">${ratingDistribution[starCount - 1]}</span>
+                                                            </div>
+                                                        </li>
+                                                    </c:forEach>
+                                                </ul>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <!-- REVIEW LIST -->
-                                    <div class="row" style="margin-top:40px;">
-                                        <div class="col-12">
-                                            <h3 class="comment-title">
-                                                ${villageDetails.totalReviews} Reviews for ${villageDetails.villageName}
-                                            </h3>
-
-                                            <ol class="commentlist">
-                                                <c:if test="${empty listReview}">
-                                                    <li class="no-reviews">
-                                                        <p>No reviews yet. Be the first to review this village!</p>
-                                                    </li>
-                                                </c:if>
-
-                                                <c:forEach var="review" items="${listReview}">
-                                                    <li class="review">
-                                                        <div class="comment-container" style="border-bottom:1px solid #eee; margin-bottom:15px; padding-bottom:15px;">
+                                        <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
+                                            <div id="comments">
+                                                <h3 class="comment-title">${totalReviews} Reviews for ${villageDetails.villageName}</h3>
+                                                <ol class="commentlist">
+                                                    <c:if test="${empty villageReviews}">
+                                                        <li class="no-reviews">
+                                                            <p>No reviews yet. Be the first to review this village!</p>
+                                                        </li>
+                                                    </c:if>
+                                                    <c:forEach var="review" items="${villageReviews}">
+                                                        <div class="comment-container">
                                                             <div class="row">
                                                                 <div class="comment-content col-lg-8 col-md-9 col-sm-8 col-xs-12">
                                                                     <p class="comment-in">
                                                                         <span class="post-name">${review.reviewText}</span>
-                                                                        <span class="post-date" style="margin-left:10px; font-size:0.9em; color:#999;">
+                                                                        <span class="post-date">
                                                                             <fmt:formatDate pattern="dd/MM/yyyy" value="${review.reviewDate}" />
                                                                         </span>
                                                                     </p>
                                                                     <div class="rating">
                                                                         <p class="star-rating">
-                                                                            <span class="width-${review.rating * 20}percent"></span>
+                                                                            <c:choose>
+                                                                                <c:when test="${review.rating != null and review.rating > 0}">
+                                                                                    <span class="width-${review.rating * 20}percent"></span>
+                                                                                </c:when>
+                                                                                <c:otherwise>
+                                                                                    <span class="width-0percent"></span>
+                                                                                </c:otherwise>
+                                                                            </c:choose>
                                                                         </p>
+                                                                        <!-- Debug: Show actual rating value -->
+                                                                        <c:if test="${param.debug == 'true'}">
+                                                                            <small style="color: #999;">Debug: Rating=${review.rating}</small>
+                                                                        </c:if>
                                                                     </div>
+                                                                    <p class="author">by: <b>${review.userName}</b></p>
 
-                                                                    <c:if test="${not empty review.response}">
-                                                                        <div class="review-response" style="background: #f7f7f7; padding: 10px; margin-top: 10px; border-left: 3px solid #4CAF50;">
-                                                                            <strong>Response:</strong>
-                                                                            <p style="margin:0;">${review.response}</p>
-                                                                        </div>
-                                                                    </c:if>
-
+                                                                    <!-- Admin Response Section -->
+                                                                    <c:choose>
+                                                                        <c:when test="${not empty review.response}">
+                                                                            <div class="review-response" style="background: #f7f7f7; padding: 10px; margin-top: 10px; border-left: 3px solid #4CAF50;">
+                                                                                <strong>Admin Response:</strong>
+                                                                                <p style="margin:0;">${review.response}</p>
+                                                                                <c:if test="${not empty review.responseDate}">
+                                                                                    <small style="color: #666;">
+                                                                                        <fmt:formatDate pattern="dd/MM/yyyy HH:mm" value="${review.responseDate}" />
+                                                                                    </small>
+                                                                                </c:if>
+                                                                            </div>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <div class="review-response" style="background: #f9f9f9; padding: 10px; margin-top: 10px; border-left: 3px solid #ccc; color: #666;">
+                                                                                <strong>Admin Response:</strong>
+                                                                                <p style="margin:0; font-style: italic;">No response from admin yet.</p>
+                                                                            </div>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </li>
-                                                </c:forEach>
-                                            </ol>
+                                                    </c:forEach>
+                                                </ol>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

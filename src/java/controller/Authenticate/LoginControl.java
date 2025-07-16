@@ -47,6 +47,7 @@ public class LoginControl extends HttpServlet {
             session.setAttribute("userName", a.getUserName());
             session.setAttribute("fullName", a.getFullName()); // ✅ Added fullName
             session.setAttribute("roleID", a.getRoleID());
+            session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
             session.setMaxInactiveInterval(1800); // 30 minutes
 
             // Get wishlist count
@@ -106,6 +107,7 @@ public class LoginControl extends HttpServlet {
                 session.setAttribute("userName", a.getUserName());
                 session.setAttribute("fullName", a.getFullName()); // ✅ Added fullName
                 session.setAttribute("roleID", a.getRoleID());
+                 session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
                 session.setMaxInactiveInterval(1800); // 30 minutes
 
                 // Get wishlist count
@@ -150,6 +152,7 @@ public class LoginControl extends HttpServlet {
             session.setAttribute("userName", a.getUserName());
             session.setAttribute("fullName", a.getFullName()); 
             session.setAttribute("roleID", a.getRoleID());
+             session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
             session.setMaxInactiveInterval(1800); // 30 minutes
 
             // Get wishlist count

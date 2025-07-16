@@ -17,19 +17,29 @@ public class Message {
     private String messageContent;
     private String attachmentUrl;
     private Timestamp sentDate;
+    private int userRead;
 
     // Constructors-------------------------------------------------------------
     public Message() {}
 
-    public Message(int messageID, int threadID, int senderID, String messageContent, String attachmentUrl, Timestamp sentDate) {
+    public Message(int messageID, int threadID, int senderID, String messageContent, String attachmentUrl, Timestamp sentDate, int userRead) {
         this.messageID = messageID;
         this.threadID = threadID;
         this.senderID = senderID;
         this.messageContent = messageContent;
         this.attachmentUrl = attachmentUrl;
         this.sentDate = sentDate;
+        this.userRead = userRead;
     }
 
+    public Message(int threadID, int senderID, String messageContent, String attachmentUrl,int userRead) {
+        this.threadID = threadID;
+        this.senderID = senderID;
+        this.messageContent = messageContent;
+        this.attachmentUrl = attachmentUrl;
+        this.userRead = userRead;
+    }
+    
     public Message(int threadID, int senderID, String messageContent, String attachmentUrl) {
         this.threadID = threadID;
         this.senderID = senderID;
@@ -87,9 +97,17 @@ public class Message {
         this.sentDate = sentDate;
     }
 
+    public int getUserRead() {
+        return userRead;
+    }
+
+    public void setUserRead(int userRead) {
+        this.userRead = userRead;
+    }
+
     @Override
     public String toString() {
-        return "Message{" + "messageID=" + messageID + ", threadID=" + threadID + ", senderID=" + senderID + ", messageContent=" + messageContent + ", attachmentUrl=" + attachmentUrl + ", sentDate=" + sentDate + '}';
+        return "Message{" + "messageID=" + messageID + ", threadID=" + threadID + ", senderID=" + senderID + ", messageContent=" + messageContent + ", attachmentUrl=" + attachmentUrl + ", sentDate=" + sentDate + ", userRead=" + userRead + '}';
     }
-    
+
 }

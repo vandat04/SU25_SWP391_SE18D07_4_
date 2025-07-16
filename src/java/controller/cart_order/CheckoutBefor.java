@@ -63,9 +63,9 @@ public class CheckoutBefor extends HttpServlet {
         try {
             // Lấy giỏ hàng từ session
             Cart cart = (Cart) session.getAttribute("cart");
-            if (cart == null || cart.getItems().isEmpty()) {
+            if (cart == null || (cart.getItems().isEmpty() && cart.getTickets().isEmpty())) {
                 request.setAttribute("error", "Your cart is empty");
-                request.getRequestDispatcher("cart.jsp").forward(request, response);
+                request.getRequestDispatcher("cart").forward(request, response);
                 return;
             }
 
@@ -137,7 +137,7 @@ public class CheckoutBefor extends HttpServlet {
 
         try {
             Cart cart = (Cart) session.getAttribute("cart");
-            if (cart == null || cart.getItems().isEmpty()) {
+            if (cart == null || (cart.getItems().isEmpty() && cart.getTickets().isEmpty())) {
                 request.setAttribute("error", "Your cart is empty");
                 request.getRequestDispatcher("cart").forward(request, response);
                 return;

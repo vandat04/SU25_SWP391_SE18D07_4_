@@ -287,8 +287,8 @@
                                     <td><fmt:formatNumber value="${tod.subtotal}" type="currency"/></td>
                                     <td>
                                         <c:choose>
-                                            <c:when test="${od.status == 4}">Refunded</c:when>
-                                            <c:when test="${od.status == 5}">Refunding</c:when>
+                                            <c:when test="${tod.status == 4}">Refunded</c:when>
+                                            <c:when test="${tod.status == 5}">Refunding</c:when>
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
@@ -304,7 +304,6 @@
                             </c:forEach>
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>

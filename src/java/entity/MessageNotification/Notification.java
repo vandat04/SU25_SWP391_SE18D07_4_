@@ -27,6 +27,31 @@ public class Notification {
     public Notification() {
     }
 
+    public Notification(int notificationID, int userID, int typeID, String title, String content, String targetUrl, boolean isRead, Timestamp createdDate, Timestamp readDate) {
+        this.notificationID = notificationID;
+        this.userID = userID;
+        this.typeID = typeID;
+        this.title = title;
+        this.content = content;
+        this.targetUrl = targetUrl;
+        this.isRead = isRead;
+        this.createdDate = createdDate;
+        this.readDate = readDate;
+    }
+
+    public Notification(int userID, int typeID, String title, String content, String targetUrl, boolean isRead, Timestamp createdDate, Timestamp readDate) {
+        this.userID = userID;
+        this.typeID = typeID;
+        this.title = title;
+        this.content = content;
+        this.targetUrl = targetUrl;
+        this.isRead = isRead;
+        this.createdDate = createdDate;
+        this.readDate = readDate;
+    }
+
+    
+    
     //--------------------------------------------------------------------------
     public int getNotificationID() {
         return notificationID;

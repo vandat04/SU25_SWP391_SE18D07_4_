@@ -157,7 +157,7 @@ public class ProductDAO {
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(mapResultSetToProduct(rs));
+                list.add(mapResultSetToProduct1(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();

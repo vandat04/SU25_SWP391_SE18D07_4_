@@ -172,59 +172,85 @@
                         </div>
 
                         <div class="product-grid">
-                            <div class="row">
-                                
-                                <%-- Xử lý trường hợp không tìm thấy sản phẩm --%>
-                                <c:if test="${empty listP}">
-                                    <div class="col-12">
-                                        <p style="text-align: center; font-size: 18px; padding: 20px;">Không tìm thấy sản phẩm nào phù hợp với tiêu chí của bạn.</p>
-                                    </div>
-                                </c:if>
+    <div class="row">
 
-                                <%-- Lặp qua listP (danh sách đã được lọc và phân trang từ Servlet) --%>
-                                <c:forEach var="o" items="${listP}">
-                                    <div class="col-12 col-md-6 col-lg-4">
-                                        <div class="product-item">
-                                            <div class="contain-product layout-default">
-                                                <div class="product-thumb">
-                                                    <a href="detail?pid=${o.id}" class="link-to-product">
-                                                        <figure style="margin:0;padding:0;width:100%;height:270px;overflow:hidden;position:relative;border-radius:8px;background-color:#f8f8f8;">
-                                                            <img src="${o.img}" alt="${o.name}" class="product-thumnail" style="width:100%;height:100%;object-fit:contain;">
-                                                        </figure>
-                                                    </a>
-                                                </div>
-                                                <div class="info" style="padding: 15px;">
-                                                    <c:if test="${not empty listCC}">
-                                                        <c:forEach var="cat" items="${listCC}">
-                                                            <c:if test="${cat.categoryID == o.cateID}">
-                                                                <b class="categories">${cat.categoryName}</b>
-                                                            </c:if>
-                                                        </c:forEach>
-                                                    </c:if>
-                                                    
-                                                    <h4 class="product-title" style="margin-bottom: 10px;">
-                                                        <a href="detail?pid=${o.id}" class="pr-name" style="color:#333;font-size:16px;font-weight:500;text-decoration:none;">${o.name}</a>
-                                                    </h4>
-                                                    <div class="price" style="margin-bottom: 15px;">
-                                                        <ins><span class="price-amount" style="color:#4CAF50;font-size:18px;font-weight:600;"><fmt:formatNumber value="${o.price}" type="currency"/></span></ins>
-                                                    </div>
-                                                    <div class="slide-down-box">
-                                                        <div class="buttons" style="display:flex;gap:10px;justify-content:center;">
-                                                            <button type="button" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="addToWishlist('${o.id}')">
-                                                                <i class="fa fa-heart" aria-hidden="true"></i>
-                                                            </button>
-                                                            <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn" style="background:#4CAF50;color:#fff;padding:8px 15px;border-radius:4px;text-decoration:none;">
-                                                                <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Thêm vào giỏ
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
+        <%-- Xử lý trường hợp không tìm thấy sản phẩm --%>
+        <c:if test="${empty listP}">
+            <div class="col-12">
+                <p class="no-product-message">
+                    Không tìm thấy sản phẩm nào phù hợp với tiêu chí của bạn.
+                </p>
+            </div>
+        </c:if>
+
+        <%-- Lặp qua danh sách sản phẩm --%>
+        <c:forEach var="o" items="${listP}">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="product-item">
+                    <div class="contain-product layout-default">
+                        <div class="product-thumb">
+                            <a href="detail?pid=${o.id}" class="link-to-product">
+                                                                                <figure style="
+                                                                                        margin: 0;
+                                                                                        padding: 0;
+                                                                                        width: 100%;
+                                                                                        height: 270px;
+                                                                                        overflow: hidden;
+                                                                                        position: relative;
+                                                                                        border-radius: 8px;
+                                                                                        background-color: #f8f8f8;
+                                                                                        ">
+                                                                                    <img src="${o.img}" alt="${o.name}"  class="product-thumbnail" style="
+                                                                                         width: 100%;
+                                                                                         height: 100%;
+                                                                                         object-fit: contain;
+                                                                                         transition: transform 0.3s ease;
+                                                                                         "> </figure>
+                                                                            </a> 
                         </div>
+                        <div class="info product-info">
+
+                            <%-- Hiển thị danh mục sản phẩm --%>
+                            <c:if test="${not empty listCC}">
+                                <c:forEach var="cat" items="${listCC}">
+                                    <c:if test="${cat.categoryID == o.cateID}">
+                                        <b class="category-label">${cat.categoryName}</b>
+                                    </c:if>
+                                </c:forEach>
+                            </c:if>
+
+                            <h4 class="product-title">
+                                <a href="detail?pid=${o.id}" class="pr-name">${o.name}</a>
+                            </h4>
+
+                            <div class="price product-price">
+                                <ins>
+                                    <span class="price-amount">
+                                        <fmt:formatNumber value="${o.price}" type="currency" />
+                                    </span>
+                                </ins>
+                            </div>
+
+                            <div class="slide-down-box">
+                                <div class="buttons">
+                                    <button type="button" class="btn wishlist-btn" onclick="addToWishlist('${o.id}')">
+                                        <i class="fa fa-heart" aria-hidden="true"></i>
+                                    </button>
+                                    <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn">
+                                        <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Thêm vào giỏ
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:forEach>
+
+    </div>
+</div>
+
 
                         <!-- Pagination (Sử dụng currentPage và totalPages từ Servlet) -->
                         <div class="pagination" style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
@@ -246,7 +272,7 @@
                         </div>
                         
                         <style>
-                            /* ... (Các CSS cho pagination và product grid giữ nguyên) ... */
+
                             .pagination {
                                 display: flex;
                                 justify-content: center;
@@ -302,11 +328,21 @@
                             }
                             /* Category styling */
                             .categories {
-                                color: #4CAF50;
                                 font-size: 12px;
                                 text-transform: uppercase;
                                 margin-bottom: 5px;
                                 display: block;
+                            }
+                            .category-label {
+                                display: block;
+                                text-align: center;
+                                margin-bottom: 5px;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                            }
+                            .product-grid .info,
+                            .product-info {
+                                text-align: center;
                             }
                         </style>
                     </div>

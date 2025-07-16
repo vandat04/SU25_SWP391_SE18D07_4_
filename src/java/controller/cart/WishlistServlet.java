@@ -1,8 +1,5 @@
 package controller.cart;
 
-import entity.CartWishList.Wishlist;
-import entity.CartWishList.Cart;
-import entity.CartWishList.CartItem;
 import service.WishlistService;
 import service.IWishlistService;
 import service.CartService;
@@ -83,7 +80,7 @@ public class WishlistServlet extends HttpServlet {
 
             request.setAttribute("wishlistWithProducts", wishlistWithProducts);
             request.setAttribute("userID", userID);
-            request.getRequestDispatcher("/wishlist.jsp").forward(request, response);
+            request.getRequestDispatcher("wishlist.jsp").forward(request, response);
             
         } catch (Exception e) {
             System.err.println("[ERROR] WishlistServlet.doGet - UserID: " + userID);

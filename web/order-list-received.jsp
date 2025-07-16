@@ -369,10 +369,10 @@
                                             <c:set var="diffDays" value="${diffMillis / (1000*60*60*24)}" />
 
                                             <c:if test="${diffDays <= 3}">
-                                                <form action="order" method="post" style="display:inline;" id="refundForm-${tod.detailID}">
+                                                <form action="update-order-list" method="post" style="display:inline;" id="refundForm-${tod.detailID}">
                                                     <input type="hidden" name="userID" value="${sessionScope.acc.userID}" />
                                                     <input type="hidden" name="type" value="refundTicketOrder" />
-                                                    <input type="hidden" name="detailID" value="${tod.detailID}" />
+                                                    <input type="hidden" name="ticketOrderID" value="${tod.detailID}" />
 
                                                     <!-- Nút Refund -->
                                                     <button type="button" class="btn btn-warning btn-sm" onclick="showTRefundReason(${tod.detailID})">

@@ -84,6 +84,12 @@
             <!-- Main content -->
             <div class="container">
                 <div class="row">
+                                                    <c:set var="pageSize" value="9"/>
+                                <c:set var="currentPage" value="${param.page != null ? param.page : 1}"/>
+                                <c:set var="start" value="${(currentPage - 1) * pageSize}"/>
+                                <c:set var="end" value="${start + pageSize}"/>
+                                <c:set var="totalProducts" value="${fn:length(listP)}"/>
+                                <c:set var="totalPages" value="${(totalProducts % pageSize == 0) ? (totalProducts / pageSize) : (totalProducts / pageSize + 1)}"/>
                     <!-- Sidebar filters -->
                     <div class="col-12 col-md-3">
                         <div class="top-functions-area">
@@ -112,10 +118,10 @@
                                             <div class="wrap-selectors">
                                                 <div class="selector-item orderby-selector">
                                                     <select name="orderby" class="orderby" aria-label="Shop order" onchange="submitForm()">
-                                                        <option value="menu_order" ${param.orderby == 'menu_order' ? 'selected' : ''}>Mặc định</option>
-                                                        <option value="date" ${param.orderby == 'date' ? 'selected' : ''}>Mới nhất</option>
-                                                        <option value="price" ${param.orderby == 'price' ? 'selected' : ''}>Giá: Thấp đến Cao</option>
-                                                        <option value="price-desc" ${param.orderby == 'price-desc' ? 'selected' : ''}>Giá: Cao đến Thấp</option>
+                                                        <option value="menu_order" ${param.orderby == 'menu_order' ? 'selected' : ''}>Default</option>
+                                                        <option value="date" ${param.orderby == 'date' ? 'selected' : ''}>Newest</option>
+                                                        <option value="price" ${param.orderby == 'price' ? 'selected' : ''}>Price: Low to High</option>
+                                                        <option value="price-desc" ${param.orderby == 'price-desc' ? 'selected' : ''}>Price: Hign to Lơw</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -139,21 +145,12 @@
                                                     </a>
                                                 </div>
                                                 <div class="info">
-                                                    <!-- Debug: Categories count: ${fn:length(listCC)} -->
-                                                    <c:if test="${empty listCC}">
-                                                        <b class="categories">No categories loaded</b>
-                                                    </c:if>
                                                     <c:if test="${not empty listCC}">
-                                                        <c:set var="categoryFound" value="false"/>
                                                         <c:forEach var="cat" items="${listCC}">
                                                             <c:if test="${cat.categoryID == p.cateID}">
-                                                                <b class="categories">${cat.categoryName}</b>
-                                                                <c:set var="categoryFound" value="true"/>
+                                                                <b class="category-label">${cat.categoryName}</b>
                                                             </c:if>
                                                         </c:forEach>
-                                                        <c:if test="${!categoryFound}">
-                                                            <b class="categories">Product catID: ${p.cateID}</b>
-                                                        </c:if>
                                                     </c:if>
                                                     <h4 class="product-title"><a href="detail?pid=${p.id}" class="pr-name" tabindex="0">${p.name}</a></h4>
                                                     <div class="price">
@@ -170,71 +167,72 @@
                     <!-- Product listing -->
                     <div class="col-12 col-md-9">
                         <div class="biolife-title-box">
-                            <span class="subtitle">Tất cả sản phẩm</span>
-                            <h3 class="main-title">Sản phẩm thủ công mỹ nghệ</h3>
+                            <span class="subtitle">All products</span>
+                            <h3 class="main-title">Handicraft products</h3>
                         </div>
 
                         <div class="product-grid">
+                            
                             <div class="row">
-                                <c:set var="pageSize" value="9"/>
-                                <c:set var="currentPage" value="${param.page != null ? param.page : 1}"/>
-                                <c:set var="start" value="${(currentPage - 1) * pageSize}"/>
-                                <c:set var="end" value="${start + pageSize}"/>
-                                <c:set var="totalProducts" value="${fn:length(listP)}"/>
-                                <c:set var="totalPages" value="${(totalProducts % pageSize == 0) ? (totalProducts / pageSize) : (totalProducts / pageSize + 1)}"/>
+                                                    <c:forEach var="o" items="${listP}" varStatus="status">
+                                                        <c:if test="${status.index >= start && status.index < end}">
+                                                            <div class="col-12 col-md-6 col-lg-4">
+                                                                <div class="product-item">
+                                                                    <div class="contain-product layout-default">
+                                                                        <div class="product-thumb">
+                                                                            <a href="detail?pid=${o.id}" class="link-to-product">
+                                                                                <figure style="
+                                                                                        margin: 0;
+                                                                                        padding: 0;
+                                                                                        width: 100%;
+                                                                                        height: 270px;
+                                                                                        overflow: hidden;
+                                                                                        position: relative;
+                                                                                        border-radius: 8px;
+                                                                                        background-color: #f8f8f8;
+                                                                                        ">
+                                                                                    <img src="${o.img}" alt="${o.name}"  class="product-thumbnail" style="
+                                                                                         width: 100%;
+                                                                                         height: 100%;
+                                                                                         object-fit: contain;
+                                                                                         transition: transform 0.3s ease;
+                                                                                         "> </figure>
+                                                                            </a> 
+                                                                      
+                                                                        </div>
+                                                                        <div class="info">
+                                                                            <!-- Thêm hiển thị category cho từng sản phẩm -->
+                                                                            <c:if test="${not empty listCC}">
+                                                                                <c:forEach var="cat" items="${listCC}">
+                                                                                    <c:if test="${cat.categoryID == o.cateID}">
+                                                                                        <b class="category-label">${cat.categoryName}</b>
+                                                                                    </c:if>
+                                                                                </c:forEach>
+                                                                            </c:if>
+                                                                            <h4 class="product-title"><a href="detail?pid=${o.id}" class="pr-name">${o.name}</a></h4>
+                                                                            <div class="price">
+                                                                                <ins><span class="price-amount"><span class="currencySymbol"></span> <fmt:formatNumber value="${o.price}" type="currency"/></span></ins>
+                                                                            </div>
+                                                                            <div class="slide-down-box">
+                                                                                
 
-                                <c:forEach var="o" items="${listP}" varStatus="status">
-                                    <c:if test="${status.index >= start && status.index < end}">
-                                        <div class="col-12 col-md-6 col-lg-4">
-                                            <div class="product-item">
-                                                <div class="contain-product layout-default">
-                                                    <div class="product-thumb">
-                                                        <a href="detail?pid=${o.id}" class="link-to-product">
-                                                            <figure style="margin:0;padding:0;width:100%;height:270px;overflow:hidden;position:relative;border-radius:8px;background-color:#f8f8f8;">
-                                                                <img src="${o.img}" alt="${o.name}" class="product-thumnail" style="width:100%;height:100%;object-fit:contain;">
-                                                            </figure>
-                                                        </a>
-                                                    </div>
-                                                    <div class="info" style="padding: 15px;">
-                                                        <!-- Debug: Categories count: ${fn:length(listCC)} -->
-                                                        <c:if test="${empty listCC}">
-                                                            <b class="categories">No categories loaded</b>
-                                                        </c:if>
-                                                        <c:if test="${not empty listCC}">
-                                                            <c:set var="categoryFound" value="false"/>
-                                                            <c:forEach var="cat" items="${listCC}">
-                                                                <c:if test="${cat.categoryID == o.cateID}">
-                                                                    <b class="categories">${cat.categoryName}</b>
-                                                                    <c:set var="categoryFound" value="true"/>
-                                                                </c:if>
-                                                            </c:forEach>
-                                                            <c:if test="${!categoryFound}">
-                                                                <b class="categories">Product catID: ${o.cateID}</b>
-                                                            </c:if>
-                                                        </c:if>
-                                                        <h4 class="product-title" style="margin-bottom: 10px;">
-                                                            <a href="detail?pid=${o.id}" class="pr-name" style="color:#333;font-size:16px;font-weight:500;text-decoration:none;">${o.name}</a>
-                                                        </h4>
-                                                        <div class="price" style="margin-bottom: 15px;">
-                                                            <ins><span class="price-amount" style="color:#4CAF50;font-size:18px;font-weight:600;"><fmt:formatNumber value="${o.price}" type="currency"/></span></ins>
-                                                        </div>
-                                                        <div class="slide-down-box">
-                                                            <div class="buttons" style="display:flex;gap:10px;justify-content:center;">
-                                                                <button type="button" class="btn wishlist-btn" style="background:#fff;border:1px solid #4CAF50;color:#4CAF50;padding:8px 15px;border-radius:4px;" onclick="addToWishlist('${o.id}')">
-                                                                    <i class="fa fa-heart" aria-hidden="true"></i>
-                                                                </button>
-                                                                <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn" style="background:#4CAF50;color:#fff;padding:8px 15px;border-radius:4px;text-decoration:none;">
-                                                                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Thêm vào giỏ
-                                                                </a>
+                                                                                <div class="buttons">
+                                                                                <button type="button" class="btn wishlist-btn add-to-wishlist" data-product-id="${o.id}">
+                                                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                                                </button>
+                                                                                <a href="#" onclick="event.preventDefault();addToCart('${o.id}')" class="btn add-to-cart-btn">
+                                                                                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> add to cart
+                                                                                </a>
+                                                                            </div>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
+                                                        </c:if>
+                                                    </c:forEach>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </c:if>
-                                </c:forEach>
-                            </div>
                         </div>
 
                         <!-- Pagination -->
@@ -312,6 +310,31 @@
                                 text-transform: uppercase;
                                 margin-bottom: 5px;
                                 display: block;
+                            }
+                            .slide-down-box {
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                text-align: center;
+                            }
+                            .slide-down-box .message {
+                                font-size: 14px;
+                                color: #666666;
+                                line-height: 17px;
+                                text-align: center;
+                                padding: 0 15px;
+                            }
+                            .category-label {
+                                display: block;
+                                text-align: center;
+                                margin-bottom: 5px;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                            }
+                            .product-grid .info,
+                            .product-info {
+                                text-align: center;
                             }
                         </style>
                     </div>

@@ -111,75 +111,75 @@
 
         <!-- HEADER -->
         <jsp:include page="Menu.jsp"></jsp:include>
-        <!-- Page Contain -->
-        <div class="page-contain">
-            <div id="main-content" class="main-content">
-                <!--Navigation section-->
-                <div class="container">
-                    <nav class="biolife-nav">
-                        <ul>
-                            <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                            <li class="nav-item"><span class="current-page">Profile</span></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="container">
-                    <div class="profile-container">
-                        <div class="profile-header">
-                            <h2>User Profile</h2>
-                            <p>Edit your account information below</p>
-                        </div>
-                        
-                        <!-- Debug info - This will help identify issues -->
-                        <div style="background-color: #f8f9fa; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
-                            <p>Session check: User ${sessionScope.acc != null ? 'found' : 'not found'} in session.</p>
+            <!-- Page Contain -->
+            <div class="page-contain">
+                <div id="main-content" class="main-content">
+                    <!--Navigation section-->
+                    <div class="container">
+                        <nav class="biolife-nav">
+                            <ul>
+                                <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
+                                <li class="nav-item"><span class="current-page">Profile</span></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="container">
+                        <div class="profile-container">
+                            <div class="profile-header">
+                                <h2>User Profile</h2>
+                                <p>Edit your account information below</p>
+                            </div>
+
+                            <!-- Debug info - This will help identify issues -->
+                            <div style="background-color: #f8f9fa; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+
                             <c:if test="${sessionScope.acc != null}">
-                                <p>Username: ${sessionScope.acc.userName}</p>
+                                <p>Total Points: ${sessionScope.points}</p>
                                 <p>ID: ${sessionScope.acc.userID}</p>
                             </c:if>
                         </div>
-                        
+
                         <c:if test="${not empty message}">
                             <div class="alert ${messageType == 'success' ? 'alert-success' : 'alert-danger'}">
                                 ${message}
                             </div>
                         </c:if>
-                        
+
                         <c:if test="${sessionScope.acc != null}">
                             <form action="updateProfile" method="post">
                                 <input type="hidden" name="action" value="update">
-                                
+
                                 <div class="form-group">
                                     <label for="username">Username</label>
                                     <input type="text" id="username" name="username" class="form-control" value="${sessionScope.acc.userName}" readonly>
                                     <small class="form-text text-muted">Username cannot be changed</small>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="email">Email Address</label>
                                     <input type="email" id="email" name="email" class="form-control" value="${sessionScope.acc.email}" required>
                                     <small class="form-text text-muted">Make sure this email is not already registered</small>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="fullName">Full Name</label>
                                     <input type="text" id="fullName" name="fullName" class="form-control" value="${sessionScope.acc.fullName}">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
                                     <input type="text" id="phone" name="phone" class="form-control" value="${sessionScope.acc.phoneNumber}">
                                     <small class="form-text text-muted">Make sure this phone number is not already registered</small>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="address">Address</label>
                                     <textarea id="address" name="address" class="form-control" rows="3">${sessionScope.acc.address}</textarea>
                                 </div>
-                                
+
                                 <button type="submit" class="btn-update">Update Profile</button>
                             </form>
-                            
+
                             <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
                                 <h4>Password Management</h4>
                                 <p>To change your password, please click the button below:</p>
@@ -189,22 +189,22 @@
                                 <h4>Upgrade Account</h4>
                                 <p>Upgrade to become part of us, connecting the best to everyone.</p>
                                 <a href="${pageContext.request.contextPath}/request-upgrade" class="btn-change-password">Upgrade Account</a>
-                               <a href="${pageContext.request.contextPath}/list-request?typeForm=3&userID=${sessionScope.acc.userID}" class="btn-change-password">Request List</a>                            </div>
-                        </c:if>
-                        
+                                <a href="${pageContext.request.contextPath}/list-request?typeForm=3&userID=${sessionScope.acc.userID}" class="btn-change-password">Request List</a>                            </div>
+                            </c:if>
+
                         <c:if test="${sessionScope.acc == null}">
                             <div class="alert alert-danger">
                                 You must be logged in to view this page. <a href="Login.jsp">Click here to login</a>
                             </div>
                         </c:if>
-                        
+
                         <!-- Display success/error messages from controller -->
                         <c:if test="${not empty success}">
                             <div class="alert alert-success">
                                 ${success}
                             </div>
                         </c:if>
-                        
+
                         <c:if test="${not empty error}">
                             <div class="alert alert-danger">
                                 ${error}

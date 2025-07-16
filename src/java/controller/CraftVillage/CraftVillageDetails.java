@@ -8,6 +8,7 @@ import entity.Ticket.Ticket;
 import entity.Ticket.TicketType;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -69,11 +70,18 @@ public class CraftVillageDetails extends HttpServlet {
             // Handle review eligibility logic
             handleReviewEligibility(request, villageID);
 
-            // Tính trung bình rating (nếu có review)
+            // Calculate review statistics
             double totalRating = 0;
+            int[] ratingDistribution = new int[5]; // 1-5 stars
+            
             for (CraftReview review : listReview) {
                 totalRating += review.getRating();
+                // Count rating distribution (1-5 stars)
+                if (review.getRating() >= 1 && review.getRating() <= 5) {
+                    ratingDistribution[review.getRating() - 1]++;
+                }
             }
+            
             int reviewCount = listReview.size();
             BigDecimal averageRating = BigDecimal.valueOf(reviewCount > 0 ? totalRating / reviewCount : 0);
 
@@ -88,6 +96,12 @@ public class CraftVillageDetails extends HttpServlet {
             request.setAttribute("listReview", listReview);
             request.setAttribute("seller", seller);
             request.setAttribute("ticketType", ticketType);
+            
+            // Add review statistics for JSP
+            request.setAttribute("averageRating", averageRating);
+            request.setAttribute("totalReviews", reviewCount);
+            request.setAttribute("ratingDistribution", ratingDistribution);
+            request.setAttribute("villageReviews", listReview); // Same as listReview but with different name for JSP
 
             request.getRequestDispatcher("VillageDetails.jsp").forward(request, response);
 

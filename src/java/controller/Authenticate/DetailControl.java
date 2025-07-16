@@ -42,11 +42,6 @@ public class DetailControl extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Kiểm tra session đăng nhập
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("acc") == null) {
-            response.sendRedirect("Login.jsp");
-            return;
-        }
         
         ProductService productService = new ProductService();
         
@@ -186,21 +181,50 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("completeProductInfo", completeProductInfo);
 
         // Get reviews for this product with user names
-        List<entity.Product.ProductReview> reviews = reviewService.getProductReviewsWithUserName(product.getPid());
-        request.setAttribute("reviews", reviews);
-        request.setAttribute("reviewCount", reviews != null ? reviews.size() : 0);
+        List<entity.Product.ProductReview> allReviews = reviewService.getProductReviewsWithUserName(product.getPid());
+        int reviewCount = (allReviews != null) ? allReviews.size() : 0;
+
+        // Pagination logic
+        int reviewsPerPage = 2;
+        int currentPage = 1;
+        String pageParam = request.getParameter("page");
+        if (pageParam != null) {
+            try {
+                currentPage = Integer.parseInt(pageParam);
+                if (currentPage < 1) currentPage = 1;
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+            }
+        }
+        int totalPages = (int) Math.ceil((double) reviewCount / reviewsPerPage);
+        if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+        int start = (currentPage - 1) * reviewsPerPage;
+        int end = Math.min(start + reviewsPerPage, reviewCount);
+        List<entity.Product.ProductReview> reviewsPage = (allReviews != null && reviewCount > 0) ? allReviews.subList(start, end) : java.util.Collections.emptyList();
+
+        request.setAttribute("reviews", reviewsPage);
+        request.setAttribute("reviewCount", reviewCount);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
 
         // Calculate average rating and rating distribution
-        if (reviews != null && !reviews.isEmpty()) {
-            double averageRating = reviews.stream()
+        if (reviewsPage != null && !reviewsPage.isEmpty()) {
+            double averageRating = reviewsPage.stream()
                     .mapToInt(review -> review.getRating())
                     .average()
                     .orElse(0.0);
             request.setAttribute("averageRating", averageRating);
 
+            // Tính số sao đầy và có nửa sao không
+            int fullStars = (int) Math.floor(averageRating);
+            boolean hasHalfStar = (averageRating - fullStars) >= 0.5;
+            request.setAttribute("fullStars", fullStars);
+            request.setAttribute("hasHalfStar", hasHalfStar);
+
             // Calculate rating distribution
             int[] ratingDistribution = new int[5];
-            for (entity.Product.ProductReview review : reviews) {
+            for (entity.Product.ProductReview review : reviewsPage) {
                 if (review.getRating() >= 1 && review.getRating() <= 5) {
                     ratingDistribution[review.getRating() - 1]++;
                 }
@@ -208,6 +232,8 @@ public class DetailControl extends HttpServlet {
             request.setAttribute("ratingDistribution", ratingDistribution);
         } else {
             request.setAttribute("averageRating", 0.0);
+            request.setAttribute("fullStars", 0);
+            request.setAttribute("hasHalfStar", false);
             request.setAttribute("ratingDistribution", new int[5]);
         }
     }

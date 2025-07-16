@@ -49,8 +49,8 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public List<Message> getMessageByThreadID(int threadID) {
-        return mDAO.getMessageByThreadID(threadID);
+    public List<Message> getMessageByThreadID(int threadID, int userID) {
+        return mDAO.getMessageByThreadID(threadID,userID);
     }
 
     public MessageThread getMessageThread(int userID, int sellerID) {

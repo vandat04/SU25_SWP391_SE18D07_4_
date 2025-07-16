@@ -80,6 +80,15 @@
     <!-- HEADER/MENU -->
     <jsp:include page="Menu.jsp"></jsp:include>
 
+    <div class="container">
+                <nav class="biolife-nav">
+                    <ul>
+                        <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
+                        <li class="nav-item"><span class="current-page">Wishlist</span></li>
+                    </ul>
+                </nav>
+            </div>
+    
     <!-- Breadcrumb -->
     <div class="breadcrumb-section" style="background-image: url('assets/images/breadcrumb-bg.jpg'); margin-top: 100px;">
         <div class="container">

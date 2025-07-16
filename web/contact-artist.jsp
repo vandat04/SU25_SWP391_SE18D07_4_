@@ -205,6 +205,7 @@
                         </div>
 
                         <!-- Lịch sử trò chuyện -->
+                        <c:if test="${not empty listMessage}">
                         <div class="message-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                             <c:forEach var="msg" items="${listMessage}">
                                 <c:choose>
@@ -221,6 +222,10 @@
                                                 </c:if>
                                                 <span class="text-muted">
                                                     <fmt:formatDate value="${msg.sentDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                </span>
+                                                <span class="text-muted">
+                                                    <c:if test="${msg.userRead == 1}"> Seen</c:if>
+                                                    <c:if test="${msg.userRead == 0}"> Sent</c:if>
                                                 </span>
                                             </div>
                                         </div>
@@ -240,13 +245,17 @@
                                                 <span class="text-muted">
                                                     <fmt:formatDate value="${msg.sentDate}" pattern="dd/MM/yyyy HH:mm"/>
                                                 </span>
+                                                <span class="text-muted">
+                                                    <c:if test="${msg.userRead == 1}"> Seen</c:if>
+                                                    <c:if test="${msg.userRead == 0}"> Sent</c:if>
+                                                </span>
                                             </div>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
                         </div>
-
+                        </c:if>
                         <!-- Form gửi tin nhắn -->
                         <form action="contact-artist" method="post" >
                             <input type="hidden" name="sellerID" value="${messageThread.sellerID}" />

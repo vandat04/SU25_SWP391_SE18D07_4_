@@ -578,7 +578,8 @@ public class AccountDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(1, 8, "Fish Sauce", "Nam O handmade fish sauce", "Tran Phu Street, Hai Chau District, Da Nang City.", "Fish Sause", "hinhanh/village/nam-o.jpg", "TRƯƠNG VĂN ĐẠT", "0777076028", "dattruong02112004@gmail.com", 1, 7)));
+       // System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(1, 8, "Fish Sauce", "Nam O handmade fish sauce", "Tran Phu Street, Hai Chau District, Da Nang City.", "Fish Sause", "hinhanh/village/nam-o.jpg", "TRƯƠNG VĂN ĐẠT", "0777076028", "dattruong02112004@gmail.com", 1, 7)));
+        System.out.println(new AccountDAO().getAccountById(3).getFullName());
     }
 
     public boolean rejectedUpgradeAccount(SellerVerification sellerForm) {

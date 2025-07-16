@@ -103,7 +103,7 @@ public class UpdateOrderListServlet extends HttpServlet {
             case "cancelTicketOrder":
                 result = oService.cancelTicketOrderDetail(Integer.parseInt(ticketOrderID), cancelReason);
                 ticketOrder = oService.getTicketOrderDetail(Integer.parseInt(ticketOrderID));
-                if (order.getPaymentMethod().equalsIgnoreCase("bankTransfer")) {
+                if (ticketOrder.getPaymentMethod().equalsIgnoreCase("bankTransfer")) {
                     oService.refundPayment(Integer.parseInt(ticketOrderID), 2);
                 }
                 response.sendRedirect("order?cas=1&userID=" + userID);
@@ -111,8 +111,8 @@ public class UpdateOrderListServlet extends HttpServlet {
             case "confirmOrder":
                 result = oService.confirmOrderDetail(Integer.parseInt(orderDetailID));
                 order = oService.getOrderDetail(Integer.parseInt(orderDetailID));
-                if (order.getPaymentMethod().equalsIgnoreCase("cod")) {
-                     rService.addPaymentManagement(new Payment(rService.getSellerIdByProductId(order.getProductID()), Integer.parseInt(orderDetailID), null, BigDecimal.valueOf(order.getQuantity() * order.getPrice()), "cod", 1), 1, 2);
+                if (order.getPaymentMethod().equalsIgnoreCase("cod")|| order.getPaymentMethod().equalsIgnoreCase("bankTransfer")) {
+                     rService.addPaymentManagement(new Payment(rService.getSellerIdByProductId(order.getProductID()), Integer.parseInt(orderDetailID), null, BigDecimal.valueOf(order.getQuantity() * order.getPrice()),order.getPaymentMethod(), 1), 1, 2);
                      new OrderDAO().addPoints(Integer.parseInt(userID), order.getPoints());
                 }
                 response.sendRedirect("order?cas=2&userID=" + userID);
@@ -120,8 +120,8 @@ public class UpdateOrderListServlet extends HttpServlet {
             case "confirmTicketOrder":
                 result = oService.confirmTicketOrderDetail(Integer.parseInt(ticketOrderID));
                 ticketOrder = oService.getTicketOrderDetail(Integer.parseInt(ticketOrderID));
-                if (ticketOrder.getPaymentMethod().equalsIgnoreCase("cod")) {
-                    rService.addPaymentManagement(new Payment(rService.getSellerIdByTicketId(ticketOrder.getTicketID()), null, Integer.parseInt(ticketOrderID), BigDecimal.valueOf(ticketOrder.getQuantity() * ticketOrder.getPrice().intValue()), "cod", 1), 1, 2);
+                if (ticketOrder.getPaymentMethod().equalsIgnoreCase("cod") || ticketOrder.getPaymentMethod().equalsIgnoreCase("bankTransfer")) {
+                    rService.addPaymentManagement(new Payment(rService.getSellerIdByTicketId(ticketOrder.getTicketID()), null, Integer.parseInt(ticketOrderID), BigDecimal.valueOf(ticketOrder.getQuantity() * ticketOrder.getPrice().intValue()), ticketOrder.getPaymentMethod(), 1), 1, 2);
                     new OrderDAO().addPoints(Integer.parseInt(userID), ticketOrder.getPoints());
                 }
                 response.sendRedirect("order?cas=2&userID=" + userID);

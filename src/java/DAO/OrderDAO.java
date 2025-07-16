@@ -374,7 +374,7 @@ public class OrderDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new OrderDAO().refundOrderDetail(21, "sdfsdf"));
+        System.out.println(new OrderDAO().refundTicketOrderDetail(1, "sdfsdf"));
     }
 
     public double getOrderTotal(int orderID) {

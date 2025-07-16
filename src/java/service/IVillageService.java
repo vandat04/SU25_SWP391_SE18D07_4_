@@ -33,4 +33,5 @@ public interface IVillageService {
     String getVillageNameByTypeID(Integer typeID) ;
     List<CraftVillage> getTopRatedByAdmin();
     List<CraftVillage> getVillageByCategory(int typeID);
+    List<CraftVillage> getVillageByFilter(String provinceCodeSearch, String typeID);
 }

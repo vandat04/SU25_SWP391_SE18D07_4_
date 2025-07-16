@@ -17,6 +17,11 @@ public class NotifficationType {
     public NotifficationType() {
     }
 
+    public NotifficationType(int typeID, String typeName) {
+        this.typeID = typeID;
+        this.typeName = typeName;
+    }
+
     //--------------------------------------------------------------------------
     public int getTypeID() {
         return typeID;

@@ -67,7 +67,7 @@
         </c:if>
 
         <div class="container mt-4">
-    <h2 class="text-2xl font-bold mb-4">Danh sách Yêu cầu Seller Verification</h2>
+    <h2 class="text-2xl font-bold mb-4">List of seller verification requirements</h2>
 
     <c:choose>
         <c:when test="${not empty requestList}">
@@ -198,7 +198,7 @@
             </div>
         </c:when>
         <c:otherwise>
-            <p class="text-red-500">Hiện tại bạn chưa gửi yêu cầu Seller Verification nào.</p>
+            <p class="text-red-500">You have not submitted any Seller Verification requests yet.</p>
         </c:otherwise>
     </c:choose>
 </div>

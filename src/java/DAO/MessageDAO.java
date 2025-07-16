@@ -35,7 +35,8 @@ public class MessageDAO {
                 rs.getInt("senderID"),
                 rs.getString("messageContent"),
                 rs.getString("attachmentUrl"),
-                rs.getTimestamp("sentDate")
+                rs.getTimestamp("sentDate"),
+                rs.getInt("userRead")
         ) {
         };
     }
@@ -106,22 +107,53 @@ public class MessageDAO {
         return false;
     }
 
-    public List<Message> getMessageByThreadID(int threadID) {
-        String query = "SELECT * FROM Message WHERE threadID = ?";
+    public List<Message> getMessageByThreadID(int threadID, int userID) {
         List<Message> list = new ArrayList<>();
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = new DBContext().getConnection()) {
 
-            ps.setInt(1, threadID);
+            // Lấy senderID tin nhắn cuối cùng
+            String lastMsgSql
+                    = "SELECT TOP 1 senderID FROM Message WHERE threadID = ? ORDER BY sentDate DESC";
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToMessage(rs));
+            try (PreparedStatement psLast = conn.prepareStatement(lastMsgSql)) {
+                psLast.setInt(1, threadID);
+
+                try (ResultSet rsLast = psLast.executeQuery()) {
+                    if (rsLast.next()) {
+                        int lastSenderID = rsLast.getInt("senderID");
+
+                        if (lastSenderID != userID) {
+                            // Nếu sender khác userID → update toàn bộ userRead = 1
+                            String updateSql
+                                    = "UPDATE Message SET userRead = 1 WHERE threadID = ?";
+                            try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+                                psUpdate.setInt(1, threadID);
+                                psUpdate.executeUpdate();
+                            }
+                        }
+                    }
                 }
             }
+
+            // Lấy lại danh sách message mới nhất
+            String selectSql
+                    = "SELECT * FROM Message WHERE threadID = ?";
+
+            try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+                psSelect.setInt(1, threadID);
+
+                try (ResultSet rs = psSelect.executeQuery()) {
+                    while (rs.next()) {
+                        list.add(mapResultSetToMessage(rs));
+                    }
+                }
+            }
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error getting messages for threadID=" + threadID, e);
         }
+
         return list;
     }
 
@@ -217,7 +249,7 @@ public class MessageDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new MessageDAO().getThreadID(6, 2));
+        System.out.println(new MessageDAO().getMessageByThreadID(4, 2));
     }
 
 }
