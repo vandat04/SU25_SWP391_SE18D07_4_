@@ -44,6 +44,9 @@
                             <li class="menu-item menu-item-has-children has-child">
                                 <a href="#" class="menu-name" data-title="Craft Types">Craft Types</a>
                                 <ul class="sub-menu">
+                                    <li class="menu-item">
+                                        <a href="craftVillage">All Craft Villages</a>
+                                    </li>
                                     <c:forEach var="c" items="${listVillages}">
                                         <li class="menu-item">
                                             <a href="craftVillage?typeID=${c.typeID}">${c.typeName}</a>
@@ -78,7 +81,7 @@
                                     </li>
                                 </c:otherwise>
                             </c:choose>
-                            
+
                             <c:choose>
                                 <c:when test="${not empty sessionScope.acc}">
                                     <!-- Đã đăng nhập -->
@@ -93,6 +96,24 @@
                                     <li class="menu-item">
                                         <a href="Login.jsp" class="menu-name" data-title="Product">
                                             Contact
+                                        </a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.acc}">
+                                    <!-- Đã đăng nhập -->
+                                    <li class="menu-item">
+                                        <a href="notification-for-user?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Notification">
+                                            Notification
+                                        </a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- Chưa đăng nhập -->
+                                    <li class="menu-item">
+                                        <a href="Login.jsp" class="menu-name" data-title="Notification">
+                                            Notification
                                         </a>
                                     </li>
                                 </c:otherwise>

@@ -79,6 +79,24 @@
                 });
             }
         </script>
+        <style>
+            .google-btn {
+                display: inline-block;
+                background-color: #db4437; /* Google red */
+                color: #fff;
+                padding: 10px 20px;
+                border-radius: 25px; /* bo góc */
+                text-decoration: none;
+                font-weight: bold;
+                font-family: Arial, sans-serif;
+                transition: background-color 0.3s ease;
+            }
+
+            .google-btn:hover {
+                background-color: #c1351d; /* darker red on hover */
+                color: #fff;
+            }
+        </style>
     </head>
     <body class="biolife-body">
 
@@ -105,23 +123,17 @@
             <div class="container">
                 <nav class="biolife-nav">
                     <ul>
-                        <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+                        <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
                         <li class="nav-item"><span class="current-page">Authentication</span></li>
                     </ul>
                 </nav>
             </div>
-
             <div class="page-contain login-page">
 
                 <!-- Main content -->
-
                 <div id="main-content" class="main-content">
-
                     <div class="container">
-
-
                         <div class="row">
-
                         <%
                             String usernameCookieSaved = "";
                             String passwordCookieSaved = "";
@@ -141,7 +153,7 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="signin-container">
                                 <form action="login" name="frm-login" method="post" onsubmit="console.log('Form submitted via POST');
-                                    return true;">
+                                        return true;">
                                     <!-- Add success message display -->
                                     <c:if test="${not empty registerSuccess}">
                                         <div class="alert alert-success" style="color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin: 10px 0;">
@@ -184,82 +196,45 @@
                                             ${mess}
                                         </div>
                                     </c:if>
-
                                     <p class="form-row wrap-btn">
-
                                         <button class="btn btn-submit btn-bold" type="submit" onclick="console.log('Submit button clicked');">sign in</button>
-
                                     <div class="form-row">
                                         <a href="#" class="link-to-help" data-toggle="modal" data-target="#forgotPasswordModal">
                                             Forgot password?
                                         </a>
                                     </div>
-
                                     </p>
-
                                 </form>
-
                             </div>
-
                         </div>
-
-                        <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080/CraftVillage/login&response_type=code&client_id=599094914158-74a3ge5i54m4sukpj2op8ecs7n4fkf9s.apps.googleusercontent.com&approval_prompt=force">
-
+                        <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080/CraftVillage/login&response_type=code&client_id=599094914158-74a3ge5i54m4sukpj2op8ecs7n4fkf9s.apps.googleusercontent.com&approval_prompt=force"
+                           class="google-btn">
                             Sign in with Google
-
                         </a>
-
                         <!--Go to Register form-->
-
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
                             <div class="register-in-container">
-
                                 <div class="intro">
-
                                     <h4 class="box-title">New Customer?</h4>
-
                                     <p class="sub-title">Create an account with us and you'll be able to:</p>
-
                                     <ul class="lis">
-
                                         <li>Check out faster</li>
-
                                         <li>Save multiple shipping anddesses</li>
-
                                         <li>Access your order history</li>
-
                                         <li>Track new orders</li>
-
                                         <li>Save items to your Wishlist</li>
-
                                     </ul>
-
                                     <!-- Update link to registration page -->
-
                                     <a href="register" class="btn btn-bold">Create an account</a>
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
                     </div>
-
-
                 </div>
-
-
             </div>
-
-
         </div>
 
-
         <!-- FOOTER -->
-
         <jsp:include page="Footer.jsp"></jsp:include>
 
         <!--Footer For Mobile-->
@@ -381,5 +356,4 @@
             </div>
         </div>
     </body>
-
 </html>

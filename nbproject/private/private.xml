@@ -3,30 +3,77 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Home.jsp</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/newDb/Insert_DB_New.sql</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Orders/OrderDetail.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/CheckoutBefor.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/UpdateOrderListServlet.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Payment/AddOrderByTranfer.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/CraftVillageDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-processing.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/OrderControlServlet.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ProductDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/product/ProductControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Account/Account.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/AccountService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IMessageService.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Orders/Payment.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/OrderDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-cancelled.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ReportDAO.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/CartWishList/CartTicket.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/hinhanh/village/nam-o.jpg</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Menu.jsp</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-refunded.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/newDb/Craft_DB_New.sql</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/craftVillage.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IVillageService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/ShoppingCart.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/AccountDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/hinhanh/Logo/cropped-Favicon-1-32x32.png</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Authenticate/LoginControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Notification/NotificationControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/hinhanh/village/non-nuoc.jpg</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/LoggingFilter.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/NotificationDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/hinhanh/village/ma-chau.jpg</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/contact.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-received.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/MessageNotification/MessageThread.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/CraftVillage/ContactArtist.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/hinhanh/village/phuoc-kieu.jpg</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/UpgradeAccount.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Payment/AddOrderByTranfer.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/ReportDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/ProductCategoryFilter.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/CartWishList/CartItem.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/ControlOrderFilter.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ReportService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/CraftVillage/CraftVillageControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/filter/CraftVillageCategoryFilter.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/contact-artist.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IAccountService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/UpdateOrderListServlet.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/context/DBContext.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/CraftVillageDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/hinhanh/Logo/logocraft.png</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/OrderControlServlet.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/Detail.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/OrderDAO.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-cancelled.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/VillageService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/Authenticate/DetailControl.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/newDb/Craft_DB_New.sql</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/CraftVillage/Province.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Orders/TicketOrderDetail.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/admin-sidebar.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/UserProfile.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IOrderService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/OrderService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Orders/OrderDetail.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/controller/cart_order/CheckoutBefor.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/MessageNotification/Notification.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/product.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-processing.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/CartWishList/CartTicket.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/CraftVillage/CraftType.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/MessageNotification/NotifficationType.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/newjsp.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/MessageService.java</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-delivering.jsp</file>
             <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/NotificationOrder.jsp</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/Orders/TicketOrderDetail.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/IOrderService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ReportService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/OrderService.java</file>
-            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/order-list-received.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/entity/MessageNotification/Message.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/web/ListRequest.jsp</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/service/ProductService.java</file>
+            <file>file:/D:/FPT/SP-SU-FA25/SWP391/CraftVillage/SU25_SWP391_SE18D07_4_/src/java/DAO/MessageDAO.java</file>
         </group>
     </open-files>
 </project-private>
