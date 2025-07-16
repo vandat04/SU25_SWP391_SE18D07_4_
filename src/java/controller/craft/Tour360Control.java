@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import service.ProductService;
-import service.IProductService;
 import entity.Product.Product;
 
 @WebServlet(name = "Tour360Control", urlPatterns = {"/tour360"})

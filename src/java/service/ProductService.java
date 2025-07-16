@@ -156,7 +156,7 @@ public class ProductService implements IProductService {
     // Additional compatibility method
     public List<Product> getActiveProductsBySellID(int sellerId) {
         // Return products by seller ID (for now, return empty list)
-        return new ArrayList<>();
+        return pDAO.getProductsByVillage(1);
     }
 
     @Override

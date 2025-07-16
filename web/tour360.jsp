@@ -547,8 +547,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Danh sách panorama
             var panoramas = {
-                1: "/DuAnBanHang/hinhanh/panorama/1_1.jpg",
-                2: "/DuAnBanHang/hinhanh/panorama/1_2.jpg"
+                1: "/CraftVillage/hinhanh/panorama/1_1.jpg",
+                2: "/CraftVillage/hinhanh/panorama/1_2.jpg"
             };
             var currentPanorama = 1;
             var viewer = new Marzipano.Viewer(document.getElementById('pano'));
@@ -715,7 +715,7 @@
 
         function addToCart(productId, title, price, image) {
             // Gọi API thêm vào giỏ hàng của website chính
-            fetch('http://localhost:8080/DuAnBanHang/api/cart/add', {
+            fetch('http://localhost:8080/CraftVillage/api/cart/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -811,7 +811,7 @@
 
         function viewCart() {
             // Chuyển hướng đến trang giỏ hàng của website chính
-            window.open('http://localhost:8080/DuAnBanHang/cart', '_blank');
+            window.open('http://localhost:8080/CraftVillage/cart', '_blank');
         }
 
         function addToCartFromBtn(btn) {
