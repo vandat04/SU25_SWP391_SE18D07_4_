@@ -62,7 +62,7 @@
                                 <li>
                                     <p class="info-item">
                                         <i class="biolife-icon icon-location"></i>
-                                        <b class="desc">Khu đô thị FPT City, Ngũ Hành Sơn, Đà Nẵng</b>
+                                        <b class="desc">FPT City Urban Area, Ngu Hanh Son, Da Nang</b>
                                     </p>
                                 </li>
                                 <li>

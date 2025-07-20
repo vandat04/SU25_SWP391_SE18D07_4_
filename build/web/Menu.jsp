@@ -67,7 +67,7 @@
                                 <c:when test="${not empty sessionScope.acc}">
                                     <!-- Đã đăng nhập -->
                                     <li class="menu-item">
-                                        <a href="order?userID=${sessionScope.acc.userID}&cas=1" class="menu-name" data-title="Order">
+                                        <a href="order?userID=${sessionScope.acc.userID}&cas=0" class="menu-name" data-title="Order">
                                             Orders
                                         </a>
                                     </li>
@@ -86,9 +86,15 @@
                                 <c:when test="${not empty sessionScope.acc}">
                                     <!-- Đã đăng nhập -->
                                     <li class="menu-item">
-                                        <a href="contacts?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">
-                                            Contact
+                                        <c:if test="${sessionScope.account.roleID == 1}">
+                                <a href="contacts?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">  Contact
                                         </a>
+                                </c:if>
+                                        <c:if test="${sessionScope.account.roleID == 2}">
+                                <a href="contact-seller?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Product">Contact
+                                        </a>
+                                </c:if>
+                                          
                                     </li>
                                 </c:when>
                                 <c:otherwise>

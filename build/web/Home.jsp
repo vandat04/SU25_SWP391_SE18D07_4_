@@ -158,9 +158,9 @@
                             <div class="tour-item" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
                                 <img src="hinhanh/village/thanh-ha.jpg" alt="Làng gốm Thanh Hà" style="width: 100%; height: 250px; object-fit: cover;">
                                 <div class="tour-content" style="padding: 20px;">
-                                    <h4>Làng gốm Thanh Hà</h4>
-                                    <p>Khám phá nghệ thuật làm gốm truyền thống qua tour 360°</p>
-                                    <a href="tour360?village=thanh-ha" class="btn btn-outline-primary">Vào xem tour</a>
+                                    <h4>Thanh Ha Pottery Village</h4>
+                                    <p>Discover the art of traditional pottery through a 360° tour</p>
+                                    <a href="tour360?village=thanh-ha" class="btn btn-outline-primary">Take a tour</a>
                                 </div>
                             </div>
                         </div>
@@ -168,9 +168,9 @@
                             <div class="tour-item" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
                                 <img src="hinhanh/village/kim-bong.jpg" alt="Làng mộc Kim Bồng" style="width: 100%; height: 250px; object-fit: cover;">
                                 <div class="tour-content" style="padding: 20px;">
-                                    <h4>Làng mộc Kim Bồng</h4>
-                                    <p>Trải nghiệm nghề mộc truyền thống qua tour 360°</p>
-                                    <a href="tour360?village=kim-bong" class="btn btn-outline-primary">Vào xem tour</a>
+                                    <h4>Kim Bong carpentry village</h4>
+                                    <p>Experience traditional carpentry through 360° tour</p>
+                                    <a href="tour360?village=kim-bong" class="btn btn-outline-primary">Take a tour</a>
                                 </div>
                             </div>
                         </div>
@@ -178,9 +178,9 @@
                             <div class="tour-item" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
                                 <img src="hinhanh/village/non-nuoc.jpg" alt="Làng đá Non Nước" style="width: 100%; height: 250px; object-fit: cover;">
                                 <div class="tour-content" style="padding: 20px;">
-                                    <h4>Làng đá Non Nước</h4>
-                                    <p>Khám phá nghệ thuật điêu khắc đá qua tour 360°</p>
-                                    <a href="tour360?village=non-nuoc" class="btn btn-outline-primary">Vào xem tour</a>
+                                    <h4>Non Nuoc Stone Village</h4>
+                                    <p>Explore the art of stone carving through a 360° tour</p>
+                                    <a href="tour360?village=non-nuoc" class="btn btn-outline-primary">Take a tour</a>
                                 </div>
                             </div>
                         </div>
@@ -260,7 +260,7 @@
                                                                                     <i class="fa fa-heart" aria-hidden="true"></i>
                                                                                 </button>
                                                                                 <a href="#" onclick="event.preventDefault();addToCart('${o.id}', 1)" class="btn add-to-cart-btn">
-                                                                                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> add to cart
+                                                                                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Add to cart
                                                                                 </a>
                                                                             </div>
 
