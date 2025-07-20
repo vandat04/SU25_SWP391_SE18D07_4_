@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Danh sách yêu thích - Da Nang Craft Village</title>
+    <title>Wishlist - Da Nang Craft Village</title>
 
     <!-- Các link CSS của dự án -->
     <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
@@ -95,7 +95,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="breadcrumb-text">
-                        <h2>Danh sách yêu thích</h2>
+                        <h2>Wishlist</h2>
                     </div>
                 </div>
             </div>
@@ -124,12 +124,12 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <a href="product" class="btn btn-outline-success">
-                                <i class="fa fa-arrow-left"></i> Tiếp tục mua sắm
+                                <i class="fa fa-arrow-left"></i> Continue shopping
                             </a>
                         </div>
                         <div class="col-md-6 text-right">
                             <button type="button" class="btn btn-success" onclick="moveAllToCart()">
-                                <i class="fa fa-cart-plus"></i> Chuyển tất cả vào giỏ hàng
+                                <i class="fa fa-cart-plus"></i>Add all to cart
                             </button>
                         </div>
                     </div>
@@ -139,10 +139,10 @@
                         <table class="table wishlist-table">
                             <thead class="thead-light">
                                 <tr>
-                                    <th scope="col" colspan="2">Sản phẩm</th>
-                                    <th scope="col">Giá</th>
-                                    <th scope="col" class="text-center">Ngày thêm</th>
-                                    <th scope="col" class="text-center">Hành động</th>
+                                    <th scope="col" colspan="2">Product</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col" class="text-center">Created Date</th>
+                                    <th scope="col" class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,7 +182,7 @@
                                                 <input type="hidden" name="wishlistID" value="${item.wishlistID}">
                                                 <input type="hidden" name="userID" value="${userID}">
                                                 <button type="submit" class="btn btn-sm btn-remove-custom" title="Xóa"
-                                                        onclick="return confirm('Xóa sản phẩm này khỏi danh sách yêu thích?')">
+                                                        onclick="return confirm('Remove this product from wishlist?')">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             </form>
@@ -199,10 +199,10 @@
                         <div class="col-12">
                             <div class="empty-wishlist-container">
                                 <i class="fa fa-heart-o"></i>
-                                <h3>Danh sách yêu thích của bạn trống</h3>
-                                <p class="text-muted">Hãy khám phá cửa hàng và thêm những sản phẩm bạn yêu thích vào đây nhé!</p>
+                                <h3>Your favorites list is empty</h3>
+                                <p class="text-muted">Explore the store and add your favorite products here!</p>
                                 <a href="product" class="btn btn-success">
-                                    <i class="fa fa-shopping-bag"></i> Khám phá ngay
+                                    <i class="fa fa-shopping-bag"></i> Explore Now
                                 </a>
                             </div>
                         </div>

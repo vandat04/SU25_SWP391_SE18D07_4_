@@ -39,6 +39,16 @@ public class Message {
         this.attachmentUrl = attachmentUrl;
         this.userRead = userRead;
     }
+
+    public Message(int threadID, int senderID, String messageContent, String attachmentUrl, Timestamp sentDate) {
+        this.threadID = threadID;
+        this.senderID = senderID;
+        this.messageContent = messageContent;
+        this.attachmentUrl = attachmentUrl;
+        this.sentDate = sentDate;
+    }
+    
+    
     
     public Message(int threadID, int senderID, String messageContent, String attachmentUrl) {
         this.threadID = threadID;

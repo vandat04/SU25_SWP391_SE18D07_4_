@@ -83,19 +83,6 @@ VALUES
 (9, 'hinhanh/village/lantern1.jpg', 1);
 GO
 
-INSERT INTO [dbo].[VillageReview] (villageID, userID, rating, reviewText)
-VALUES
-(1, 1, 5, 'Amazing pottery village with beautiful products.'),
-(2, 2, 4, 'High quality silk embroidery. Worth visiting.'),
-(3, 1, 4, 'Exquisite wood carvings and sculptures.'),
-(4, 2, 5, 'Excellent bronze casting works!'),
-(5, 1, 5, 'The fish sauce here is incredible. Very rich taste.'),
-(6, 2, 4, 'Magnificent marble sculptures at Non Nuoc.'),
-(7, 1, 5, 'Loved the fresh vegetables and eco-tourism experience.'),
-(8, 2, 4, 'Colorful and high-quality woven mats.'),
-(9, 1, 5, 'Lanterns are magical at night. Beautiful colors!');
-GO
-
 INSERT INTO [dbo].[ProductCategory] (categoryName, description, status)
 VALUES
 ('Home Decor', 'Decorative items for home', 1),
@@ -151,21 +138,6 @@ VALUES
 (9, 'hinhanh/product/fish-sauce1.jpg', 0),
 (10, 'hinhanh/product/marble-lion1.jpg', 0),
 (11, 'hinhanh/product/silk-lantern1.jpg', 0);
-GO
-
-INSERT INTO [dbo].[ProductReview] (productID, userID, rating, reviewText)
-VALUES
-(1, 1, 5, 'Absolutely stunning teapot.'),
-(2, 2, 4, 'Very nice ceramic bowl.'),
-(3, 1, 5, 'Soft silk and elegant color.'),
-(4, 2, 5, 'Gorgeous embroidery details.'),
-(5, 1, 4, 'Wood carving is beautiful.'),
-(6, 2, 4, 'Impressive wooden statue.'),
-(7, 1, 5, 'Shiny and high quality.'),
-(8, 2, 5, 'Amazing bronze drum replica.'),
-(9, 1, 5, 'Best fish sauce ever.'),
-(10, 2, 5, 'Stunning marble sculpture.'),
-(11, 1, 5, 'Lanterns look magical when lit.');
 GO
 
 INSERT INTO [dbo].[NotificationType] (typeName)

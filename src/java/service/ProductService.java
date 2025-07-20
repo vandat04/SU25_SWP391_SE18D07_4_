@@ -5,12 +5,14 @@
 package service;
 
 import DAO.ProductDAO;
+import entity.CartWishList.CartItem;
+import entity.CartWishList.CartTicket;
 import entity.Product.Product;
 import entity.Product.ProductCategory;
 import entity.Product.ProductReview;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 /**
  *
@@ -315,13 +317,18 @@ public class ProductService implements IProductService {
         return pDAO.getVillageIDByProductID(productID);
     }
 
+    @Override
+    public int getVillageIDByTicketID(int ticketID) {
+        return pDAO.getVillageIDByTicketID(ticketID);
+    }
+
     public String getModelFileByProductID(int productID) {
         return pDAO.getModelFileByProductID(productID);
     }
 
     /**
-     * Get products by category with price range and order filtering
-     * This method provides advanced filtering capabilities for category-based searches
+     * Get products by category with price range and order filtering This method
+     * provides advanced filtering capabilities for category-based searches
      */
     public List<Product> getProductsByCategoryAndPriceAndOrder(String categoryId, String priceRange, String orderBy) {
         try {
@@ -332,4 +339,9 @@ public class ProductService implements IProductService {
             return getProductByCategoryID(categoryId);
         }
     }
+
+    public Map<Integer, BigDecimal> getSetVillage(List<CartItem> cartItem, List<CartTicket> cartTicket) {
+        return pDAO.getSetVillage(cartItem, cartTicket);
+    }
+
 }

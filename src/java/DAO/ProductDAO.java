@@ -5,9 +5,12 @@
 package DAO;
 
 import context.DBContext;
+import entity.CartWishList.CartItem;
+import entity.CartWishList.CartTicket;
 import entity.Product.Product;
 import entity.Product.ProductCategory;
 import entity.Ticket.Ticket;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,6 +20,10 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.sql.Types;
 import java.sql.CallableStatement;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -745,25 +752,24 @@ public class ProductDAO {
         }
         return list;
     }
-    
 
     /**
      * Check if a product is owned by a specific seller
+     *
      * @param productID The product ID
      * @param sellerID The seller ID
      * @return true if the product is owned by the seller
      */
     public boolean isProductOwnedBySeller(int productID, int sellerID) {
-        String query = "SELECT COUNT(*) FROM Product p " +
-                      "JOIN CraftVillage cv ON p.villageID = cv.villageID " +
-                      "WHERE p.pid = ? AND cv.sellerId = ? AND p.status = 1 AND cv.status = 1";
-        
-        try (Connection conn = DBContext.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            
+        String query = "SELECT COUNT(*) FROM Product p "
+                + "JOIN CraftVillage cv ON p.villageID = cv.villageID "
+                + "WHERE p.pid = ? AND cv.sellerId = ? AND p.status = 1 AND cv.status = 1";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setInt(1, productID);
             ps.setInt(2, sellerID);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
@@ -772,10 +778,9 @@ public class ProductDAO {
         } catch (SQLException e) {
             LOGGER.severe("Error checking if product is owned by seller: " + e.getMessage());
         }
-        
+
         return false;
     }
-   
 
     public String getProduct3D(int productID) {
         String query = "SELECT modelFile FROM Product WHERE productID = ?";
@@ -826,5 +831,43 @@ public class ProductDAO {
             e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
         }
         return "";
+    }
+
+    public Integer getVillageIDByTicketID(int ticketId) {
+        String query = "SELECT villageID FROM VillageTicket WHERE ticketID = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, ticketId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("villageID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return 0;
+    }
+
+    public Map<Integer, BigDecimal> getSetVillage(List<CartItem> cartItem, List<CartTicket> cartTicket) {
+        Map<Integer, BigDecimal> villageMap = new HashMap<>();
+        ProductDAO productDAO = new ProductDAO();
+        // Xử lý CartItem: cộng price * quantity theo villageID
+        for (CartItem ci : cartItem) {
+            int villageID = productDAO.getVillageIDByProductID(ci.getProductID());
+            BigDecimal itemTotal = BigDecimal.valueOf(ci.getPrice()).multiply(BigDecimal.valueOf(ci.getQuantity()));
+
+            villageMap.put(villageID, villageMap.getOrDefault(villageID, BigDecimal.ZERO).add(itemTotal));
+        }
+        // Xử lý CartTicket: cộng price * quantity theo villageID
+        for (CartTicket ct : cartTicket) {
+            int villageID = productDAO.getVillageIDByTicketID(ct.getTicketId());
+            BigDecimal ticketTotal = BigDecimal.valueOf(ct.getPrice()).multiply(BigDecimal.valueOf(ct.getQuantity()));
+
+            villageMap.put(villageID, villageMap.getOrDefault(villageID, BigDecimal.ZERO).add(ticketTotal));
+        }
+        return villageMap;
+
     }
 }

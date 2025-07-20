@@ -5,7 +5,6 @@
 package service;
 
 import entity.Orders.OrderDetail;
-import entity.Orders.ProductOrder;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +14,9 @@ import java.util.Map;
  */
 public interface IProductOrderService {
 
-    // Tạo đơn hàng
-    int createOrder(ProductOrder order) throws Exception;
     // Thêm chi tiết đơn hàng
     boolean addOrderDetail(int orderId, int productId, int quantity, double price);
     // Truy vấn đơn hàng
-    ProductOrder getOrderById(int orderId);
-    List<ProductOrder> getOrdersByUserId(int userId);
     List<OrderDetail> getOrderDetailsByOrderId(int orderId);
     // Cập nhật trạng thái đơn hàng
     boolean updateOrderStatus(int orderId, int status);

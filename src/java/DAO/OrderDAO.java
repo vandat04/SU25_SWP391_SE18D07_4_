@@ -7,11 +7,13 @@ package DAO;
 import entity.Orders.Order;
 import context.DBContext;
 import entity.CartWishList.CartItem;
+import entity.CraftVillage.CraftReview;
 import entity.CraftVillage.CraftVillage;
 import entity.Orders.OrderDetail;
+import entity.Orders.SubOrder;
 import entity.Orders.TicketOrderDetail;
 import entity.Product.Product;
-import java.math.BigDecimal;
+import entity.Product.ProductReview;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.CallableStatement;
@@ -34,65 +36,91 @@ public class OrderDAO {
     private static final Logger LOGGER = Logger.getLogger(OrderDAO.class.getName());
 
     private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
-        return new Order(
-                rs.getInt("id"),
-                rs.getInt("userID"),
-                rs.getBigDecimal("total_price"),
-                rs.getString("shippingAddress"),
-                rs.getString("shippingPhone"),
-                rs.getString("email"),
-                rs.getString("paymentMethod"),
-                rs.getInt("paymentStatus"),
-                rs.getTimestamp("createdDate"),
-                rs.getTimestamp("updatedDate")
-        );
+        Order order = new Order();
+
+        order.setId(rs.getInt("id"));
+        order.setUserID(rs.getInt("userID"));
+        order.setTotalPrice(rs.getBigDecimal("total_price"));
+        order.setShippingAddress(rs.getString("shippingAddress"));
+        order.setShippingPhone(rs.getString("shippingPhone"));
+        order.setShippingName(rs.getString("shippingName")); // ✅ thêm dòng này
+        order.setPaymentMethod(rs.getString("paymentMethod"));
+        order.setEmail(rs.getString("email"));
+        order.setCreatedDate(rs.getTimestamp("createdDate"));
+
+        return order;
+    }
+
+    private SubOrder mapResultSetToSubOrder(ResultSet rs) throws SQLException {
+        SubOrder subOrder = new SubOrder();
+
+        subOrder.setSubOrderId(rs.getInt("subOrderId"));
+        subOrder.setOrderId(rs.getInt("orderId"));
+        subOrder.setVillageId(rs.getInt("villageId"));
+        subOrder.setTotalPrice(rs.getBigDecimal("total_price"));
+        subOrder.setPoints(rs.getObject("points") != null ? rs.getInt("points") : null);
+        subOrder.setPaymentMethod(rs.getString("paymentMethod"));
+        subOrder.setPaymentStatus(rs.getInt("paymentStatus"));
+        subOrder.setOrderStatus(rs.getObject("orderStatus") != null ? rs.getInt("orderStatus") : null);
+        subOrder.setNote(rs.getString("note"));
+        subOrder.setReviewStatus(rs.getInt("reviewStatus"));
+
+        // Cancel / Refund
+        subOrder.setCancelReason(rs.getString("cancelReason"));
+        subOrder.setCancelDate(rs.getTimestamp("cancelDate"));
+        subOrder.setRefundAmount(rs.getBigDecimal("refundAmount"));
+        subOrder.setRefundDate(rs.getTimestamp("refundDate"));
+        subOrder.setRefundReason(rs.getString("refundReason"));
+
+        // GHN Shipping Info
+        subOrder.setShippingPartner(rs.getString("shippingPartner"));
+        subOrder.setShippingOrderCode(rs.getString("shippingOrderCode"));
+        subOrder.setShippingStatus(rs.getString("shippingStatus"));
+        subOrder.setShippingFee(rs.getBigDecimal("shippingFee"));
+        subOrder.setEstimatedDeliveryDate(rs.getDate("estimatedDeliveryDate"));
+        subOrder.setShippingCreatedAt(rs.getTimestamp("shippingCreatedAt"));
+        subOrder.setShippingUpdatedAt(rs.getTimestamp("shippingUpdatedAt"));
+        subOrder.setLabelUrl(rs.getString("labelUrl"));
+        subOrder.setTrackingUrl(rs.getString("trackingUrl"));
+        subOrder.setShippingToken(rs.getString("shippingToken"));
+
+        subOrder.setCreatedDate(rs.getTimestamp("createdDate"));
+        subOrder.setUpdatedDate(rs.getTimestamp("updatedDate"));
+
+        return subOrder;
     }
 
     private OrderDetail mapResultSetToOrderDetail(ResultSet rs) throws SQLException {
-        return new OrderDetail(
-                rs.getInt("id"),
-                rs.getInt("order_id"),
-                rs.getInt("product_id"),
-                "",
-                rs.getDouble("price"),
-                rs.getInt("quantity"),
-                rs.getDouble("subtotal"),
-                rs.getInt("status"),
-                rs.getString("paymentMethod"),
-                rs.getInt("paymentStatus"),
-                rs.getString("cancelReason"),
-                rs.getTimestamp("cancelDate"),
-                rs.getDouble("refundAmount"),
-                rs.getTimestamp("refundDate"),
-                rs.getString("refundReason"),
-                rs.getTimestamp("createdDate"),
-                rs.getTimestamp("updatedDate"),
-                rs.getInt("points")
-        );
+        OrderDetail detail = new OrderDetail();
+
+        detail.setId(rs.getInt("id"));
+        detail.setOrderId(rs.getInt("order_id"));
+        detail.setSubOrderId(rs.getInt("subOrderId"));
+        detail.setProductId(rs.getInt("product_id"));
+        detail.setQuantity(rs.getInt("quantity"));
+        detail.setPrice(rs.getBigDecimal("price"));
+        detail.setSubtotal(rs.getBigDecimal("subtotal")); // Optional nếu SELECT có cột này
+        detail.setVillageId(rs.getInt("villageID"));
+        detail.setReviewStatus(rs.getInt("reviewStatus"));
+
+        return detail;
     }
 
     private TicketOrderDetail mapResultSetToTicketOrderDetail(ResultSet rs) throws SQLException {
-        return new TicketOrderDetail(
-                rs.getInt("detailID"),
-                rs.getInt("orderID"),
-                rs.getInt("ticketID"),
-                "",
-                rs.getInt("quantity"),
-                rs.getBigDecimal("price"),
-                rs.getBigDecimal("subtotal"),
-                rs.getInt("status"),
-                rs.getInt("villageID"),
-                rs.getString("paymentMethod"),
-                rs.getInt("paymentStatus"),
-                rs.getString("cancelReason"),
-                rs.getTimestamp("cancelDate"),
-                rs.getBigDecimal("refundAmount"),
-                rs.getTimestamp("refundDate"),
-                rs.getString("refundReason"),
-                rs.getTimestamp("createdDate"),
-                rs.getTimestamp("updatedDate"),
-                rs.getInt("points")
-        );
+        TicketOrderDetail detail = new TicketOrderDetail();
+
+        detail.setDetailID(rs.getInt("detailID"));
+        detail.setOrderID(rs.getInt("orderID"));
+        detail.setSubOrderId(rs.getInt("subOrderId"));
+        detail.setTicketID(rs.getInt("ticketID"));
+        detail.setQuantity(rs.getInt("quantity"));
+        detail.setPrice(rs.getBigDecimal("price"));
+        detail.setSubtotal(rs.getBigDecimal("subtotal")); // computed column
+        detail.setVillageID(rs.getInt("villageID"));
+        detail.setReviewStatus(rs.getInt("reviewStatus"));
+        detail.setTicketCode(rs.getString("TicketCode"));
+
+        return detail;
     }
 
     private void closeResources(java.sql.Connection conn, PreparedStatement ps, ResultSet rs) {
@@ -111,7 +139,7 @@ public class OrderDAO {
     }
 
     public int addOrder(Order order) {
-        String query = "{CALL AddOrder(?, ?, ?,  ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String query = "{CALL AddOrder(?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
 
@@ -120,22 +148,19 @@ public class OrderDAO {
             cs = conn.prepareCall(query);
 
             cs.setInt(1, order.getUserID());
-            cs.setBigDecimal(2, order.getTotalAmount());
+            cs.setBigDecimal(2, order.getTotalPrice());
             cs.setString(3, order.getShippingAddress());
-            cs.setString(4, order.getPhoneNumber());
-            cs.setString(5, order.getEmail());
+            cs.setString(4, order.getShippingPhone());
+            cs.setString(5, order.getShippingName());
             cs.setString(6, order.getPaymentMethod());
-            cs.setInt(7, order.getPaymentStatus());
-            cs.setString(8, order.getNote());
-            cs.setString(9, order.getFullName());
-            cs.setInt(10, order.getPoints());
+            cs.setString(7, order.getEmail());
 
-            cs.registerOutParameter(11, Types.INTEGER);
+            cs.registerOutParameter(8, Types.INTEGER); // @orderIDnew
 
             cs.execute();
 
-            int newOrderId = cs.getInt(11);
-            LOGGER.log(Level.INFO, "AddOrder result code: {0}", newOrderId);
+            int newOrderId = cs.getInt(8);
+            LOGGER.log(Level.INFO, "AddOrder result - new Order ID: {0}", newOrderId);
             return newOrderId;
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,6 +169,54 @@ public class OrderDAO {
             closeResources(conn, cs, null);
         }
         return 0;
+    }
+
+    public Integer addSubOrder(SubOrder subOrder) {
+        String sql = "{CALL AddSubOrder(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+        Integer newSubOrderId = null;
+
+        try {
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(sql);
+
+            cs.setInt(1, subOrder.getOrderId());
+            cs.setInt(2, subOrder.getVillageId());
+            cs.setBigDecimal(3, subOrder.getTotalPrice());
+
+            if (subOrder.getPoints() != null) {
+                cs.setInt(4, subOrder.getPoints());
+            } else {
+                cs.setNull(4, java.sql.Types.INTEGER);
+            }
+            cs.setString(5, subOrder.getPaymentMethod());
+            if (subOrder.getPaymentStatus() != 0) {
+                cs.setInt(6, subOrder.getPaymentStatus());
+            } else {
+                cs.setInt(6, 0); // default: unpaid
+            }
+            if (subOrder.getOrderStatus() != null) {
+                cs.setInt(7, subOrder.getOrderStatus());
+            } else {
+                cs.setInt(7, 0); // default: new
+            }
+            if (subOrder.getNote() != null) {
+                cs.setString(8, subOrder.getNote());
+            } else {
+                cs.setNull(8, java.sql.Types.NVARCHAR);
+            }
+            cs.registerOutParameter(9, java.sql.Types.INTEGER); // @subOrderIdNew
+            cs.execute();
+            newSubOrderId = cs.getInt(9);
+            System.out.println("[INFO] SubOrder added successfully. ID = " + newSubOrderId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("[ERROR] Failed to add SubOrder: " + e.getMessage());
+        } finally {
+            closeResources(conn, cs, null);
+        }
+        return newSubOrderId;
     }
 
     public void deleteCartItem(int cartID) {
@@ -205,48 +278,37 @@ public class OrderDAO {
         return -1; // trả về -1 nếu không tìm thấy
     }
 
-    public Integer addOrderDetail(int orderId, int productId, int quantity,
-            double price, int status, int villageID,
-            String paymentMethod, int paymentStatus) {
+    public Integer addOrderDetail(OrderDetail orderDetail) {
 
-        String sql = "{CALL AddOrderDetail(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL AddOrderDetail(?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
         Integer newDetailId = null;
-
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(sql);
-
-            cs.setInt(1, orderId);
-            cs.setInt(2, productId);
-            cs.setInt(3, quantity);
-            cs.setBigDecimal(4, BigDecimal.valueOf(price));
-            cs.setInt(5, status);
-            cs.setInt(6, villageID);
-            cs.setString(7, paymentMethod);
-            cs.setInt(8, paymentStatus);
-
-            // Đăng ký OUT parameter
-            cs.registerOutParameter(9, java.sql.Types.INTEGER);
-
+            cs.setInt(1, orderDetail.getOrderId());
+            cs.setInt(2, orderDetail.getSubOrderId());
+            cs.setInt(3, orderDetail.getProductId());
+            cs.setInt(4, orderDetail.getQuantity());
+            cs.setBigDecimal(5, orderDetail.getPrice());
+            cs.setInt(6, orderDetail.getVillageId());
+            // OUT parameter
+            cs.registerOutParameter(7, java.sql.Types.INTEGER);
             cs.execute();
-
-            newDetailId = cs.getInt(9);
-
+            newDetailId = cs.getInt(7);
             System.out.println("OrderDetail added successfully. New Detail ID: " + newDetailId);
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("[ERROR] Failed to add OrderDetail: " + e.getMessage());
         } finally {
             closeResources(conn, cs, null);
         }
-
         return newDetailId;
     }
 
-    public Integer addTicketOrderDetail(int orderId, int ticketID, int quantity, double price,
-            int status, int villageID, String paymentMethod, int paymentStatus) {
-        String sql = "{CALL AddTicketOrderDetail(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    public Integer addTicketOrderDetail(TicketOrderDetail ticketOrderDetail) {
+        String sql = "{CALL AddTicketOrderDetail(?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
         Integer newDetailId = null;
@@ -254,32 +316,26 @@ public class OrderDAO {
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(sql);
-
-            cs.setInt(1, orderId);
-            cs.setInt(2, ticketID);
-            cs.setInt(3, quantity);
-            cs.setBigDecimal(4, BigDecimal.valueOf(price));
-            cs.setInt(5, status);
-            cs.setInt(6, villageID);
-            cs.setString(7, paymentMethod);
-            cs.setInt(8, paymentStatus);
-
-            // Đăng ký biến OUT để nhận ID mới
-            cs.registerOutParameter(9, java.sql.Types.INTEGER);
-
+            cs.setInt(1, ticketOrderDetail.getOrderID());
+            cs.setInt(2, ticketOrderDetail.getSubOrderId());
+            cs.setInt(3, ticketOrderDetail.getTicketID());
+            cs.setInt(4, ticketOrderDetail.getQuantity());
+            cs.setBigDecimal(5, ticketOrderDetail.getPrice());
+            cs.setInt(6, ticketOrderDetail.getVillageID());
+            cs.setString(7, ticketOrderDetail.getTicketCode());
+            // OUT parameter: TicketOrderDetailID
+            cs.registerOutParameter(8, java.sql.Types.INTEGER);
             cs.execute();
 
-            newDetailId = cs.getInt(9);
-
-            System.out.println("[INFO] AddTicketOrderDetail executed successfully. New DetailID = " + newDetailId);
+            newDetailId = cs.getInt(8); // Get output value
+            System.out.println("[INFO] TicketOrderDetail created successfully. New ID = " + newDetailId);
 
         } catch (Exception e) {
-            System.err.println("[ERROR] Failed to add TicketOrderDetail. " + e.getMessage());
+            System.err.println("[ERROR] Failed to add TicketOrderDetail: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            closeResources(conn, cs, null);
+            closeResources(conn, cs, null); // Assumes you have a method to close JDBC resources
         }
-
         return newDetailId;
     }
 
@@ -374,7 +430,8 @@ public class OrderDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new OrderDAO().refundTicketOrderDetail(1, "sdfsdf"));
+        System.out.println("");
+        System.out.println(new OrderDAO().checkSubOrderReviewStatus(5));
     }
 
     public double getOrderTotal(int orderID) {
@@ -489,29 +546,7 @@ public class OrderDAO {
             ps.setInt(1, orderId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Order order = new Order();
-                    order.setOrderID(rs.getInt("id"));
-                    order.setUserID(rs.getInt("userID"));
-                    order.setTotalAmount(rs.getBigDecimal("total_price"));
-                    order.setShippingAddress(rs.getString("shippingAddress"));
-                    order.setPhoneNumber(rs.getString("shippingPhone"));
-                    order.setShippingName(rs.getString("shippingName"));
-                    order.setPaymentMethod(rs.getString("paymentMethod"));
-                    order.setPaymentStatus(rs.getInt("paymentStatus"));
-                    order.setNote(rs.getString("note"));
-                    order.setCreatedDate(rs.getTimestamp("createdDate"));
-                    order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-                    order.setTrackingNumber(rs.getString("trackingNumber"));
-                    order.setEstimatedDeliveryDate(rs.getTimestamp("estimatedDeliveryDate"));
-                    order.setActualDeliveryDate(rs.getTimestamp("actualDeliveryDate"));
-                    order.setCancelReason(rs.getString("cancelReason"));
-                    order.setCancelDate(rs.getTimestamp("cancelDate"));
-                    order.setRefundAmount(rs.getBigDecimal("refundAmount"));
-                    order.setRefundDate(rs.getTimestamp("refundDate"));
-                    order.setRefundReason(rs.getString("refundReason"));
-                    order.setEmail(rs.getString("email"));
-                    order.setPoints(rs.getInt("points"));
-                    return order;
+                    return mapResultSetToOrder(rs);
                 }
             }
         } catch (Exception e) {
@@ -568,12 +603,12 @@ public class OrderDAO {
             try {
                 conn = DBContext.getConnection(); // Hoặc connection pool của bạn
                 ps = conn.prepareStatement(sql);
-                ps.setInt(1, o.getOrderID());
+                ps.setInt(1, o.getId());
                 rs = ps.executeQuery();
 
                 while (rs.next()) {
                     OrderDetail od = mapResultSetToOrderDetail(rs);
-                    Product p = new ProductService().getProductById(od.getProductID());
+                    Product p = new ProductService().getProductById(od.getProductId());
                     od.setProductName(p.getName());
                     list.add(od);
                 }
@@ -609,7 +644,7 @@ public class OrderDAO {
             try {
                 conn = DBContext.getConnection(); // Hoặc connection pool của bạn
                 ps = conn.prepareStatement(sql);
-                ps.setInt(1, o.getOrderID());
+                ps.setInt(1, o.getId());
                 rs = ps.executeQuery();
 
                 while (rs.next()) {
@@ -639,37 +674,6 @@ public class OrderDAO {
         return list;
     }
 
-    public boolean cancelOrderDetail(int orderDetailID, String cancelReason) {
-        String query = "{? = call sp_CancelOrder(?, ?)}";
-        Connection conn = null;
-        CallableStatement cs = null;
-
-        try {
-            conn = new DBContext().getConnection();
-            cs = conn.prepareCall(query);
-
-            // Đăng ký RETURN value
-            cs.registerOutParameter(1, java.sql.Types.INTEGER);
-
-            // Set input parameters
-            cs.setInt(2, orderDetailID);
-            cs.setString(3, cancelReason);
-
-            // Thực thi stored procedure
-            cs.execute();
-
-            int result = cs.getInt(1);
-            LOGGER.log(Level.INFO, "sp_CancelOrder result code: {0}", result);
-
-            return result == 1;
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error cancelling OrderDetail ID: " + orderDetailID, e);
-        } finally {
-            closeResources(conn, cs, null);
-        }
-        return false;
-    }
-
     public OrderDetail getOrderDetail(int orderDetailID) {
         String sql = " SELECT * FROM OrderDetail WHERE id = ?";
 
@@ -685,37 +689,6 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public boolean cancelTicketOrderDetail(int detailID, String cancelReason) {
-        String query = "{? = call sp_CancelTicketOrder(?, ?)}";
-        Connection conn = null;
-        CallableStatement cs = null;
-
-        try {
-            conn = new DBContext().getConnection();
-            cs = conn.prepareCall(query);
-
-            // Đăng ký RETURN value
-            cs.registerOutParameter(1, java.sql.Types.INTEGER);
-
-            // Set input parameters
-            cs.setInt(2, detailID);
-            cs.setString(3, cancelReason);
-
-            // Thực thi stored procedure
-            cs.execute();
-
-            int result = cs.getInt(1);
-            LOGGER.log(Level.INFO, "sp_CancelOrder result code: {0}", result);
-
-            return result == 1;
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error cancelling TicketOrderDetail ID: " + detailID, e);
-        } finally {
-            closeResources(conn, cs, null);
-        }
-        return false;
     }
 
     public TicketOrderDetail getTicketOrderDetail(int ticketOrderDetaiID) {
@@ -735,174 +708,599 @@ public class OrderDAO {
         return null;
     }
 
-    public boolean refundPayment(int id, int type) {
-        String query;
-        OrderDetail order;
-        TicketOrderDetail ticketOrder;
-        int subtotal;
-        int userID;
+    public SubOrder getSubOrderById(int subOrderId) {
+        String query = "SELECT * FROM SubOrders WHERE subOrderId = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-        if (type == 1) {
-            query = "{? = call sp_RefundOrderPayment(?)}";
-            order = new OrderDAO().getOrderDetail(id);
-            subtotal = BigDecimal.valueOf(order.getSubtotal()).intValue();
-            userID = new OrderDAO().getUserIDByOrderID(order.getOrderID());
-        } else if (type == 2) {
-            query = "{? = call sp_RefundTicketPayment(?)}";
-            ticketOrder = new OrderDAO().getTicketOrderDetail(id);
-            subtotal = ticketOrder.getSubtotal().intValue();
-            userID = new OrderDAO().getUserIDByOrderID(ticketOrder.getOrderID());
-        } else {
-            LOGGER.log(Level.WARNING, "Invalid type for refund: {0}", type);
-            return false;
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, subOrderId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToSubOrder(rs);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "❌ Lỗi khi lấy SubOrder với ID: " + subOrderId, e);
+        } finally {
+            closeResources(conn, ps, rs);
         }
+
+        return null;
+    }
+
+    public boolean refundSubOrderPayment(int subOrderId) {
+        String query = "{? = call sp_RefundSubOrderPayment(?)}";
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            // Lấy thông tin SubOrder để hoàn tiền
+            SubOrder subOrder = new OrderDAO().getSubOrderById(subOrderId); // ➤ bạn cần có hàm này
+            int userID = new OrderDAO().getUserIDByOrderID(subOrder.getOrderId());
+            int subtotal = (int) subOrder.getPoints();
+
+            conn = new DBContext().getConnection();
+            cs = conn.prepareCall(query);
+            cs.registerOutParameter(1, java.sql.Types.INTEGER); // return value
+            cs.setInt(2, subOrderId);
+
+            cs.execute();
+            int result = cs.getInt(1);
+
+            LOGGER.log(Level.INFO, "RefundSubOrder result code: {0}", result);
+
+            if (result == 1) {
+                new OrderDAO().addPoints(userID, subtotal); // ➤ hoàn điểm nếu cần
+                System.out.println(" Hoàn tiền thành công cho SubOrderID: " + subOrderId);
+                return true;
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, " Lỗi khi hoàn tiền SubOrderID: " + subOrderId, e);
+        } finally {
+            closeResources(conn, cs, null);
+        }
+
+        return false;
+    }
+
+    public Integer getSubOrderID(int orderID, int villageID) {
+        String sql = "SELECT subOrderId FROM SubOrders WHERE orderId = ? AND villageId = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderID);
+            ps.setInt(2, villageID); //  sửa index 2
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("subOrderId");
+                }
+            }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting subOrderId for orderID=" + orderID + ", villageID=" + villageID, e);
+        }
+
+        return null; //  trả về null nếu không tìm thấy
+    }
+
+    public List<SubOrder> getSubOrderListByOrderID(int orderID) {
+        List<SubOrder> list = new ArrayList<>();
+        String sql = "SELECT * FROM SubOrders WHERE orderID = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, orderID);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToSubOrder(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public List<OrderDetail> getAllOrderDetailByOrderID(int orderId) {
+        List<OrderDetail> list = new ArrayList<>();
+        String sql = "SELECT * FROM OrderDetail WHERE order_id = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                OrderDetail od = mapResultSetToOrderDetail(rs);
+                od.setProductName(new ProductService().getProductById(od.getProductId()).getName());
+                list.add(od);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public List<TicketOrderDetail> getAllTicketOrderDetailByOrderID(int orderId) {
+        List<TicketOrderDetail> list = new ArrayList<>();
+        String sql = "SELECT * FROM TicketOrderDetail WHERE orderID = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                TicketOrderDetail tod = mapResultSetToTicketOrderDetail(rs);
+                tod.setVillageName(new VillageService().getVillageNameByID(tod.getVillageID()));
+
+                list.add(tod);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public List<Order> getOrdersByUserId(int userId) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM Orders WHERE userID = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(mapResultSetToOrder(rs));
+                list.add(mapResultSetToOrder(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public boolean cancelSubOrderDetail(int subOrderId, String reason) {
+        String query = "{? = call sp_CancelSubOrder(?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
 
         try {
             conn = new DBContext().getConnection();
             cs = conn.prepareCall(query);
-            cs.registerOutParameter(1, java.sql.Types.INTEGER);
-            cs.setInt(2, id);
-            cs.execute();
-            int result = cs.getInt(1);
-            LOGGER.log(Level.INFO, "Refund result code: {0}", result);
 
-            if (result == 1) {
-                new OrderDAO().addPoints(userID, subtotal);
-                System.out.println("oke");
-                System.out.println(userID);
-                System.out.println(subtotal);
-            }
+            // Đăng ký RETURN value
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+
+            // Set input parameters
+            cs.setInt(2, subOrderId);
+            cs.setString(3, reason);
+
+            // Thực thi stored procedure
+            cs.execute();
+
+            int result = cs.getInt(1);
+            LOGGER.log(Level.INFO, "sp_CancelOrder result subOrderId: {0}", result);
+
             return result == 1;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error processing refund for id: " + id + ", type: " + type, e);
+            LOGGER.log(Level.SEVERE, "Error cancelling subOrderId ID: " + subOrderId, e);
         } finally {
             closeResources(conn, cs, null);
         }
         return false;
     }
 
-    public boolean confirmOrderDetail(int orderID) {
-        String sql = "UPDATE [CraftDB].[dbo].[OrderDetail] "
-                + "SET status = 2, "
+    public boolean confirmSubOrder(int subOrderId) {
+        String sql = "UPDATE [CraftDB].[dbo].[SubOrders] "
+                + "SET orderStatus = 2, "
                 + "    paymentStatus = 1, "
                 + "    updatedDate = GETDATE() "
-                + "WHERE id = ?";
+                + "WHERE subOrderId = ?";
 
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, orderID);
+            ps.setInt(1, subOrderId);
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error confirming order details for orderID: " + orderID, e);
+            LOGGER.log(Level.SEVERE, "Error confirming order details for subOrderId: " + subOrderId, e);
         }
         return false;
     }
 
-    public boolean confirmTicketOrderDetail(int detailID) {
-        String sql = "UPDATE [CraftDB].[dbo].[TicketOrderDetail] "
-                + "SET status = 2, "
+    public boolean refundSubOrder(int subOrderId, String reason) {
+        String sql = "UPDATE [CraftDB].[dbo].[SubOrders] "
+                + "SET orderStatus = 5, "
                 + "    paymentStatus = 1, "
-                + "    updatedDate = GETDATE() "
-                + "WHERE detailID = ?";
+                + "    updatedDate = GETDATE(), "
+                + "    refundReason = ?,"
+                + "    refundDate = GETDATE()"
+                + "WHERE subOrderId = ?";
 
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, detailID);
+            ps.setString(1, reason);
+            ps.setInt(2, subOrderId);
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error confirming order details for detailID: " + detailID, e);
+            LOGGER.log(Level.SEVERE, "Error confirming order details for subOrderId: " + subOrderId, e);
         }
         return false;
     }
 
-    public boolean refundOrderDetail(int orderDetailID, String refundReason) {
-        String selectSql = "SELECT quantity, price FROM [CraftDB].[dbo].[OrderDetail] "
-                + "WHERE id = ?";
+    public void updateReviewStatus(int subOrderId) {
+        String sql = "UPDATE [CraftDB].[dbo].[SubOrders] "
+                + "SET reviewStatus = 1 "
+                + "WHERE subOrderId = ?";
 
-        String updateSql = "UPDATE [CraftDB].[dbo].[OrderDetail] "
-                + "SET status = 5, "
-                + "    refundReason = ?, "
-                + "    refundDate = GETDATE(), "
-                + "    refundAmount = ?, "
-                + "    updatedDate = GETDATE() "
-                + "WHERE id = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, subOrderId);
 
-        try (Connection conn = DBContext.getConnection(); PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+            int rowsAffected = ps.executeUpdate();
 
-            psSelect.setInt(1, orderDetailID);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error confirming order details for subOrderId: " + subOrderId, e);
+        }
+    }
+
+    public List<TicketOrderDetail> getTicketOrderDetailNonReview(int subOrderId) {
+        List<TicketOrderDetail> list = new ArrayList<>();
+        String sql = "SELECT * FROM TicketOrderDetail WHERE  reviewStatus = 0 and subOrderId = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, subOrderId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                TicketOrderDetail tod = mapResultSetToTicketOrderDetail(rs);
+                tod.setVillageName(new VillageService().getVillageNameByID(tod.getVillageID()));
+
+                list.add(tod);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public List<OrderDetail> getOrderDetailNonReview(int subOrderId) {
+        List<OrderDetail> list = new ArrayList<>();
+        String sql = "SELECT * FROM OrderDetail WHERE reviewStatus = 0 and subOrderId = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, subOrderId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                OrderDetail od = mapResultSetToOrderDetail(rs);
+                od.setProductName(new ProductService().getProductById(od.getProductId()).getName());
+                list.add(od);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public boolean addProductReviewByUser(ProductReview productReview) {
+        String sql = "{call addProductReview(?, ?, ?, ?, ?, ?)}"; // 6 tham số (5 input + 1 output)
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, productReview.getProductID());
+            cs.setInt(2, productReview.getUserID());
+            cs.setInt(3, productReview.getRating());
+            cs.setString(4, productReview.getReviewText());
+            cs.setString(5, productReview.getPictureUrl());
+
+            // OUT parameter
+            cs.registerOutParameter(6, java.sql.Types.INTEGER);
+
+            cs.execute();
+
+            int result = cs.getInt(6);
+            return result == 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void calculateProductReview(int rate, int productID) {
+        String querySelect = "SELECT totalReviews, averageRating FROM Product WHERE pid = ?";
+        String queryUpdate = "UPDATE Product SET totalReviews = ?, averageRating = ? WHERE pid = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement psSelect = conn.prepareStatement(querySelect); PreparedStatement psUpdate = conn.prepareStatement(queryUpdate)) {
+
+            // Lấy dữ liệu cũ
+            psSelect.setInt(1, productID);
             ResultSet rs = psSelect.executeQuery();
 
             if (rs.next()) {
-                int quantity = rs.getInt("quantity");
-                BigDecimal price = rs.getBigDecimal("price");
+                int totalReviews = rs.getInt("totalReviews");
+                double averageRating = rs.getDouble("averageRating");
 
-                BigDecimal refundAmount = BigDecimal.valueOf(quantity).multiply(price);
+                // Tính lại trung bình mới
+                int newTotal = totalReviews + 1;
+                double newAverage = ((averageRating * totalReviews) + rate) / newTotal;
 
-                try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
-                    psUpdate.setString(1, refundReason);
-                    psUpdate.setBigDecimal(2, refundAmount);
-                    psUpdate.setInt(3, orderDetailID);
-
-                    int rowsAffected = psUpdate.executeUpdate();
-                    return rowsAffected > 0;
-                }
-            } else {
-                LOGGER.log(Level.WARNING, "OrderDetail with id {0} not found.", orderDetailID);
+                // Cập nhật
+                psUpdate.setInt(1, newTotal);
+                psUpdate.setDouble(2, newAverage);
+                psUpdate.setInt(3, productID);
+                psUpdate.executeUpdate();
             }
 
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error refunding OrderDetail with id: " + orderDetailID, e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateOrderDetailReviewStatus(int subOrderId, int productId) {
+        String sql = "UPDATE OrderDetail SET reviewStatus = 1 WHERE subOrderId = ? and product_id = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, subOrderId);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean addVillageReviewByUser(CraftReview villageReview) {
+        String sql = "{call addVillageReview(?, ?, ?, ?, ?, ?)}"; // 5 input + 1 output
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, villageReview.getVillageID());
+            cs.setInt(2, villageReview.getUserID());
+            cs.setInt(3, villageReview.getRating());
+            cs.setString(4, villageReview.getReviewText());
+            cs.setString(5, villageReview.getPictureUrl());
+
+            cs.registerOutParameter(6, java.sql.Types.INTEGER);
+
+            cs.execute();
+
+            int result = cs.getInt(6);
+            return result == 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
 
-    public boolean refundTicketOrderDetail(int detailID, String refundReason) {
-        String sql = "UPDATE [CraftDB].[dbo].[TicketOrderDetail] "
-                + "SET status = 5, "
-                + "    refundDate = GETDATE(), "
-                + "    refundReason = ?, "
-                + "    refundAmount = ?, "
-                + "    updatedDate = GETDATE() "
-                + "WHERE detailID = ?";
+    public void calculateVillageReview(int rate, int villageID) {
+        String querySelect = "SELECT totalReviews, averageRating FROM CraftVillage WHERE villageID = ?";
+        String queryUpdate = "UPDATE CraftVillage SET totalReviews = ?, averageRating = ? WHERE villageID = ?";
 
-        String selectSql = "SELECT quantity, price FROM [CraftDB].[dbo].[TicketOrderDetail] "
-                + "WHERE detailID = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement psSelect = conn.prepareStatement(querySelect); PreparedStatement psUpdate = conn.prepareStatement(queryUpdate)) {
 
-        try (Connection conn = DBContext.getConnection(); PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-
-            psSelect.setInt(1, detailID);
+            // Lấy dữ liệu cũ
+            psSelect.setInt(1, villageID);
             ResultSet rs = psSelect.executeQuery();
 
             if (rs.next()) {
-                int quantity = rs.getInt("quantity");
-                BigDecimal price = rs.getBigDecimal("price");
+                int totalReviews = rs.getInt("totalReviews");
+                double averageRating = rs.getDouble("averageRating");
 
-                BigDecimal refundAmount = BigDecimal.valueOf(quantity).multiply(price);
+                // Tính lại trung bình mới
+                int newTotal = totalReviews + 1;
+                double newAverage = ((averageRating * totalReviews) + rate) / newTotal;
 
-                try (PreparedStatement psUpdate = conn.prepareStatement(sql)) {
-                    psUpdate.setString(1, refundReason);
-                    psUpdate.setBigDecimal(2, refundAmount);
-                    psUpdate.setInt(3, detailID);
-
-                    int rowsAffected = psUpdate.executeUpdate();
-                    return rowsAffected > 0;
-                }
-            } else {
-                LOGGER.log(Level.WARNING, "TicketOrderDetail with detailID {0} not found.", detailID);
+                // Cập nhật
+                psUpdate.setInt(1, newTotal);
+                psUpdate.setDouble(2, newAverage);
+                psUpdate.setInt(3, villageID);
+                psUpdate.executeUpdate();
             }
 
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error refunding TicketOrderDetail with detailID: " + detailID, e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return false;
     }
+
+    public void updateTicketOrderDetailReviewStatus(int subOrderId, int ticketID) {
+        String sql = "UPDATE TicketOrderDetail SET reviewStatus = 1 WHERE subOrderId = ? and ticketID = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, subOrderId);
+            ps.setInt(2, ticketID);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public boolean checkSubOrderReviewStatus(int subOrderId) {
+    String countTotalQuery = 
+        "SELECT " +
+        "    (SELECT COUNT(*) FROM OrderDetail WHERE subOrderId = ?) + " +
+        "    (SELECT COUNT(*) FROM TicketOrderDetail WHERE subOrderId = ?) AS totalCount";
+
+    String countReviewedQuery = 
+        "SELECT " +
+        "    (SELECT COUNT(*) FROM OrderDetail WHERE subOrderId = ? AND reviewStatus = 1) + " +
+        "    (SELECT COUNT(*) FROM TicketOrderDetail WHERE subOrderId = ? AND reviewStatus = 1) AS reviewedCount";
+
+    String updateSubOrderQuery = 
+        "UPDATE SubOrders SET reviewStatus = 1 WHERE subOrderId = ?";
+
+    try (Connection conn = DBContext.getConnection();
+         PreparedStatement psTotal = conn.prepareStatement(countTotalQuery);
+         PreparedStatement psReviewed = conn.prepareStatement(countReviewedQuery)) {
+
+        // Set parameters for both queries
+        psTotal.setInt(1, subOrderId);
+        psTotal.setInt(2, subOrderId);
+        psReviewed.setInt(1, subOrderId);
+        psReviewed.setInt(2, subOrderId);
+
+        int total = 0;
+        int reviewed = 0;
+
+        try (ResultSet rsTotal = psTotal.executeQuery()) {
+            if (rsTotal.next()) {
+                total = rsTotal.getInt("totalCount");
+            }
+        }
+
+        try (ResultSet rsReviewed = psReviewed.executeQuery()) {
+            if (rsReviewed.next()) {
+                reviewed = rsReviewed.getInt("reviewedCount");
+            }
+        }
+
+        // Nếu tất cả mục đã review
+        if (total > 0 && total == reviewed) {
+            try (PreparedStatement psUpdate = conn.prepareStatement(updateSubOrderQuery)) {
+                psUpdate.setInt(1, subOrderId);
+                psUpdate.executeUpdate();
+            }
+            return true;
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
 
 }

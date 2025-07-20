@@ -5,88 +5,93 @@
 package entity.Orders;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
-/**
- *
- * @author ACER
- */
 public class TicketOrderDetail {
 
     private int detailID;
     private int orderID;
+    private int subOrderId;
     private int ticketID;
     private int quantity;
     private BigDecimal price;
-    private BigDecimal subtotal;
-    private int status;
+    private BigDecimal subtotal; // Computed column
     private Integer villageID;
     private String villageName;
-    private String paymentMethod;
-    private Integer paymentStatus;
-    private String cancelReason;
-    private Timestamp cancelDate;
-    private BigDecimal refundAmount;
-    private Timestamp refundDate;
-    private String refundReason;
-    private Timestamp createdDate;
-    private Timestamp updatedDate;
-    private Integer points;
-
-    // Constructors-------------------------------------------------------------
+    private int reviewStatus;
+    private String ticketCode;
+    
+    // Constructors
     public TicketOrderDetail() {
     }
 
-    public TicketOrderDetail(int detailID, int orderID, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal) {
+    public TicketOrderDetail(int detailID, int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal, Integer villageID, int reviewStatus, String ticketCode) {
         this.detailID = detailID;
         this.orderID = orderID;
+        this.subOrderId = subOrderId;
         this.ticketID = ticketID;
         this.quantity = quantity;
         this.price = price;
         this.subtotal = subtotal;
-    }
-
-    public TicketOrderDetail(int orderID, int ticketID, int quantity, BigDecimal price) {
-        this.orderID = orderID;
-        this.ticketID = ticketID;
-        this.quantity = quantity;
-        this.price = price;
-    }
-
-    public TicketOrderDetail(int detailID, int orderID, int ticketID, String villageName, int quantity,
-            BigDecimal price, BigDecimal subtotal, int status,
-            Integer villageID, String paymentMethod, Integer paymentStatus,
-            String cancelReason, Timestamp cancelDate,
-            BigDecimal refundAmount, Timestamp refundDate,
-            String refundReason, Timestamp createdDate,
-            Timestamp updatedDate, Integer points) {
-        this.detailID = detailID;
-        this.orderID = orderID;
-        this.ticketID = ticketID;
-        this.villageName = villageName;
-        this.quantity = quantity;
-        this.price = price;
-        this.subtotal = subtotal;
-        this.status = status;
         this.villageID = villageID;
-        this.paymentMethod = paymentMethod;
-        this.paymentStatus = paymentStatus;
-        this.cancelReason = cancelReason;
-        this.cancelDate = cancelDate;
-        this.refundAmount = refundAmount;
-        this.refundDate = refundDate;
-        this.refundReason = refundReason;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
-        this.points = points;
+        this.reviewStatus = reviewStatus;
+        this.ticketCode = ticketCode;
     }
-    
+
+    public TicketOrderDetail(int detailID, int orderID, int subOrderId, int ticketID,
+            int quantity, BigDecimal price, BigDecimal subtotal, Integer villageID) {
+        this.detailID = detailID;
+        this.orderID = orderID;
+        this.subOrderId = subOrderId;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+        this.subtotal = subtotal;
+        this.villageID = villageID;
+    }
+
+    public TicketOrderDetail(int detailID, int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal, Integer villageID, String villageName) {
+        this.detailID = detailID;
+        this.orderID = orderID;
+        this.subOrderId = subOrderId;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+        this.subtotal = subtotal;
+        this.villageID = villageID;
+        this.villageName = villageName;
+    }
+
+    public TicketOrderDetail(int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, Integer villageID, String ticketCode) {
+        this.orderID = orderID;
+        this.subOrderId = subOrderId;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+        this.villageID = villageID;
+        this.ticketCode = ticketCode;
+    }
+
+    public String getTicketCode() {
+        return ticketCode;
+    }
+
+    public void setTicketCode(String ticketCode) {
+        this.ticketCode = ticketCode;
+    }
+
+    public int getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(int reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
     public String getVillageName() {
         return villageName;
     }
 
-    //--------------------------------------------------------------------------
-    public void setVillageName(String villageName) {    
+    public void setVillageName(String villageName) {
         this.villageName = villageName;
     }
 
@@ -104,6 +109,14 @@ public class TicketOrderDetail {
 
     public void setOrderID(int orderID) {
         this.orderID = orderID;
+    }
+
+    public int getSubOrderId() {
+        return subOrderId;
+    }
+
+    public void setSubOrderId(int subOrderId) {
+        this.subOrderId = subOrderId;
     }
 
     public int getTicketID() {
@@ -138,14 +151,6 @@ public class TicketOrderDetail {
         this.subtotal = subtotal;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public Integer getVillageID() {
         return villageID;
     }
@@ -154,89 +159,11 @@ public class TicketOrderDetail {
         this.villageID = villageID;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public Integer getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(Integer paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
-    public String getCancelReason() {
-        return cancelReason;
-    }
-
-    public void setCancelReason(String cancelReason) {
-        this.cancelReason = cancelReason;
-    }
-
-    public Timestamp getCancelDate() {
-        return cancelDate;
-    }
-
-    public void setCancelDate(Timestamp cancelDate) {
-        this.cancelDate = cancelDate;
-    }
-
-    public BigDecimal getRefundAmount() {
-        return refundAmount;
-    }
-
-    public void setRefundAmount(BigDecimal refundAmount) {
-        this.refundAmount = refundAmount;
-    }
-
-    public Timestamp getRefundDate() {
-        return refundDate;
-    }
-
-    public void setRefundDate(Timestamp refundDate) {
-        this.refundDate = refundDate;
-    }
-
-    public String getRefundReason() {
-        return refundReason;
-    }
-
-    public void setRefundReason(String refundReason) {
-        this.refundReason = refundReason;
-    }
-
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Timestamp getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Timestamp updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
-    public Integer getPoints() {
-        return points;
-    }
-
-    public void setPoints(Integer points) {
-        this.points = points;
-    }
-
     @Override
     public String toString() {
-        return "TicketOrderDetail{" + "detailID=" + detailID + ", orderID=" + orderID + ", ticketID=" + ticketID + ", quantity=" + quantity + ", price=" + price + ", subtotal=" + subtotal + ", status=" + status + ", villageID=" + villageID + ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", cancelReason=" + cancelReason + ", cancelDate=" + cancelDate + ", refundAmount=" + refundAmount + ", refundDate=" + refundDate + ", refundReason=" + refundReason + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate + ", points=" + points + '}';
+        return "TicketOrderDetail{" + "detailID=" + detailID + ", orderID=" + orderID + ", subOrderId=" + subOrderId + ", ticketID=" + ticketID + ", quantity=" + quantity + ", price=" + price + ", subtotal=" + subtotal + ", villageID=" + villageID + ", villageName=" + villageName + ", reviewStatus=" + reviewStatus + ", ticketCode=" + ticketCode + '}';
     }
+
+    
 
 }

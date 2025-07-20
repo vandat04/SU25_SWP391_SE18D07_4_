@@ -1,7 +1,5 @@
 package DAO;
 
-import entity.Orders.TicketOrder;
-import entity.Orders.TicketOrderDetail;
 import entity.Orders.TicketCode;
 import entity.Ticket.VillageTicket;
 import java.math.BigDecimal;
@@ -235,75 +233,6 @@ public class SimpleTicketOrderDAO {
     }
 
     /**
-     * Get ticket order by ID
-     */
-    public TicketOrder getTicketOrderByID(int orderID) {
-        String sql = "SELECT * FROM TicketOrder WHERE orderID = ?";
-        
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, orderID);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                TicketOrder order = new TicketOrder();
-                order.setOrderID(rs.getInt("orderID"));
-                order.setUserID(rs.getInt("userID"));
-                order.setVillageID(rs.getInt("villageID"));
-                order.setTotalPrice(rs.getBigDecimal("totalPrice"));
-                order.setTotalQuantity(rs.getInt("totalQuantity"));
-                order.setStatus(rs.getInt("status"));
-                order.setPaymentMethod(rs.getString("paymentMethod"));
-                order.setPaymentStatus(rs.getInt("paymentStatus"));
-                order.setCustomerName(rs.getString("customerName"));
-                order.setCustomerPhone(rs.getString("customerPhone"));
-                order.setCustomerEmail(rs.getString("customerEmail"));
-                order.setNote(rs.getString("note"));
-                order.setCreatedDate(rs.getTimestamp("createdDate"));
-                order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-                return order;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Get ticket orders by user ID
-     */
-    public List<TicketOrder> getTicketOrdersByUserID(int userID) {
-        List<TicketOrder> orders = new ArrayList<>();
-        String sql = "SELECT * FROM TicketOrder WHERE userID = ? ORDER BY createdDate DESC";
-        
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, userID);
-            ResultSet rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                TicketOrder order = new TicketOrder();
-                order.setOrderID(rs.getInt("orderID"));
-                order.setUserID(rs.getInt("userID"));
-                order.setVillageID(rs.getInt("villageID"));
-                order.setTotalPrice(rs.getBigDecimal("totalPrice"));
-                order.setTotalQuantity(rs.getInt("totalQuantity"));
-                order.setStatus(rs.getInt("status"));
-                order.setPaymentMethod(rs.getString("paymentMethod"));
-                order.setPaymentStatus(rs.getInt("paymentStatus"));
-                order.setCustomerName(rs.getString("customerName"));
-                order.setCustomerPhone(rs.getString("customerPhone"));
-                order.setCustomerEmail(rs.getString("customerEmail"));
-                order.setNote(rs.getString("note"));
-                order.setCreatedDate(rs.getTimestamp("createdDate"));
-                order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-                orders.add(order);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return orders;
-    }
-
-    /**
      * Update order status
      */
     public boolean updateOrderStatus(int orderID, String status) {
@@ -335,22 +264,4 @@ public class SimpleTicketOrderDAO {
         return false;
     }
 
-    private TicketOrder mapResultSetToTicketOrder(ResultSet rs) throws SQLException {
-        TicketOrder order = new TicketOrder();
-        order.setOrderID(rs.getInt("orderID"));
-        order.setUserID(rs.getInt("userID"));
-        order.setVillageID(rs.getInt("villageID"));
-        order.setTotalPrice(rs.getBigDecimal("totalPrice"));
-        order.setTotalQuantity(rs.getInt("totalQuantity"));
-        order.setStatus(rs.getInt("status"));
-        order.setPaymentMethod(rs.getString("paymentMethod"));
-        order.setPaymentStatus(rs.getInt("paymentStatus"));
-        order.setCustomerName(rs.getString("customerName"));
-        order.setCustomerPhone(rs.getString("customerPhone"));
-        order.setCustomerEmail(rs.getString("customerEmail"));
-        order.setNote(rs.getString("note"));
-        order.setCreatedDate(rs.getTimestamp("createdDate"));
-        order.setUpdatedDate(rs.getTimestamp("updatedDate"));
-        return order;
-    }
 } 

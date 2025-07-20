@@ -4,11 +4,9 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class Payment {
-
     private int paymentID;
-    private Integer sellerID;
-    private Integer orderID;
-    private Integer ticketOrderID;
+    private int subOrderId;
+    private int sellerID;
     private BigDecimal amount;
     private String paymentMethod;
     private int paymentStatus;
@@ -16,16 +14,15 @@ public class Payment {
     private Timestamp paymentDate;
     private Timestamp updatedDate;
 
+    // Constructors
     public Payment() {
     }
 
-    public Payment(int paymentID, Integer sellerID, Integer orderID, Integer ticketOrderID,
-                   BigDecimal amount, String paymentMethod, int paymentStatus,
-                   String transactionID, Timestamp paymentDate, Timestamp updatedDate) {
+    public Payment(int paymentID, int subOrderId, int sellerID, BigDecimal amount, String paymentMethod,
+                   int paymentStatus, String transactionID, Timestamp paymentDate, Timestamp updatedDate) {
         this.paymentID = paymentID;
+        this.subOrderId = subOrderId;
         this.sellerID = sellerID;
-        this.orderID = orderID;
-        this.ticketOrderID = ticketOrderID;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
@@ -34,13 +31,24 @@ public class Payment {
         this.updatedDate = updatedDate;
     }
 
-    public Payment(Integer sellerID, Integer orderID, Integer ticketOrderID, BigDecimal amount, String paymentMethod, int paymentStatus) {
+    public Payment(int subOrderId, int sellerID, BigDecimal amount, String paymentMethod, int paymentStatus, String transactionID, Timestamp paymentDate, Timestamp updatedDate) {
+        this.subOrderId = subOrderId;
         this.sellerID = sellerID;
-        this.orderID = orderID;
-        this.ticketOrderID = ticketOrderID;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
+        this.transactionID = transactionID;
+        this.paymentDate = paymentDate;
+        this.updatedDate = updatedDate;
+    }
+    
+    public Payment(int subOrderId, int sellerID, BigDecimal amount, String paymentMethod, int paymentStatus, String transactionID) {
+        this.subOrderId = subOrderId;
+        this.sellerID = sellerID;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.transactionID = transactionID;
     }
 
     public int getPaymentID() {
@@ -51,28 +59,20 @@ public class Payment {
         this.paymentID = paymentID;
     }
 
-    public Integer getSellerID() {
+    public int getSubOrderId() {
+        return subOrderId;
+    }
+
+    public void setSubOrderId(int subOrderId) {
+        this.subOrderId = subOrderId;
+    }
+
+    public int getSellerID() {
         return sellerID;
     }
 
-    public void setSellerID(Integer sellerID) {
+    public void setSellerID(int sellerID) {
         this.sellerID = sellerID;
-    }
-
-    public Integer getOrderID() {
-        return orderID;
-    }
-
-    public void setOrderID(Integer orderID) {
-        this.orderID = orderID;
-    }
-
-    public Integer getTicketOrderID() {
-        return ticketOrderID;
-    }
-
-    public void setTicketOrderID(Integer ticketOrderID) {
-        this.ticketOrderID = ticketOrderID;
     }
 
     public BigDecimal getAmount() {
@@ -125,6 +125,7 @@ public class Payment {
 
     @Override
     public String toString() {
-        return "Payment{" + "paymentID=" + paymentID + ", sellerID=" + sellerID + ", orderID=" + orderID + ", ticketOrderID=" + ticketOrderID + ", amount=" + amount + ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", transactionID=" + transactionID + ", paymentDate=" + paymentDate + ", updatedDate=" + updatedDate + '}';
+        return "Payment{" + "paymentID=" + paymentID + ", subOrderId=" + subOrderId + ", sellerID=" + sellerID + ", amount=" + amount + ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", transactionID=" + transactionID + ", paymentDate=" + paymentDate + ", updatedDate=" + updatedDate + '}';
     }
+    
 }

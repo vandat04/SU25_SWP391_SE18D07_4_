@@ -18,7 +18,7 @@ public interface IProductService {
 
     //CRUD Basic
     List<Product> getActivateProducts();
-    
+
     int addProduct(Product product) throws Exception;
 
     boolean updateProduct(Product product);
@@ -39,7 +39,7 @@ public interface IProductService {
     List<Product> searchProducts(String keyword); // theo tên/mô tả
 
     List<Product> getSearchProductByAdmin(int status, int searchID, String contentSearch);
-    
+
     List<Product> getProductsByCategory(int categoryId);
 
     List<Product> getProductsByVillage(int villageId);
@@ -53,14 +53,15 @@ public interface IProductService {
     List<Product> getAllProductActive(); // Lay cac san pham hoat dong
 
     List<Product> getAllProductActiveByAdmin();
-    
+
     List<Product> getProductByCategory(int categoryID);
 
     List<Product> getProductOutOfStockByAdmin();
-    
+
     String getCategoryNameByCategoryID(int categoryID);
-    
+
     List<Product> getTopRatedByAdmin();
+
     //Report for Admin
     Map<String, Integer> getProductCountByCategory(); // Pie chart
 
@@ -86,11 +87,12 @@ public interface IProductService {
     List<ProductCategory> getAllCategory();
 
     List<Product> getTop5NewestProducts();
-    
-    String getProduct3D(int productID);
-    
-    int getVillageIDByProductID(int productID);
-    
-     String getModelFileByProductID(int productID);
-}
 
+    String getProduct3D(int productID);
+
+    int getVillageIDByProductID(int productID);
+
+    String getModelFileByProductID(int productID);
+
+    int getVillageIDByTicketID(int ticketID);
+}

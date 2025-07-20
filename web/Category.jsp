@@ -117,10 +117,10 @@
                                             <div class="wrap-selectors">
                                                 <div class="selector-item orderby-selector">
                                                     <select name="orderby" class="orderby" aria-label="Shop order" onchange="submitForm()">
-                                                        <option value="menu_order" ${param.orderby == 'menu_order' ? 'selected' : ''}>Mặc định</option>
-                                                        <option value="date" ${param.orderby == 'date' ? 'selected' : ''}>Mới nhất</option>
-                                                        <option value="price" ${param.orderby == 'price' ? 'selected' : ''}>Giá: Thấp đến Cao</option>
-                                                        <option value="price-desc" ${param.orderby == 'price-desc' ? 'selected' : ''}>Giá: Cao đến Thấp</option>
+                                                        <option value="menu_order" ${param.orderby == 'menu_order' ? 'selected' : ''}>Default</option>
+                                                        <option value="date" ${param.orderby == 'date' ? 'selected' : ''}>Latest</option>
+                                                        <option value="price" ${param.orderby == 'price' ? 'selected' : ''}>Price: Low to High</option>
+                                                        <option value="price-desc" ${param.orderby == 'price-desc' ? 'selected' : ''}>Price: High to Low</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -167,8 +167,8 @@
                     <!-- Product listing (ĐÃ ĐƯỢC SỬA ĐỔI) -->
                     <div class="col-12 col-md-9">
                         <div class="biolife-title-box">
-                            <span class="subtitle">Tất cả sản phẩm</span>
-                            <h3 class="main-title">Sản phẩm thủ công mỹ nghệ</h3>
+                            <span class="subtitle">All products</span>
+                            <h3 class="main-title">Handicraft products</h3>
                         </div>
 
                         <div class="product-grid">
@@ -178,7 +178,7 @@
         <c:if test="${empty listP}">
             <div class="col-12">
                 <p class="no-product-message">
-                    Không tìm thấy sản phẩm nào phù hợp với tiêu chí của bạn.
+                    No products were found matching your criteria.
                 </p>
             </div>
         </c:if>
@@ -237,7 +237,7 @@
                                         <i class="fa fa-heart" aria-hidden="true"></i>
                                     </button>
                                     <a onclick="addToCart('${o.id}', 1)" class="btn add-to-cart-btn">
-                                        <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Thêm vào giỏ
+                                        <i class="fa fa-cart-arrow-down" aria-hidden="true"></i> Add to cart
                                     </a>
                                 </div>
                             </div>

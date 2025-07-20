@@ -5,7 +5,6 @@
 package entity.Product;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  *
@@ -21,11 +20,12 @@ public class ProductReview {
     private String response;
     private Timestamp responseDate;
     private String userName; // Thêm thuộc tính userName
+    private String pictureUrl;
     
     // Constructors-------------------------------------------------------------
     public ProductReview() {}
 
-    public ProductReview(int reviewID, int productID, int userID, int rating, String reviewText, Timestamp reviewDate, String response, Timestamp responseDate) {
+    public ProductReview(int reviewID, int productID, int userID, int rating, String reviewText, Timestamp reviewDate, String response, Timestamp responseDate, String pictureUrl) {
         this.reviewID = reviewID;
         this.productID = productID;
         this.userID = userID;
@@ -34,13 +34,23 @@ public class ProductReview {
         this.reviewDate = reviewDate;
         this.response = response;
         this.responseDate = responseDate;
+        this.pictureUrl = pictureUrl;
     }
 
-    public ProductReview(int productID, int userID, int rating, String reviewText) {
+    public ProductReview(int productID, int userID, int rating, String reviewText, String pictureUrl) {
         this.productID = productID;
         this.userID = userID;
         this.rating = rating;
         this.reviewText = reviewText;
+        this.pictureUrl = pictureUrl;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
     
     
@@ -120,7 +130,9 @@ public class ProductReview {
 
     @Override
     public String toString() {
-        return "ProductReview{" + "reviewID=" + reviewID + ", productID=" + productID + ", userID=" + userID + ", rating=" + rating + ", reviewText=" + reviewText + ", reviewDate=" + reviewDate + ", response=" + response + ", responseDate=" + responseDate + ", userName=" + userName + '}';
+        return "ProductReview{" + "reviewID=" + reviewID + ", productID=" + productID + ", userID=" + userID + ", rating=" + rating + ", reviewText=" + reviewText + ", reviewDate=" + reviewDate + ", response=" + response + ", responseDate=" + responseDate + ", userName=" + userName + ", pictureUrl=" + pictureUrl + '}';
     }
+
+    
     
 }

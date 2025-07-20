@@ -201,28 +201,28 @@
                                 <div class="form-group row">
                                     <label for="fullName" class="col-sm-3 col-form-label">Full Name</label>
                                     <div class="col-sm-9">
-                                        <input type="text" readonly class="form-control-plaintext" id="fullName" name="fullName" value="${user.fullName}">
+                                        <input type="text"  class="form-control-plaintext" id="fullName" name="fullName" value="${user.fullName}" required="">
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="email" class="col-sm-3 col-form-label">Email</label>
                                     <div class="col-sm-9">
-                                        <input type="text" readonly class="form-control-plaintext" id="email" name="email" value="${user.email}">
+                                        <input type="text"  class="form-control-plaintext" id="email" name="email" value="${user.email}" required="">
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="address" class="col-sm-3 col-form-label">Address</label>
                                     <div class="col-sm-9">
-                                        <input type="text" readonly class="form-control-plaintext" id="address" name="address" value="${user.address}">
+                                        <input type="text"  class="form-control-plaintext" id="address" name="address" value="${user.address}" required="">
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="phoneNumber" class="col-sm-3 col-form-label">Phone Number</label>
                                     <div class="col-sm-9">
-                                        <input type="text" readonly class="form-control-plaintext" id="phoneNumber" name="phoneNumber" value="${user.phoneNumber}">
+                                        <input type="text"  class="form-control-plaintext" id="phoneNumber" name="phoneNumber" value="${user.phoneNumber}" required="">
                                     </div>
                                 </div>
 
@@ -292,7 +292,7 @@
                                 <legend>Payment Method </legend>
 
                                 <c:choose>
-                                    <c:when test="${point >= totalPrice}">
+                                    <c:when test="${point * 10000 >= totalPrice}">
                                         <!-- Radio button cho phép chọn -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="paymentMethod" id="payByPoints" value="points" required>

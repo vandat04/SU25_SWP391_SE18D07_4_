@@ -494,6 +494,9 @@
             <i class="fa fa-circle-check"></i> Added to cart successfully!
         </div>
 
+        <!-- Error Message -->
+        <div class="success-message" id="errorMessage" style="background: #e74c3c; z-index: 1003;"></div>
+
 
         
         <!-- Shop Popup -->
@@ -714,30 +717,45 @@
         }
 
         function addToCart(productId, title, price, image) {
-            // Gọi API thêm vào giỏ hàng của website chính
-            fetch('http://localhost:8080/CraftVillage/api/cart/add', {
+            // Lấy context path động
+            var contextPath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 2));
+            var apiUrl = contextPath + '/api/cart/add';
+            var payload = {
+                productId: productId,
+                quantity: 1,
+                price: price,
+                title: title,
+                image: image
+            };
+            console.log('[DEBUG] Add to cart - API URL:', apiUrl);
+            console.log('[DEBUG] Add to cart - Payload:', payload);
+            fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    productId: productId,
-                    quantity: 1,
-                    price: price,
-                    title: title,
-                    image: image
-                })
+                body: JSON.stringify(payload)
             })
-            .then(response => {
+            .then(async response => {
+                console.log('[DEBUG] Add to cart - Response status:', response.status);
                 if (response.ok) {
                     showSuccessMessage();
+                    console.log('[DEBUG] Add to cart - Success');
                 } else {
-                    alert('Failed to add to cart. Please try again.');
+                    let msg = 'Failed to add to cart. Please try again.';
+                    try {
+                        const data = await response.json();
+                        console.log('[DEBUG] Add to cart - Error response JSON:', data);
+                        if (data && data.message) msg = data.message;
+                    } catch (e) {
+                        console.log('[DEBUG] Add to cart - Error parsing JSON:', e);
+                    }
+                    showErrorMessage(msg);
                 }
             })
             .catch(error => {
-                console.error('Error adding to cart:', error);
-                alert('Error adding to cart. Please try again.');
+                console.error('[DEBUG] Add to cart - Fetch error:', error);
+                showErrorMessage('Error adding to cart. Please try again.');
             });
         }
 
@@ -807,6 +825,23 @@
             setTimeout(() => {
                 message.style.display = 'none';
             }, 3000);
+        }
+
+        function showErrorMessage(msg) {
+            let message = document.getElementById('errorMessage');
+            if (!message) {
+                message = document.createElement('div');
+                message.id = 'errorMessage';
+                message.className = 'success-message';
+                message.style.background = '#e74c3c';
+                message.style.zIndex = 1003;
+                document.body.appendChild(message);
+            }
+            message.innerHTML = '<i class="fa fa-circle-xmark"></i> ' + msg;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3500);
         }
 
         function viewCart() {

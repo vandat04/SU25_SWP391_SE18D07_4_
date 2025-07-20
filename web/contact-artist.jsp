@@ -1,21 +1,11 @@
-<%-- 
-    Document   : contact-artist
-    Created on : Jul 10, 2025, 6:28:03 PM
-    Author     : ACER
---%>
-
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<fmt:setLocale value="vi_VN"/>
-
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html>
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>User Profile - Da Nang Craft Village</title>
+        <meta charset="UTF-8">
+        <title>Chat with Artist</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&amp;display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Poppins:600&amp;display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
@@ -29,266 +19,171 @@
         <link rel="stylesheet" href="assets/css/style.css">
         <link rel="stylesheet" href="assets/css/main-color03-green.css">
         <style>
-            .contact-container {
+            .chat-wrapper {
                 max-width: 800px;
                 margin: 0 auto;
-                padding: 30px;
-                background-color: #f7f7f7;
-                border-radius: 5px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-            .form-group {
-                margin-bottom: 20px;
-            }
-            .form-control {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-            }
-            .btn-update {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 16px;
-            }
-            .btn-update:hover {
-                background-color: #45a049;
-            }
-            .profile-header {
-                margin-bottom: 30px;
-                text-align: center;
-            }
-            .alert {
-                padding: 15px;
-                margin-bottom: 20px;
-                border-radius: 4px;
-            }
-            .alert-success {
-                background-color: #dff0d8;
-                border-color: #d6e9c6;
-                color: #3c763d;
-            }
-            .alert-danger {
-                background-color: #f2dede;
-                border-color: #ebccd1;
-                color: #a94442;
-            }
-            .btn-change-password {
-                background-color: #2196F3;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 16px;
-                text-decoration: none;
-                display: inline-block;
-                margin-top: 10px;
-            }
-            .btn-change-password:hover {
-                background-color: #0b7dda;
-            }
-            .form-control[readonly] {
-                background-color: #f8f9fa;
-                color: #6c757d;
-                cursor: not-allowed;
-            }
-            .text-muted {
-                color: #6c757d !important;
-                font-size: 0.875rem;
-                margin-top: 0.25rem;
-            }
-            .message-list {
-                max-height: 400px;
+            #chat-box {
+                max-height: 500px;
                 overflow-y: auto;
-                margin-bottom: 20px;
-            }
-
-            .message-item {
                 padding: 10px;
-                border-radius: 8px;
-                margin-bottom: 10px;
-                width: fit-content;
-                max-width: 70%;
-                clear: both;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                margin-bottom: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                background-color: #fafafa;
             }
-
-            .message-sent {
-                background-color: #d4edda;
-                margin-left: auto;
+            .message {
+                max-width: 70%;
+                padding: 10px;
+                border-radius: 10px;
+                word-break: break-word;
+            }
+            .sent {
+                align-self: flex-end;
+                background-color: #e0fce4;
+                border: 1px solid #4caf50;
                 text-align: right;
             }
-
-            .message-received {
-                background-color: #f8d7da;
-                margin-right: auto;
+            .received {
+                align-self: flex-start;
+                background-color: #f1f1f1;
+                border: 1px solid #bbb;
                 text-align: left;
             }
+            .message img {
+                max-width: 100%;
+                border-radius: 5px;
+                margin-top: 5px;
+            }
+            .message small {
+                font-size: 0.75em;
+                color: #666;
+                display: block;
+                margin-top: 5px;
+            }
+            .chat-form {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .chat-form textarea {
+                resize: vertical;
+                min-height: 60px;
+            }
+            .chat-header {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
 
-            .message-content p {
+            .chat-title {
+                font-size: 24px;
                 margin: 0;
-                .message-list {
-                    max-height: 400px;
-                    overflow-y: auto;
-                    margin-bottom: 20px;
-                }
+            }
 
-                .message-item {
-                    padding: 10px;
-                    border-radius: 8px;
-                    margin-bottom: 10px;
-                    width: fit-content;
-                    max-width: 70%;
-                    clear: both;
-                }
+            .back-button {
+                padding: 6px 12px;
+                background-color: #4caf50;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+                font-size: 14px;
+                transition: background-color 0.3s ease;
+            }
 
-                .message-sent {
-                    background-color: #d4edda;
-                    margin-left: auto;
-                    text-align: right;
-                }
-
-                .message-received {
-                    background-color: #f8d7da;
-                    margin-right: auto;
-                    text-align: left;
-                }
-
-                .message-content p {
-                    margin: 0;
-                }
-                .message-list {
-                    max-height: 400px;
-                    overflow-y: auto;
-                }
+            .back-button:hover {
+                background-color: #388e3c;
             }
         </style>
     </head>
-    <body class="biolife-body">
-        <div id="biof-loading">
-            <div class="biof-loading-center">
-                <div class="biof-loading-center-absolute">
-                    <div class="dot dot-one"></div>
-                    <div class="dot dot-two"></div>
-                    <div class="dot dot-three"></div>
-                </div>
-            </div>
+    <body>
+
+        <jsp:include page="Menu.jsp" />
+        <div class="chat-header">
+            <a href="contacts?userID=${sessionScope.acc.userID}" class="back-button">← Back</a>
+            <h1 class="chat-title">${messageThread.messageName}</h1>
         </div>
-
-        <!-- HEADER -->
-        <jsp:include page="Menu.jsp"></jsp:include>
-            <!--Hero Section-->
-            <div class="hero-section hero-background">
-                <h1 class="page-title">Contact</h1>
-            </div>
-            <!-- Page Contain -->
-            <div class="page-contain">
-                <div id="main-content" class="main-content">
-                    <!--Navigation section-->
-                    <div class="container">
-                        <nav class="biolife-nav">
-                            <ul>
-                                <li class="nav-item"><a href="home" class="permal-link">Home</a></li>
-                                <li class="nav-item"><a href="contacts?userID=${sessionScope.acc.userID}" class="permal-link">Contact</a></li>
-                                <li class="nav-item"><span class="#">${messageThread.messageName}</span></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="container">
-                    <div class="contact-container">
-                        <div class="profile-header">
-                            <h4>Contact Artist: ${messageThread.messageName}</h4>
-                        </div>
-
-                        <!-- Lịch sử trò chuyện -->
-                        <c:if test="${not empty listMessage}">
-                        <div class="message-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-                            <c:forEach var="msg" items="${listMessage}">
-                                <c:choose>
-                                    <c:when test="${msg.senderID == sessionScope.acc.userID}">
-                                        <div class="message-item message-sent">
-                                            <div class="message-content">
-                                                <p>${msg.messageContent}</p>
-                                                <c:if test="${not empty msg.attachmentUrl}">
-                                                    <p>
-                                                        <a href="${msg.attachmentUrl}" target="_blank">
-                                                            Download Attachment
-                                                        </a>
-                                                    </p>
-                                                </c:if>
-                                                <span class="text-muted">
-                                                    <fmt:formatDate value="${msg.sentDate}" pattern="dd/MM/yyyy HH:mm"/>
-                                                </span>
-                                                <span class="text-muted">
-                                                    <c:if test="${msg.userRead == 1}"> Seen</c:if>
-                                                    <c:if test="${msg.userRead == 0}"> Sent</c:if>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:otherwise>
-                                        <div class="message-item message-received">
-                                            <div class="message-content">
-                                                <p>${msg.messageContent}</p>
-                                                <c:if test="${not empty msg.attachmentUrl}">
-                                                    <p>
-                                                        <a href="${msg.attachmentUrl}" target="_blank">
-                                                            Download Attachment
-                                                        </a>
-                                                    </p>
-                                                </c:if>
-                                                <span class="text-muted">
-                                                    <fmt:formatDate value="${msg.sentDate}" pattern="dd/MM/yyyy HH:mm"/>
-                                                </span>
-                                                <span class="text-muted">
-                                                    <c:if test="${msg.userRead == 1}"> Seen</c:if>
-                                                    <c:if test="${msg.userRead == 0}"> Sent</c:if>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </c:forEach>
-                        </div>
+        <div class="chat-wrapper">
+            <!-- Chat messages -->
+            <div id="chat-box">
+                <c:forEach var="msg" items="${listMessage}">
+                    <div class="message ${msg.senderID == sessionScope.acc.userID ? 'sent' : 'received'}">
+                        <p>${msg.messageContent}</p>
+                        <c:if test="${not empty msg.attachmentUrl}">
+                            <img src="${msg.attachmentUrl}" alt="Attachment" width="200"/>
                         </c:if>
-                        <!-- Form gửi tin nhắn -->
-                        <form action="contact-artist" method="post" >
-                            <input type="hidden" name="sellerID" value="${messageThread.sellerID}" />
-                            <input type="hidden" name="threadID" value="${messageThread.threadID}" />
-                            <input type="hidden" name="senderID" value="${sessionScope.acc.userID}" />
-                            <div class="form-group">
-                                <label for="messageContent">Your Message</label>
-                                <textarea id="messageContent" name="messageContent" class="form-control" rows="3" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="attachmentUrl">Attachment (Optional)</label>
-                                <input type="text" name="attachmentUrl" class="form-control" id="attachmentUrl">
-                            </div>
-                            <div class="text-right">
-                                <button type="submit" class="btn-update">Send Message</button>
-                            </div>
-                        </form>
+                        <small>${msg.sentDate}</small>
                     </div>
-                </div>
+                </c:forEach>
             </div>
+
+            <!-- Send message form -->
+            <form action="contact-artist" method="post" enctype="multipart/form-data" class="chat-form">
+                <input type="hidden" name="villageID" value="${param.villageID}"/>
+                <input type="hidden" name="sellerID" value="${param.sellerID}"/>
+                <input type="hidden" name="threadID" value="${messageThread.threadID}"/>
+                <textarea name="messageContent" placeholder="Type your message..." required></textarea>
+                <input type="file" name="attachment" accept="image/*"/>
+                <button type="submit">Send</button>
+            </form>
         </div>
 
-        <!-- FOOTER -->
-        <jsp:include page="Footer.jsp"></jsp:include>
+        <jsp:include page="Footer.jsp" />
 
-        <!-- Scripts -->
-        <script src="assets/js/jquery-3.4.1.min.js"></script>
-        <script src="assets/js/bootstrap.min.js"></script>
-        <script src="assets/js/jquery.countdown.min.js"></script>
-        <script src="assets/js/jquery.nice-select.min.js"></script>
-        <script src="assets/js/jquery.nicescroll.min.js"></script>
-        <script src="assets/js/slick.min.js"></script>
-        <script src="assets/js/biolife.framework.js"></script>
-        <script src="assets/js/functions.js"></script>
+        <script>
+            const userID = ${sessionScope.acc != null ? sessionScope.acc.userID : 0};
+            const threadID = ${messageThread != null ? messageThread.threadID : 0};
+            let lastMessageID = ${listMessage.isEmpty() ? 0 : listMessage.get(listMessage.size() - 1).messageID};
+
+            function fetchNewMessages() {
+                $.ajax({
+                    url: 'contact-artist?action=fetchNew',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        threadID: threadID,
+                        lastMessageID: lastMessageID,
+                        userID: userID
+                    },
+                    success: function (messages) {
+                        if (messages.length > 0) {
+                            messages.forEach(function (msg) {
+                                let msgClass = (msg.senderID === userID) ? 'sent' : 'received';
+                                let html = '<div class="message ' + msgClass + '">';
+                                html += '<p>' + msg.messageContent + '</p>';
+                                if (msg.attachmentUrl) {
+                                    html += '<img src="' + msg.attachmentUrl + '" width="200"/>';
+                                }
+                                html += '<small>' + msg.sentDate + '</small></div>';
+                                $('#chat-box').append(html);
+                            });
+                            lastMessageID = messages[messages.length - 1].messageID;
+                            $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+                        }
+                    },
+                    error: function () {
+                        console.error("Error fetching messages");
+                    }
+                });
+            }
+
+            setInterval(fetchNewMessages, 2000);
+
+            window.addEventListener("load", () => {
+                const chatBox = document.getElementById("chat-box");
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        </script>
+
     </body>
-</html> 
+</html>

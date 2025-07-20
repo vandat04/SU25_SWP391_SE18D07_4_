@@ -5,7 +5,6 @@
 package service;
 
 import entity.Orders.OrderDetail;
-import entity.Orders.ProductOrder;
 import java.util.List;
 import java.util.Map;
 
@@ -14,26 +13,6 @@ import java.util.Map;
  * @author ACER
  */
 public class ProductOrderService implements IProductOrderService{
-
-    @Override
-    public int createOrder(ProductOrder order) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean addOrderDetail(int orderId, int productId, int quantity, double price) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public ProductOrder getOrderById(int orderId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public List<ProductOrder> getOrdersByUserId(int userId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     @Override
     public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
@@ -72,6 +51,11 @@ public class ProductOrderService implements IProductOrderService{
 
     @Override
     public List<Map<String, Object>> getTopSellingProducts(int limit) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean addOrderDetail(int orderId, int productId, int quantity, double price) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

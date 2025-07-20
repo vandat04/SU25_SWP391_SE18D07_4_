@@ -15,7 +15,7 @@ import java.util.List;
 public interface IMessageService {
     List<MessageThread> getThreadsByUser(int userId);
     List<Message> getMessagesByThread(int threadId);
-    boolean sendMessage(Message message);
+    int sendMessage(Message message);
     boolean markMessageAsRead(int messageId);
     boolean checkMessageThreadExist(int userID, int sellerID);
     boolean addNewMessageThread(MessageThread messageThread);

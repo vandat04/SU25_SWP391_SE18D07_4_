@@ -25,9 +25,9 @@ public interface IOrderService {
     boolean cancelOrder(int orderId);
 
     // Business operations
-    int addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus);
+    int addOrderDetail(OrderDetail orderDetail);
 
-    int addTicketOrderDetail(int orderId, int ticketId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus);
+    int addTicketOrderDetail(TicketOrderDetail ticketOrderDetail);
 
     void deleteCartItem(int cartID);
 
@@ -72,7 +72,7 @@ public interface IOrderService {
 
     OrderDetail getOrderDetail(int orderDetailID);
 
-    void refundPayment(int id, int type);
+    void refundPayment(int id);
 
     boolean cancelTicketOrderDetail(int detailID, String cancelReason);
 
@@ -86,5 +86,5 @@ public interface IOrderService {
     boolean refundOrderDetail(int orderDetailID, String refundReason);
     
     boolean refundTicketOrderDetail(int detailID, String refundReason);
-
+    
 }

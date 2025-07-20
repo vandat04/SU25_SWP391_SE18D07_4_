@@ -36,9 +36,8 @@ public class ReportDAO {
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         return new Payment(
                 rs.getInt("paymentID"),
+                rs.getInt("subOrderId"),
                 rs.getInt("sellerID"),
-                rs.getInt("orderID"),
-                rs.getInt("ticketOrderID"),
                 rs.getBigDecimal("amount"),
                 rs.getString("paymentMethod"),
                 rs.getInt("paymentStatus"),
@@ -565,40 +564,37 @@ public class ReportDAO {
         if (paymentMethod != null
                 && (paymentMethod.equalsIgnoreCase("bankTransfer") || paymentMethod.equalsIgnoreCase("points"))) {
             shouldAddPayment = true;
-            System.out.println("shouldAddPayment oke");
+            System.out.println("shouldAddPayment OK (via method)");
         } else {
             if (paymentStatus == 1 && status == 2) {
                 shouldAddPayment = true;
+                System.out.println("shouldAddPayment OK (via status)");
             }
         }
 
-        if (shouldAddPayment) { 
+        if (shouldAddPayment) {
             String sql = "INSERT INTO Payment "
-                    + "(sellerID, orderID, ticketOrderID, amount, paymentMethod, paymentStatus) "
+                    + "(subOrderId, sellerID, amount, paymentMethod, paymentStatus, transactionID) "
                     + "VALUES (?, ?, ?, ?, ?, ?)";
+
             try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, payment.getSubOrderId()); // ✅ Bắt buộc phải có subOrderId
+                ps.setInt(2, payment.getSellerID());
+                ps.setBigDecimal(3, payment.getAmount());
+                ps.setString(4, payment.getPaymentMethod());
+                ps.setInt(5, payment.getPaymentStatus());
 
-                ps.setInt(1, payment.getSellerID());
+                if (payment.getTransactionID() != null) {
+                    ps.setString(6, payment.getTransactionID());
+                } else {
+                    ps.setNull(6, java.sql.Types.NVARCHAR);
+                }
 
-                if (payment.getOrderID() != null) {
-                    ps.setInt(2, payment.getOrderID());
-                } else {
-                    ps.setNull(2, java.sql.Types.INTEGER);
-                }
-                if (payment.getTicketOrderID() != null) {
-                    ps.setInt(3, payment.getTicketOrderID());
-                } else {
-                    ps.setNull(3, java.sql.Types.INTEGER);
-                }
-                ps.setBigDecimal(4, payment.getAmount());
-                ps.setString(5, payment.getPaymentMethod());
-                ps.setInt(6, payment.getPaymentStatus());
                 int rowsAffected = ps.executeUpdate();
                 return rowsAffected > 0;
 
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, "Error inserting payment", e);
-                return false;
             }
         }
         return false;
@@ -642,12 +638,28 @@ public class ReportDAO {
         return 0;
     }
 
+    public int getSellerIdByVillageId(int villageID) {
+        String sql = "SELECT sellerId FROM CraftVillage WHERE villageID = ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, villageID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("sellerId");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 //----Main test    
     public static void main(String[] args) {
         //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
-        Payment p = new Payment(new ReportDAO().getSellerIdByProductId(1), 9, null, BigDecimal.valueOf(250000), "bankTransfer", 1);
-        System.out.println(p.getPaymentMethod());
-        System.out.println(new ReportDAO().addPaymentManagement(p,0,0));
+        // Payment p = new Payment(new ReportDAO().getSellerIdByProductId(1), 9, null, BigDecimal.valueOf(250000), "bankTransfer", 1);
+        //System.out.println(p.getPaymentMethod());
+        System.out.println(new ReportDAO().addPaymentManagement(new Payment(1, 3, BigDecimal.valueOf(100000), "cod", 1, "123123"), 1 , 2));
     }
-    
+
 }

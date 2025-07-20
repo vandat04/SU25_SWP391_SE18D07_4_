@@ -196,7 +196,7 @@
 
 
                 <div class="card-body">
-                    <form action="request-upgrade" method="post">
+                    <form action="request-upgrade" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="userID" value="${sessionScope.acc.userID}"/>
 
                         <div class="mb-3">
@@ -282,7 +282,7 @@
 
                         <div class="mb-3">
                             <label for="profileVillagePictureUrl" class="block mb-2">Profile Picture / Logo</label>
-                            <input type="text" id="profileVillagePictureUrl" name="profileVillagePictureUrl" class="form-control" required/>
+                            <input type="file" id="profileVillagePictureUrl" name="profileVillagePictureUrl" accept="image/*" class="form-control" required/>
                         </div>
 
                         <div class="mb-3">
@@ -304,15 +304,15 @@
                             <h5>Personal Information (for Individuals)</h5>
                             <div class="mb-3">
                                 <label for="idCardNumber" class="block mb-2">ID Card Number</label>
-                                <input type="text" id="idCardNumber" name="idCardNumber" class="form-control"/>
+                                <input type="text" id="idCardNumber" name="idCardNumber" class="form-control" />
                             </div>
                             <div class="mb-3">
                                 <label for="idCardFrontUrl" class="block mb-2">ID Card Front Photo</label>
-                                <input type="text" id="idCardFrontUrl" name="idCardFrontUrl" class="form-control"/>
+                                <input type="file" id="idCardFrontUrl" name="idCardFrontUrl" class="form-control" accept="image/*" />
                             </div>
                             <div class="mb-3">
                                 <label for="idCardBackUrl" class="block mb-2">ID Card Back Photo</label>
-                                <input type="text" id="idCardBackUrl" name="idCardBackUrl" class="form-control"/>
+                                <input type="file" id="idCardBackUrl" name="idCardBackUrl" class="form-control" accept="image/*" />
                             </div>
                         </div>
 

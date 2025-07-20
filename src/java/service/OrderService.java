@@ -6,9 +6,12 @@ package service;
 
 import DAO.OrderDAO;
 import entity.CartWishList.CartItem;
+import entity.CraftVillage.CraftReview;
 import entity.Orders.Order;
 import entity.Orders.OrderDetail;
+import entity.Orders.SubOrder;
 import entity.Orders.TicketOrderDetail;
+import entity.Product.ProductReview;
 import java.util.List;
 import java.util.Map;
 
@@ -16,10 +19,10 @@ import java.util.Map;
  *
  * @author ACER
  */
-public class OrderService implements IOrderService{
+public class OrderService implements IOrderService {
 
     OrderDAO oDAO = new OrderDAO();
-    
+
     @Override
     public int createOrder(Order order) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -37,7 +40,7 @@ public class OrderService implements IOrderService{
 
     @Override
     public List<Order> getOrdersByUserId(int userId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return oDAO.getOrdersByUserId(userId);
     }
 
     @Override
@@ -56,15 +59,15 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public int addOrderDetail(int orderId, int productId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus)  {
-       return oDAO.addOrderDetail(orderId,productId,quantity,price,  status,  villageID,  paymentMethod,  paymentStatus);
+    public int addOrderDetail(OrderDetail orderDetail) {
+        return oDAO.addOrderDetail(orderDetail);
     }
 
     @Override
-    public int addTicketOrderDetail(int orderId, int ticketId, int quantity, double price, int status, int villageID, String paymentMethod, int paymentStatus) {
-       return oDAO.addTicketOrderDetail(orderId,ticketId,quantity,price,  status,  villageID,  paymentMethod,  paymentStatus);
+    public int addTicketOrderDetail(TicketOrderDetail ticketOrderDetail) {
+        return oDAO.addTicketOrderDetail(ticketOrderDetail);
     }
-    
+
     @Override
     public Map<String, Double> getRevenueByMonth() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -121,7 +124,7 @@ public class OrderService implements IOrderService{
     }
 
     public void addPoints(int userID, int points) {
-        oDAO.addPoints(userID,points);
+        oDAO.addPoints(userID, points);
     }
 
     public String checkItemStock(List<CartItem> listItem) {
@@ -129,11 +132,11 @@ public class OrderService implements IOrderService{
     }
 
     public void payPoints(int userID, int points) {
-        oDAO.payPoints(userID,points);
+        oDAO.payPoints(userID, points);
     }
 
     public void updatePaymentStatus(int orderID, int i) {
-        oDAO.updatePaymentStatus(orderID,i);
+        oDAO.updatePaymentStatus(orderID, i);
     }
 
     public int getUserIDByOrderID(int orderID) {
@@ -147,9 +150,10 @@ public class OrderService implements IOrderService{
     public void deletePendingOrdersOlderThan(int i) {
         oDAO.deletePendingOrdersOlderThan(i);
     }
-    
+
     /**
      * Kiểm tra order có tồn tại không
+     *
      * @param orderID ID của order cần kiểm tra
      * @return true nếu order tồn tại, false nếu không
      */
@@ -161,8 +165,7 @@ public class OrderService implements IOrderService{
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-
-    public List<OrderDetail> getAllOrderDetailByUserId(int userID){
+    public List<OrderDetail> getAllOrderDetailByUserId(int userID) {
         return oDAO.getAllOrderDetailByUserId(userID);
     }
 
@@ -170,41 +173,130 @@ public class OrderService implements IOrderService{
         return oDAO.getAllTicketOrderDetailByUserId(userID);
     }
 
-    @Override
-    public boolean cancelOrderDetail(int orderDetailID, String cancelReason) {
-        return oDAO.cancelOrderDetail(orderDetailID, cancelReason);
-    }
-
     public OrderDetail getOrderDetail(int orderDetailID) {
         return oDAO.getOrderDetail(orderDetailID);
     }
 
     @Override
-    public void refundPayment(int id, int type) {
-        oDAO.refundPayment(id, type);
-    }
-
-    public boolean cancelTicketOrderDetail(int detailID, String cancelReason) {
-        return oDAO.cancelTicketOrderDetail(detailID, cancelReason);
+    public void refundPayment(int id) {
+        oDAO.refundSubOrderPayment(id);
     }
 
     public TicketOrderDetail getTicketOrderDetail(int detailID) {
         return oDAO.getTicketOrderDetail(detailID);
     }
 
+    public Integer addSubOrder(SubOrder subOrder) {
+        return oDAO.addSubOrder(subOrder);
+    }
+
+    public Integer getSubOrderID(int orderID, int villageID) {
+        return oDAO.getSubOrderID(orderID, villageID);
+    }
+
+    public List<SubOrder> getSubOrderListByOrderID(int orderID) {
+        return oDAO.getSubOrderListByOrderID(orderID);
+    }
+
+    public List<OrderDetail> getAllOrderDetailByOrderID(int subOrderId) {
+        return oDAO.getAllOrderDetailByOrderID(subOrderId);
+    }
+
+    public List<TicketOrderDetail> getAllTicketOrderDetailByOrderID(int subOrderId) {
+        return oDAO.getAllTicketOrderDetailByOrderID(subOrderId);
+    }
+
+    public boolean cancelSubOrderDetail(int subOrderId, String reason) {
+        return oDAO.cancelSubOrderDetail(subOrderId, reason);
+    }
+
+    public SubOrder getSubOrderById(int subOrderId) {
+        return oDAO.getSubOrderById(subOrderId);
+    }
+
+    public boolean confirmSubOrder(int subOrderId) {
+        return oDAO.confirmSubOrder(subOrderId);
+    }
+
+    public boolean refundSubOrder(int subOrderId, String reason) {
+        return oDAO.refundSubOrder(subOrderId, reason);
+    }
+
+    public boolean refundSubOrderPayment(int subOrderId) {
+        return oDAO.refundSubOrderPayment(subOrderId);
+    }
+
+    @Override
+    public boolean cancelOrderDetail(int orderDetailID, String cancelReason) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean cancelTicketOrderDetail(int detailID, String cancelReason) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
     public boolean confirmOrderDetail(int orderID) {
-        return oDAO.confirmOrderDetail(orderID);
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    @Override
     public boolean confirmTicketOrderDetail(int detailID) {
-        return oDAO. confirmTicketOrderDetail(detailID);
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    @Override
     public boolean refundOrderDetail(int orderDetailID, String refundReason) {
-        return oDAO.refundOrderDetail(orderDetailID,refundReason);
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    @Override
     public boolean refundTicketOrderDetail(int detailID, String refundReason) {
-        return oDAO.refundTicketOrderDetail(detailID,refundReason);
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public void updateReviewStatus(int subOrderId) {
+        oDAO.updateReviewStatus(subOrderId);
+    }
+
+    public List<Order> getAllOrderByUserID(int userID) {
+        return oDAO.getAllOrderByUserID(userID);
+    }
+
+    public List<TicketOrderDetail> getTicketOrderDetailNonReview(int subOrderId) {
+        return oDAO.getTicketOrderDetailNonReview(subOrderId);
+    }
+
+    public List<OrderDetail> getOrderDetailNonReview(int subOrderId) {
+        return oDAO.getOrderDetailNonReview(subOrderId);
+    }
+
+    public boolean addProductReviewByUser(ProductReview productReview) {
+        return oDAO.addProductReviewByUser(productReview);
+    }
+
+    public void calculateProductReview(int rate, int productID) {
+        oDAO.calculateProductReview(rate, productID);
+    }
+
+    public void updateOrderDetailReviewStatus(int id, int productID) {
+        oDAO.updateOrderDetailReviewStatus(id, productID);
+    }
+
+    public boolean addVillageReviewByUser(CraftReview review) {
+        return oDAO.addVillageReviewByUser(review);
+    }
+
+    public void calculateVillageReview(int rate, int villageID) {
+        oDAO.calculateVillageReview(rate, villageID);
+    }
+
+    public void updateTicketOrderDetailReviewStatus(int subOrderId, int ticketID) {
+        oDAO.updateTicketOrderDetailReviewStatus(subOrderId, ticketID);
+    }
+
+    public boolean checkSubOrderReviewStatus(int subOrderId) {
+        return oDAO.checkSubOrderReviewStatus(subOrderId);
     }
 }

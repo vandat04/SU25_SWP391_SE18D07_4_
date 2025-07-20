@@ -4,12 +4,17 @@
  */
 package controller.cart_order;
 
+
 import entity.CartWishList.Cart;
 import entity.Account.Account;
 import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Orders.Order;
+import entity.Orders.OrderDetail;
 import entity.Orders.Payment;
+import entity.Orders.SubOrder;
+import entity.Orders.TicketOrderDetail;
+import entity.Ticket.Ticket;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,18 +23,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import service.AccountService;
 import service.CartService;
 import service.OrderService;
 import service.ProductService;
 import service.ReportService;
 import service.TicketService;
+import service.VillageService;
 
-/**
- *
- * @author DELL
- */
 @WebServlet(name = "CheckoutBefor", urlPatterns = {"/checkout-before"})
 public class CheckoutBefor extends HttpServlet {
 
@@ -38,15 +43,6 @@ public class CheckoutBefor extends HttpServlet {
     private final ProductService pService = new ProductService();
     private final TicketService tService = new TicketService();
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -61,7 +57,6 @@ public class CheckoutBefor extends HttpServlet {
         }
 
         try {
-            // Lấy giỏ hàng từ session
             Cart cart = (Cart) session.getAttribute("cart");
             if (cart == null || (cart.getItems().isEmpty() && cart.getTickets().isEmpty())) {
                 request.setAttribute("error", "Your cart is empty");
@@ -69,18 +64,16 @@ public class CheckoutBefor extends HttpServlet {
                 return;
             }
 
-            // Tính toán tổng tiền và các thông tin cần thiết
             double totalPrice = Double.parseDouble(request.getParameter("grandTotal"));
 
-            // Lưu thông tin vào request để hiển thị trên trang checkout
             request.setAttribute("cart", cart);
             request.setAttribute("totalPrice", totalPrice);
             request.setAttribute("user", user);
             request.setAttribute("cartItems", cart.getItems());
             request.setAttribute("cartTickets", cart.getTickets());
             request.setAttribute("point", new AccountService().getPointsByUserID(user.getUserID()));
-            request.setAttribute("points", (int) Math.ceil(totalPrice * 1 / 100));
-            // Chuyển hướng đến trang checkout
+            request.setAttribute("points", (int) Math.ceil(totalPrice / 10000));
+
             request.getRequestDispatcher("check-out-before.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -89,29 +82,12 @@ public class CheckoutBefor extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -124,16 +100,16 @@ public class CheckoutBefor extends HttpServlet {
         String totalPriceStr = request.getParameter("totalPrice");
         String note = request.getParameter("note");
         String fullName = request.getParameter("fullName");
-        String points = request.getParameter("points");
-        String bankCode = "VNPAYQR"; // LẤY BANK CODE
+        String bankCode = "VNPAYQR";
+        request.getSession().setAttribute("noteOrder", note);
 
         double totalPrice = Double.parseDouble(totalPriceStr);
-        long totalPriceL = (long) totalPrice;
         int orderID = 0;
-        int paymentStatus = 0;
         List<CartItem> listItem;
         List<CartTicket> listTicket;
+        ProductService pService = new ProductService();
         ReportService rService = new ReportService();
+        VillageService vService = new VillageService();
 
         try {
             Cart cart = (Cart) session.getAttribute("cart");
@@ -159,17 +135,13 @@ public class CheckoutBefor extends HttpServlet {
                     BigDecimal.valueOf(totalPrice),
                     address,
                     phoneNumber,
-                    email,
-                    paymentMethod,
-                    paymentStatus,
-                    note,
                     fullName,
-                    Integer.parseInt(points)
+                    paymentMethod,
+                    email
             );
+            orderID = oService.addOrder(orderTemp);
 
             if (paymentMethod.equals("bankTransfer")) {
-                orderID = oService.addOrder(orderTemp);
-
                 String redirectUrl = request.getContextPath()
                         + "/ajaxServlet?action=order"
                         + "&userID=" + userID
@@ -181,30 +153,52 @@ public class CheckoutBefor extends HttpServlet {
                 return;
             }
 
-            if (paymentMethod.equals("points")) {
-                paymentStatus = 1;
-                orderTemp.setPaymentStatus(paymentStatus);
-                orderTemp.setPoints(0);
-                orderID = oService.addOrder(orderTemp);
-                oService.payPoints(Integer.parseInt(userID), (int) totalPrice);
-            } else if (paymentMethod.equals("cod")) {
-                orderID = oService.addOrder(orderTemp);
+            Map<Integer, BigDecimal> villageMap = pService.getSetVillage(listItem, listTicket);
+
+            for (Map.Entry<Integer, BigDecimal> entry : villageMap.entrySet()) {
+                int villageID = entry.getKey();
+                BigDecimal totalPriceSubOrder = entry.getValue();
+                BigDecimal divisor = new BigDecimal("10000");
+                int pointSubOrder = totalPriceSubOrder.divide(divisor, RoundingMode.DOWN).intValue();
+
+                SubOrder subOrder = new SubOrder(
+                        orderID,
+                        villageID,
+                        totalPriceSubOrder,
+                        paymentMethod.equalsIgnoreCase("points") ? 0 : pointSubOrder,
+                        paymentMethod,
+                        paymentMethod.equalsIgnoreCase("points") ? 1 : 0,
+                        0,
+                        note
+                );
+                int subOrderId = oService.addSubOrder(subOrder);
+
+                if (paymentMethod.equalsIgnoreCase("points")) {
+                    rService.addPaymentManagement(new Payment(subOrderId, vService.getVillageById(villageID).getSellerId(), totalPriceSubOrder, paymentMethod, 1, ""), 1, 2);
+                    oService.payPoints(Integer.parseInt(userID), pointSubOrder);
+                }
+
+//                // Gọi API GHN tạo đơn và cập nhật vào CSDL
+//                try {
+//                    GHNService.createShippingOrderAndUpdate(subOrderId, fullName, phoneNumber, address, totalPriceSubOrder);
+//                } catch (Exception ex) {
+//                    System.err.println("Failed to call GHN API: " + ex.getMessage());
+//                    ex.printStackTrace();
+//                }
             }
 
             for (CartItem p : listItem) {
-                int newOrderID = oService.addOrderDetail(orderID, p.getProductID(), p.getQuantity(), p.getPrice(),
-                        0, pService.getVillageIDByProductID(p.getProductID()), paymentMethod, paymentStatus);
-                if (paymentMethod.equals("points")){
-                    rService.addPaymentManagement(new Payment(rService.getSellerIdByProductId(p.getProductID()), newOrderID, null, BigDecimal.valueOf(p.getQuantity()*p.getPrice()), paymentMethod, 1), 0, 0);
-                }
+                int villageID = pService.getVillageIDByProductID(p.getProductID());
+                int subOrderId = oService.getSubOrderID(orderID, villageID);
+                oService.addOrderDetail(new OrderDetail(orderID, subOrderId, p.getProductID(), p.getQuantity(), BigDecimal.valueOf(p.getPrice()), villageID));
             }
 
             for (CartTicket t : listTicket) {
-                int newTicketOrderID = oService.addTicketOrderDetail(orderID, t.getTicketId(), t.getQuantity(), t.getPrice(),
-                        0, tService.getVillageIDByTicketID(t.getTicketId()), paymentMethod, paymentStatus);
-                if (paymentMethod.equals("points")){
-                    rService.addPaymentManagement(new Payment(rService.getSellerIdByTicketId(t.getTicketId()), null, newTicketOrderID, BigDecimal.valueOf(t.getQuantity()*t.getPrice()), paymentMethod, 1), 0, 0);
-                }
+                int villageID = pService.getVillageIDByTicketID(t.getTicketId());
+                int subOrderId = oService.getSubOrderID(orderID, villageID);
+                Ticket ticket  = new TicketService().getTicketByTicketId(t.getTicketId());
+                String ticketCode = "V" + villageID + "T" + ticket.getTypeID() + "U" + userID + "CD" + new Timestamp(System.currentTimeMillis());
+                oService.addTicketOrderDetail(new TicketOrderDetail(orderID, subOrderId, t.getTicketId(), t.getQuantity(), BigDecimal.valueOf(t.getPrice()), villageID, ticketCode));
             }
 
             int cartID = oService.getCartIDByUserID(Integer.parseInt(userID));
@@ -220,14 +214,8 @@ public class CheckoutBefor extends HttpServlet {
         }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Checkout Before Controller";
-    }// </editor-fold>
-
+    }
 }

@@ -211,7 +211,7 @@ public class TicketDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new TicketDAO().searchTicketByAdmin(0, 3));
+        System.out.println(new TicketDAO().getTicketByTicketId(1));
     }
 
     public List<Ticket> searchTicketByAdmin(int status, int villageID) {
@@ -253,5 +253,22 @@ public class TicketDAO {
             e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
         }
         return 0;
+    }
+    
+    public Ticket getTicketByTicketId(int ticketId) {
+        String query = "SELECT * FROM VillageTicket WHERE ticketID = ? and status = 1";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, ticketId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToTicket(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Nên dùng logging thay vì printStackTrace trong production
+        }
+        return null;
     }
 }

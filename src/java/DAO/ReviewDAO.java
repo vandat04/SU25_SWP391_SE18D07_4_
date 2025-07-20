@@ -28,7 +28,8 @@ public class ReviewDAO {
                 rs.getString("reviewText"),
                 rs.getTimestamp("reviewDate"),
                 rs.getString("response"),
-                rs.getTimestamp("responseDate")
+                rs.getTimestamp("responseDate"),
+                rs.getString("pictureUrl")
         );
     }
 
@@ -42,7 +43,8 @@ public class ReviewDAO {
                 rs.getString("reviewText"),
                 rs.getTimestamp("reviewDate"),
                 rs.getString("response"),
-                rs.getTimestamp("responseDate")
+                rs.getTimestamp("responseDate"),
+                rs.getString("pictureUrl")
         );
     }
 

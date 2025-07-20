@@ -1,4 +1,5 @@
-﻿USE [CraftDB]
+
+USE [CraftDB]
 GO
 
 --PROCEDURE [AddAccount]
@@ -1534,6 +1535,7 @@ BEGIN
     END CATCH
 END
 Go
+
 --Chat User - Seller
 CREATE PROCEDURE addNewMessageThread
     @userID INT,
@@ -1573,12 +1575,13 @@ BEGIN
 END
 go
 
+
 CREATE PROCEDURE sendMessage
     @threadID INT,
     @senderID INT,
     @messageContent NVARCHAR(MAX),
     @attachmentUrl VARCHAR(MAX) = NULL,
-    @result INT OUTPUT
+    @messageID INT OUTPUT       -- Trả về ID tin nhắn mới tạo
 AS
 BEGIN
     BEGIN TRY
@@ -1586,123 +1589,243 @@ BEGIN
             threadID,
             senderID,
             messageContent,
-            attachmentUrl,
-            sentDate
+            attachmentUrl
         )
         VALUES (
             @threadID,
             @senderID,
             @messageContent,
-            @attachmentUrl,
-            GETDATE()
+            @attachmentUrl
         );
-        IF @@ROWCOUNT > 0
-            SET @result = 1;
-        ELSE
-            SET @result = 0;
+
+        -- Lấy ID của tin nhắn vừa thêm
+        SET @messageID = SCOPE_IDENTITY();
     END TRY
     BEGIN CATCH
-        -- Có lỗi xảy ra
-        SET @result = 0;
+        -- Nếu có lỗi, trả về NULL
+        SET @messageID = NULL;
     END CATCH
 END
 GO
 
---11/7--
+--11/7-- Procedure Order-----------------------------------------------------------------------
 CREATE PROCEDURE AddOrder
     @userID INT,
-    @total_price DECIMAL(18,2),
-    @shippingAddress NVARCHAR(500),
-    @shippingPhone NVARCHAR(50),
-    @email NVARCHAR(255),
-    @paymentMethod NVARCHAR(100),
-    @paymentStatus INT,
-	@note NVARCHAR(255),
-	@shippingName NVARCHAR(255),
-	@points int,
+    @total_price DECIMAL(10,2),
+    @shippingAddress NVARCHAR(200),
+    @shippingPhone NVARCHAR(20),
+    @shippingName NVARCHAR(100),
+    @paymentMethod NVARCHAR(50),
+    @email NVARCHAR(100),
     @orderIDnew INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO Orders
-    (
-        userID,  total_price, shippingAddress,
-        shippingPhone, email,   paymentMethod, paymentStatus, note, shippingName, points
+    INSERT INTO Orders (
+        userID, total_price, shippingAddress,
+        shippingPhone, shippingName, paymentMethod, email
     )
-    VALUES
-    (
-        @userID, @total_price,@shippingAddress,
-        @shippingPhone, @email, @paymentMethod, @paymentStatus, @note, @shippingName, @points
+    VALUES (
+        @userID, @total_price, @shippingAddress,
+        @shippingPhone, @shippingName, @paymentMethod, @email
     );
 
-    -- Lấy ID vừa insert (SQL Server)
+    -- Lấy ID đơn hàng vừa tạo
     SET @orderIDnew = SCOPE_IDENTITY();
 END;
-go 
+GO
 
+CREATE PROCEDURE AddSubOrder
+    @orderId INT,
+    @villageId INT,
+    @total_price DECIMAL(10,2),
+    @points INT = NULL,
+    @paymentMethod NVARCHAR(50),
+    @paymentStatus INT = 0,
+    @orderStatus INT = 0,
+    @note NVARCHAR(MAX) = NULL,
+    @subOrderIdNew INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO SubOrders (
+        orderId, villageId, total_price,
+        points, paymentMethod, paymentStatus,
+        orderStatus, note
+    )
+    VALUES (
+        @orderId, @villageId, @total_price,
+        @points, @paymentMethod, @paymentStatus,
+        @orderStatus, @note
+    );
+
+    SET @subOrderIdNew = SCOPE_IDENTITY();
+END;
+GO
+
+CREATE PROCEDURE UpdateSubOrderShippingInfo
+    @subOrderId INT,
+    @shippingPartner NVARCHAR(50),
+    @shippingOrderCode NVARCHAR(100),
+    @shippingStatus NVARCHAR(50),
+    @shippingFee DECIMAL(10,2),
+    @estimatedDeliveryDate DATE = NULL,
+    @shippingCreatedAt DATETIME = NULL,
+    @shippingUpdatedAt DATETIME = NULL,
+    @labelUrl NVARCHAR(255) = NULL,
+    @trackingUrl NVARCHAR(255) = NULL,
+    @shippingToken NVARCHAR(255) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE SubOrders
+    SET
+        shippingPartner = @shippingPartner,
+        shippingOrderCode = @shippingOrderCode,
+        shippingStatus = @shippingStatus,
+        shippingFee = @shippingFee,
+        estimatedDeliveryDate = @estimatedDeliveryDate,
+        shippingCreatedAt = @shippingCreatedAt,
+        shippingUpdatedAt = @shippingUpdatedAt,
+        labelUrl = @labelUrl,
+        trackingUrl = @trackingUrl,
+        shippingToken = @shippingToken,
+        updatedDate = GETDATE()
+    WHERE subOrderId = @subOrderId;
+END;
+GO
 
 CREATE PROCEDURE AddOrderDetail
     @order_id INT,
+    @subOrderId INT,
     @product_id INT,
     @quantity INT,
     @price DECIMAL(10, 2),
-	@status int,
-	@villageID int,
-	@paymentMethod nvarchar(50),
-	@paymentStatus int,
-	 @newDetailID INT OUTPUT
+    @villageID INT,
+    @newDetailID INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO OrderDetail (order_id, product_id, quantity, price, subtotal, status, villageID, paymentMethod, paymentStatus, points)
+    INSERT INTO OrderDetail (
+        order_id,
+        subOrderId,
+        product_id,
+        quantity,
+        price,
+        villageID
+    )
     VALUES (
         @order_id,
+        @subOrderId,
         @product_id,
         @quantity,
         @price,
-        @quantity * @price,
-		@status,
-		@villageID,
-		@paymentMethod,
-		@paymentStatus,
-		@quantity * @price / 100
+        @villageID
     );
-	 SET @newDetailID = SCOPE_IDENTITY();
+
+    SET @newDetailID = SCOPE_IDENTITY();
 END;
 GO
- 
-CREATE PROCEDURE AddTicketOrderDetail
+
+ CREATE PROCEDURE AddTicketOrderDetail
     @order_id INT,
+    @subOrderId INT,
     @ticketid INT,
     @quantity INT,
     @price DECIMAL(10, 2),
-	@status int,
-	@villageID int,
-	@paymentMethod nvarchar(50),
-	@paymentStatus int,
-	 @TicketOrderDetailID INT OUTPUT
+    @villageID INT,
+	@ticketCode nvarchar(50),
+    @TicketOrderDetailID INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO TicketOrderDetail (orderID, ticketID, quantity, price, subtotal, status, villageID, paymentMethod, paymentStatus, points)
+    INSERT INTO TicketOrderDetail (
+        orderID,
+        subOrderId,
+        ticketID,
+        quantity,
+        price,
+        villageID,
+		TicketCode
+    )
     VALUES (
         @order_id,
+        @subOrderId,
         @ticketid,
         @quantity,
         @price,
-        @quantity * @price,
-		@status,
-		@villageID,
-		@paymentMethod,
-		@paymentStatus,
-		@quantity * @price / 100
+        @villageID,
+		@ticketCode
     );
-	SET @TicketOrderDetailID = SCOPE_IDENTITY();
+
+    SET @TicketOrderDetailID = SCOPE_IDENTITY();
 END;
 GO
+
+CREATE PROCEDURE sp_CancelSubOrder
+(
+    @subOrderId INT,
+    @cancelReason NVARCHAR(500)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        UPDATE [dbo].[SubOrders]
+        SET 
+            cancelReason = @cancelReason,
+            cancelDate = GETDATE(),
+            orderStatus = 3, -- 3 = Cancelled
+            updatedDate = GETDATE()
+        WHERE
+            [subOrderId] = @subOrderId;
+        -- Kiểm tra xem có bản ghi nào được cập nhật không
+        IF @@ROWCOUNT = 0
+        BEGIN
+            RETURN -1; -- Không tìm thấy subOrderId
+        END
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -2; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_RefundSubOrderPayment
+(
+    @subOrderId INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Cập nhật trạng thái thanh toán thành "chưa thanh toán" (hoặc hoàn tiền)
+        UPDATE [dbo].[Payment]
+        SET 
+            paymentStatus = 0,           -- 0 = hoàn tiền
+            updatedDate = GETDATE()
+        WHERE
+            subOrderId = @subOrderId;
+
+        -- Kiểm tra có bản ghi nào được cập nhật không
+        IF @@ROWCOUNT = 0
+            RETURN -2; -- Không tìm thấy subOrderId trong bảng Payment
+
+        RETURN 1; -- Hoàn tiền thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -99; -- Lỗi hệ thống
+    END CATCH
+END;
+GO
+
 
 CREATE PROCEDURE CheckOutOfStockItems
 AS
@@ -1737,47 +1860,33 @@ BEGIN
 END;
 GO
 
----thêm mới khi review-
 
-CREATE PROCEDURE sp_addProductReview
+----End procedure Orders----------------------------------------------------------
+
+CREATE PROCEDURE addProductReview
     @productID INT,
     @userID INT,
-    @reviewText NVARCHAR(MAX),
     @rating INT,
+    @reviewText NVARCHAR(MAX),
+    @pictureUrl NVARCHAR(100),
     @result INT OUTPUT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
     BEGIN TRY
-        -- Insert review
-        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
-        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
-
-        DECLARE @oldTotal INT;
-        DECLARE @oldAvg FLOAT;
-        DECLARE @newTotal INT;
-        DECLARE @newAvg FLOAT;
-
-        -- Lấy giá trị cũ
-        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
-        FROM Product
-        WHERE pid = @productID;
-
-        -- Tính toán giá trị mới
-        SET @newTotal = ISNULL(@oldTotal,0) + 1;
-
-        IF @oldTotal > 0
-            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
-        ELSE
-            SET @newAvg = @rating * 1.0;
-
-        -- Update lại Product
-        UPDATE Product
-        SET
-            totalReviews = @newTotal,
-            averageRating = @newAvg
-        WHERE pid = @productID;
+        INSERT INTO ProductReview (
+            productID,
+            userID,
+            rating,
+            reviewText,
+            pictrureUrl
+        )
+        VALUES (
+            @productID,
+            @userID,
+            @rating,
+            @reviewText,
+            @pictureUrl
+        );
 
         SET @result = 1;
     END TRY
@@ -1787,462 +1896,41 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE sp_addProductReviewWithOrderValidation
-    @productID INT,
-    @userID INT,
-    @orderID INT,
-    @reviewText NVARCHAR(MAX),
-    @rating INT,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if order is eligible for review (status=2 AND paymentStatus=1)
-        DECLARE @orderEligible INT = 0;
-        SELECT @orderEligible = COUNT(*)
-        FROM Orders o
-        INNER JOIN OrderDetail od ON o.id = od.order_id
-        WHERE o.id = @orderID 
-          AND o.userID = @userID 
-          AND od.product_id = @productID
-          AND o.paymentStatus = 1;
-
-        IF @orderEligible = 0
-        BEGIN
-            SET @result = -1; -- Order not eligible
-            RETURN;
-        END
-
-        -- Check if user has already reviewed this product from this order
-        DECLARE @alreadyReviewed INT = 0;
-        SELECT @alreadyReviewed = COUNT(*)
-        FROM ProductReview pr
-        WHERE pr.userID = @userID 
-          AND pr.productID = @productID
-          AND EXISTS (
-              SELECT 1 FROM OrderDetail od 
-              WHERE od.order_id = @orderID 
-                AND od.product_id = @productID
-          );
-
-        IF @alreadyReviewed > 0
-        BEGIN
-            SET @result = -2; -- Already reviewed
-            RETURN;
-        END
-
-        -- Insert review
-        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
-        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
-
-        DECLARE @oldTotal INT;
-        DECLARE @oldAvg FLOAT;
-        DECLARE @newTotal INT;
-        DECLARE @newAvg FLOAT;
-
-        -- Lấy giá trị cũ
-        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
-        FROM Product
-        WHERE pid = @productID;
-
-        -- Tính toán giá trị mới
-        SET @newTotal = ISNULL(@oldTotal,0) + 1;
-
-        IF @oldTotal > 0
-            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
-        ELSE
-            SET @newAvg = @rating * 1.0;
-
-        -- Update lại Product
-        UPDATE Product
-        SET
-            totalReviews = @newTotal,
-            averageRating = @newAvg
-        WHERE pid = @productID;
-
-        SET @result = 1; -- Success
-    END TRY
-    BEGIN CATCH
-        SET @result = 0; -- Error
-    END CATCH
-END
-GO
-
-CREATE PROCEDURE sp_addVillageReviewWithOrderValidation
+CREATE PROCEDURE addVillageReview
     @villageID INT,
     @userID INT,
-    @orderID INT,
-    @reviewText NVARCHAR(MAX),
     @rating INT,
+    @reviewText NVARCHAR(MAX),
+    @pictureUrl NVARCHAR(100),
     @result INT OUTPUT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
     BEGIN TRY
-        -- Check if ticket order is eligible for review (status=2 AND paymentStatus=1)
-        DECLARE @orderEligible INT = 0;
-        SELECT @orderEligible = COUNT(*)
-        FROM TicketOrderDetail o
-        WHERE o.orderID = @orderID 
-          AND o.villageID = @villageID
-          AND o.status = 1 
-          AND o.paymentStatus = 1;
+        INSERT INTO VillageReview (
+            villageID,
+            userID,
+            rating,
+            reviewText,
+            pictrureUrl
+        )
+        VALUES (
+            @villageID,
+            @userID,
+            @rating,
+            @reviewText,
+            @pictureUrl
+        );
 
-        IF @orderEligible = 0
-        BEGIN
-            SET @result = -1; -- Order not eligible
-            RETURN;
-        END
-
-        -- Check if user has already reviewed this village from this order
-        DECLARE @alreadyReviewed INT = 0;
-        SELECT @alreadyReviewed = COUNT(*)
-        FROM VillageReview vr
-        WHERE vr.userID = @userID 
-          AND vr.villageID = @villageID
-          AND EXISTS (
-              SELECT 1 FROM TicketOrderDetail to_check
-              WHERE to_check.orderID = @orderID 
-                AND to_check.villageID = @villageID
-          );
-
-        IF @alreadyReviewed > 0
-        BEGIN
-            SET @result = -2; -- Already reviewed
-            RETURN;
-        END
-
-        -- Insert review
-        INSERT INTO VillageReview (villageID, userID, reviewText, rating, reviewDate)
-        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
-
-        DECLARE @oldTotal INT;
-        DECLARE @oldAvg FLOAT;
-        DECLARE @newTotal INT;
-        DECLARE @newAvg FLOAT;
-
-        -- Lấy giá trị cũ
-        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
-        FROM CraftVillage
-        WHERE villageID = @villageID;
-
-        -- Tính toán giá trị mới
-        SET @newTotal = ISNULL(@oldTotal,0) + 1;
-
-        IF @oldTotal > 0
-            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
-        ELSE
-            SET @newAvg = @rating * 1.0;
-
-        -- Update lại CraftVillage
-        UPDATE CraftVillage
-        SET
-            totalReviews = @newTotal,
-            averageRating = @newAvg
-        WHERE villageID = @villageID;
-
-        SET @result = 1; -- Success
+        SET @result = 1;
     END TRY
     BEGIN CATCH
-        SET @result = 0; -- Error
+        SET @result = 0;
     END CATCH
 END
 GO
-
 
 --13/7---------
-CREATE PROCEDURE sp_AddNewPayment
-    @sellerID INT,
-    @orderID INT = NULL,
-    @ticketOrderID INT = NULL,
-    @amount DECIMAL(10,2),
-    @paymentMethod NVARCHAR(50),
-    @paymentStatus INT,
-    @newPaymentID INT OUTPUT
-AS
-BEGIN
-    INSERT INTO Payment
-    ( sellerID, orderID,  ticketOrderID, amount, paymentMethod, paymentStatus )
-    VALUES
-    (@sellerID, @orderID,  @ticketOrderID,  @amount, @paymentMethod, @paymentStatus );
-    -- Trả về ID mới được sinh ra
-    SET @newPaymentID = SCOPE_IDENTITY();
-END
-GO
----------------
 
--- Xóa và tạo lại thủ tục thêm đánh giá sản phẩm
-DROP PROCEDURE IF EXISTS sp_addProductReviewWithOrderValidation_v2;
-GO
-CREATE PROCEDURE sp_addProductReviewWithOrderValidation_v2
-    @productID INT,
-    @userID INT,
-    @orderID INT,
-    @reviewText NVARCHAR(MAX),
-    @rating INT,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Kiểm tra đơn hàng hợp lệ (đã giao và đã thanh toán)
-        DECLARE @orderEligible INT = 0;
-        SELECT @orderEligible = COUNT(*)
-        FROM OrderDetail o
-        INNER JOIN OrderDetail od ON o.id = od.order_id
-        WHERE o.id = @orderID 
-          AND od.product_id = @productID
-          AND o.status = 2
-          AND o.paymentStatus = 1;
-
-        IF @orderEligible = 0
-        BEGIN
-            SET @result = -1;
-            RETURN;
-        END
-
-        -- Kiểm tra đã đánh giá chưa
-        DECLARE @alreadyReviewed INT = 0;
-        SELECT @alreadyReviewed = COUNT(*)
-        FROM ProductReview pr
-        WHERE pr.userID = @userID 
-          AND pr.productID = @productID
-          AND EXISTS (
-              SELECT 1 FROM OrderDetail od 
-              WHERE od.order_id = @orderID 
-                AND od.product_id = @productID
-          );
-
-        IF @alreadyReviewed > 0
-        BEGIN
-            SET @result = -2;
-            RETURN;
-        END
-
-        -- Thêm đánh giá
-        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
-        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
-
-        DECLARE @oldTotal INT;
-        DECLARE @oldAvg FLOAT;
-        DECLARE @newTotal INT;
-        DECLARE @newAvg FLOAT;
-
-        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
-        FROM Product
-        WHERE pid = @productID;
-
-        SET @newTotal = ISNULL(@oldTotal,0) + 1;
-
-        IF @oldTotal > 0
-            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
-        ELSE
-            SET @newAvg = @rating * 1.0;
-
-        UPDATE Product
-        SET
-            totalReviews = @newTotal,
-            averageRating = @newAvg
-        WHERE pid = @productID;
-
-        SET @result = 1;
-    END TRY
-    BEGIN CATCH
-        SET @result = 0;
-    END CATCH
-END
-GO
-
--- Xóa và tạo lại thủ tục thêm đánh giá làng nghề
-DROP PROCEDURE IF EXISTS sp_addVillageReviewWithOrderValidation_v2;
-GO
-CREATE PROCEDURE sp_addVillageReviewWithOrderValidation_v2
-    @villageID INT,
-    @userID INT,
-    @orderID INT,
-    @reviewText NVARCHAR(MAX),
-    @rating INT,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Kiểm tra đơn vé hợp lệ (đã giao và đã thanh toán)
-        DECLARE @orderEligible INT = 0;
-        SELECT @orderEligible = COUNT(*)
-        FROM TicketOrderDetail o
-        WHERE o.orderID = @orderID
-          AND o.villageID = @villageID
-          AND o.status = 2
-          AND o.paymentStatus = 1;
-
-        IF @orderEligible = 0
-        BEGIN
-            SET @result = -1;
-            RETURN;
-        END
-
-        -- Kiểm tra đã đánh giá chưa
-        DECLARE @alreadyReviewed INT = 0;
-        SELECT @alreadyReviewed = COUNT(*)
-        FROM VillageReview vr
-        WHERE vr.userID = @userID 
-          AND vr.villageID = @villageID
-          AND EXISTS (
-              SELECT 1 FROM TicketOrderDetail to_check
-              WHERE to_check.orderID = @orderID 
-                AND to_check.villageID = @villageID
-          );
-
-        IF @alreadyReviewed > 0
-        BEGIN
-            SET @result = -2;
-            RETURN;
-        END
-
-        -- Thêm đánh giá
-        INSERT INTO VillageReview (villageID, userID, reviewText, rating, reviewDate)
-        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
-
-        DECLARE @oldTotal INT;
-        DECLARE @oldAvg FLOAT;
-        DECLARE @newTotal INT;
-        DECLARE @newAvg FLOAT;
-
-        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
-        FROM CraftVillage
-        WHERE villageID = @villageID;
-
-        SET @newTotal = ISNULL(@oldTotal,0) + 1;
-
-        IF @oldTotal > 0
-            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
-        ELSE
-            SET @newAvg = @rating * 1.0;
-
-        UPDATE CraftVillage
-        SET
-            totalReviews = @newTotal,
-            averageRating = @newAvg
-        WHERE villageID = @villageID;
-
-        SET @result = 1;
-    END TRY
-    BEGIN CATCH
-        SET @result = 0;
-    END CATCH
-END
-GO
-
--- Xóa và tạo lại thủ tục kiểm tra điều kiện đánh giá sản phẩm
-DROP PROCEDURE IF EXISTS sp_CheckProductReviewEligibility;
-GO
-CREATE PROCEDURE sp_CheckProductReviewEligibility
-    @userID INT,
-    @productID INT,
-    @orderID INT,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        DECLARE @orderEligible INT = 0;
-        SELECT @orderEligible = COUNT(*)
-        FROM Orders o
-        INNER JOIN OrderDetail od ON o.id = od.order_id
-        WHERE o.id = @orderID 
-          AND o.userID = @userID 
-          AND od.product_id = @productID
-          AND o.paymentStatus = 1;
-
-        IF @orderEligible = 0
-        BEGIN
-            SET @result = -1;
-            RETURN;
-        END
-
-        DECLARE @alreadyReviewed INT = 0;
-        SELECT @alreadyReviewed = COUNT(*)
-        FROM ProductReview pr
-        WHERE pr.userID = @userID 
-          AND pr.productID = @productID
-          AND EXISTS (
-              SELECT 1 FROM OrderDetail od 
-              WHERE od.order_id = @orderID 
-                AND od.product_id = @productID
-          );
-
-        IF @alreadyReviewed > 0
-        BEGIN
-            SET @result = -2;
-            RETURN;
-        END
-
-        SET @result = 1;
-    END TRY
-    BEGIN CATCH
-        SET @result = 0;
-    END CATCH
-END
-GO
-
--- Xóa và tạo lại thủ tục kiểm tra điều kiện đánh giá làng nghề
-DROP PROCEDURE IF EXISTS sp_CheckVillageReviewEligibility;
-GO
-CREATE PROCEDURE sp_CheckVillageReviewEligibility
-    @userID INT,
-    @villageID INT,
-    @orderID INT,
-    @result INT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        DECLARE @orderEligible INT = 0;
-        SELECT @orderEligible = COUNT(*)
-        FROM TicketOrderDetail o
-        WHERE o.orderID = @orderID 
-          AND o.villageID = @villageID
-          AND o.status = 2
-          AND o.paymentStatus = 1;
-
-        IF @orderEligible = 0
-        BEGIN
-            SET @result = -1;
-            RETURN;
-        END
-
-        DECLARE @alreadyReviewed INT = 0;
-        SELECT @alreadyReviewed = COUNT(*)
-        FROM VillageReview vr
-        WHERE vr.userID = @userID 
-          AND vr.villageID = @villageID
-          AND EXISTS (
-              SELECT 1 FROM TicketOrderDetail to_check
-              WHERE to_check.orderID = @orderID 
-                AND to_check.villageID = @villageID
-          );
-
-        IF @alreadyReviewed > 0
-        BEGIN
-            SET @result = -2;
-            RETURN;
-        END
-
-        SET @result = 1;
-    END TRY
-    BEGIN CATCH
-        SET @result = 0;
-    END CATCH
-END
-GO
 
 -- Xóa và tạo lại thủ tục lấy thông tin sản phẩm đầy đủ
 DROP PROCEDURE IF EXISTS sp_GetCompleteProductInfo;
@@ -2339,241 +2027,7 @@ BEGIN
 END
 GO
 
--- Xóa và tạo lại thủ tục lấy thông tin vé đầy đủ
-DROP PROCEDURE IF EXISTS sp_GetCompleteTicketInfo;
-GO
-CREATE PROCEDURE sp_GetCompleteTicketInfo
-    @ticketID INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    SELECT 
-        vt.ticketID,
-        vt.price,
-        vt.status as ticketStatus,
-        vt.createdDate as ticketCreatedDate,
-        vt.updatedDate as ticketUpdatedDate,
-        tt.typeName as ticketTypeName,
-        tt.description as ticketTypeDescription,
-        tt.ageRange,
-        cv.villageID,
-        cv.villageName,
-        cv.description as villageDescription,
-        cv.address as villageAddress,
-        cv.contactPhone as villagePhone,
-        cv.contactEmail as villageEmail,
-        cv.openingHours,
-        cv.closingDays,
-        cv.averageRating as villageRating,
-        cv.totalReviews as villageTotalReviews,
-        cv.mainImageUrl as villageImage,
-        ct.typeName as craftTypeName,
-        a.userName as sellerName,
-        a.email as sellerEmail,
-        a.phoneNumber as sellerPhone
-    FROM VillageTicket vt
-    INNER JOIN TicketType tt ON vt.typeID = tt.typeID
-    INNER JOIN CraftVillage cv ON vt.villageID = cv.villageID
-    LEFT JOIN CraftType ct ON cv.typeID = ct.typeID
-    LEFT JOIN Account a ON cv.sellerId = a.userID
-    WHERE vt.ticketID = @ticketID AND vt.status = 1;
-END
-GO
-
--- Xóa và tạo lại thủ tục lấy danh sách sản phẩm có thể đánh giá
-DROP PROCEDURE IF EXISTS sp_GetUserReviewableProducts;
-GO
-CREATE PROCEDURE sp_GetUserReviewableProducts
-    @userID INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    SELECT DISTINCT
-        p.pid as productID,
-        p.name as productName,
-        p.mainImageUrl as productImage,
-        p.price,
-        pc.categoryName,
-        cv.villageName,
-        o.id as orderID,
-        o.createdDate as orderDate,
-        o.status as orderStatus,
-        o.paymentStatus,
-        od.quantity,
-        od.subtotal
-    FROM OrderDetail o
-    INNER JOIN OrderDetail od ON o.id = od.order_id
-    INNER JOIN Product p ON od.product_id = p.pid
-    INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
-    INNER JOIN CraftVillage cv ON p.villageID = cv.villageIDMsg 102, Level 15, State 1, Line 1
-
-
-Completion time: 2025-07-15T03:26:22.8670162+07:00
-
-    WHERE  o.status = 2
-      AND o.paymentStatus = 1
-      AND NOT EXISTS (
-          SELECT 1 FROM ProductReview pr 
-          WHERE pr.userID = @userID 
-            AND pr.productID = p.pid
-      )
-    ORDER BY o.createdDate DESC;
-END
-GO
-
--- Xóa và tạo lại thủ tục lấy danh sách làng nghề có thể đánh giá
-DROP PROCEDURE IF EXISTS sp_GetUserReviewableVillages;
-GO
-CREATE PROCEDURE sp_GetUserReviewableVillages
-    @userID INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    SELECT DISTINCT
-        cv.villageID,
-        cv.villageName,
-        cv.mainImageUrl as villageImage,
-        cv.address as villageAddress,
-        tk.orderID,
-        tk.createdDate as orderDate,
-        tk.status as orderStatus,
-        tk.paymentStatus,
-        tk.subtotal,
-        tk.quantity
-    FROM TicketOrderDetail tk
-    INNER JOIN CraftVillage cv ON tk.villageID = cv.villageID
-    WHERE tk.status = 2
-      AND tk.paymentStatus = 1
-      AND NOT EXISTS (
-          SELECT 1 FROM VillageReview vr 
-          WHERE vr.userID = @userID 
-            AND vr.villageID = cv.villageID
-      )
-    ORDER BY tk.createdDate DESC;
-END
-GO
 --------------------------------------------------------------------
-CREATE PROCEDURE sp_CancelOrder
-(
-    @orderDetailID INT,
-    @cancelReason NVARCHAR(500)
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        UPDATE [dbo].[OrderDetail]
-        SET 
-            cancelReason = @cancelReason,
-            cancelDate = GETDATE(),
-            status = 3,
-            updatedDate = GETDATE()
-        WHERE
-            [id] = @orderDetailID;
-
-        -- Kiểm tra xem có row nào được update không
-        IF @@ROWCOUNT = 0
-        BEGIN
-            -- Không tìm thấy orderDetailID
-            RETURN -1;
-        END
-        RETURN 1; -- Thành công
-    END TRY
-    BEGIN CATCH
-        RETURN -2; -- Lỗi hệ thống
-    END CATCH
-END
-GO
-
-CREATE PROCEDURE sp_CancelTicketOrder
-(
-    @detailID INT,
-    @cancelReason NVARCHAR(500)
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        UPDATE [dbo].[TicketOrderDetail]
-        SET 
-            cancelReason = @cancelReason,
-            cancelDate = GETDATE(),
-            status = 3,
-            updatedDate = GETDATE()
-        WHERE
-            [detailID] = @detailID;
-
-        -- Kiểm tra xem có row nào được update không
-        IF @@ROWCOUNT = 0
-        BEGIN
-            -- Không tìm thấy orderDetailID
-            RETURN -1;
-        END
-        RETURN 1; -- Thành công
-    END TRY
-    BEGIN CATCH
-        RETURN -2; -- Lỗi hệ thống
-    END CATCH
-END
-GO
-
-CREATE PROCEDURE sp_RefundOrderPayment
-(
-    @orderID INT
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        UPDATE [dbo].[Payment]
-        SET 
-            paymentStatus = 0,
-            updatedDate = GETDATE()
-        WHERE
-            orderID = @orderID;
-
-        IF @@ROWCOUNT = 0
-            RETURN -1; -- Không tìm thấy orderID
-
-        RETURN 1; -- Thành công
-    END TRY
-    BEGIN CATCH
-        RETURN -99; -- Lỗi hệ thống
-    END CATCH
-END
-GO
-
-CREATE PROCEDURE sp_RefundTicketPayment
-(
-    @ticketOrderID INT
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        UPDATE [dbo].[Payment]
-        SET 
-            paymentStatus = 0,
-            updatedDate = GETDATE()
-        WHERE
-            ticketOrderID = @ticketOrderID;
-
-        IF @@ROWCOUNT = 0
-            RETURN -2; -- Không tìm thấy ticketOrderID
-
-        RETURN 1; -- Thành công
-    END TRY
-    BEGIN CATCH
-        RETURN -99; -- Lỗi hệ thống
-    END CATCH
-END
-GO
-
 
 ----------------------------------
 DECLARE @sql NVARCHAR(MAX) = N'';

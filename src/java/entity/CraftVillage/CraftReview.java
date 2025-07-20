@@ -21,12 +21,13 @@ public class CraftReview {
     private String response;
     private Timestamp responseDate;
     private String userName;
+    private String pictureUrl;
     
     // Constructors-------------------------------------------------------------
     public CraftReview() {
     }
 
-    public CraftReview(int reviewID, int villageID, int userID, int rating, String reviewText, Timestamp reviewDate, String response, Timestamp responseDate) {
+    public CraftReview(int reviewID, int villageID, int userID, int rating, String reviewText, Timestamp reviewDate, String response, Timestamp responseDate, String pictureUrl) {
         this.reviewID = reviewID;
         this.villageID = villageID;
         this.userID = userID;
@@ -35,18 +36,26 @@ public class CraftReview {
         this.reviewDate = reviewDate;
         this.response = response;
         this.responseDate = responseDate;
+        this.pictureUrl = pictureUrl;
     }
 
-    public CraftReview(int villageID, int userID, int rating, String reviewText) {
+    public CraftReview(int villageID, int userID, int rating, String reviewText,String pictureUrl) {
         this.villageID = villageID;
         this.userID = userID;
         this.rating = rating;
         this.reviewText = reviewText;
+        this.pictureUrl = pictureUrl;
     }
     
-    
-    
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
     //--------------------------------------------------------------------------
+    public void setPictureUrl(String pictureUrl) {    
+        this.pictureUrl = pictureUrl;
+    }
+
     public int getReviewID() {
         return reviewID;
     }
@@ -121,6 +130,8 @@ public class CraftReview {
 
     @Override
     public String toString() {
-        return "CraftReview{" + "reviewID=" + reviewID + ", villageID=" + villageID + ", userID=" + userID + ", rating=" + rating + ", reviewText=" + reviewText + ", reviewDate=" + reviewDate + ", response=" + response + ", responseDate=" + responseDate + '}';
+        return "CraftReview{" + "reviewID=" + reviewID + ", villageID=" + villageID + ", userID=" + userID + ", rating=" + rating + ", reviewText=" + reviewText + ", reviewDate=" + reviewDate + ", response=" + response + ", responseDate=" + responseDate + ", userName=" + userName + ", pictureUrl=" + pictureUrl + '}';
     }
+
+   
 }

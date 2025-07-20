@@ -4,7 +4,9 @@
  */
 package controller.cart_order;
 
+import entity.Orders.Order;
 import entity.Orders.OrderDetail;
+import entity.Orders.SubOrder;
 import entity.Orders.TicketOrderDetail;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -13,8 +15,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import service.OrderService;
+import service.VillageService;
 
 /**
  *
@@ -37,86 +43,92 @@ public class OrderControlServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String cas = request.getParameter("cas");
+        int status = Integer.parseInt(cas);
         String userIDStr = request.getParameter("userID");
         int userID = Integer.parseInt(userIDStr);
-        List<OrderDetail> orderDetail = new ArrayList<>();
-        List<OrderDetail> processOrderDetail = new ArrayList<>();
-        List<OrderDetail> deliveryOrderDetail = new ArrayList<>();
-        List<OrderDetail> receiveOrderDetail = new ArrayList<>();
-        List<OrderDetail> cancelOrderDetail = new ArrayList<>();
-        List<OrderDetail> refundOrderDetail = new ArrayList<>();
+        List<SubOrder> subOrderList;
+        List<OrderDetail> orderDetailsList = new ArrayList<>();
+        List<TicketOrderDetail> ticketOrderDetailsList = new ArrayList<>();
+        List<Order> orderList ;
+        orderList = oService.getAllOrderByUserID(userID);
+        
+        subOrderList = getSubOrderList(userID, status);
 
-        List<TicketOrderDetail> ticketOrderDetail = new ArrayList<>();
-        List<TicketOrderDetail> processTicketOrderDetail = new ArrayList<>();
-        List<TicketOrderDetail> deliveryTicketOrderDetail = new ArrayList<>();
-        List<TicketOrderDetail> receiveTicketOrderDetail = new ArrayList<>();
-        List<TicketOrderDetail> cancelTicketOrderDetail = new ArrayList<>();
-        List<TicketOrderDetail> refundTicketOrderDetail = new ArrayList<>();
+        // Pagination logic
+        String pageStr = request.getParameter("page");
+        int page = 1;
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
+        }
+        int pageSize = 4;
+        int totalItems = subOrderList.size();
+        int totalPages = (totalItems + pageSize - 1) / pageSize;
+        int startItem = (page - 1) * pageSize;
+        int endItem = Math.min(startItem + pageSize, totalItems);
+        List<SubOrder> paginatedSubOrders = new ArrayList<>();
+        if (totalItems > 0) {
+            paginatedSubOrders = subOrderList.subList(startItem, endItem);
+        }
 
-        orderDetail = oService.getAllOrderDetailByUserId(userID);
-        ticketOrderDetail = oService.getAllTicketOrderDetailByUserId(userID);
+        // Collect unique order IDs to avoid duplicate fetches
+        Set<Integer> uniqueOrderIds = new HashSet<>();
+        for (SubOrder so : paginatedSubOrders) {
+            uniqueOrderIds.add(so.getOrderId());
+        }
 
-        for (OrderDetail od : orderDetail) {
-            int status = od.getStatus();
-            if (status == 0) {
-                processOrderDetail.add(0, od);
-            } else if (status == 1) {
-                deliveryOrderDetail.add(0, od);
-            } else if (status == 2) {
-                receiveOrderDetail.add(0, od);
-            } else if (status == 3) {
-                cancelOrderDetail.add(0, od);
-            } else if (status == 4 || status == 5) {
-                refundOrderDetail.add(0, od);
+        // Fetch details only for unique order IDs
+        for (Integer orderId : uniqueOrderIds) {
+            orderDetailsList.addAll(oService.getAllOrderDetailByOrderID(orderId));
+            ticketOrderDetailsList.addAll(oService.getAllTicketOrderDetailByOrderID(orderId));
+        }
+        
+
+        request.setAttribute("orderList", orderList);
+        request.setAttribute("subOrderList", paginatedSubOrders);
+        request.setAttribute("orderDetailsList", orderDetailsList);
+        request.setAttribute("ticketOrderDetailsList", ticketOrderDetailsList);
+        request.setAttribute("cas", cas);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("userID", userID);
+
+        request.getRequestDispatcher("order-list.jsp").forward(request, response);
+    }
+
+    private List<SubOrder> getSubOrderList(int userID, int status) {
+        Date now = new Date();
+        Date threeDaysAgo = new Date(now.getTime() - 3L * 24 * 60 * 60 * 1000);
+
+        List<SubOrder> allSubOrders = new ArrayList<>();
+        List<SubOrder> filteredList = new ArrayList<>();
+        // Lay danh sach order tong
+        List<Order> orderList = oService.getOrdersByUserId(userID);
+        // Lay danh sach suborder
+        for (Order o : orderList) {
+            allSubOrders.addAll(oService.getSubOrderListByOrderID(o.getId()));
+        }
+        for (SubOrder od : allSubOrders) {
+            if (od.getOrderStatus() == 2) {
+                if (od.getUpdatedDate() != null && od.getUpdatedDate().before(threeDaysAgo)) {
+                    oService.updateReviewStatus(od.getSubOrderId());
+                    od.setReviewStatus(1);
+                }
+            }
+            if (status == 4) {
+                if (status == od.getOrderStatus() || 5 == od.getOrderStatus()) {
+                    String subName = "#" + od.getSubOrderId() + ": " + new VillageService().getVillageNameByID(od.getVillageId());
+                    od.setSubName(subName);
+                    filteredList.add(0, od);
+                }
+            } else {
+                if (status == od.getOrderStatus()) {
+                    String subName = "#" + od.getSubOrderId() + ": " + new VillageService().getVillageNameByID(od.getVillageId());
+                    od.setSubName(subName);
+                    filteredList.add(0, od);
+                }
             }
         }
-
-        for (TicketOrderDetail tod : ticketOrderDetail) {
-            int status = tod.getStatus();
-            if (status == 0) {
-                processTicketOrderDetail.add(0, tod);
-            } else if (status == 1) {
-                deliveryTicketOrderDetail.add(0, tod);
-            } else if (status == 2) {
-                receiveTicketOrderDetail.add(0, tod);
-            } else if (status == 3) {
-                cancelTicketOrderDetail.add(0, tod);
-            } else if (status == 4 || status == 5) {
-                refundTicketOrderDetail.add(0, tod);
-            }
-        }
-
-        switch (cas) {
-            case "1":
-                request.setAttribute("processOrderDetail", processOrderDetail);
-                request.setAttribute("processTicketOrderDetail", processTicketOrderDetail);
-                request.getRequestDispatcher("order-list-processing.jsp").forward(request, response);
-                break;
-            case "2":
-                request.setAttribute("deliveryOrderDetail", deliveryOrderDetail);
-                request.setAttribute("deliveryTicketOrderDetail", deliveryTicketOrderDetail);
-                request.getRequestDispatcher("order-list-delivering.jsp").forward(request, response);
-                break;
-            case "3":
-                request.setAttribute("receiveOrderDetail", receiveOrderDetail);
-                request.setAttribute("receiveTicketOrderDetail", receiveTicketOrderDetail);
-                request.getRequestDispatcher("order-list-received.jsp").forward(request, response);
-                break;
-            case "4":
-                request.setAttribute("cancelOrderDetail", cancelOrderDetail);
-                request.setAttribute("cancelTicketOrderDetail", cancelTicketOrderDetail);
-                request.getRequestDispatcher("order-list-cancelled.jsp").forward(request, response);
-                break;
-            case "5":
-                request.setAttribute("refundOrderDetail", refundOrderDetail);
-                request.setAttribute("refundTicketOrderDetail", refundTicketOrderDetail);
-                request.getRequestDispatcher("order-list-refunded.jsp").forward(request, response);
-                break;
-            default:
-                request.getRequestDispatcher("404Loi.jsp").forward(request, response);
-                break;
-        }
-
+        return filteredList;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

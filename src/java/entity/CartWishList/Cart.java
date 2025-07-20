@@ -8,14 +8,9 @@ package entity.CartWishList;
  *
  * @author Pc
  */
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import entity.CartWishList.CartTicket;
 
 public class Cart {
     private int cartID;

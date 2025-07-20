@@ -59,4 +59,8 @@ public class ReportService implements IReportService{
     public int getSellerIdByTicketId(int ticketId){ 
         return rDAO.getSellerIdByTicketId(ticketId);
     }
+    
+    public int getSellerIdByVillageId(int villageId){ 
+        return rDAO.getSellerIdByVillageId(villageId);
+    }
 }

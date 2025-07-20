@@ -638,7 +638,7 @@
                                                 ${ticketType.ticketID == ticket.ticketID ? 'selected' : ''}>
                                             ${ticketType.typeName}
                                             <c:if test="${not empty ticketType.ageRange}"> - ${ticketType.ageRange}</c:if>
-                                            - <fmt:formatNumber value="${ticketType.priceAsDouble}" type="number" groupingUsed="true"/> VNĐ
+                                            - <fmt:formatNumber value="${ticketType.priceAsDouble}" type="currency" groupingUsed="true"/> 
                                         </option>
                                     </c:forEach>
                                 </select>
@@ -736,37 +736,37 @@
                             <div id="tab_1st" class="tab-contain desc-tab active">
                                 <div class="ticket-details-grid">
                                     <div class="detail-section">
-                                        <h4>Thông tin Vé</h4>
+                                        <h4>Ticket Information</h4>
                                         <table class="detail-table">
                                             <tr>
-                                                <td><strong>ID Vé:</strong></td>
+                                                <td><strong>Ticket ID:</strong></td>
                                                 <td>${completeTicketInfo.ticketID}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Loại Vé:</strong></td>
+                                                <td><strong>Ticket Type:</strong></td>
                                                 <td>${completeTicketInfo.ticketTypeName}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Mô tả Loại vé:</strong></td>
+                                                <td><strong>Description Ticket Type:</strong></td>
                                                 <td>${completeTicketInfo.ticketTypeDescription}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Độ tuổi áp dụng:</strong></td>
+                                                <td><strong>Applicable age:</strong></td>
                                                 <td>${completeTicketInfo.ageRange}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Giá:</strong></td>
+                                                <td><strong>Price:</strong></td>
                                                 <td><fmt:formatNumber value="${completeTicketInfo.price}" type="currency"/></td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Trạng thái:</strong></td>
+                                                <td><strong>Status:</strong></td>
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${completeTicketInfo.ticketStatus == 1}">
-                                                            <span class="status-active">Hoạt động</span>
+                                                            <span class="status-active">Work</span>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <span class="status-hidden">Không hoạt động</span>
+                                                            <span class="status-hidden">Inactive</span>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
@@ -775,57 +775,57 @@
                                     </div>
 
                                     <div class="detail-section">
-                                        <h4>Thông tin Làng nghề</h4>
+                                        <h4>Craft Village Information</h4>
                                         <table class="detail-table">
                                             <tr>
-                                                <td><strong>Tên Làng nghề:</strong></td>
+                                                <td><strong>Name of Craft Village:</strong></td>
                                                 <td>${completeTicketInfo.villageName}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Mô tả Làng nghề:</strong></td>
+                                                <td><strong>Description of Craft Village:</strong></td>
                                                 <td>${completeTicketInfo.villageDescription}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Địa chỉ Làng nghề:</strong></td>
+                                                <td><strong>Craft Village Address:</strong></td>
                                                 <td>${completeTicketInfo.villageAddress}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Điện thoại Làng nghề:</strong></td>
+                                                <td><strong>Craft Village Phone:</strong></td>
                                                 <td>${completeTicketInfo.villagePhone}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Email Làng nghề:</strong></td>
+                                                <td><strong>Email Craft Village:</strong></td>
                                                 <td>${completeTicketInfo.villageEmail}</td>
                                             </tr>
                                         </table>
                                     </div>
 
                                     <div class="detail-section">
-                                        <h4>Thống kê Làng nghề</h4>
+                                        <h4>Craft Village Statistics</h4>
                                         <table class="detail-table">
                                             <tr>
-                                                <td><strong>Đánh giá Làng nghề:</strong></td>
+                                                <td><strong>Craft Village Evaluation:</strong></td>
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${completeTicketInfo.villageRating != null and completeTicketInfo.villageRating > 0}">
                                                             <fmt:formatNumber value="${completeTicketInfo.villageRating}" pattern="0.0"/> / 5.0
                                                         </c:when>
                                                         <c:otherwise>
-                                                            Chưa có đánh giá
+                                                            No reviews yet
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Tổng số đánh giá:</strong></td>
+                                                <td><strong>Total reviews:</strong></td>
                                                 <td>${completeTicketInfo.villageTotalReviews}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Giờ mở cửa:</strong></td>
+                                                <td><strong>Opening hours:</strong></td>
                                                 <td>${completeTicketInfo.openingHours}</td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Ngày đóng cửa:</strong></td>
+                                                <td><strong>Closing date:</strong></td>
                                                 <td>${completeTicketInfo.closingDays}</td>
                                             </tr>
                                         </table>

@@ -6,64 +6,52 @@ package controller.Authenticate;
 
 import DAO.CraftVillageDAO;
 import DAO.ProductDAO;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import constant.CloudinaryConfig;
+import constant.CloudinaryUploader;
 import entity.Account.SellerVerification;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Map;
 import service.SellerVerificationService;
 
 /**
  *
  * @author ACER
  */
+@MultipartConfig
 @WebServlet(name = "RequestUpgradeAccount", urlPatterns = {"/request-upgrade"})
 public class RequestUpgradeAccount extends HttpServlet {
 
     SellerVerificationService sService = new SellerVerificationService();
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("UpgradeAccount.jsp").forward(request, response);
     }
 
-// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         String userID = request.getParameter("userID");
         String businessType = request.getParameter("businessType");
         String businessVillageCategrySelect = request.getParameter("businessVillageCategrySelect");
@@ -72,33 +60,59 @@ public class RequestUpgradeAccount extends HttpServlet {
         String businessVillageAddress = request.getParameter("businessVillageAddress");
         String productProductCategorySelect = request.getParameter("productProductCategorySelect");
         String productProductCategory = request.getParameter("productProductCategory");
-        String profileVillagePictureUrl = request.getParameter("profileVillagePictureUrl");
         String contactPerson = request.getParameter("contactPerson");
         String contactPhone = request.getParameter("contactPhone");
         String contactEmail = request.getParameter("contactEmail");
         String idCardNumber = request.getParameter("idCardNumber");
-        String idCardFrontUrl = request.getParameter("idCardFrontUrl");
-        String idCardBackUrl = request.getParameter("idCardBackUrl");
         String businessLicense = request.getParameter("businessLicense");
         String taxCode = request.getParameter("taxCode");
         String documentUrl = request.getParameter("documentUrl");
         String note = request.getParameter("note");
 
+        // Upload ảnh lên Cloudinary
+        String profileVillagePictureUrl = null;
+        String idCardFrontUrl = null;
+        String idCardBackUrl = null;
+
+        try {
+            Part profilePart = request.getPart("profileVillagePictureUrl");
+            Part frontPart = request.getPart("idCardFrontUrl");
+            Part backPart = request.getPart("idCardBackUrl");
+
+            profileVillagePictureUrl = CloudinaryUploader.uploadFile(profilePart);
+            idCardFrontUrl = CloudinaryUploader.uploadFile(frontPart);
+            idCardBackUrl = CloudinaryUploader.uploadFile(backPart);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "0");
+            request.setAttribute("message", "Image upload failed");
+            request.getRequestDispatcher("UpgradeAccount.jsp").forward(request, response);
+            return;
+        }
         try {
             boolean result = false;
+
             if (!businessVillageCategrySelect.isEmpty()) {
-                    businessVillageCategry = new CraftVillageDAO().getCraftTypeNameByID(Integer.parseInt(businessVillageCategrySelect));
-                }
-                if (!productProductCategorySelect.isEmpty()) {
-                    productProductCategory = new ProductDAO().getCategoryNameByCategoryID(Integer.parseInt(productProductCategorySelect));
-                }
-            if (businessType.equals("Individual")) {             
-                result = sService.requestUpgradeForIndividual(new SellerVerification(Integer.parseInt(userID), businessType, businessVillageCategry, businessVillageName, businessVillageAddress, productProductCategory, profileVillagePictureUrl, contactPerson, contactPhone, contactEmail, idCardNumber, idCardFrontUrl, idCardBackUrl, note));
+                businessVillageCategry = new CraftVillageDAO().getCraftTypeNameByID(Integer.parseInt(businessVillageCategrySelect));
             }
-            else {
-                result = sService.requestUpgradeForCraftVillage(new SellerVerification(businessType, Integer.parseInt(userID), businessVillageCategry, businessVillageName, businessVillageAddress, productProductCategory, profileVillagePictureUrl, contactPerson, contactPhone, contactEmail, businessLicense, taxCode, documentUrl, note));
+            if (!productProductCategorySelect.isEmpty()) {
+                productProductCategory = new ProductDAO().getCategoryNameByCategoryID(Integer.parseInt(productProductCategorySelect));
             }
-            if (result == true) {
+
+            if (businessType.equals("Individual")) {
+                result = sService.requestUpgradeForIndividual(new SellerVerification(
+                        Integer.parseInt(userID), businessType, businessVillageCategry, businessVillageName,
+                        businessVillageAddress, productProductCategory, profileVillagePictureUrl,
+                        contactPerson, contactPhone, contactEmail, idCardNumber,
+                        idCardFrontUrl, idCardBackUrl, note));
+            } else {
+                result = sService.requestUpgradeForCraftVillage(new SellerVerification(
+                        businessType, Integer.parseInt(userID), businessVillageCategry, businessVillageName,
+                        businessVillageAddress, productProductCategory, profileVillagePictureUrl,
+                        contactPerson, contactPhone, contactEmail, businessLicense, taxCode, documentUrl, note));
+            }
+
+            if (result) {
                 request.setAttribute("error", "1");
                 request.setAttribute("message", "Send request success");
             } else {
@@ -107,20 +121,16 @@ public class RequestUpgradeAccount extends HttpServlet {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             request.setAttribute("error", "0");
             request.setAttribute("message", "System error");
         }
+
         request.getRequestDispatcher("UpgradeAccount.jsp").forward(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }

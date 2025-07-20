@@ -44,7 +44,7 @@ public class CraftVillageDetails extends HttpServlet {
         String rating = request.getParameter("rating");
         String reviewText = request.getParameter("reviewText");
 
-        boolean result = rService.addVillageReview(new CraftReview(Integer.parseInt(villageID), Integer.parseInt(userID), Integer.parseInt(rating), reviewText));
+        boolean result = rService.addVillageReview(new CraftReview(Integer.parseInt(villageID), Integer.parseInt(userID), Integer.parseInt(rating), reviewText,""));
 
         String url = "village?id=" + villageID;
         response.sendRedirect("village?id=" + villageID);

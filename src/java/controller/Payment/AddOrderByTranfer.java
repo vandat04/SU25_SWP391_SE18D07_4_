@@ -4,12 +4,15 @@
  */
 package controller.Payment;
 
-import com.oracle.wls.shaded.org.apache.bcel.generic.AALOAD;
 import entity.CartWishList.Cart;
 import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Orders.Order;
+import entity.Orders.OrderDetail;
 import entity.Orders.Payment;
+import entity.Orders.SubOrder;
+import entity.Orders.TicketOrderDetail;
+import entity.Ticket.Ticket;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,7 +21,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import service.OrderService;
 import service.ProductService;
 import service.ReportService;
@@ -53,7 +59,9 @@ public class AddOrderByTranfer extends HttpServlet {
         String codeID = request.getParameter("vnp_TxnRef");
         int orderID = Integer.parseInt(codeID);
         Order order = oService.getOrderById(orderID);
-
+        String note = (String) request.getSession().getAttribute("noteOrder");
+        String transactionID = request.getParameter("vnp_TransactionNo");
+        
         int userID = order.getUserID();
         // 3. Lấy trạng thái giao dịch
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
@@ -72,19 +80,43 @@ public class AddOrderByTranfer extends HttpServlet {
 
             List<CartItem> listItem = cart.getItems();
             List<CartTicket> listTicket = cart.getTickets();
+            
+            Map<Integer, BigDecimal> villageMap = pService.getSetVillage(listItem, listTicket);
+
+            for (Map.Entry<Integer, BigDecimal> entry : villageMap.entrySet()) {
+                int villageID = entry.getKey();
+                BigDecimal totalPriceSubOrder = entry.getValue();
+                BigDecimal divisor = new BigDecimal("10000");
+                int pointSubOrder = totalPriceSubOrder.divide(divisor, RoundingMode.DOWN).intValue();
+
+                SubOrder subOrder = new SubOrder(
+                        orderID,
+                        villageID,
+                        totalPriceSubOrder,
+                        pointSubOrder,
+                        "bankTransfer",
+                        1,
+                        0,
+                        note
+                );
+                int subOrderID = oService.addSubOrder(subOrder);
+                rService.addPaymentManagement(new Payment(subOrderID, rService.getSellerIdByVillageId(villageID), totalPriceSubOrder, "bankTransfer", 1, transactionID), 1 , 0);
+            }
 
             for (CartItem p : listItem) {
-                int newOrderID = oService.addOrderDetail(orderID, p.getProductID(), p.getQuantity(), p.getPrice(),
-                        0, pService.getVillageIDByProductID(p.getProductID()), "bankTransfer", 1);
-                rService.addPaymentManagement(new Payment(rService.getSellerIdByProductId(p.getProductID()), newOrderID, null, BigDecimal.valueOf(p.getQuantity() * p.getPrice()), "bankTransfer", 1), 0, 0);
+                int villageID = pService.getVillageIDByProductID(p.getProductID());
+                int subOrderId = oService.getSubOrderID(orderID, villageID);
+                int newOrderID = oService.addOrderDetail(new OrderDetail(orderID, subOrderId, p.getProductID(), p.getQuantity(), BigDecimal.valueOf(p.getPrice()), villageID));
             }
 
             for (CartTicket t : listTicket) {
-                int newTicketOrderID = oService.addTicketOrderDetail(orderID, t.getTicketId(), t.getQuantity(), t.getPrice(),
-                        0, tService.getVillageIDByTicketID(t.getTicketId()), "bankTransfer", 1);
-                rService.addPaymentManagement(new Payment(rService.getSellerIdByTicketId(t.getTicketId()), null, newTicketOrderID, BigDecimal.valueOf(t.getQuantity() * t.getPrice()), "bankTransfer", 1), 0, 0);
-
+                int villageID = pService.getVillageIDByTicketID(t.getTicketId());
+                int subOrderId = oService.getSubOrderID(orderID, villageID);
+                Ticket ticket  = new TicketService().getTicketByTicketId(t.getTicketId());
+                String ticketCode = "V" + villageID + "T" + ticket.getTypeID() + "U" + userID + "CD" + new Timestamp(System.currentTimeMillis());
+                int newTicketOrderID = oService.addTicketOrderDetail(new TicketOrderDetail(orderID, subOrderId, t.getTicketId(), t.getQuantity(), BigDecimal.valueOf(t.getPrice()), villageID, ticketCode));
             }
+
 
             int cartID = oService.getCartIDByUserID(userID);
             oService.deleteCartItem(cartID);

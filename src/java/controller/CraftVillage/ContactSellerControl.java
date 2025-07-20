@@ -14,8 +14,8 @@ import service.MessageService;
  *
  * @author ACER
  */
-@WebServlet(name = "ContactControl", urlPatterns = {"/contacts"})
-public class ContactControl extends HttpServlet {
+@WebServlet(name = "ContactSellerControl", urlPatterns = {"/contact-seller"})
+public class ContactSellerControl extends HttpServlet {
 
     MessageService mService = new MessageService();
     List<MessageThread> listMessageThread;
@@ -23,13 +23,13 @@ public class ContactControl extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int userID = Integer.parseInt(request.getParameter("userID"));
-            listMessageThread = mService.getMessageThreadByUserID(userID);
+            int sellerId = Integer.parseInt(request.getParameter("userID"));
+            listMessageThread = mService.getAllMessageThreadBySellerId(sellerId);
         } catch (Exception e) {
         }
 
         request.setAttribute("listMessageThread", listMessageThread);
-        request.getRequestDispatcher("contact.jsp").forward(request, response);
+        request.getRequestDispatcher("contact-seller.jsp").forward(request, response);
 
     }
 

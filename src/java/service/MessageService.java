@@ -4,7 +4,6 @@
  */
 package service;
 
-
 import DAO.MessageDAO;
 import entity.MessageNotification.MessageThread;
 import entity.MessageNotification.Message;
@@ -29,8 +28,12 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public boolean sendMessage(Message message) {
+    public int sendMessage(Message message) {
         return mDAO.sendMessage(message);
+    }
+
+    public Message getMessageByMessageId(int messageId) {
+        return mDAO.getMessageByMessageId(messageId);
     }
 
     @Override
@@ -50,7 +53,7 @@ public class MessageService implements IMessageService {
 
     @Override
     public List<Message> getMessageByThreadID(int threadID, int userID) {
-        return mDAO.getMessageByThreadID(threadID,userID);
+        return mDAO.getMessageByThreadID(threadID, userID);
     }
 
     public MessageThread getMessageThread(int userID, int sellerID) {
@@ -64,7 +67,35 @@ public class MessageService implements IMessageService {
 
     @Override
     public int getThreadID(int userID, int sellerID) {
-        return mDAO.getThreadID(userID,sellerID);
+        return mDAO.getThreadID(userID, sellerID);
+    }
+
+    public void markAsRead(int threadID) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public List<Message> getNewMessages(int threadID, int lastMessageID) {
+        return mDAO.getNewMessages(threadID, lastMessageID);
+    }
+
+    public List<MessageThread> getAllMessageThreadBySellerId(int sellerId) {
+        return mDAO.getAllMessageThreadBySellerId(sellerId);
+    }
+
+    public List<Message> getMessageBySeller(int threadID) {
+        return mDAO.getMessageBySeller(threadID);
+    }
+
+    public List<Message> getMessageByThreadIDForSeller(int threadID, int sellerID) {
+        return mDAO.getMessageByThreadIDForSeller(threadID, sellerID);
+    }
+
+    public List<Message> getNewMessagess(int threadID, int lastMessageID) {
+        return mDAO.getMessagesAfterID(threadID, lastMessageID);
+    }
+
+    public void markMessagesAsReadBySeller(int threadID, int sellerID) {
+        mDAO.updateUserReadBySeller(threadID, sellerID);
     }
 
 }

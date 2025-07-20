@@ -5,7 +5,6 @@
 package service;
 
 import entity.Orders.TicketCode;
-import entity.Orders.TicketOrder;
 import entity.Orders.TicketOrderDetail;
 import java.util.List;
 
@@ -14,11 +13,6 @@ import java.util.List;
  * @author ACER
  */
 public interface ITicketOrderService {
-    // Tạo đơn đặt vé
-    int createTicketOrder(TicketOrder order) throws Exception;
-    // Lấy đơn theo ID hoặc người dùng
-    TicketOrder getTicketOrderById(int orderId);
-    List<TicketOrder> getTicketOrdersByUserId(int userId);
     // Chi tiết đơn
     List<TicketOrderDetail> getOrderDetails(int orderId);
     boolean addTicketOrderDetail(int orderId, int ticketId, int quantity, double price);
@@ -30,5 +24,5 @@ public interface ITicketOrderService {
     boolean cancelTicketOrder(int orderId, String reason);
     // Thống kê
     double calculateTotalRevenue();
-    List<TicketOrder> getOrdersByStatus(int status);
+
 }
