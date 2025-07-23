@@ -121,7 +121,7 @@
                 <div class="container">
 
                     <div class="chat-header">
-                        <a href="order?userID=${sessionScope.acc.userID}&cas=" class="back-button">← Back</a> 
+                        <a href="order?userID=${sessionScope.acc.userID}&cas=2" class="back-button">← Back</a> 
                     </div>
 
                     <c:if test="${empty orderList && empty ticketOrderList}">

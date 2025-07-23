@@ -9,14 +9,25 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function confirmDelete(villageID) {
-                if (confirm("Are you sure you want to delete this ticket?")) {
-                    document.getElementById("deleteVillageID").value = villageID;
-                    document.getElementById("deleteForm").submit();
-                }
+                Swal.fire({
+                    title: 'Confirm Deletion',
+                    text: "Are you sure you want to delete this village?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById("deleteVillageID").value = villageID;
+                        document.getElementById("deleteForm").submit();
+                    }
+                });
             }
-            
+
             function toggleExportMenu() {
                 const menu = document.getElementById('exportMenu');
                 menu.classList.toggle('hidden');
@@ -48,7 +59,7 @@
 
                 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <h1 class="text-2xl font-bold mb-6">
-                        Village List (${listAllVillage.size()})
+                        Village List 
                     </h1>
 
                     <div class="flex flex-col md:flex-row items-center gap-2">
@@ -60,7 +71,7 @@
                         </c:forEach>
 
                         <script>
-                            var tooltipContent = `<c:out value="${tooltipContent}" escapeXml="false"/>`;
+                            var tooltipContent = <c:out value="${tooltipContent}" escapeXml="false"/>;
                             tippy('#tooltip-icon', {
                                 content: tooltipContent,
                                 allowHTML: true,
@@ -68,28 +79,26 @@
                             });
                         </script>
 
-                        <form action="admin-village-management" method="post" class="flex flex-wrap gap-2 items-center">
-                            <input type="hidden" name="typeName" value="searchVillage"/>
-
+                        <form action="admin-village-management" method="get" class="flex flex-wrap gap-2 items-center">
                             <select name="status"
                                     class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                                <option value="1" ${status == '1' ? 'selected' : ''}>Active</option>
+                                <option value="0" ${status == '0' ? 'selected' : ''}>Inactive</option>
                             </select>
 
                             <select name="searchID"
                                     class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                <option value="0">All Village</option>
-                                <option value="1">By Category</option>
-                                <option value="2">Sort A - Z</option>
-                                <option value="3">Sort Z - A</option>
-                                <option value="4">Village Name</option>
-                                <option value="5">Village ID</option>
-                                <option value="6">Location</option>
-                                <option value="7">New Village Post</option>
+                                <option value="0" ${searchID == '0' ? 'selected' : ''}>All Village</option>
+                                <option value="1" ${searchID == '1' ? 'selected' : ''}>By Category</option>
+                                <option value="2" ${searchID == '2' ? 'selected' : ''}>Sort A - Z</option>
+                                <option value="3" ${searchID == '3' ? 'selected' : ''}>Sort Z - A</option>
+                                <option value="4" ${searchID == '4' ? 'selected' : ''}>Village Name</option>
+                                <option value="5" ${searchID == '5' ? 'selected' : ''}>Village ID</option>
+                                <option value="6" ${searchID == '6' ? 'selected' : ''}>Location</option>
+                                <option value="7" ${searchID == '7' ? 'selected' : ''}>New Village Post</option>
                             </select>
 
-                            <input type="text" name="contentSearch" placeholder="Search by Name, ID"
+                            <input type="text" name="contentSearch" value="${fn:escapeXml(contentSearch)}" placeholder="Search by Name, ID"
                                    class="border border-gray-300 rounded px-3 py-2 text-sm w-64"/>
 
                             <button type="submit"
@@ -129,7 +138,7 @@
                         <tr>
                             <th class="p-3 border">Village ID</th>
                             <th class="p-3 border">Image</th>
-                            <th class="p-3 border">Type ID</th>
+                            <th class="p-3 border">Type Name</th>
                             <th class="p-3 border">Village Name</th>
                             <th class="p-3 border">Description</th>
                             <th class="p-3 border">Address</th>
@@ -140,13 +149,19 @@
                     </thead>
                     <tbody>
                         <c:forEach var="v" items="${listAllVillage}">
+                            <c:set var="villageTypeName" value="" />
+                            <c:forEach var="type" items="${listVillages}">
+                                <c:if test="${type.typeID == v.typeID}">
+                                    <c:set var="villageTypeName" value="${type.typeName}" />
+                                </c:if>
+                            </c:forEach>
                             <tr class="text-center border hover:bg-gray-50">
                                 <td class="p-3 border">${v.villageID}</td>
                                 <td class="p-3 border">
                                     <img src="${v.mainImageUrl}" alt="Image"
                                          class="w-16 h-16 object-cover mx-auto rounded"/>
                                 </td>
-                                <td class="p-3 border">${v.typeID}</td>
+                                <td class="p-3 border">${villageTypeName}</td>
                                 <td class="p-3 border">${v.villageName}</td>
                                 <td class="p-3 border text-left max-w-xs truncate">${v.description}</td>
                                 <td class="p-3 border">${v.address}</td>
@@ -168,9 +183,9 @@
                                     <div class="flex gap-1 justify-center flex-wrap">
                                         <button onclick="editVillage(this)"
                                                 class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
-                                                data-village-id="${v.villageID}"
-                                                data-village-name="${fn:escapeXml(v.villageName)}"
-                                                data-type-id="${v.typeID}"
+                                                data-village-id="${fn:escapeXml(v.villageID)}"
+                                                data-type-name="${fn:escapeXml(villageTypeName)}"
+                                                data-village-name="${v.villageName}"
                                                 data-description="${fn:escapeXml(v.description)}"
                                                 data-address="${fn:escapeXml(v.address)}"
                                                 data-latitude="${v.latitude}"
@@ -209,7 +224,7 @@
 
                                         <!-- Hidden form for delete -->
                                         <form id="deleteForm" method="post" action="<c:url value='/admin-village-management'/>" style="display:none;">
-                                            <input type="hidden" name="typeName" value="deleteVillage">
+                                            <input type="hidden" name="action" value="deleteVillage">
                                             <input type="hidden" name="villageID" id="deleteVillageID">
                                         </form>
                                     </div>
@@ -219,18 +234,44 @@
                     </tbody>
                 </table>
 
+                <!-- Pagination -->
+                <c:set var="queryParams" value="" />
+                <c:if test="${not empty status}">
+                    <c:set var="queryParams" value="${queryParams}&status=${status}" />
+                </c:if>
+                <c:if test="${not empty searchID}">
+                    <c:set var="queryParams" value="${queryParams}&searchID=${searchID}" />
+                </c:if>
+                <c:if test="${not empty contentSearch}">
+                    <c:set var="queryParams" value="${queryParams}&contentSearch=${fn:escapeXml(contentSearch)}" />
+                </c:if>
+
+                <div class="mt-6 flex justify-center items-center gap-2">
+                    <c:if test="${currentPage > 1}">
+                        <a href="admin-village-management?page=${currentPage - 1}${queryParams}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+                    </c:if>
+
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <a href="admin-village-management?page=${i}${queryParams}" class="px-4 py-2 ${currentPage == i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'} rounded hover:bg-gray-300">${i}</a>
+                    </c:forEach>
+
+                    <c:if test="${currentPage < totalPages}">
+                        <a href="admin-village-management?page=${currentPage + 1}${queryParams}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+                    </c:if>
+                </div>
+
                 <!-- Modal Add Village -->
                 <div id="villageAddModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-4xl relative text-black overflow-y-auto max-h-[90vh]">
                         <h2 class="text-xl font-semibold mb-4">Add Village</h2>
-                        <form id="villageAddForm" action="admin-village-management" method="post" class="space-y-4">
-                            <input type="hidden" name="typeName" value="addVillage">
+                        <form id="villageAddForm" action="admin-village-management" method="post" enctype="multipart/form-data" class="space-y-4">
+                            <input type="hidden" name="action" id="action" value="addVillage">
                             <!-- fields giống edit nhưng không có ID -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label>Village Name</label><input type="text" name="villageName" class="w-full border p-2" required/></div>
                                 <div>
                                     <label>Type Name</label>
-                                    <select name="typeID" class="w-full border p-2" required>
+                                    <select name="typeName" id="typeName" class="w-full border p-2" required>
                                         <c:forEach var="typeCC" items="${listVillages}">
                                             <option value="${typeCC.typeID}">${typeCC.typeName}</option>
                                         </c:forEach>
@@ -260,7 +301,7 @@
                                 <div class="col-span-2"><label>Craft Process</label><textarea name="craftProcess" class="w-full border p-2"></textarea></div>
                                 <div class="col-span-2"><label>Video Description URL</label><input type="text" name="videoDescriptionUrl" class="w-full border p-2"/></div>
                                 <div class="col-span-2"><label>Travel Tips</label><textarea name="travelTips" class="w-full border p-2"></textarea></div>
-                                <div class="col-span-2"><label>Main Image URL</label><input type="text" name="mainImageUrl" class="w-full border p-2"/></div>
+                                <div class="col-span-2"><label>Main Image</label><input type="file" name="mainImageUrl" class="w-full border p-2" accept="image/*"/></div>
                             </div>
 
                             <div class="flex justify-end gap-2">
@@ -274,15 +315,15 @@
                 <div id="villageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-4xl relative text-black overflow-y-auto max-h-[90vh]">
                         <h2 class="text-xl font-semibold mb-4">Edit Village</h2>
-                        <form id="villageForm" action="admin-village-management" method="post" class="space-y-4">
-                            <input type="hidden" name="typeName" value="updateVillage">
+                        <form id="villageForm" action="admin-village-management" method="post" enctype="multipart/form-data" class="space-y-4">
+                            <input type="hidden" name="action" value="updateVillage">
                             <input type="hidden" name="villageID" id="villageID" />
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label>Village Name</label><input type="text" name="villageName" id="villageName" class="w-full border p-2" required /></div>
                                 <div>
                                     <label>Type Name</label>
-                                    <select name="typeID" class="w-full border p-2" id="typeID" required>
+                                    <select name="typeName" id="typeName" class="w-full border p-2" required>
                                         <c:forEach var="typeCC" items="${listVillages}">
                                             <option value="${typeCC.typeID}">${typeCC.typeName}</option>
                                         </c:forEach>
@@ -318,7 +359,8 @@
                                 <div class="col-span-2"><label>Craft Process</label><textarea name="craftProcess" id="craftProcess" class="w-full border p-2"></textarea></div>
                                 <div class="col-span-2"><label>Video Description URL</label><input type="text" name="videoDescriptionUrl" id="videoDescriptionUrl" class="w-full border p-2" /></div>
                                 <div class="col-span-2"><label>Travel Tips</label><textarea name="travelTips" id="travelTips" class="w-full border p-2"></textarea></div>
-                                <div class="col-span-2"><label>Main Image URL</label><input type="text" name="mainImageUrl" id="mainImageUrl" class="w-full border p-2" /></div>
+                                <div class="col-span-2"><label>Main Image</label><input type="file" name="mainImageUrl" class="w-full border p-2" accept="image/*"/></div>
+                                <div class="col-span-2"><label>Current Image URL (if no new file)</label><input type="text" name="existingMainImageUrl" id="existingMainImageUrl" class="w-full border p-2 bg-gray-100" readonly /></div>
                             </div>
 
                             <div class="flex justify-end gap-2">
@@ -333,11 +375,13 @@
         </div>
 
         <script>
+
             function openAddVillageModal() {
-                document.getElementById('villageAddForm').reset();
+                const form = document.getElementById('villageAddForm');
+                form.reset();
+                form.querySelector('[name="action"]').value = "addVillage";
                 document.getElementById('villageAddModal').classList.remove('hidden');
             }
-
             function closeAddVillageModal() {
                 document.getElementById('villageAddModal').classList.add('hidden');
             }
@@ -349,7 +393,7 @@
             function editVillage(button) {
                 document.getElementById('villageID').value = button.dataset.villageId || "";
                 document.getElementById('villageName').value = button.dataset.villageName || "";
-                document.getElementById('typeID').value = button.dataset.typeId || "";
+                document.getElementById('typeName').value = button.dataset.typeName || "";
                 document.getElementById('description').value = button.dataset.description || "";
                 document.getElementById('address').value = button.dataset.address || "";
                 document.getElementById('latitude').value = button.dataset.latitude || "";
@@ -375,7 +419,7 @@
                 document.getElementById('craftProcess').value = button.dataset.craftProcess || "";
                 document.getElementById('videoDescriptionUrl').value = button.dataset.videoDescriptionUrl || "";
                 document.getElementById('travelTips').value = button.dataset.travelTips || "";
-                document.getElementById('mainImageUrl').value = button.dataset.mainImageUrl || "";
+                document.getElementById('existingMainImageUrl').value = button.dataset.mainImageUrl || "";
 
                 document.getElementById('villageModal').classList.remove('hidden');
             }

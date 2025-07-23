@@ -11,6 +11,7 @@
         <meta charset="UTF-8">
         <title>Admin Craft Review Page</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function toggleResponseForm(id) {
                 const form = document.getElementById('responseForm-' + id);
@@ -20,10 +21,20 @@
             }
 
             function confirmDeleteReview(id) {
-                if (confirm("Are you sure you want to delete this review?")) {
-                    document.getElementById("deleteReviewID").value = id;
-                    document.getElementById("deleteForm").submit();
-                }
+                Swal.fire({
+                    title: 'Confirm Deletion',
+                    text: "Are you sure you want to delete this review?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById("deleteReviewID").value = id;
+                        document.getElementById("deleteForm").submit();
+                    }
+                });
             }
         </script>
     </head>

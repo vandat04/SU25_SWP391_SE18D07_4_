@@ -247,7 +247,7 @@
                                                 <div class="col-md-3">${detail.productName}</div>
                                                 <div class="col-md-3">Quantity: ${detail.quantity}</div>
                                                 <div class="col-md-3">
-                                                    Total: <fmt:formatNumber value="${detail.subtotal}" type="currency" /> ₫
+                                                    Total: <fmt:formatNumber value="${detail.subtotal}" type="currency" /> 
                                                 </div>
                                                 <div class="col-md-3">  <a href="detail?pid=${detail.productId}">View Product</a></div>
                                             </div>
@@ -262,7 +262,7 @@
                                                 <div class="col-md-2">${ticket.villageName}</div>
                                                 <div class="col-md-2">Quantity: ${ticket.quantity}</div>
                                                 <div class="col-md-2">
-                                                    Total: <fmt:formatNumber value="${ticket.subtotal}" type="currency" /> ₫
+                                                    Total: <fmt:formatNumber value="${ticket.subtotal}" type="currency" /> 
                                                 </div>
                                                 <div class="col-md-2">Ticket Code: ${ticket.ticketCode}</div>
                                                 <div class="col-md-2">  <a href="ticket-detail?ticketId=${ticket.ticketID}">View Ticket</a></div>
@@ -284,7 +284,7 @@
 
                             <div class="order-summary">
                                 <span class="text-muted">Total Amount</span>
-                                <p class="total-price"><fmt:formatNumber value="${subOrder.totalPrice}" type="currency" currencySymbol="₫"/></p>
+                                <p class="total-price"><fmt:formatNumber value="${subOrder.totalPrice}" type="currency" /></p>
                             </div>
 
 

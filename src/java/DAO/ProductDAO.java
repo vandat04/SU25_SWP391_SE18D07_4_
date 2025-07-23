@@ -21,9 +21,7 @@ import java.util.logging.Logger;
 import java.sql.Types;
 import java.sql.CallableStatement;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -869,5 +867,196 @@ public class ProductDAO {
         }
         return villageMap;
 
+    }
+
+    public int getTotalActiveProducts() {
+        int count = 0;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT COUNT(*) FROM Product WHERE status = 1";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return count;
+    }
+
+    public List<Product> getSearchProductByAdmin(int status, int searchID, String contentSearch, int offset, int limit) {
+        String query;
+        contentSearch = contentSearch == null ? "" : contentSearch.trim();
+        switch (searchID) {
+            case 1:
+                query = "SELECT * FROM Product WHERE status = ? AND categoryID LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 2:
+                query = "SELECT * FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY name ASC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 3:
+                query = "SELECT * FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY name DESC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 4:
+                query = "SELECT * FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 5:
+                query = "SELECT * FROM Product WHERE status = ? AND  pid LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 6:
+                query = "SELECT * FROM Product WHERE status = ? AND price BETWEEN ? AND ? ORDER BY price DESC";
+                break;
+            case 7:
+                query = "SELECT * FROM Product WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE()) ORDER BY createdDate DESC";
+                break;
+            default:
+                query = "SELECT * FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+        } // Thêm phân trang theo chuẩn SQL Server
+        if (!query.toLowerCase().contains("order by")) {
+            query += " ORDER BY pid ASC";
+        }
+        query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<Product> list = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, status);
+
+            if (searchID == 6) {
+                double price = Double.parseDouble(contentSearch);
+                ps.setDouble(paramIndex++, price * 0.8);
+                ps.setDouble(paramIndex++, price * 1.2);
+            } else if (searchID != 7) {
+                ps.setString(paramIndex++, contentSearch);
+            }
+
+// OFFSET và FETCH
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, limit);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToProduct1(rs));
+                }
+            }
+        } catch (NumberFormatException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new ProductDAO().getTotalSearchProducts(1, 1, ""));
+    }
+
+    public int getTotalSearchProducts(int status, int searchID, String contentSearch) {
+        String query;
+        contentSearch = contentSearch != null ? contentSearch.trim() : "";
+        int total = 0;
+
+        switch (searchID) {
+            case 1:
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND CAST(categoryID AS NVARCHAR) LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+
+            case 2:
+                query = "SELECT COUNT() FROM Product WHERE status = ? and name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY name ASC ";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 3:
+                query = "SELECT COUNT() FROM Product WHERE status = ? and name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY name DESC ";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 4: // Tên gần đúng
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+
+            case 5:
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND CAST(pid AS NVARCHAR) LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+
+            case 6:
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND price BETWEEN ? AND ?";
+                break;
+
+            case 7:
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE())";
+                break;
+
+            default:
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, status);
+
+            if (searchID == 6) {
+                try {
+                    double price = Double.parseDouble(contentSearch);
+                    ps.setDouble(paramIndex++, price * 0.8);
+                    ps.setDouble(paramIndex++, price * 1.2);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid price input for range: " + contentSearch);
+                    return 0;
+                }
+            } else if (searchID != 7) {
+                ps.setString(paramIndex++, contentSearch);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    public List<Product> getAllProductActiveByAdmin(int offset, int limit) {
+        List<Product> products = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBContext.getConnection();
+            // Sửa cú pháp thành SQL Server
+            String sql = "SELECT * FROM Product WHERE status = 1 ORDER BY pid ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, offset);  // OFFSET trước
+            ps.setInt(2, limit);   // FETCH NEXT sau
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product product = mapResultSetToProduct(rs);
+                products.add(product);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return products;
     }
 }

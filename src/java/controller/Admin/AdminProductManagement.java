@@ -4,45 +4,39 @@
  */
 package controller.Admin;
 
+import constant.CloudinaryUploader;
 import entity.Product.Product;
 import entity.Ticket.Ticket;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.List;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import java.math.BigDecimal;
-import java.util.List;
 import service.ProductService;
 
 /**
  *
  * @author ACER
  */
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024,       // 1MB: Khi vượt ngưỡng này, file sẽ lưu vào ổ đĩa tạm
+    maxFileSize = 10 * 1024 * 1024,        // 10MB: Kích thước tối đa của từng file
+    maxRequestSize = 20 * 1024 * 1024      // 20MB: Tổng dung lượng toàn bộ request (nếu có nhiều file)
+)
 @WebServlet(name = "AdminProductManagement", urlPatterns = {"/admin-product-management"})
 public class AdminProductManagement extends HttpServlet {
 
     private List<Product> listProduct;
     List<Ticket> listTicket;
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        listProduct = new ProductService().getAllProductActiveByAdmin();
-        request.setAttribute("listProduct", listProduct);
-        request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
-    }
+    private static final int PAGE_SIZE = 10;
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -54,7 +48,67 @@ public class AdminProductManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        ProductService ps = new ProductService();
+
+        // Get current page
+        int page = 1;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageStr);
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+
+        // Get search parameters with defaults
+        String statusStr = request.getParameter("status");
+        int status = (statusStr != null && !statusStr.isEmpty()) ? Integer.parseInt(statusStr) : 1; // Default to 1 (Active)
+        String searchIDStr = request.getParameter("searchID");
+        int searchID = (searchIDStr != null && !searchIDStr.isEmpty()) ? Integer.parseInt(searchIDStr) : 0; // Default to 0 (All)
+        String contentSearch = request.getParameter("contentSearch");
+        contentSearch = (contentSearch != null) ? contentSearch.trim() : "";
+
+        // Calculate total products and pages
+        int totalProducts = ps.getTotalSearchProducts(status, searchID, contentSearch);
+        int totalPages = (totalProducts + PAGE_SIZE - 1) / PAGE_SIZE;
+
+        // Adjust page to valid range
+        if (page < 1) {
+            page = 1;
+        }
+        if (page > totalPages && totalPages > 0) {
+            page = totalPages;
+        }
+
+        int offset = (page - 1) * PAGE_SIZE;
+
+        // Fetch paginated products
+        List<Product> products = ps.getSearchProductByAdmin(status, searchID, contentSearch, offset, PAGE_SIZE);
+
+        // Set attributes
+        request.setAttribute("listProduct", products);
+        request.setAttribute("totalProducts", totalProducts);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("status", status);
+        request.setAttribute("searchID", searchID);
+        request.setAttribute("contentSearch", contentSearch);
+
+        // Handle flash message from POST redirect
+        String message = request.getParameter("message");
+        String error = request.getParameter("error");
+        if (message != null && !message.isEmpty()) {
+            request.setAttribute("message", message);
+            request.setAttribute("error", error);
+        }
+
+        // Assume you need to set other attributes like listCC, listAllVillage, listVillages here
+        // For example:
+        // request.setAttribute("listCC", ps.getAllCategory());
+        // Add similar for villages and craft types if needed
+
+        request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
     }
 
     /**
@@ -69,7 +123,7 @@ public class AdminProductManagement extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ProductService pService = new ProductService();
+        ProductService ps = new ProductService();
         String typeName = request.getParameter("typeName");
         String pidStr = request.getParameter("pid");
         String name = request.getParameter("name");
@@ -81,86 +135,117 @@ public class AdminProductManagement extends HttpServlet {
         String villageIDStr = request.getParameter("villageID");
         String categoryIDStr = request.getParameter("categoryID");
         String craftTypeIDStr = request.getParameter("craftTypeID");
-        String mainImageUrl = request.getParameter("mainImageUrl");
         String weightStr = request.getParameter("weight");
         String dimensions = request.getParameter("dimensions");
         String materials = request.getParameter("materials");
         String careInstructions = request.getParameter("careInstructions");
         String warranty = request.getParameter("warranty");
         String status = request.getParameter("status");
-        String searchID = request.getParameter("searchID");
-        String contentSearch = request.getParameter("contentSearch");
-        String modelFile = request.getParameter("modelFile");
+        String existingMainImageUrl = request.getParameter("existingMainImageUrl");
+        String existingModelFileUrl = request.getParameter("existingModelFileUrl");
+        
+        String mainImageUrl = "";
+        try {
+            Part filePart = request.getPart("mainImageUrl");
+            if (filePart != null && filePart.getSize() > 0) {
+                mainImageUrl = CloudinaryUploader.uploadImage(filePart);
+            }
+        } catch (Exception e) {
+            // Handle upload error
+        }
+
+        if (mainImageUrl.isEmpty()) {
+            mainImageUrl = existingMainImageUrl;
+        }
+        
+        String modelFile = "";
+        try {
+            Part filePart = request.getPart("modelFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                modelFile = CloudinaryUploader.uploadRaw(filePart);
+            }
+        } catch (Exception e) {
+            // Handle upload error
+        }
+
+        if (modelFile.isEmpty()) {
+            modelFile = existingModelFileUrl;
+        }
+        
+        boolean success = false;
+        String message = "";
+        String errorCode = "0";
 
         switch (typeName) {
             case "updateProduct":
                 try {
-                    Product product = new Product(Integer.parseInt(pidStr), name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(stockAddStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty, modelFile);
-                    boolean result = pService.updateProductByAdmin(product);
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Update Success");
+                    int pid = Integer.parseInt(pidStr);
+                    int stock = Integer.parseInt(stockStr);
+                    int stockAdd = stockAddStr != null ? Integer.parseInt(stockAddStr) : 0;
+                    int villageID = Integer.parseInt(villageIDStr);
+                    int categoryID = Integer.parseInt(categoryIDStr);
+                    int craftTypeID = Integer.parseInt(craftTypeIDStr);
+                    double price = Double.parseDouble(priceStr);
+                    double weight = Double.parseDouble(weightStr);
+                    int productStatus = Integer.parseInt(status);
+
+                    Product product = new Product(pid, name, BigDecimal.valueOf(price), description, stock, stockAdd, productStatus, villageID, categoryID, mainImageUrl, craftTypeID, sku, BigDecimal.valueOf(weight), dimensions, materials, careInstructions, warranty, modelFile);
+                    success = ps.updateProductByAdmin(product);
+                    if (success) {
+                        message = "Update Success";
+                        errorCode = "1";
                     } else {
-                        request.setAttribute("error", "0");
-                        request.setAttribute("message", "Update error Name Product already exists");
+                        message = "Update error: Name Product already exists";
                     }
                 } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Update Fail");
+                    message = "Update Fail";
                 }
-                listProduct = pService.getAllProductActive();
-                request.setAttribute("listProduct", listProduct);
                 break;
             case "createProduct":
                 try {
-                    Product product = new Product(name, BigDecimal.valueOf(Double.parseDouble(priceStr)), description, Integer.parseInt(stockStr), Integer.parseInt(status), Integer.parseInt(villageIDStr), Integer.parseInt(categoryIDStr), mainImageUrl, Integer.parseInt(craftTypeIDStr), sku, BigDecimal.valueOf(Double.parseDouble(weightStr)), dimensions, materials, careInstructions, warranty,modelFile);
-                    boolean result = pService.createProductByAdmin(product);
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Create Success");
+                    int stock = Integer.parseInt(stockStr);
+                    int villageID = Integer.parseInt(villageIDStr);
+                    int categoryID = Integer.parseInt(categoryIDStr);
+                    int craftTypeID = Integer.parseInt(craftTypeIDStr);
+                    double price = Double.parseDouble(priceStr);
+                    double weight = Double.parseDouble(weightStr);
+                    int productStatus = Integer.parseInt(status);
+
+                    Product product = new Product(name, BigDecimal.valueOf(price), description, stock, productStatus, villageID, categoryID, mainImageUrl, craftTypeID, sku, BigDecimal.valueOf(weight), dimensions, materials, careInstructions, warranty, modelFile);
+                    success = ps.createProductByAdmin(product);
+                    if (success) {
+                        message = "Create Success";
+                        errorCode = "1";
                     } else {
-                        request.setAttribute("error", "0");
-                        request.setAttribute("message", "Create Fail: Name Product already exists");
+                        message = "Create Fail: Name Product already exists";
                     }
                 } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Create Fail");
+                    message = "Create Fail";
                 }
-                listProduct = pService.getAllProductActive();
-                request.setAttribute("listProduct", listProduct);
                 break;
             case "deleteProduct":
                 try {
-                    boolean result = pService.deleteProductByAdmin(Integer.parseInt(pidStr));
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Delete Success");
+                    int pid = Integer.parseInt(pidStr);
+                    success = ps.deleteProductByAdmin(pid);
+                    if (success) {
+                        message = "Delete Success";
+                        errorCode = "1";
                     } else {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Deactive success");
+                        message = "Deactive success";
+                        errorCode = "1";
                     }
                 } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Delete Fails");
-                }
-                listProduct = pService.getAllProductActive();
-                request.setAttribute("listProduct", listProduct);
-                break;
-            case "searchProduct":
-                try {
-                    listProduct = new ProductService().getSearchProductByAdmin(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
-                    request.setAttribute("error", "1");
-                    request.setAttribute("message", "Search Success");
-                    request.setAttribute("listProduct", listProduct);
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Search Fail");
+                    message = "Delete Fail";
                 }
                 break;
             default:
-                throw new AssertionError();
+                // Unknown type
+                break;
         }
-        request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
+
+        // After POST, redirect to GET with parameters to show message
+        String redirectUrl = "admin-product-management?status=1&searchID=0&contentSearch=&message=" + URLEncoder.encode(message, "UTF-8") + "&error=" + errorCode;
+        response.sendRedirect(redirectUrl);
     }
 
     /**
@@ -170,7 +255,7 @@ public class AdminProductManagement extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+        return "Admin Product Management Servlet";
+    }
 
 }

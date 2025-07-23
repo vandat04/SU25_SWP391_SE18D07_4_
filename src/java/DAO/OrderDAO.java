@@ -431,7 +431,7 @@ public class OrderDAO {
 
     public static void main(String[] args) {
         System.out.println("");
-        System.out.println(new OrderDAO().checkSubOrderReviewStatus(5));
+        System.out.println(new OrderDAO().getSearchSubOrderByAdmin(0, 0,0,10));
     }
 
     public double getOrderTotal(int orderID) {
@@ -1247,60 +1247,174 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
-    
+
     public boolean checkSubOrderReviewStatus(int subOrderId) {
-    String countTotalQuery = 
-        "SELECT " +
-        "    (SELECT COUNT(*) FROM OrderDetail WHERE subOrderId = ?) + " +
-        "    (SELECT COUNT(*) FROM TicketOrderDetail WHERE subOrderId = ?) AS totalCount";
+        String countTotalQuery
+                = "SELECT "
+                + "    (SELECT COUNT(*) FROM OrderDetail WHERE subOrderId = ?) + "
+                + "    (SELECT COUNT(*) FROM TicketOrderDetail WHERE subOrderId = ?) AS totalCount";
 
-    String countReviewedQuery = 
-        "SELECT " +
-        "    (SELECT COUNT(*) FROM OrderDetail WHERE subOrderId = ? AND reviewStatus = 1) + " +
-        "    (SELECT COUNT(*) FROM TicketOrderDetail WHERE subOrderId = ? AND reviewStatus = 1) AS reviewedCount";
+        String countReviewedQuery
+                = "SELECT "
+                + "    (SELECT COUNT(*) FROM OrderDetail WHERE subOrderId = ? AND reviewStatus = 1) + "
+                + "    (SELECT COUNT(*) FROM TicketOrderDetail WHERE subOrderId = ? AND reviewStatus = 1) AS reviewedCount";
 
-    String updateSubOrderQuery = 
-        "UPDATE SubOrders SET reviewStatus = 1 WHERE subOrderId = ?";
+        String updateSubOrderQuery
+                = "UPDATE SubOrders SET reviewStatus = 1 WHERE subOrderId = ?";
 
-    try (Connection conn = DBContext.getConnection();
-         PreparedStatement psTotal = conn.prepareStatement(countTotalQuery);
-         PreparedStatement psReviewed = conn.prepareStatement(countReviewedQuery)) {
+        try (Connection conn = DBContext.getConnection(); PreparedStatement psTotal = conn.prepareStatement(countTotalQuery); PreparedStatement psReviewed = conn.prepareStatement(countReviewedQuery)) {
 
-        // Set parameters for both queries
-        psTotal.setInt(1, subOrderId);
-        psTotal.setInt(2, subOrderId);
-        psReviewed.setInt(1, subOrderId);
-        psReviewed.setInt(2, subOrderId);
+            // Set parameters for both queries
+            psTotal.setInt(1, subOrderId);
+            psTotal.setInt(2, subOrderId);
+            psReviewed.setInt(1, subOrderId);
+            psReviewed.setInt(2, subOrderId);
 
-        int total = 0;
-        int reviewed = 0;
+            int total = 0;
+            int reviewed = 0;
 
-        try (ResultSet rsTotal = psTotal.executeQuery()) {
-            if (rsTotal.next()) {
-                total = rsTotal.getInt("totalCount");
+            try (ResultSet rsTotal = psTotal.executeQuery()) {
+                if (rsTotal.next()) {
+                    total = rsTotal.getInt("totalCount");
+                }
             }
+
+            try (ResultSet rsReviewed = psReviewed.executeQuery()) {
+                if (rsReviewed.next()) {
+                    reviewed = rsReviewed.getInt("reviewedCount");
+                }
+            }
+
+            // Nếu tất cả mục đã review
+            if (total > 0 && total == reviewed) {
+                try (PreparedStatement psUpdate = conn.prepareStatement(updateSubOrderQuery)) {
+                    psUpdate.setInt(1, subOrderId);
+                    psUpdate.executeUpdate();
+                }
+                return true;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        try (ResultSet rsReviewed = psReviewed.executeQuery()) {
-            if (rsReviewed.next()) {
-                reviewed = rsReviewed.getInt("reviewedCount");
-            }
-        }
-
-        // Nếu tất cả mục đã review
-        if (total > 0 && total == reviewed) {
-            try (PreparedStatement psUpdate = conn.prepareStatement(updateSubOrderQuery)) {
-                psUpdate.setInt(1, subOrderId);
-                psUpdate.executeUpdate();
-            }
-            return true;
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        return false;
     }
 
-    return false;
-}
+    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID) {
+        List<SubOrder> list = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM SubOrders WHERE 1=1");
 
+        // Đếm tham số
+        int paramIndex = 1;
+
+        // Thêm điều kiện lọc nếu có
+        if (status != 7) {
+            query.append(" AND orderStatus = ?");
+        }
+        if (searchID != 0) {
+            query.append(" AND villageId = ?");
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query.toString())) {
+
+            // Gán giá trị theo thứ tự
+            if (status != 7) {
+                ps.setInt(paramIndex++, status);
+            }
+            if (searchID != 0) {
+                ps.setInt(paramIndex++, searchID);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSubOrder(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, int page, int pageSize) {
+        List<SubOrder> list = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM SubOrders WHERE 1=1");
+
+        // Thêm điều kiện lọc nếu có
+        if (status != 7) {
+            query.append(" AND orderStatus = ?");
+        }
+        if (searchID != 0) {
+            query.append(" AND villageId = ?");
+        }
+
+        // Thêm sắp xếp và phân trang cho SQL Server
+        query.append(" ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query.toString())) {
+
+            // Gán giá trị theo thứ tự
+            int paramIndex = 1;
+            if (status != 7) {
+                ps.setInt(paramIndex++, status);
+            }
+            if (searchID != 0) {
+                ps.setInt(paramIndex++, searchID);
+            }
+
+            // Gán giá trị cho OFFSET và FETCH NEXT
+            ps.setInt(paramIndex++, (page - 1) * pageSize); // OFFSET
+            ps.setInt(paramIndex, pageSize); // FETCH NEXT
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSubOrder(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public int getTotalSubOrders(int status, int searchID) {
+        int total = 0;
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM SubOrders WHERE 1=1");
+
+        // Thêm điều kiện lọc nếu có
+        if (status != 7) {
+            query.append(" AND orderStatus = ?");
+        }
+        if (searchID != 0) {
+            query.append(" AND villageId = ?");
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query.toString())) {
+
+            // Gán giá trị theo thứ tự
+            int paramIndex = 1;
+            if (status != 7) {
+                ps.setInt(paramIndex++, status);
+            }
+            if (searchID != 0) {
+                ps.setInt(paramIndex++, searchID);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
 }

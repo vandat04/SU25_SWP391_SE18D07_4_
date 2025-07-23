@@ -24,7 +24,7 @@ public interface IAccountService {
 
     Account getAccountById(int userId);
 
-    List<Account> getAllAccounts();
+    List<Account> getAllAccounts(int offset, int pageSize);
 
     boolean blockAccount(int userId);
 
@@ -40,7 +40,7 @@ public interface IAccountService {
     
     boolean addNewAccountFull(Account account);
     
-    List<Account> getSearchAccount(int status, int searchID, String contentSearch);
+    List<Account> getSearchAccount(int status, int searchID, String contentSearch, int offset, int pageSize);
     
     Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year);
     
@@ -51,4 +51,6 @@ public interface IAccountService {
     int findUserIdByUsernameOrEmail(String input);
     
     String getEmailByUserId(int userId);
+    
+    public List<Account> getAllAccounts();
 }

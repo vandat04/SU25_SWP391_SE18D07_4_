@@ -6,9 +6,6 @@ package controller.Authenticate;
 
 import DAO.CraftVillageDAO;
 import DAO.ProductDAO;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import constant.CloudinaryConfig;
 import constant.CloudinaryUploader;
 import entity.Account.SellerVerification;
 import java.io.IOException;
@@ -19,9 +16,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Map;
 import service.SellerVerificationService;
 
 /**
@@ -79,9 +73,9 @@ public class RequestUpgradeAccount extends HttpServlet {
             Part frontPart = request.getPart("idCardFrontUrl");
             Part backPart = request.getPart("idCardBackUrl");
 
-            profileVillagePictureUrl = CloudinaryUploader.uploadFile(profilePart);
-            idCardFrontUrl = CloudinaryUploader.uploadFile(frontPart);
-            idCardBackUrl = CloudinaryUploader.uploadFile(backPart);
+            profileVillagePictureUrl = CloudinaryUploader.uploadImage(profilePart);
+            idCardFrontUrl = CloudinaryUploader.uploadImage(frontPart);
+            idCardBackUrl = CloudinaryUploader.uploadImage(backPart);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "0");

@@ -107,7 +107,7 @@ public class CraftVillage {
         this.videoDescriptionUrl = videoDescriptionUrl;
         this.travelTips = travelTips;
     }
-
+//update
     public CraftVillage(int villageID, String villageName, int typeID, String description,
             String address, double latitude, double longitude,
             String contactPhone, String contactEmail, int status,
@@ -140,7 +140,7 @@ public class CraftVillage {
         this.travelTips = travelTips;
         this.mainImageUrl = mainImageUrl;
     }
-
+//add
     public CraftVillage(String villageName, int typeID, String description,
             String address, double latitude, double longitude,
             String contactPhone, String contactEmail, int status,

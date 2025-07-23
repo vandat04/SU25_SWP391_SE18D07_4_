@@ -91,6 +91,7 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("price", product.getPrice());
         request.setAttribute("description", product.getDescription());
         request.setAttribute("img", product.getMainImageUrl());
+        
         request.setAttribute("product3D", new ProductService().getModelFileByProductID(Integer.parseInt(request.getParameter("pid"))));
     }
     

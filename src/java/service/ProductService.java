@@ -344,4 +344,20 @@ public class ProductService implements IProductService {
         return pDAO.getSetVillage(cartItem, cartTicket);
     }
 
+    public List<Product> getSearchProductByAdmin(int status, int searchId, String contentSearch, int offset, int PAGE_SIZE) {
+        return pDAO.getSearchProductByAdmin(status, searchId, contentSearch, offset,PAGE_SIZE);
+    }
+
+    public int getTotalSearchProducts(int status, int searchId, String contentSearch) {
+        return pDAO.getTotalSearchProducts( status,  searchId,  contentSearch);
+    }
+
+    public List<Product> getAllProductActiveByAdmin(int offset, int PAGE_SIZE) {
+        return pDAO.getAllProductActiveByAdmin( offset,  PAGE_SIZE);
+    }
+
+    public int getTotalActiveProducts() {
+        return pDAO.getTotalActiveProducts();
+    }
+
 }

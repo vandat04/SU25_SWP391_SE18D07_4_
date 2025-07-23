@@ -8,6 +8,7 @@ import context.DBContext;
 import entity.Account.Account;
 
 import entity.Orders.Payment;
+import entity.Orders.SubOrder;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -156,7 +157,7 @@ public class ReportDAO {
         return false;
     }
 
-    public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
+    public List<Account> getSearchAccount(int status, int searchID, String contentSearch, int offset, int pageSize) {
         String query;
         contentSearch = contentSearch.trim();
         switch (searchID) {
@@ -206,24 +207,38 @@ public class ReportDAO {
                 contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
                 break;
         }
-
+        if (searchID == 4 || searchID == 5){
+            query += " , createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else {
+        query += " ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        }
         List<Account> list = new ArrayList<>();
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, status);
-            if (searchID == 11) {
-            } else {
-                ps.setString(2, contentSearch);
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToAccount(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Ghi log tốt hơn
+    ps.setInt(1, status);
+    int index = 2;
+
+    if (searchID == 11) {
+        // Không có contentSearch
+    } else if (searchID == 7 || searchID == 10) {
+        ps.setString(index++, contentSearch);
+    } else {
+        ps.setString(index++, contentSearch);
+    }
+
+    ps.setInt(index++, offset);
+    ps.setInt(index, pageSize);
+
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            list.add(mapResultSetToAccount(rs));
         }
+    }
+} catch (SQLException e) {
+    e.printStackTrace(); // Hoặc log ra hệ thống
+}
         return list;
     }
+
 
     public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
         String query = "SELECT MONTH(createdDate) AS [Month], COUNT(*) AS [Total] "
@@ -417,16 +432,11 @@ public class ReportDAO {
 
     public Map<Integer, Integer> getOrderStatusSummaryByMonthYear(int month, int year) {
         String query
-                = "SELECT status, COUNT(*) AS total "
-                + "FROM ( "
-                + "   SELECT status FROM OrderDetail "
-                + "   WHERE MONTH(createdDate) = ? AND YEAR(createdDate) = ? "
-                + "   UNION ALL "
-                + "   SELECT status FROM TicketOrderDetail "
-                + "   WHERE MONTH(createdDate) = ? AND YEAR(createdDate) = ? "
-                + ") AS Combined "
-                + "GROUP BY status "
-                + "ORDER BY status";
+                = "SELECT orderStatus, COUNT(*) AS total "
+                + "FROM SubOrders "
+                + "WHERE MONTH(createdDate) = ? AND YEAR(createdDate) = ? "
+                + "GROUP BY orderStatus "
+                + "ORDER BY orderStatus";
 
         Map<Integer, Integer> statusMap = new LinkedHashMap<>();
         Connection conn = null;
@@ -440,13 +450,11 @@ public class ReportDAO {
             // Bind tham số
             ps.setInt(1, month);
             ps.setInt(2, year);
-            ps.setInt(3, month);
-            ps.setInt(4, year);
 
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                int status = rs.getInt("status");
+                int status = rs.getInt("orderStatus");
                 int total = rs.getInt("total");
                 statusMap.put(status, total);
             }
@@ -654,12 +662,178 @@ public class ReportDAO {
         return 0;
     }
 
+    public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
+        String query;
+        contentSearch = contentSearch.trim();
+        switch (searchID) {
+            case 1:
+                query = "SELECT * FROM Account WHERE roleID = 1 and status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 2:
+                query = "SELECT * FROM Account WHERE roleID = 2 and status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 3:
+                query = "SELECT * FROM Account WHERE roleID = 3 and status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 4:
+                query = "SELECT * FROM Account WHERE status = ? and username COLLATE Latin1_General_CI_AI LIKE ? ORDER BY userName ASC ";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 5:
+                query = "SELECT * FROM Account WHERE status = ?  and username COLLATE Latin1_General_CI_AI LIKE ? ORDER BY userName DESC";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 6:
+                query = "SELECT * FROM Account WHERE status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
+                break;
+            case 7:
+                query = "SELECT * FROM Account WHERE status = ? and email = ?";
+                break;
+            case 8:
+                query = "SELECT * FROM Account WHERE  status = ? and FullName COLLATE Latin1_General_CI_AI LIKE ? ";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 9:
+                query = "SELECT * FROM Account WHERE  status = ? and phoneNumber LIKE ? ";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 10:
+                query = "SELECT * FROM Account WHERE  status = ? and userID = ? ";
+                break;
+            case 11:
+                query = "SELECT * FROM Account WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE())";
+                break;
+            default:
+                query = "SELECT * FROM Account WHERE status = ? and username COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
+                break;
+        }
+
+        List<Account> list = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, status);
+            if (searchID == 11) {
+            } else {
+                ps.setString(2, contentSearch);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToAccount(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Ghi log tốt hơn
+        }
+        return list;
+    }
+    
+    public int getTotalAccounts() {
+        int count = 0;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT COUNT(*) FROM Account";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+           closeResources(conn, ps, rs);
+        }
+        return count;
+    }
+    
+    public int getTotalSearchAccounts(int status, int searchID, String contentSearch) {
+        int count = 0;
+        StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM Account WHERE 1=1");
+        boolean hasStatus = true;
+        if (hasStatus) {
+            sqlBuilder.append(" AND Status = ?");
+        }
+        boolean hasContentParam = false;
+        switch (searchID) {
+            case 1:
+                sqlBuilder.append(" AND RoleID = 1");
+                break;
+            case 2:
+                sqlBuilder.append(" AND RoleID = 2");
+                break;
+            case 3:
+                sqlBuilder.append(" AND RoleID = 3");
+                break;
+            case 4: // Sort doesn't affect count
+            case 5:
+            case 11:
+                break;
+            case 6:
+                sqlBuilder.append(" AND userName LIKE ?");
+                hasContentParam = true;
+                break;
+            case 7:
+                sqlBuilder.append(" AND email LIKE ?");
+                hasContentParam = true;
+                break;
+            case 8:
+                sqlBuilder.append(" AND fullName LIKE ?");
+                hasContentParam = true;
+                break;
+            case 9:
+                sqlBuilder.append(" AND phoneNumber LIKE ?");
+                hasContentParam = true;
+                break;
+            case 10:
+                sqlBuilder.append(" AND userID = ?");
+                hasContentParam = true;
+                break;
+            default:
+                break;
+        }
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBContext.getConnection();
+            ps = conn.prepareStatement(sqlBuilder.toString());
+            int paramIndex = 1;
+            if (hasStatus) {
+                ps.setInt(paramIndex++, status);
+            }
+            if (hasContentParam) {
+                if (searchID == 10) {
+                    ps.setInt(paramIndex++, Integer.parseInt(contentSearch));
+                } else {
+                    ps.setString(paramIndex++, "%" + contentSearch + "%");
+                }
+            }
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (NumberFormatException e) {
+            // Handle invalid input, return 0
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return count;
+    }
 //----Main test    
     public static void main(String[] args) {
         //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
         // Payment p = new Payment(new ReportDAO().getSellerIdByProductId(1), 9, null, BigDecimal.valueOf(250000), "bankTransfer", 1);
         //System.out.println(p.getPaymentMethod());
-        System.out.println(new ReportDAO().addPaymentManagement(new Payment(1, 3, BigDecimal.valueOf(100000), "cod", 1, "123123"), 1 , 2));
+        System.out.println(new ReportDAO().getSearchAccount(0,4,"",0,10));
     }
 
 }

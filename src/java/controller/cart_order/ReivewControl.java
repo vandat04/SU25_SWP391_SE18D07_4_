@@ -133,7 +133,7 @@ public class ReivewControl extends HttpServlet {
         String fileName = "";
         try {
             Part filePart = request.getPart("pictureUrl");
-            fileName = CloudinaryUploader.uploadFile(filePart);
+            fileName = CloudinaryUploader.uploadImage(filePart);
         } catch (Exception e) {
         }
 

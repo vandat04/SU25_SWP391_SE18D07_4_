@@ -12,10 +12,10 @@
         <ul class="space-y-6 text-xl">
             <li><a href="admin" class="hover:text-yellow-300 block">📋 Dashboard</a></li>
             <li><a href="admin-account-management" class="hover:text-yellow-300 block">📋 Account Management</a></li>
-            <li><a href="admin-product-management" class="hover:text-yellow-300 block">📋️ Product Management</a></li>
-            <li><a href="admin-village-management" class="hover:text-yellow-300 block">📋 Craft Village Management</a></li>
-            <li><a href="#" class="hover:text-yellow-300 block">📋️ Order Management</a></li>
+            <li><a href="admin-product-management?status=1&searchID=0&contentSearch= " class="hover:text-yellow-300 block">📋️ Product Management</a></li>
+            <li><a href="admin-village-management?status=1&searchID=0&contentSearch= " class="hover:text-yellow-300 block">📋 Craft Village Management</a></li>
+            <li><a href="admin-order-management?status=7&searchID=0" class="hover:text-yellow-300 block">📋️ Order Management</a></li>
             <li><a href="home" class="hover:text-yellow-300 block">📋 Back to Overview</a></li>
-            <li><a href="logout" class="hover:text-yellow-300 block">📰 Logout</a></li>
+            <li><a href="logout" class="hover:text-yellow-300 block">📰 Logout(${sessionScope.acc.fullName})</a></li>
         </ul>
     </div>

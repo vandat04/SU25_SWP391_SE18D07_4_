@@ -21,7 +21,7 @@ import service.AccountService;
 @WebServlet(name = "AdminAccountManagement", urlPatterns = {"/admin-account-management"})
 public class AdminAccountManagement extends HttpServlet {
 
-    private List<Account> listAccount;
+    private static final int PAGE_SIZE = 16;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,8 +34,49 @@ public class AdminAccountManagement extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        listAccount = new AccountService().getAllAccounts();
+        int currentPage = 1;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            try {
+                currentPage = Integer.parseInt(pageStr);
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+            }
+        }
+
+        String statusStr = request.getParameter("status");
+        String searchIDStr = request.getParameter("searchID");
+        String contentSearch = request.getParameter("contentSearch");
+
+        AccountService aService = new AccountService();
+        List<Account> listAccount;
+        int totalAccounts;
+        int totalPages;
+
+        if (statusStr != null && searchIDStr != null && contentSearch != null) {
+            // Search mode with pagination (assuming AccountService has been modified to support pagination)
+            int status = Integer.parseInt(statusStr);
+            int searchID = Integer.parseInt(searchIDStr);
+            int offset = (currentPage - 1) * PAGE_SIZE;
+            listAccount = aService.getSearchAccount(status, searchID, contentSearch, offset, PAGE_SIZE);
+            totalAccounts = aService.getTotalSearchAccounts(status, searchID, contentSearch); // New method needed in AccountService
+            totalPages = (int) Math.ceil((double) totalAccounts / PAGE_SIZE);
+
+            // Set search params for pagination links in JSP
+            request.setAttribute("statusSearch", statusStr);
+            request.setAttribute("searchIDSearch", searchIDStr);
+            request.setAttribute("contentSearchSearch", contentSearch);
+        } else {
+            // All accounts with pagination (assuming AccountService has been modified to support pagination)
+            int offset = (currentPage - 1) * PAGE_SIZE;
+            listAccount = aService.getAllAccounts(offset, PAGE_SIZE); // Modified method in AccountService
+            totalAccounts = aService.getTotalAccounts(); // New method needed in AccountService
+            totalPages = (int) Math.ceil((double) totalAccounts / PAGE_SIZE);
+        }
+
         request.setAttribute("listAccount", listAccount);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
         request.getRequestDispatcher("admin-account-management.jsp").forward(request, response);
     }
 
@@ -95,8 +136,6 @@ public class AdminAccountManagement extends HttpServlet {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Update Fail");
                 }
-                listAccount = new AccountService().getAllAccounts();
-                request.setAttribute("listAccount", listAccount);
                 break;
             case "addAccount":
                 try {
@@ -113,24 +152,17 @@ public class AdminAccountManagement extends HttpServlet {
                     request.setAttribute("error", "0");
                     request.setAttribute("message", "Add Fail");
                 }
-                listAccount = new AccountService().getAllAccounts();
-                request.setAttribute("listAccount", listAccount);
                 break;
             case "searchAccount":
-                try {
-                    listAccount = new AccountService().getSearchAccount(Integer.parseInt(status), Integer.parseInt(searchID), contentSearch);
-                    request.setAttribute("error", "1");
-                    request.setAttribute("message", "Search Success");
-                    request.setAttribute("listAccount", listAccount);
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Search Fail");
-                }
-                break;
+                // Redirect to GET with search params for pagination support
+                String redirectUrl = "admin-account-management?status=" + status + "&searchID=" + searchID + "&contentSearch=" + contentSearch;
+                response.sendRedirect(redirectUrl);
+                return; // Stop further execution
             default:
                 throw new AssertionError();
         }
-        request.getRequestDispatcher("admin-account-management.jsp").forward(request, response);
+        // For update/add, continue to processRequest to reload the list
+        processRequest(request, response);
     }
 
     /**

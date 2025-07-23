@@ -299,4 +299,16 @@ public class OrderService implements IOrderService {
     public boolean checkSubOrderReviewStatus(int subOrderId) {
         return oDAO.checkSubOrderReviewStatus(subOrderId);
     }
+
+    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID) {
+        return oDAO.getSearchSubOrderByAdmin( status,  searchID);
+    }
+
+    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, int page, int pageSize) {
+        return oDAO.getSearchSubOrderByAdmin( status,  searchID,  page,  pageSize) ;
+    }
+
+    public int getTotalSubOrders(int status, int searchID) {
+        return oDAO.getTotalSubOrders( status,  searchID);
+    }
 }

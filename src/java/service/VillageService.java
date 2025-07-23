@@ -134,4 +134,20 @@ public class VillageService implements IVillageService {
         return vDAO.getVillageByFilter(provinceCodeSearch,typeID);
     }
 
+    public List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch, int offset, int PAGE_SIZE) {
+        return vDAO.getSearchVillageByAdmin( status,  searchID,  contentSearch,  offset,  PAGE_SIZE);
+    }
+
+    public int getTotalSearchVillages(int status, int searchID, String contentSearch) {
+        return vDAO.getTotalSearchVillages( status,  searchID,  contentSearch) ;
+    }
+
+    public List<CraftVillage> getAllCraftVillageActive(int offset, int PAGE_SIZE) {
+        return vDAO.getAllCraftVillageActive( offset,  PAGE_SIZE);
+    }
+
+    public int getTotalActiveVillages() {
+        return vDAO.getTotalActiveVillages();
+    }
+
 }

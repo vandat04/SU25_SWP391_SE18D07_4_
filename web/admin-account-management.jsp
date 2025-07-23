@@ -82,7 +82,7 @@
                 </c:if>    
                 <!-- Search and Filter Bar -->
                 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <h1 class="text-2xl font-bold mb-6">Account List (${activeSessions}/${listAccount.size()})</h1>
+                    <h1 class="text-2xl font-bold mb-6">Account List</h1>
                     <!-- Role Filter + Request Button -->
                     <div class="flex flex-col md:flex-row items-center gap-2">
                         <form action="admin-account-management" method="post">
@@ -176,6 +176,22 @@
                             </c:forEach>
                         </div>
 
+                        <!-- Pagination -->
+                        <div class="mt-6 flex justify-center items-center space-x-2">
+                            <c:if test="${currentPage > 1}">
+                                <a href="admin-account-management?page=${currentPage - 1}${not empty statusSearch ? '&status='.concat(statusSearch).concat('&searchID=').concat(searchIDSearch).concat('&contentSearch=').concat(contentSearchSearch) : ''}" 
+                                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+                            </c:if>
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <a href="admin-account-management?page=${i}${not empty statusSearch ? '&status='.concat(statusSearch).concat('&searchID=').concat(searchIDSearch).concat('&contentSearch=').concat(contentSearchSearch) : ''}" 
+                                   class="px-4 py-2 rounded ${currentPage == i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">${i}</a>
+                            </c:forEach>
+                            <c:if test="${currentPage < totalPages}">
+                                <a href="admin-account-management?page=${currentPage + 1}${not empty statusSearch ? '&status='.concat(statusSearch).concat('&searchID=').concat(searchIDSearch).concat('&contentSearch=').concat(contentSearchSearch) : ''}" 
+                                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+                            </c:if>
+                        </div>
+
                     </c:when>
                     <c:otherwise>
                         <div class="text-center text-gray-500 text-sm mt-10">
@@ -196,7 +212,7 @@
                     <!-- Form Grid -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">UserID</label>
+                            <label class="block text-sm font-medium mb-1">User ID</label>
                             <input type="text" id="userID" name="userID" class="w-full border rounded p-2  bg-gray-100" readonly>
                         </div>
                         <div>

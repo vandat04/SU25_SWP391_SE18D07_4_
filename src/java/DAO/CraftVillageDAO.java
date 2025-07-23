@@ -630,8 +630,7 @@ public class CraftVillageDAO {
     }
 
     public static void main(String[] args) {
-        //System.out.println(new CraftVillageDAO().updateCraftVillageByAdmin(new CraftVillage(1, "B", 1, "A", "A", 1, 1, "A", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
-        System.out.println(new CraftVillageDAO().getVillageByFilter("", "1"));
+        System.out.println(new CraftVillageDAO().addNewVillageByAdmin(new CraftVillage("BC", 1, "AC", "AC", 1, 1, "AC", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
     }
 
     public List<CraftVillage> getVillageByFilter(String provinceCodeSearch, String typeIDStr) {
@@ -700,6 +699,177 @@ public class CraftVillageDAO {
         }
 
         return list;
+    }
+
+    public List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch, int offset, int limit) {
+    if (contentSearch == null) {
+        contentSearch = "";
+    } else {
+        contentSearch = contentSearch.trim();
+    }
+
+    String query;
+    boolean hasContentSearch = true;
+
+    switch (searchID) {
+        case 1:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND CAST(typeID AS NVARCHAR) LIKE ? ORDER BY villageID ASC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+        case 2:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageName ASC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+        case 3:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageName DESC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+        case 4:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+        case 5:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND CAST(villageID AS NVARCHAR) LIKE ? ORDER BY villageID ASC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+        case 6:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND address COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageID ASC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+        case 7:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE()) ORDER BY createdDate DESC";
+            hasContentSearch = false;
+            break;
+        default:
+            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
+            contentSearch = "%" + contentSearch + "%";
+            break;
+    }
+
+    // Thêm phân trang
+    query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+    List<CraftVillage> list = new ArrayList<>();
+    try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+        int paramIndex = 1;
+        ps.setInt(paramIndex++, status);
+
+        if (hasContentSearch) {
+            ps.setString(paramIndex++, contentSearch);
+        }
+
+        ps.setInt(paramIndex++, offset);
+        ps.setInt(paramIndex, limit);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToCraftVillage(rs));
+            }
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+    }
+
+    return list;
+}
+
+
+    public int getTotalSearchVillages(int status, int searchID, String contentSearch) {
+        if (contentSearch == null) {
+            contentSearch = "";
+        } else {
+            contentSearch = contentSearch.trim();
+        }
+
+        String query;
+        switch (searchID) {
+            case 1:
+                query = "SELECT COUNT(*) FROM CraftVillage WHERE status = ? AND CAST(typeID AS NVARCHAR) LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 4:
+            case 2:
+            case 3:
+                query = "SELECT COUNT(*) FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 5:
+                query = "SELECT COUNT(*) FROM CraftVillage WHERE status = ? AND CAST(villageID AS NVARCHAR) LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 6:
+                query = "SELECT COUNT(*) FROM CraftVillage WHERE status = ? AND address COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+            case 7:
+                query = "SELECT COUNT(*) FROM CraftVillage WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE())";
+                break;
+            default:
+                query = "SELECT COUNT(*) FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                break;
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, status);
+
+            if (!query.contains("CONVERT")) {
+                ps.setString(2, contentSearch);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        }
+        return 0;
+    }
+
+    public List<CraftVillage> getAllCraftVillageActive(int offset, int limit) {
+        List<CraftVillage> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT * FROM CraftVillage WHERE status = 1 ORDER BY villageID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToCraftVillage(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return list;
+    }
+
+    public int getTotalActiveVillages() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = new DBContext().getConnection();
+            String sql = "SELECT COUNT(*) FROM CraftVillage WHERE status = 1";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return 0;
     }
 
 }

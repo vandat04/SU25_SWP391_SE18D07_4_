@@ -10,8 +10,18 @@ import java.util.Map;
 
 public class CloudinaryUploader {
 
-    public static String uploadFile(Part filePart) {
-        String imageUrl = "";
+    // Hàm upload ảnh (resource_type = image)
+    public static String uploadImage(Part filePart) {
+        return uploadFile(filePart, "image");
+    }
+
+    //  Hàm upload raw file (dùng cho .glb, .pdf, .zip, ...)
+    public static String uploadRaw(Part filePart) {
+        return uploadFile(filePart, "raw");
+    }
+    
+    private static String uploadFile(Part filePart, String resourceType) {
+        String fileUrl = "";
         try {
             if (filePart != null && filePart.getSize() > 0) {
                 InputStream fileContent = filePart.getInputStream();
@@ -29,17 +39,18 @@ public class CloudinaryUploader {
 
                 Cloudinary cloudinary = CloudinaryConfig.getInstance();
 
-                // Upload với byte[] (được hỗ trợ rõ ràng)
-                Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.emptyMap());
+                // Upload với resource_type tương ứng
+                Map uploadResult = cloudinary.uploader().upload(
+                        fileBytes,
+                        ObjectUtils.asMap("resource_type", resourceType)
+                );
 
-                imageUrl = (String) uploadResult.get("secure_url");
-            } else {
-
+                fileUrl = (String) uploadResult.get("secure_url");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return imageUrl;
+        return fileUrl;
     }
 }

@@ -233,34 +233,32 @@ public class AccountDAO {
         return null;
     }
 
-    public List<Account> getAllAccounts() {
-        String query = "SELECT * FROM Account WHERE status = 1";
+    public List<Account> getAllAccounts(int offset, int pageSize) {
+        String query = "SELECT * FROM Account WHERE status = 1 "
+                + "ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
         List<Account> list = new ArrayList<>();
         Connection conn = null;
-        CallableStatement cs = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
             conn = DBContext.getConnection();
-            cs = conn.prepareCall(query);
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
 
-            rs = cs.executeQuery();
+            rs = ps.executeQuery();
 
             while (rs.next()) {
                 list.add(mapResultSetToAccount(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // In rõ lỗi ra console
+            e.printStackTrace(); // Hoặc ghi log nếu production
         } finally {
-            if (cs != null) {
-                try {
-                    cs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            closeResources(conn, null, rs);
+            closeResources(conn, ps, rs);
         }
+
         return list;
     }
 
@@ -578,7 +576,7 @@ public class AccountDAO {
     }
 
     public static void main(String[] args) {
-       // System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(1, 8, "Fish Sauce", "Nam O handmade fish sauce", "Tran Phu Street, Hai Chau District, Da Nang City.", "Fish Sause", "hinhanh/village/nam-o.jpg", "TRƯƠNG VĂN ĐẠT", "0777076028", "dattruong02112004@gmail.com", 1, 7)));
+        // System.out.println(new AccountDAO().approvedUpgradeAccount(new SellerVerification(1, 8, "Fish Sauce", "Nam O handmade fish sauce", "Tran Phu Street, Hai Chau District, Da Nang City.", "Fish Sause", "hinhanh/village/nam-o.jpg", "TRƯƠNG VĂN ĐẠT", "0777076028", "dattruong02112004@gmail.com", 1, 7)));
         System.out.println(new AccountDAO().getAccountById(3).getFullName());
     }
 
@@ -658,7 +656,38 @@ public class AccountDAO {
     // Compatibility methods for UserDAO
     public List<Account> getAccountsWithPaging(int offset, int limit) {
         // Return all accounts (ignore paging for now)
-        return getAllAccounts();
+        return getAllAccounts(offset, limit);
+    }
+
+    public List<Account> getAllAccounts() {
+        String query = "SELECT * FROM Account WHERE status = 1";
+        List<Account> list = new ArrayList<>();
+        Connection conn = null;
+        CallableStatement cs = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            cs = conn.prepareCall(query);
+
+            rs = cs.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToAccount(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // In rõ lỗi ra console
+        } finally {
+            if (cs != null) {
+                try {
+                    cs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            closeResources(conn, null, rs);
+        }
+        return list;
     }
 
     public Account getAccount(String username) {
@@ -776,7 +805,7 @@ public class AccountDAO {
             ps.setString(1, input);
             ps.setString(2, input);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("userID");
             }
@@ -799,7 +828,7 @@ public class AccountDAO {
             ps = conn.prepareStatement(query);
             ps.setInt(1, userId);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getString("email");
             }

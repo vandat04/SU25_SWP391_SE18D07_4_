@@ -82,8 +82,8 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public List<Account> getAllAccounts() {
-        return aDAO.getAllAccounts();
+    public List<Account> getAllAccounts(int offset, int pageSize) {
+        return aDAO.getAllAccounts(offset, pageSize);
     }
 
     @Override
@@ -127,10 +127,14 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
-        return rDAO.getSearchAccount(status, searchID,contentSearch);
+    public List<Account> getSearchAccount(int status, int searchID, String contentSearch,int offset, int pageSize) {
+        return rDAO.getSearchAccount(status, searchID,contentSearch ,offset, pageSize);
     }
 
+    public List<Account> getSearchAccount(int status, int searchID, String contentSearch) {
+        return rDAO.getSearchAccount(status, searchID,contentSearch );
+    }
+    
     public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
         return rDAO.getRegistrationSummaryByMonthYear(year);
     }
@@ -171,5 +175,18 @@ public class AccountService implements IAccountService{
     @Override
     public String getEmailByUserId(int userId) {
         return aDAO.getEmailByUserId(userId);
+    }
+
+    @Override
+    public List<Account> getAllAccounts() {
+        return aDAO.getAllAccounts();
+    }
+    
+    public int getTotalAccounts(){
+        return rDAO.getTotalAccounts();
+    }
+    
+    public int getTotalSearchAccounts(int status, int searchID, String contentSearch){
+        return rDAO.getTotalSearchAccounts(status, searchID, contentSearch);
     }
 }

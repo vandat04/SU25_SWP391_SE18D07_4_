@@ -107,7 +107,7 @@ public class ContactUser extends HttpServlet {
             String attachmentUrl = null;
             Part filePart = request.getPart("attachment");
             if (filePart != null && filePart.getSize() > 0) {
-                attachmentUrl = CloudinaryUploader.uploadFile(filePart);
+                attachmentUrl = CloudinaryUploader.uploadImage(filePart);
             }
 
             Message message = new Message(0, threadID, senderID, messageContent, attachmentUrl, null, 0);

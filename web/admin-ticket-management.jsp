@@ -5,12 +5,16 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>Admin - Ticket Management</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <style>.hidden {
                 display: none;
             }</style>
@@ -39,10 +43,20 @@
             }
 
             function confirmDelete(ticketID) {
-                if (confirm("Are you sure you want to delete this ticket?")) {
-                    document.getElementById("deleteTicketID").value = ticketID;
-                    document.getElementById("deleteForm").submit();
-                }
+                Swal.fire({
+                    title: 'Confirm Deletion',
+                    text: "Are you sure you want to delete this ticket?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById("deleteTicketID").value = ticketID;
+                        document.getElementById("deleteForm").submit();
+                    }
+                });
             }
             function toggleExportMenu() {
                 const menu = document.getElementById('exportMenu');
@@ -140,9 +154,24 @@
                         <c:forEach var="ticket" items="${listTicket}">
                             <tr class="bg-white border text-center">
                                 <td class="p-2 border">${ticket.ticketID}</td>
-                                <td class="p-2 border">${ticket.villageID}</td>
-                                <td class="p-2 border">${ticket.typeID}</td>
-                                <td class="p-2 border">${ticket.price}</td>
+                                <td class="p-2 border">
+                                    <c:forEach var="v" items="${listAllVillage}">
+                                        <c:if test="${v.villageID == ticket.villageID}">
+                                            ${v.villageName}
+                                        </c:if>
+                                    </c:forEach>
+                                </td>
+                                
+                                <td class="p-2 border">
+                                    <c:forEach var="t" items="${listTicketType}">
+                                        <c:if test="${t.typeID == ticket.typeID}">
+                                            ${t.typeName}
+                                        </c:if>
+                                    </c:forEach>
+                                </td>
+                                <td class="p-2 border">
+                                    <fmt:formatNumber value="${ticket.price}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                </td>
                                 <td class="p-2 border">
                                     <c:choose>
                                         <c:when test="${ticket.status == 1}">Active</c:when>
@@ -192,7 +221,7 @@
                         </div>
                         <div>
                             <label>Village</label>
-                            <select name="villageID" class="w-full border p-2" id="villageID"  disabled>
+                            <select name="villageID" class="w-full border p-2 bg-gray-100" id="villageID"  disabled>
                                 <c:forEach var="village" items="${listAllVillage}">
                                     <option value="${village.villageID}">${village.villageName}</option>
                                 </c:forEach>
@@ -200,7 +229,7 @@
                         </div>
                         <div>
                             <label>Type</label>
-                            <select name="typeID" class="w-full border p-2" id="typeID"  disabled >
+                            <select name="typeID" class="w-full border p-2 bg-gray-100" id="typeID"  disabled >
                                 <c:forEach var="type" items="${listTicketType}">
                                     <option value="${type.typeID}">${type.typeName}</option>
                                 </c:forEach>
@@ -208,7 +237,7 @@
                         </div>  
                         <div>
                             <label>Price (d)</label>
-                            <input type="number" name="price" class="w-full border p-2" step="0.01" min="0" required/>
+                            <input type="currency" name="price" class="w-full border p-2" step="0.01" min="0" required/>
                         </div>
                         <div>
                             <label>Status</label>
@@ -263,7 +292,7 @@
                         </div>
                         <div>
                             <label>Price (đ)</label>
-                            <input type="number" name="price" class="w-full border p-2" step="0.01" min="0" required/>
+                            <input type="currency" name="price" class="w-full border p-2" step="0.01" min="0" required/>
                         </div>
                         <div>
                             <label>Status</label>

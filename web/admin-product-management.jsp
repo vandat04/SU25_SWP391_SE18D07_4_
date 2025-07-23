@@ -1,111 +1,51 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Admin - Product & Ticket Management</title>
+        <title>Admin - Product Management</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <style>.hidden {
-                display: none;
-            }</style>
-
+        <script src="https://unpkg.com/@popperjs/core@2"></script>
+        <script src="https://unpkg.com/tippy.js@6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            function showSection(sectionId) {
-                document.getElementById('productSection').classList.add('hidden');
-                document.getElementById('ticketSection').classList.add('hidden');
-                document.getElementById(sectionId).classList.remove('hidden');
-            }
-
-            function showProductDetail(pid, name, price, description, stock, status, villageID, categoryID, craftTypeID,
-                    mainImageUrl, clickCount, createdDate, updatedDate,
-                    sku, weight, dimensions, materials, careInstructions,
-                    warranty, averageRating, totalReviews, modelFile) {
-                const form = document.getElementById('detailForm');
-                form.querySelector('[name="pid"]').value = pid;
-                form.name.value = name;
-                form.price.value = price;
-                form.description.value = description;
-                form.stock.value = stock;
-                form.status.value = status;
-                form.villageID.value = villageID;
-                form.categoryID.value = categoryID;
-                form.craftTypeID.value = craftTypeID;
-                form.mainImageUrl.value = mainImageUrl;
-                form.clickCount.value = clickCount;
-                form.createdDate.value = createdDate;
-                form.updatedDate.value = updatedDate;
-                form.sku.value = sku;
-                form.weight.value = weight;
-                form.dimensions.value = dimensions;
-                form.materials.value = materials;
-                form.careInstructions.value = careInstructions;
-                form.warranty.value = warranty;
-                form.averageRating.value = averageRating;
-                form.totalReviews.value = totalReviews;
-                form.modelFile.value = modelFile;
-                document.getElementById('modal').classList.remove('hidden');
+            function confirmDelete(pid) {
+                Swal.fire({
+                    title: 'Confirm Deletion',
+                    text: "Are you sure you want to delete this product?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById("deletePid").value = pid;
+                        document.getElementById("deleteForm").submit();
+                    }
+                });
             }
 
             function toggleExportMenu() {
                 const menu = document.getElementById('exportMenu');
                 menu.classList.toggle('hidden');
             }
-
-            function openAddProductModal() {
-                const modal = document.getElementById("productModal");
-                if (modal) {
-                    modal.classList.remove("hidden");
-                }
-                const form = document.getElementById("addProductForm");
-                if (form) {
-                    form.reset();
-                }
-            }
-
-            function closeModal() {
-                const modal = document.getElementById("productModal");
-                if (modal) {
-                    modal.classList.add("hidden");
-                }
-                document.getElementById('modal').classList.add('hidden');
-            }
-            function confirmDelete(pid) {
-                if (confirm("Are you sure you want to delete this product?")) {
-                    document.getElementById("deletePid").value = pid;
-                    document.getElementById("deleteForm").submit();
-                }
-            }
-
         </script>
         <!-- Bootstrap Icons (nếu muốn dấu chấm than đẹp) -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
         <!-- Tippy.js CSS -->
         <link href="https://unpkg.com/tippy.js@6/themes/light.css" rel="stylesheet" />
-
-        <style>
-            /* Bạn có thể chỉnh kích thước icon nếu muốn */
-            #tooltip-icon {
-                cursor: pointer;
-                font-size: 24px;
-            }
-            table tr:hover {
-                background-color: #f9fafb;
-            }
-            .table-button {
-                display: block;
-                width: 100%;
-                text-align: center;
-                margin-bottom: 4px;
-            }
-        </style>
     </head>
     <body class="bg-gray-100">
         <div class="flex min-h-screen">
             <jsp:include page="admin-sidebar.jsp" />
             <div class="flex-1 p-6">
+
                 <!-- Notification -->
                 <c:if test="${not empty message}">
                     <div id="notification"
@@ -123,8 +63,8 @@
                         }, 4000);
                     </script>
                 </c:if>
-
-                <!-- Tabs -->
+                    
+                     <!-- Tabs -->
                 <div class="mb-4 flex gap-4">
                     <button  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">                       
                         <a href="admin-product-management"> Products Management</a>
@@ -134,296 +74,351 @@
                     </button>
                 </div>
 
-                <!-- Product Section -->
-                <div id="productSection">
-                    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <h1 class="text-2xl font-bold mb-6">Product List (${listProduct.size()})</h1>
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <h1 class="text-2xl font-bold mb-6">Product List</h1>
 
-                        <div class="flex flex-col md:flex-row items-center gap-2">
-                            <!-- Dấu chấm than -->
-                            <i id="tooltip-icon" class="bi bi-exclamation-circle-fill text-warning"></i>
+                    <div class="flex flex-col md:flex-row items-center gap-2">
+                        <!-- Icon -->
+                        <i id="tooltip-icon" class="bi bi-exclamation-circle-fill text-warning"></i>
 
-                            <!-- Chuỗi tooltip (ẩn) -->
-                            <c:set var="tooltipContent" value="" />
+                        <!-- Tooltip content -->
+                        <c:set var="tooltipContent" value="" />
 
-                            <c:forEach var="c" items="${listCC}">
-                                <c:set var="tooltipContent" value="${tooltipContent}${c.categoryID} - ${c.categoryName}<br/>" />
-                            </c:forEach>
+                        <c:forEach var="c" items="${listCC}">
+                            <c:set var="tooltipContent" value="${tooltipContent}${c.categoryID} - ${c.categoryName}<br/>" />
+                        </c:forEach>
 
-                            <!-- Popper.js & Tippy.js -->
-                            <script src="https://unpkg.com/@popperjs/core@2"></script>
-                            <script src="https://unpkg.com/tippy.js@6"></script>
+                        <script>
+                            var tooltipContent = `<c:out value="${tooltipContent}" escapeXml="false"/>`;
+                            tippy('#tooltip-icon', {
+                                content: tooltipContent,
+                                allowHTML: true,
+                                theme: 'light',
+                            });
+                        </script>
 
-                            <script>
-                        // Lấy nội dung tooltip từ JSP biến tooltipContent
-                        var tooltipContent = `<c:out value="${tooltipContent}" escapeXml="false"/>`;
+                        <form action="admin-product-management" method="get" class="flex flex-wrap gap-2 items-center">
+                            <select name="status" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
+                                <option value="1" ${status == '1' ? 'selected' : ''}>Active</option>
+                                <option value="0" ${status == '0' ? 'selected' : ''}>Inactive</option>
+                            </select>
 
-                        tippy('#tooltip-icon', {
-                            content: tooltipContent,
-                            allowHTML: true,
-                            theme: 'light',
-                        });
-                            </script>
-                            <form action="admin-product-management" method="post" class="flex flex-wrap gap-2 items-center">
-                                <input type="hidden" name="typeName" value="searchProduct" />
+                            <select name="searchID" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
+                                <option value="0" ${searchID == '0' ? 'selected' : ''}>All Products</option>
+                                <option value="1" ${searchID == '1' ? 'selected' : ''}>By Category</option>
+                                <option value="2" ${searchID == '2' ? 'selected' : ''}>Sort A - Z</option>
+                                <option value="3" ${searchID == '3' ? 'selected' : ''}>Sort Z - A</option>
+                                <option value="4" ${searchID == '4' ? 'selected' : ''}>Product Name</option>
+                                <option value="5" ${searchID == '5' ? 'selected' : ''}>Product ID</option>
+                                <option value="6" ${searchID == '6' ? 'selected' : ''}>Price</option>
+                                <option value="7" ${searchID == '7' ? 'selected' : ''}>New Product Post</option>
+                            </select>
 
-                                <select name="status" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
+                            <input type="text" name="contentSearch" value="${fn:escapeXml(contentSearch)}" placeholder="Search by Name, ID, Price"
+                                   class="border border-gray-300 rounded px-3 py-2 text-sm w-64" />
 
-                                <select name="searchID" class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                    <option value="0">All Products</option>
-                                    <option value="1">By Category</option>
-                                    <option value="2">Sort A - Z</option>
-                                    <option value="3">Sort Z - A</option>
-                                    <option value="4">Product Name</option>
-                                    <option value="5">Product ID</option>
-                                    <option value="6">Price</option>
-                                    <option value="7">New Product Post</option>
-                                </select>
-
-                                <input type="text" name="contentSearch" placeholder="Search by Name, ID, Price"
-                                       class="border border-gray-300 rounded px-3 py-2 text-sm w-64" />
-
-                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                    Search
-                                </button>
-                            </form>
-
-                            <div class="relative inline-block">
-                                <button onclick="toggleExportMenu()"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                                    Export
-                                </button>
-                                <div id="exportMenu" class="hidden absolute z-10 mt-2 w-48 bg-white border rounded shadow-lg">
-                                    <a href="export-product-pdf?cas=1" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Products</a>
-                                    <a href="export-product-pdf?cas=2" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">By Category</a>
-                                    <a href="export-product-pdf?cas=3" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Out of Stock</a>
-                                    <a href="export-product-pdf?cas=4" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inactive Products</a>
-                                    <a href="export-product-pdf?cas=5" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Top Rated Products</a>                                 
-                                </div>
-                            </div>
-
-                            <button onclick="openAddProductModal()"
-                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                                Add Product
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Search
                             </button>
+                        </form>
+
+                        <div class="relative inline-block">
+                            <button onclick="toggleExportMenu()"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                                Export
+                            </button>
+                            <div id="exportMenu" class="hidden absolute z-10 mt-2 w-48 bg-white border rounded shadow-lg">
+                                <a href="export-product-pdf?cas=1" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Products</a>
+                                <a href="export-product-pdf?cas=2" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">By Category</a>
+                                <a href="export-product-pdf?cas=3" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Out of Stock</a>
+                                <a href="export-product-pdf?cas=4" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inactive Products</a>
+                                <a href="export-product-pdf?cas=5" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Top Rated Products</a>                                 
+                            </div>
                         </div>
+
+                        <button onclick="openAddProductModal()"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                            Add Product
+                        </button>
                     </div>
+                </div>
 
-                    <!-- Product Table -->
-                    <table class="w-full table-auto border border-gray-300 text-sm">
-                        <thead class="bg-gray-200 text-center">
-                            <tr>
-                                <th class="p-3 border w-20">Product ID</th>
-                                <th class="p-3 border w-24">Image</th>
-                                <th class="p-3 border w-48">Name</th>
-                                <th class="p-3 border w-32">Price</th>
-                                <th class="p-3 border w-24">Stock</th>
-                                <th class="p-3 border w-56">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="product" items="${listProduct}">
-                                <tr class="bg-white border text-center align-middle hover:bg-gray-50">
-                                    <td class="p-3 border">${product.pid}</td>
-                                    <td class="p-3 border">
-                                        <img src="${product.mainImageUrl}" alt="Image" class="w-20 h-20 object-cover mx-auto rounded" />
-                                    </td>
-                                    <td class="p-3 border">${product.name}</td>
-                                    <td class="p-3 border">${product.price}</td>
-                                    <td class="p-3 border">${product.stock}</td>
-                                    <td class="p-3 border">
-                                        <div class="flex flex-col md:flex-row md:justify-center gap-2">
-                                            <!-- View Details -->
-                                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
-                                                    onclick="showProductDetail(
-                                                                    '${product.pid}',
-                                                                    '${fn:escapeXml(product.name)}',
-                                                                    '${product.price}',
-                                                                    '${empty product.description ? '' : fn:escapeXml(product.description)}',
-                                                                    '${product.stock}',
-                                                                    '${product.status}',
-                                                                    '${product.villageID}',
-                                                                    '${product.categoryID}',
-                                                                    '${product.craftTypeID}',
-                                                                    '${product.mainImageUrl}',
-                                                                    '${product.clickCount}',
-                                                                    '${product.createdDate}',
-                                                                    '${product.updatedDate}',
-                                                                    '${empty product.sku ? '' : product.sku}',
-                                                                    '${empty product.weight ? '' : product.weight}',
-                                                                    '${empty product.dimensions ? '' : product.dimensions}',
-                                                                    '${empty product.materials ? '' : product.materials}',
-                                                                    '${empty product.careInstructions ? '' : product.careInstructions}',
-                                                                    '${empty product.warranty ? '' : product.warranty}',
-                                                                    '${empty product.averageRating ? '' : product.averageRating}',
-                                                                    '${empty product.totalReviews ? '' : product.totalReviews}',
-                                                                    '${empty product.modelFile ? '' : product.modelFile}'
-                                                                    )">
-                                                View
+                <!-- Product Table -->
+                <table class="w-full table-auto border border-gray-300 text-sm">
+                    <thead class="bg-gray-200 text-center">
+                        <tr>
+                            <th class="p-3 border w-20">Product ID</th>
+                            <th class="p-3 border w-24">Image</th>
+                            <th class="p-3 border w-48">Name</th>
+                            <th class="p-3 border w-32">Price</th>
+                            <th class="p-3 border w-24">Stock</th>
+                            <th class="p-3 border w-56">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="product" items="${listProduct}">
+                            <tr class="bg-white border text-center align-middle hover:bg-gray-50">
+                                <td class="p-3 border">${product.pid}</td>
+                                <td class="p-3 border">
+                                    <img src="${product.mainImageUrl}" alt="Image" class="w-20 h-20 object-cover mx-auto rounded" />
+                                </td>
+                                <td class="p-3 border">${product.name}</td>
+                                <td class="p-3 border">
+                                    <fmt:formatNumber value="${product.price}" type="currency"/>
+                                </td>
+                                <td class="p-3 border">${product.stock}</td>
+                                <td class="p-3 border">
+                                    <div class="flex flex-col md:flex-row md:justify-center gap-2">
+                                        <!-- View/Edit Button -->
+                                        <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+                                                onclick="editProduct(this)"
+                                                data-pid="${product.pid}"
+                                                data-name="${fn:escapeXml(product.name)}"
+                                                data-price="${product.price}"
+                                                data-description="${fn:escapeXml(product.description)}"
+                                                data-stock="${product.stock}"
+                                                data-status="${product.status}"
+                                                data-village-id="${product.villageID}"
+                                                data-category-id="${product.categoryID}"
+                                                data-craft-type-id="${product.craftTypeID}"
+                                                data-main-image-url="${fn:escapeXml(product.mainImageUrl)}"
+                                                data-click-count="${product.clickCount}"
+                                                data-created-date="${product.createdDate}"
+                                                data-updated-date="${product.updatedDate}"
+                                                data-sku="${fn:escapeXml(product.sku)}"
+                                                data-weight="${product.weight}"
+                                                data-dimensions="${fn:escapeXml(product.dimensions)}"
+                                                data-materials="${fn:escapeXml(product.materials)}"
+                                                data-care-instructions="${fn:escapeXml(product.careInstructions)}"
+                                                data-warranty="${fn:escapeXml(product.warranty)}"
+                                                data-average-rating="${product.averageRating}"
+                                                data-total-reviews="${product.totalReviews}"
+                                                data-model-file="${fn:escapeXml(product.modelFile)}">
+                                            View
+                                        </button>
+
+                                        <!-- Review -->
+                                        <form method="get" action="<c:url value='/admin-preview-management'/>">
+                                            <input type="hidden" name="pid" value="${product.pid}" />
+                                            <input type="hidden" name="name" value="${product.name}" />
+                                            <button type="submit"
+                                                    class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
+                                                Review
                                             </button>
-
-                                            <!-- Review -->
-                                            <form method="get" action="<c:url value='/admin-preview-management'/>">
-                                                <input type="hidden" name="pid" value="${product.pid}" />
-                                                <input type="hidden" name="name" value="${product.name}" />
-                                                <button type="submit"
-                                                        class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
-                                                    Review
-                                                </button>
-                                            </form>
-
-                                            <!-- Delete -->
-                                            <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
-                                                    onclick="confirmDelete('${product.pid}')">
-                                                Delete
-                                            </button>
-                                        </div>
-
-                                        <!-- Hidden form for delete -->
-                                        <form id="deleteForm" method="post" action="<c:url value='/admin-product-management'/>" style="display:none;">
-                                            <input type="hidden" name="typeName" value="deleteProduct">
-                                            <input type="hidden" name="pid" id="deletePid">
                                         </form>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
+
+                                        <!-- Delete -->
+                                        <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+                                                onclick="confirmDelete('${product.pid}')">
+                                            Delete
+                                        </button>
+                                    </div>
+
+                                    <!-- Hidden form for delete -->
+                                    <form id="deleteForm" method="post" action="<c:url value='/admin-product-management'/>" style="display:none;">
+                                        <input type="hidden" name="typeName" value="deleteProduct">
+                                        <input type="hidden" name="pid" id="deletePid">
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <c:set var="queryParams" value="" />
+                <c:if test="${not empty status}">
+                    <c:set var="queryParams" value="${queryParams}&status=${status}" />
+                </c:if>
+                <c:if test="${not empty searchID}">
+                    <c:set var="queryParams" value="${queryParams}&searchID=${searchID}" />
+                </c:if>
+                <c:if test="${not empty contentSearch}">
+                    <c:set var="queryParams" value="${queryParams}&contentSearch=${fn:escapeXml(contentSearch)}" />
+                </c:if>
+
+                <div class="mt-6 flex justify-center items-center gap-2">
+                    <c:if test="${currentPage > 1}">
+                        <a href="admin-product-management?page=${currentPage - 1}${queryParams}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+                    </c:if>
+
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <a href="admin-product-management?page=${i}${queryParams}" class="px-4 py-2 ${currentPage == i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'} rounded hover:bg-gray-300">${i}</a>
+                    </c:forEach>
+
+                    <c:if test="${currentPage < totalPages}">
+                        <a href="admin-product-management?page=${currentPage + 1}${queryParams}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+                    </c:if>
                 </div>
 
-                <!-- Ticket Section -->
-                <div id="ticketSection" class="hidden">
-                    <h2 class="text-xl font-bold mb-4">Ticket List</h2>
-                    <p class="text-gray-600">Danh sách vé sẽ được hiển thị ở đây...</p>
+                <!-- Modal Add Product -->
+                <div id="productAddModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-3xl relative text-black overflow-y-auto max-h-[90vh]">
+                        <h2 class="text-xl font-semibold mb-4">Add New Product</h2>
+                        <form id="addProductForm" action="admin-product-management" method="post" class="space-y-4" enctype="multipart/form-data">
+                            <input type="hidden" name="typeName" value="createProduct" />
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label>Name</label><input type="text" name="name" class="w-full border p-2" required/></div>
+                                <div><label>Price</label><input type="currency" name="price" class="w-full border p-2" required step="0.01" min="0.01" required="" /></div>
+                                <div class="col-span-2"><label>Description</label><textarea name="description" class="w-full border p-2"></textarea></div>
+                                <div><label>Stock(unit)</label><input type="number" name="stock" class="w-full border p-2" min="0" required=""/></div>
+                                <div><label>SKU</label><input type="text" name="sku" class="w-full border p-2" /></div>
+                                <div><label>Status</label>
+                                    <select name="status" class="w-full border rounded p-2">
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Village</label>
+                                    <select name="villageID" class="w-full border p-2">
+                                        <c:forEach var="type" items="${listAllVillage}">
+                                            <option value="${type.villageID}">${type.villageName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Category</label>
+                                    <select name="categoryID" class="w-full border p-2">
+                                        <c:forEach var="typeC" items="${listCC}">
+                                            <option value="${typeC.categoryID}">${typeC.categoryName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Craft Type</label>
+                                    <select name="craftTypeID" class="w-full border p-2">
+                                        <c:forEach var="typeCC" items="${listVillages}">
+                                            <option value="${typeCC.typeID}">${typeCC.typeName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div><label>Main Image</label><input type="file" name="mainImageUrl" class="w-full border p-2" accept="image/*"/></div>
+                                <div><label>Weight(kg)</label><input type="text" name="weight" class="w-full border p-2" required=""/></div>
+                                <div><label>Dimensions</label><input type="text" name="dimensions" class="w-full border p-2" /></div>
+                                <div><label>Materials</label><input type="text" name="materials" class="w-full border p-2" /></div>
+                                <div><label>Care Instructions</label><input type="text" name="careInstructions" class="w-full border p-2" /></div>
+                                <div><label>Warranty</label><input type="text" name="warranty" class="w-full border p-2" /></div>
+                                <div><label>Model File</label><input type="file" name="modelFile" class="w-full border p-2"   accept=".glb" /></div>
+                            </div>
+                            <div class="flex justify-end gap-2 pt-4">
+                                <button type="button" onclick="closeAddProductModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Create</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Modal Edit Product -->
+                <div id="productEditModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-3xl relative text-black overflow-y-auto max-h-[90vh]">
+                        <h2 class="text-xl font-semibold mb-4">Edit Product</h2>
+                        <form id="editProductForm" action="admin-product-management" method="post" class="space-y-4" enctype="multipart/form-data">
+                            <input type="hidden" name="typeName" value="updateProduct" />
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label>Product ID</label><input type="text" id="pid" name="pid" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>Name</label><input type="text" id="name" name="name" class="w-full border p-2" required /></div>
+                                <div><label>Price(đ)</label><input type="currency" id="price" name="price" class="w-full border p-2" min="0" step="1" required /></div>
+                                <div class="col-span-2"><label>Description</label><textarea id="description" name="description" class="w-full border p-2"></textarea></div>
+                                <div><label>Stock(unit)</label><input type="number" id="stock" name="stock" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>Add Stock(unit)</label><input type="number" name="stockAdd" class="w-full border p-2" min="0" value="0" /></div>
+                                <div><label>Status</label>
+                                    <select id="status" name="status" class="w-full border rounded p-2" required>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Village</label>
+                                    <select id="villageID" name="villageID" class="w-full border p-2" required>
+                                        <c:forEach var="type" items="${listAllVillage}">
+                                            <option value="${type.villageID}">${type.villageName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Category</label>
+                                    <select id="categoryID" name="categoryID" class="w-full border p-2" required>
+                                        <c:forEach var="typeC" items="${listCC}">
+                                            <option value="${typeC.categoryID}">${typeC.categoryName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Craft Type</label>
+                                    <select id="craftTypeID" name="craftTypeID" class="w-full border p-2" required>
+                                        <c:forEach var="typeCC" items="${listVillages}">
+                                            <option value="${typeCC.typeID}">${typeCC.typeName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div><label>Main Image</label><input type="file" name="mainImageUrl" class="w-full border p-2" accept="image/*"/></div>
+                                <div><label>Click Count</label><input type="text" id="clickCount" name="clickCount" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>Created Date</label><input type="text" id="createdDate" name="createdDate" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>Updated Date</label><input type="text" id="updatedDate" name="updatedDate" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>SKU</label><input type="text" id="sku" name="sku" class="w-full border p-2" /></div>
+                                <div><label>Weight(kg)</label><input type="text" id="weight" name="weight" class="w-full border p-2" required /></div>
+                                <div><label>Dimensions</label><input type="text" id="dimensions" name="dimensions" class="w-full border p-2" /></div>
+                                <div><label>Materials</label><input type="text" id="materials" name="materials" class="w-full border p-2" /></div>
+                                <div><label>Care Instructions</label><input type="text" id="careInstructions" name="careInstructions" class="w-full border p-2" /></div>
+                                <div><label>Warranty</label><input type="text" id="warranty" name="warranty" class="w-full border p-2" /></div>
+                                <div><label>Average Rating</label><input type="number" id="averageRating" name="averageRating" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>Total Reviews</label><input type="number" id="totalReviews" name="totalReviews" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div><label>Model File</label><input type="file" id="modelFile" name="modelFile" class="w-full border p-2" accept=".glb" /></div>
+                                <div class="col-span-2"><label>Current Image URL (if no new file)</label><input type="text" id="existingMainImageUrl" name="existingMainImageUrl" class="w-full border p-2 bg-gray-100" readonly /></div>
+                                <div class="col-span-2"><label>Model File URL (if no new file)</label><input type="text" id="existingModelFileUrl" name="existingModelFileUrl" class="w-full border p-2 bg-gray-100" readonly /></div>
+                            </div>
+                            <div class="flex justify-end gap-2">
+                                <button type="button" onclick="closeEditProductModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
-
-            <!-- Modal: Product Details -->
-            <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-3xl relative text-black overflow-y-auto max-h-[90vh]">
-                    <h2 class="text-xl font-semibold mb-4">Product Details</h2>
-                    <form id="detailForm" action="admin-product-management" method="post" class="space-y-4">
-                        <input type="hidden" name="typeName" value="updateProduct" />
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label>Product ID</label><input type="text" name="pid" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>Name</label><input type="text" name="name" class="w-full border p-2" required /></div>
-                            <div><label>Price(đ)</label><input type="number" name="price" class="w-full border p-2" min="0.01" step="0.01" required /></div>
-                            <div class="col-span-2"><label>Description</label><textarea name="description" class="w-full border p-2"></textarea></div>
-                            <div><label>Stock(unit)</label><input type="number" name="stock" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>Add Stock(unit)</label><input type="number" name="stockAdd" class="w-full border p-2" min="0" value="0" /></div>
-                            <div><label>Status</label>
-                                <select id="status" name="status" class="w-full border rounded p-2" required>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Village</label>
-                                <select name="villageID" class="w-full border p-2" id="villageID" required>
-                                    <c:forEach var="type" items="${listAllVillage}">
-                                        <option value="${type.villageID}">${type.villageName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Category</label>
-                                <select name="categoryID" class="w-full border p-2" id="categoryID" required>
-                                    <c:forEach var="typeC" items="${listCC}">
-                                        <option value="${typeC.categoryID}">${typeC.categoryName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Craft Type</label>
-                                <select name="craftTypeID" class="w-full border p-2" id="craftTypeID" required>
-                                    <c:forEach var="typeCC" items="${listVillages}">
-                                        <option value="${typeCC.typeID}">${typeCC.typeName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div><label>Main Image URL</label><input type="text" name="mainImageUrl" class="w-full border p-2" /></div>
-                            <div><label>Click Count</label><input type="text" name="clickCount" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>Created Date</label><input type="text" name="createdDate" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>Updated Date</label><input type="text" name="updatedDate" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>SKU</label><input type="text" name="sku" class="w-full border p-2" /></div>
-                            <div><label>Weight(kg)</label><input type="text" name="weight" class="w-full border p-2" required /></div>
-                            <div><label>Dimensions</label><input type="text" name="dimensions" class="w-full border p-2" /></div>
-                            <div><label>Materials</label><input type="text" name="materials" class="w-full border p-2" /></div>
-                            <div><label>Care Instructions</label><input type="text" name="careInstructions" class="w-full border p-2" /></div>
-                            <div><label>Warranty</label><input type="text" name="warranty" class="w-full border p-2" /></div>
-                            <div><label>Average Rating</label><input type="number" name="averageRating" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>Total Reviews</label><input type="number" name="totalReviews" class="w-full border p-2 bg-gray-100" readonly /></div>
-                            <div><label>Model File</label><input type="text" name="modelFile" class="w-full border p-2"  /></div>
-                        </div>
-                        <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
-                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Modal: Add Product -->
-            <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="closeModal()">
-                <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-3xl relative text-black overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
-                    <h2 class="text-xl font-semibold mb-4">Add New Product</h2>
-                    <form id="addProductForm" action="admin-product-management" method="post" class="space-y-4">
-                        <input type="hidden" name="typeName" value="createProduct" />
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label>Name</label><input type="text" name="name" class="w-full border p-2" required=""/></div>
-                            <div><label>Price</label><input type="number"  name="price"  class="w-full border p-2"  required step="0.01"  min="0.01" class="w-full border p-2" required="" /></div>
-                            <div class="col-span-2"><label>Description</label><textarea name="description" class="w-full border p-2"></textarea></div>
-                            <div><label>Stock(unit)</label><input type="number" name="stock" class="w-full border p-2" min="0" required=""/></div>
-                            <div><label>SKU</label><input type="text" name="sku" class="w-full border p-2" /></div>
-                            <div><label>Status</label>
-                                <select id="status" name="status" class="w-full border rounded p-2">
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Village</label>
-                                <select name="villageID" class="w-full border p-2" id="villageID">
-                                    <c:forEach var="type" items="${listAllVillage}">
-                                        <option value="${type.villageID}">${type.villageName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Category</label>
-                                <select name="categoryID" class="w-full border p-2" id="categoryID">
-                                    <c:forEach var="typeC" items="${listCC}">
-                                        <option value="${typeC.categoryID}">${typeC.categoryName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Craft Type</label>
-                                <select name="craftTypeID" class="w-full border p-2" id="craftTypeID">
-                                    <c:forEach var="typeCC" items="${listVillages}">
-                                        <option value="${typeCC.typeID}">${typeCC.typeName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div><label>Main Image Url</label><input type="text" name="mainImageUrl" class="w-full border p-2" /></div>
-                            <div><label>Weight(kg)</label><input type="text" name="weight" class="w-full border p-2" required=""/></div>
-                            <div><label>Dimensions</label><input type="text" name="dimensions" class="w-full border p-2" /></div>
-                            <div><label>Materials</label><input type="text" name="materials" class="w-full border p-2" /></div>
-                            <div><label>Care Instructions</label><input type="text" name="careInstructions" class="w-full border p-2" /></div>
-                            <div><label>Warranty</label><input type="text" name="warranty" class="w-full border p-2" /></div>
-                            <div><label>Model File</label><input type="text" name="modelFile" class="w-full border p-2"  /></div>
-                        </div>
-                        <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
-                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Create</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
         </div>
+
+        <script>
+            function openAddProductModal() {
+                document.getElementById('addProductForm').reset();
+                document.getElementById('productAddModal').classList.remove('hidden');
+            }
+
+            function closeAddProductModal() {
+                document.getElementById('productAddModal').classList.add('hidden');
+            }
+
+            function closeEditProductModal() {
+                document.getElementById('productEditModal').classList.add('hidden');
+            }
+
+            function editProduct(button) {
+                document.getElementById('pid').value = button.dataset.pid || "";
+                document.getElementById('name').value = button.dataset.name || "";
+                document.getElementById('price').value = button.dataset.price || "";
+                document.getElementById('description').value = button.dataset.description || "";
+                document.getElementById('stock').value = button.dataset.stock || "";
+                document.getElementById('status').value = button.dataset.status || "";
+                document.getElementById('villageID').value = button.dataset.villageId || "";
+                document.getElementById('categoryID').value = button.dataset.categoryId || "";
+                document.getElementById('craftTypeID').value = button.dataset.craftTypeId || "";
+                document.getElementById('clickCount').value = button.dataset.clickCount || "";
+                document.getElementById('createdDate').value = button.dataset.createdDate || "";
+                document.getElementById('updatedDate').value = button.dataset.updatedDate || "";
+                document.getElementById('sku').value = button.dataset.sku || "";
+                document.getElementById('weight').value = button.dataset.weight || "";
+                document.getElementById('dimensions').value = button.dataset.dimensions || "";
+                document.getElementById('materials').value = button.dataset.materials || "";
+                document.getElementById('careInstructions').value = button.dataset.careInstructions || "";
+                document.getElementById('warranty').value = button.dataset.warranty || "";
+                document.getElementById('averageRating').value = button.dataset.averageRating || "";
+                document.getElementById('totalReviews').value = button.dataset.totalReviews || "";
+                document.getElementById('existingMainImageUrl').value = button.dataset.mainImageUrl || "";
+                document.getElementById('existingModelFileUrl').value = button.dataset.modelFile || "";
+
+                document.getElementById('productEditModal').classList.remove('hidden');
+            }
+        </script>
     </body>
 </html>
