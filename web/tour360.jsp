@@ -489,13 +489,9 @@
     <body>
         <div id="hotspot" style="display:none;">→</div>
         
-        <!-- Success Message -->
-        <div class="success-message" id="successMessage">
-            <i class="fa fa-circle-check"></i> Added to cart successfully!
-        </div>
-
-        <!-- Error Message -->
-        <div class="success-message" id="errorMessage" style="background: #e74c3c; z-index: 1003;"></div>
+        <!-- Toast Messages -->
+        <div class="success-message" id="successMessage" style="display:none;"><i class="fa fa-circle-check"></i> Đã thêm vào giỏ hàng thành công!</div>
+        <div class="success-message" id="errorMessage" style="background: #e74c3c; z-index: 1003; display:none;"></div>
 
 
         
@@ -525,7 +521,7 @@
                             data-title="${fn:escapeXml(product.name)}"
                             data-price="${product.price}"
                             data-image="${fn:escapeXml(product.mainImageUrl)}"
-                            onclick="addToCartFromBtn(this)">
+                            onclick="addToCart(this)">
                             <i class="fa fa-cart-shopping"></i> Add to Cart
                         </button>
                     </div>
