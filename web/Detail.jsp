@@ -213,7 +213,7 @@
                                 <li><img src="${img}" alt=""  style="
                                          width: 400px;
                                          height: 350px;
-                                         object-fit: contain;
+                                         object-fit: cover;
                                          display: block;
                                          margin: 0 auto;
                                          border-radius: 8px;
@@ -228,7 +228,7 @@
                                 <li><img src="${img}" alt="" style="
                                          width: 88px;
                                          height: 88px;
-                                         object-fit: contain;
+                                         object-fit: cover;
                                          border-radius: 4px;
                                          border: 2px solid transparent;
                                          background-color: #f8f8f8;
@@ -522,7 +522,21 @@
                                     <div class="contain-product layout-default">
                                         <div class="product-thumb">
                                             <a href="detail?pid=${p.id}" class="link-to-product">
-                                                <img src="${p.img}" alt="dd" width="270" height="270" class="product-thumnail">
+                                                <figure style="
+                                                        margin: 0;
+                                                        padding: 0;
+                                                        width: 100%;
+                                                        height: 270px;
+                                                        overflow: hidden;
+                                                        position: relative;
+                                                        border-radius: 8px;
+                                                        background-color: #f8f8f8;">
+                                                        <img src="${p.img}" alt="dd" class="product-thumnail" style="
+                                                            width: 100%;
+                                                            height: 100%;
+                                                            object-fit: cover;
+                                                            transition: transform 0.3s ease;">
+                                                    </figure>
                                             </a>
                                         </div>
                                         <div class="info">

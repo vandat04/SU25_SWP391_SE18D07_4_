@@ -225,7 +225,7 @@
                     </div>
                     <div class="live-info">
                         <p class="telephone"><i class="fa fa-phone" aria-hidden="true"></i><b class="phone-number">0914 145 788</b></p>
-                        <p class="working-time">7 am - 5 pm</p>
+                        <p class="working-time">7 AM - 5 PM</p>
                     </div>
                 </div>
             </div>

@@ -164,44 +164,40 @@ public class CartControll extends HttpServlet {
         
         if (account == null) {
             System.out.println("[DEBUG] User not logged in during addToCart");
-            response.setContentType("text/plain");
-            response.getWriter().write("login");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"success\":false,\"message\":\"Bạn cần đăng nhập để thêm vào giỏ hàng!\"}");
             return;
         }
 
         if (productId == null || productId.trim().isEmpty()) {
             System.out.println("[ERROR] Product ID is null or empty");
-            response.setContentType("text/plain");
-            response.getWriter().write("error");
+            response.setContentType("application/json");
+            response.getWriter().write("{\"success\":false,\"message\":\"ID sản phẩm không hợp lệ!\"}");
             return;
         }
 
         try {
-            // ✅ ONLY SERVICE CALLS - NO DAO CALLS
             int productIdInt = Integer.parseInt(productId);
             boolean success = cartService.addProductToCart(account.getUserID(), productIdInt, quantity);
-            
+            response.setContentType("application/json");
             if (success) {
-                // ✅ Get updated cart through Service
                 Cart updatedCart = cartService.getCartByUser(account.getUserID());
                 session.setAttribute("cart", updatedCart);
                 System.out.println("[DEBUG] Updated cart in session: " + updatedCart);
-                
-                response.setContentType("text/plain");
-                response.getWriter().write("success");
+                response.getWriter().write("{\"success\":true,\"message\":\"Đã thêm vào giỏ hàng thành công!\"}");
             } else {
-                response.setContentType("text/plain");
-                response.getWriter().write("error");
+                response.getWriter().write("{\"success\":false,\"message\":\"Không thể thêm vào giỏ hàng. Sản phẩm có thể đã hết hàng hoặc không tồn tại!\"}");
             }
         } catch (NumberFormatException e) {
             System.out.println("[ERROR] Invalid product ID format: " + productId);
-            response.setContentType("text/plain");
-            response.getWriter().write("error");
+            response.setContentType("application/json");
+            response.getWriter().write("{\"success\":false,\"message\":\"ID sản phẩm không hợp lệ!\"}");
         } catch (Exception e) {
             System.out.println("[ERROR] Exception in addToCart: " + e.getMessage());
             e.printStackTrace();
-            response.setContentType("text/plain");
-            response.getWriter().write("error");
+            response.setContentType("application/json");
+            response.getWriter().write("{\"success\":false,\"message\":\"Có lỗi xảy ra khi thêm vào giỏ hàng!\"}");
         }
     }
 

@@ -33,17 +33,54 @@
             method: "POST",
             credentials: 'same-origin'
         })
-        .then(response => {
-            if (response.redirected) {
-                alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
-                window.location.href = 'Login.jsp';
+        .then(async response => {
+            let data = {};
+            let text = await response.text();
+            try { data = JSON.parse(text); } catch (e) {}
+            // Kiểm tra nếu response chứa 'login' (giống Detail.jsp)
+            if (text && text.toLowerCase().includes("login")) {
+                showErrorMessage("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+                setTimeout(function() { window.location.href = 'Login.jsp'; }, 1500);
                 return;
             }
-            alert("Đã thêm sản phẩm vào giỏ hàng!");
+            if (response.status === 401 || (data && data.success === false)) {
+                showErrorMessage(data.message || "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+                setTimeout(function() { window.location.href = 'Login.jsp'; }, 1500);
+                return;
+            }
+            if (response.ok && data.success !== false) {
+                showSuccessMessage();
+            } else {
+                showErrorMessage(data.message || "Có lỗi xảy ra, vui lòng thử lại!");
+            }
         })
         .catch(error => {
+            showErrorMessage("Lỗi kết nối máy chủ!");
             console.error("Lỗi:", error);
         });
+    }
+    function showSuccessMessage() {
+        const message = document.getElementById('successMessage');
+        message.style.display = 'block';
+        setTimeout(() => {
+            message.style.display = 'none';
+        }, 3000);
+    }
+    function showErrorMessage(msg) {
+        let message = document.getElementById('errorMessage');
+        if (!message) {
+            message = document.createElement('div');
+            message.id = 'errorMessage';
+            message.className = 'success-message';
+            message.style.background = '#e74c3c';
+            message.style.zIndex = 1003;
+            document.body.appendChild(message);
+        }
+        message.innerHTML = '<i class="fa fa-circle-xmark"></i> ' + msg;
+        message.style.display = 'block';
+        setTimeout(() => {
+            message.style.display = 'none';
+        }, 3500);
     }
 </script>
     </head>
@@ -61,6 +98,10 @@
 
         <!-- HEADER -->
         <jsp:include page="Menu.jsp"></jsp:include>
+
+        <!-- Toast Messages -->
+        <div class="success-message" id="successMessage" style="display:none;"><i class="fa fa-circle-check"></i> Đã thêm vào giỏ hàng thành công!</div>
+        <div class="success-message" id="errorMessage" style="background: #e74c3c; z-index: 1003; display:none;"></div>
 
             <!-- Page Contain -->
             <div class="page-contain">
@@ -109,7 +150,7 @@
                                                                     "><img style="
                                                                    width: 100%;
                                                                    height: 100%;
-                                                                   object-fit: contain;
+                                                                   object-fit: cover;
                                                                    display: block;
                                                                    transition: transform 0.3s ease;
                                                                    "
@@ -157,7 +198,7 @@
                         <div class="col-md-4">
                             <div class="tour-item" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
                                 <img src="hinhanh/village/thanh-ha.jpg" alt="Làng gốm Thanh Hà" style="width: 100%; height: 250px; object-fit: cover;">
-                                <div class="tour-content" style="padding: 20px;">
+                                <div class="tour-content" style="padding: 25px;">
                                     <h4>Thanh Ha Pottery Village</h4>
                                     <p>Discover the art of traditional pottery through a 360° tour</p>
                                     <a href="tour360?village=thanh-ha" class="btn btn-outline-primary">Take a tour</a>
@@ -167,7 +208,7 @@
                         <div class="col-md-4">
                             <div class="tour-item" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
                                 <img src="hinhanh/village/kim-bong.jpg" alt="Làng mộc Kim Bồng" style="width: 100%; height: 250px; object-fit: cover;">
-                                <div class="tour-content" style="padding: 20px;">
+                                <div class="tour-content" style="padding: 25px;">
                                     <h4>Kim Bong carpentry village</h4>
                                     <p>Experience traditional carpentry through 360° tour</p>
                                     <a href="tour360?village=kim-bong" class="btn btn-outline-primary">Take a tour</a>
@@ -177,7 +218,7 @@
                         <div class="col-md-4">
                             <div class="tour-item" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
                                 <img src="hinhanh/village/non-nuoc.jpg" alt="Làng đá Non Nước" style="width: 100%; height: 250px; object-fit: cover;">
-                                <div class="tour-content" style="padding: 20px;">
+                                <div class="tour-content" style="padding: 25px;">
                                     <h4>Non Nuoc Stone Village</h4>
                                     <p>Explore the art of stone carving through a 360° tour</p>
                                     <a href="tour360?village=non-nuoc" class="btn btn-outline-primary">Take a tour</a>
@@ -201,7 +242,6 @@
                                 </div>
                                             <div class="biolife-tab biolife-tab-contain sm-margin-top-10px">
                                                 <div class="tab-head tab-head__icon-top-layout icon-top-layout">
-
                                                 </div>
 
                                                 <%-- Thiết lập thông tin phân trang --%>
@@ -234,7 +274,7 @@
                                                                                     <img src="${o.img}" alt="${o.name}"  class="product-thumnail" style="
                                                                                          width: 100%;
                                                                                          height: 100%;
-                                                                                         object-fit: contain;
+                                                                                         object-fit: cover;
                                                                                          transition: transform 0.3s ease;
                                                                                          "> </figure>
                                                                             </a> 
@@ -281,7 +321,9 @@
                             </div>
 
                             <!-- FOOTER -->
-                            <jsp:include page="Footer.jsp"></jsp:include>
+<div style="margin-top: 80px;">
+    <jsp:include page="Footer.jsp"></jsp:include>
+</div>
 
                           <!-- Scroll Top Button -->
                             <a class="btn-scroll-top" 
@@ -407,7 +449,36 @@
                                     border-radius: 4px;
                                     cursor: pointer;
                                 }
-                            </style>
+.success-message {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    min-width: 260px;
+    max-width: 350px;
+    background: #27ae60;
+    color: #fff;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    font-size: 16px;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.97;
+    transition: all 0.3s;
+}
+.success-message i.fa-circle-check {
+    color: #fff;
+    font-size: 22px;
+    margin-right: 8px;
+}
+.success-message i.fa-circle-xmark {
+    color: #fff;
+    font-size: 22px;
+    margin-right: 8px;
+}
+</style>
 
                             <!-- Chat Button -->
                             <div id="chat-button">
@@ -555,13 +626,13 @@ $(document).ready(function() {
                     try { response = JSON.parse(response); } catch (e) {}
                 }
                 if(response && response.message) {
-                    alert(response.message);
+                    showSuccessMessage(response.message);
                 } else {
-                    alert('Đã thêm vào wishlist!');
+                    showSuccessMessage('Đã thêm vào wishlist!');
                 }
             },
             error: function() {
-                alert('Có lỗi xảy ra, vui lòng thử lại!');
+                showErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
             }
         });
     });
