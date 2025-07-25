@@ -39,16 +39,22 @@
         </script>
     </head>
     <body>
+        <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay"
+             class="fixed inset-0 z-[999] bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
         <div class="flex min-h-screen">
             <jsp:include page="admin-sidebar.jsp"/>
 
             <div class="flex-1 p-6">
 
-                <!-- Notification -->
+                 <!-- Notification -->
                 <c:if test="${not empty message}">
                     <div id="notification"
-                         class="fixed top-5 right-5 z-50 px-4 py-3 rounded shadow-lg text-white
-                         ${error == '1' ? 'bg-green-500' : 'bg-red-500'} opacity-100 transition-opacity duration-500">
+                         class="fixed top-5 right-5 z-50 px-4 py-3 rounded shadow-lg text-white transition-opacity duration-500
+                         ${error == '1' || error == '3' || error =='5' ? 'bg-green-500' : 'bg-red-500'}">
                         ${message}
                     </div>
                     <script>
@@ -72,19 +78,6 @@
                         </a>
                         <h1 class="text-2xl font-bold">${name} Review List (New: ${listReviewToday.size()})</h1>
                     </div>
-
-                    <!-- Right side (Search) -->
-                    <form action="admin-preview-management" method="post" class="flex gap-2 items-center">
-                        <input type="hidden" name="pid" value="${pid}"/>
-                        <input type="hidden" name="name" value="${name}"/>
-                        <input type="hidden" name="typeName" value="searchReview"/>
-                        <input type="text" name="userID" placeholder="User ID"
-                               class="border border-gray-300 rounded px-3 py-2 text-sm w-48"/>
-                        <button type="submit"
-                                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                            Search
-                        </button>
-                    </form>
                 </div>
 
                 <!-- Review Table -->
@@ -92,23 +85,72 @@
                     <table class="w-full table-auto border border-gray-300 text-sm">
                         <thead class="bg-gray-200 text-center">
                             <tr>
-                                <th class="p-2 border">Review ID</th>
+                                <th class="p-2 border">No.</th>
                                 <th class="p-2 border">User ID</th>
-                                <th class="p-2 border">Rating</th>
+
+                                <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                    <div class="relative inline-flex items-center space-x-1">
+                                        <span class="text-sm font-semibold text-black">Rating</span>
+                                        <button onclick="toggleMenu('ratingMenu')"
+                                                class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                            ▼
+                                        </button>
+
+                                        <!-- Dropdown menu -->
+                                        <div id="ratingMenu"
+                                             class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                            <a href="admin-preview-management?pid=${pid}&searchID=1"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort Low - High
+                                            </a>
+                                            <a href="admin-preview-management?pid=${pid}&searchID=2"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort High - Low
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th>
+
                                 <th class="p-2 border">Text</th>
-                                <th class="p-2 border">Date</th>
+                                <th class="p-2 border">Image</th>
+                                <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                    <div class="relative inline-flex items-center space-x-1">
+                                        <span class="text-sm font-semibold text-black">Date</span>
+                                        <button onclick="toggleMenu('dateMenu')"
+                                                class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                            ▼
+                                        </button>
+
+                                        <!-- Dropdown menu -->
+                                        <div id="dateMenu"
+                                             class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                            <a href="admin-preview-management?pid=${pid}&searchID=3"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort Early → Late
+                                            </a>
+                                            <a href="admin-preview-management?pid=${pid}&searchID=4"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort Late → Early
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th>
+
                                 <th class="p-2 border">Response</th>
                                 <th class="p-2 border">Response Date</th>
                                 <th class="p-2 border">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="r" items="${listPReview}">
+                            <c:forEach var="r" items="${listPReview}" varStatus="loop">
                                 <tr class="bg-white border text-center align-top">
-                                    <td class="p-2 border">${r.reviewID}</td>
+                                    <td class="p-3 border">${loop.index + 1}</td> <!-- Số thứ tự -->
                                     <td class="p-2 border">${r.userID}</td>
-                                    <td class="p-2 border">${r.rating}</td>
+                                    <td class="p-2 border">${r.rating} ⭐</td>
                                     <td class="p-2 border whitespace-pre-line text-left">${r.reviewText}</td>
+                                    <td class="p-3 border">
+                                        <img src="${r.pictureUrl}" alt="Image" class="w-20 h-20 object-cover mx-auto rounded" />
+                                    </td>
                                     <td class="p-2 border">${r.reviewDate}</td>
                                     <td class="p-2 border whitespace-pre-line text-left text-green-700">${r.response}</td>
                                     <td class="p-2 border">${r.responseDate}</td>
@@ -148,6 +190,25 @@
                             </c:forEach>
                         </tbody>
                     </table>
+                                               <!-- Pagination -->
+<div class="mt-6 flex justify-center items-center gap-2">
+    <c:if test="${currentPage > 1}">
+        <a href="admin-preview-management?pid=${pid}&name=${name}&searchID=${searchID}&page=${currentPage - 1}"
+           class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+    </c:if>
+
+    <c:forEach begin="1" end="${totalPages}" var="i">
+        <a href="admin-preview-management?pid=${pid}&name=${name}&searchID=${searchID}&page=${i}"
+           class="px-4 py-2 ${currentPage == i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'} rounded hover:bg-gray-300">
+            ${i}
+        </a>
+    </c:forEach>
+
+    <c:if test="${currentPage < totalPages}">
+        <a href="admin-preview-management?pid=${pid}&name=${name}&searchID=${searchID}&page=${currentPage + 1}"
+           class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+    </c:if>
+</div>
                 </div>
 
                 <!-- Hidden Delete Form -->
@@ -159,5 +220,70 @@
                 </form>
             </div>
         </div>
+        <script>
+            function toggleMenu(menuId) {
+                const menus = document.querySelectorAll('.absolute.z-10');
+                menus.forEach(menu => {
+                    if (menu.id !== menuId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) {
+                    targetMenu.classList.toggle('hidden');
+                }
+            }
+
+            // Optional: Đóng menu nếu click ra ngoài
+            window.addEventListener('click', function (e) {
+                const ratingMenu = document.getElementById('ratingMenu');
+                const button = e.target.closest('button');
+                const insideMenu = e.target.closest('#ratingMenu');
+                if (!insideMenu && (!button || !button.onclick?.toString().includes('toggleMenu'))) {
+                    ratingMenu?.classList.add('hidden');
+                }
+            });
+        </script>
+        <script>
+            function toggleMenu(menuId) {
+                const menus = document.querySelectorAll('.absolute.z-10');
+                menus.forEach(menu => {
+                    if (menu.id !== menuId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) {
+                    targetMenu.classList.toggle('hidden');
+                }
+            }
+
+            // Đóng menu nếu click ra ngoài
+            window.addEventListener('click', function (e) {
+                const isMenuToggle = e.target.closest('button')?.onclick?.toString().includes('toggleMenu');
+                const insideAnyMenu = e.target.closest('.absolute.z-10');
+                if (!insideAnyMenu && !isMenuToggle) {
+                    document.querySelectorAll('.absolute.z-10').forEach(menu => menu.classList.add('hidden'));
+                }
+            });
+        </script>
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    document.getElementById("loadingOverlay").classList.remove("hidden");
+                });
+            });
+
+            // Cũng có thể áp dụng khi click vào link có href (ví dụ đổi trang, export PDF…)
+            document.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", e => {
+                    const href = link.getAttribute("href");
+                    if (href && !href.startsWith("#") && !href.startsWith("javascript")) {
+                        document.getElementById("loadingOverlay").classList.remove("hidden");
+                    }
+                });
+            });
+        </script>
+
     </body>
 </html>

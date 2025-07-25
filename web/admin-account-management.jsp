@@ -57,29 +57,34 @@
         </script>
     </head>
     <body class="bg-gray-100">
+        <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay"
+             class="fixed inset-0 z-[999] bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
         <div class="flex min-h-screen">
             <!-- Sidebar content ở đây -->
             <jsp:include page="admin-sidebar.jsp"></jsp:include>
-
                 <div class="flex-1 p-6">
+
+                    <!-- Notification -->
                 <c:if test="${not empty message}">
                     <div id="notification"
                          class="fixed top-5 right-5 z-50 px-4 py-3 rounded shadow-lg text-white transition-opacity duration-500
-                         ${error == '1' ? 'bg-green-500' : 'bg-red-500'}">
+                         ${error == '1' || error == '3' || error =='5' ? 'bg-green-500' : 'bg-red-500'}">
                         ${message}
                     </div>
-
                     <script>
-                        // Ẩn thông báo sau 4 giây bằng hiệu ứng mờ dần
                         setTimeout(() => {
                             const noti = document.getElementById("notification");
                             if (noti) {
                                 noti.style.opacity = '0';
-                                setTimeout(() => noti.remove(), 500); // Xoá khỏi DOM sau khi mờ
+                                setTimeout(() => noti.remove(), 500);
                             }
                         }, 4000);
                     </script>
-                </c:if>    
+                </c:if>  
+
                 <!-- Search and Filter Bar -->
                 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <h1 class="text-2xl font-bold mb-6">Account List</h1>
@@ -335,5 +340,23 @@
                 </form>
             </div>
         </div>
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    document.getElementById("loadingOverlay").classList.remove("hidden");
+                });
+            });
+
+            // Cũng có thể áp dụng khi click vào link có href (ví dụ đổi trang, export PDF…)
+            document.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", e => {
+                    const href = link.getAttribute("href");
+                    if (href && !href.startsWith("#") && !href.startsWith("javascript") &&
+                            !href.includes("export-account-pdf")) {
+                        document.getElementById("loadingOverlay").classList.remove("hidden");
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

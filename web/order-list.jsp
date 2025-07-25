@@ -156,6 +156,113 @@
                 padding-bottom: 6px;
             }
         </style>
+        <style>
+    .page-contain {
+        background-color: #f8f9fa; /* nền sáng nhẹ */
+        padding: 30px 15px;
+    }
+
+    .biolife-nav ul {
+        padding: 0;
+        margin-bottom: 25px;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .biolife-nav ul li {
+        display: inline-block;
+    }
+
+    .biolife-nav ul li a,
+    .biolife-nav ul li span {
+        color: #4a4a4a;
+        font-weight: 500;
+        text-decoration: none;
+        background-color: #e3e3e3;
+        padding: 8px 14px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .biolife-nav ul li a:hover {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .main-content .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .text-center.mt-5 {
+        font-size: 1.1rem;
+        color: #777;
+    }
+
+    h2.mt-4 {
+        margin-top: 30px !important;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+        border-bottom: 2px solid #4CAF50;
+        padding-bottom: 8px;
+    }
+
+    .pagination {
+        margin-top: 30px;
+    }
+
+    .pagination .page-link {
+        color: #4CAF50;
+        font-weight: 500;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+
+    .btn {
+        padding: 6px 14px;
+        font-size: 0.95rem;
+    }
+    .order-card {
+    border: 2px solid #bdbdbd; /* Tăng độ dày viền và đổi màu xám đậm hơn */
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Đổ bóng nhẹ để nổi bật */
+    background-color: #ffffff;
+    transition: box-shadow 0.3s ease;
+}
+.order-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12); /* Hover nổi rõ hơn */
+}
+.order-summary {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+.order-summary .total-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4CAF50;
+    margin: 0; /* Xoá khoảng trắng mặc định */
+}
+
+.order-summary .text-muted {
+    color: #555;
+    font-weight: 500;
+}
+</style>
+
 
     </head>
     <body class="biolife-body">

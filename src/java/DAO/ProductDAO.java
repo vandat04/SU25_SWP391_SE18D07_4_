@@ -893,6 +893,7 @@ public class ProductDAO {
     public List<Product> getSearchProductByAdmin(int status, int searchID, String contentSearch, int offset, int limit) {
         String query;
         contentSearch = contentSearch == null ? "" : contentSearch.trim();
+
         switch (searchID) {
             case 1:
                 query = "SELECT * FROM Product WHERE status = ? AND categoryID LIKE ?";
@@ -911,20 +912,31 @@ public class ProductDAO {
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 5:
-                query = "SELECT * FROM Product WHERE status = ? AND  pid LIKE ?";
+                query = "SELECT * FROM Product WHERE status = ? AND pid LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 6:
-                query = "SELECT * FROM Product WHERE status = ? AND price BETWEEN ? AND ? ORDER BY price DESC";
+                query = "SELECT * FROM Product WHERE status = ? ORDER BY price ASC";
+                break;
+            case 8:
+                query = "SELECT * FROM Product WHERE status = ? ORDER BY price DESC";
                 break;
             case 7:
                 query = "SELECT * FROM Product WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE()) ORDER BY createdDate DESC";
+                break;
+            case 10: // stock low -> high
+                query = "SELECT * FROM Product WHERE status = ? ORDER BY stock ASC";
+                break;
+            case 11: // stock high -> low
+                query = "SELECT * FROM Product WHERE status = ? ORDER BY stock DESC";
                 break;
             default:
                 query = "SELECT * FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
                 contentSearch = "%" + contentSearch + "%";
                 break;
-        } // Thêm phân trang theo chuẩn SQL Server
+        }
+
+        // Bổ sung phân trang nếu cần
         if (!query.toLowerCase().contains("order by")) {
             query += " ORDER BY pid ASC";
         }
@@ -935,15 +947,12 @@ public class ProductDAO {
             int paramIndex = 1;
             ps.setInt(paramIndex++, status);
 
-            if (searchID == 6) {
-                double price = Double.parseDouble(contentSearch);
-                ps.setDouble(paramIndex++, price * 0.8);
-                ps.setDouble(paramIndex++, price * 1.2);
-            } else if (searchID != 7) {
+            // Chỉ set contentSearch nếu query có LIKE
+            if (searchID == 1 || searchID == 2 || searchID == 3 || searchID == 4 || searchID == 5 || searchID == -1 || searchID == 0 ) {
                 ps.setString(paramIndex++, contentSearch);
             }
 
-// OFFSET và FETCH
+            // OFFSET + LIMIT
             ps.setInt(paramIndex++, offset);
             ps.setInt(paramIndex++, limit);
 
@@ -960,7 +969,7 @@ public class ProductDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new ProductDAO().getTotalSearchProducts(1, 1, ""));
+        System.out.println(new ProductDAO().getSearchProductByAdmin(1, 0, "", 1, 10).size());
     }
 
     public int getTotalSearchProducts(int status, int searchID, String contentSearch) {
@@ -975,14 +984,14 @@ public class ProductDAO {
                 break;
 
             case 2:
-                query = "SELECT COUNT() FROM Product WHERE status = ? and name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY name ASC ";
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? and name COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
             case 3:
-                query = "SELECT COUNT() FROM Product WHERE status = ? and name COLLATE Latin1_General_CI_AI LIKE ? ORDER BY name DESC ";
+                query = "SELECT COUNT(*) FROM Product WHERE status = ? and name COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
-            case 4: // Tên gần đúng
+            case 4:
                 query = "SELECT COUNT(*) FROM Product WHERE status = ? AND name COLLATE Latin1_General_CI_AI LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
@@ -991,12 +1000,14 @@ public class ProductDAO {
                 query = "SELECT COUNT(*) FROM Product WHERE status = ? AND CAST(pid AS NVARCHAR) LIKE ?";
                 contentSearch = "%" + contentSearch + "%";
                 break;
-
-            case 6:
-                query = "SELECT COUNT(*) FROM Product WHERE status = ? AND price BETWEEN ? AND ?";
+            case 11:
+            case 10:
+            case 6: // tìm theo khoảng giá (giá thấp đến cao)
+            case 8: // sort theo price ASC
+                query = "SELECT COUNT(*) FROM Product WHERE status = ?";
                 break;
 
-            case 7:
+            case 7: // tạo hôm nay
                 query = "SELECT COUNT(*) FROM Product WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE())";
                 break;
 
@@ -1010,16 +1021,8 @@ public class ProductDAO {
             int paramIndex = 1;
             ps.setInt(paramIndex++, status);
 
-            if (searchID == 6) {
-                try {
-                    double price = Double.parseDouble(contentSearch);
-                    ps.setDouble(paramIndex++, price * 0.8);
-                    ps.setDouble(paramIndex++, price * 1.2);
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid price input for range: " + contentSearch);
-                    return 0;
-                }
-            } else if (searchID != 7) {
+            // Chỉ set contentSearch nếu câu query có dấu ? thứ 2
+            if (searchID == 1 || searchID == 2 || searchID == 3 || searchID == 4 || searchID == 5 || searchID == -1 || searchID == 0 ) {
                 ps.setString(paramIndex++, contentSearch);
             }
 

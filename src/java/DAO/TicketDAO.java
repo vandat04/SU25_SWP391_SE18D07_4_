@@ -211,31 +211,176 @@ public class TicketDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new TicketDAO().getTicketByTicketId(1));
+        System.out.println(new TicketDAO().searchTicketByAdmin(1, 0, "2", 0, 10).size());
     }
 
-    public List<Ticket> searchTicketByAdmin(int status, int villageID) {
+    public List<Ticket> searchTicketByAdmin(int status, int searchID, String contentSearch) {
         List<Ticket> list = new ArrayList<>();
         String query;
-        if (status == 2) {
-            query = "SELECT * FROM VillageTicket WHERE villageID = ?";
-        } else {
-            query = "SELECT * FROM VillageTicket WHERE villageID = ? AND status = ?";
+        boolean hasContent = false;
+
+        switch (searchID) {
+            case 1: // Tìm kiếm villageID
+                query = "SELECT * FROM VillageTicket WHERE status = ? AND villageID LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                break;
+            case 2: // Sắp xếp theo villageID tăng
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY villageID ASC";
+                break;
+            case 3: // Tìm kiếm typeID
+                query = "SELECT * FROM VillageTicket WHERE status = ? AND typeID LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                break;
+            case 4: // Sắp xếp theo typeID tăng
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY typeID ASC";
+                break;
+            case 5: // Giá tăng
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY price ASC";
+                break;
+            case 6: // Giá giảm
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY price DESC";
+                break;
+            case 7: // Ngày tạo tăng
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY createdDate ASC";
+                break;
+            case 8: // Ngày tạo giảm
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY createdDate DESC";
+                break;
+            default: // Mặc định lọc theo status
+                query = "SELECT * FROM VillageTicket WHERE status = ?";
+                break;
         }
+
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, villageID);
-            if (status != 2) {
-                ps.setInt(2, status);
+
+            ps.setInt(1, status);
+            if (hasContent) {
+                ps.setString(2, contentSearch);
             }
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToTicket(rs));
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return list;
+    }
+
+    public List<Ticket> searchTicketByAdmin(int status, int searchID, String contentSearch, int offset, int pageSize) {
+        List<Ticket> list = new ArrayList<>();
+        String query = "";
+        boolean hasContent = false;
+        boolean hasPagination = true;
+
+        switch (searchID) {
+            case 1: // search by villageID
+                query = "SELECT * FROM VillageTicket WHERE status = ? AND villageID LIKE ? ORDER BY villageID ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                break;
+
+            case 2: // sort by villageID
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY villageID ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+
+            case 3: // search by typeID
+                query = "SELECT * FROM VillageTicket WHERE status = ? AND typeID LIKE ? ORDER BY typeID ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                break;
+
+            case 4: // sort by typeID
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY typeID ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+
+            case 5: // sort by price ASC
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY price ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+
+            case 6: // sort by price DESC
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY price DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+
+            case 7: // sort by createdDate ASC
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY createdDate ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+
+            case 8: // sort by createdDate DESC
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+
+            default:
+                query = "SELECT * FROM VillageTicket WHERE status = ? ORDER BY ticketID ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, status);
+            int paramIndex = 2;
+
+            if (hasContent) {
+                ps.setString(paramIndex++, contentSearch);
+            }
+
+            ps.setInt(paramIndex++, offset);     // OFFSET ? ROWS
+            ps.setInt(paramIndex, pageSize);     // FETCH NEXT ? ROWS ONLY
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToTicket(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public int countTotalTicketByAdmin(int status, int searchID, String contentSearch) {
+        int count = 0;
+        String query;
+        boolean hasContent = false;
+
+        switch (searchID) {
+            case 1:
+                query = "SELECT COUNT(*) FROM VillageTicket WHERE status = ? AND villageID LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                break;
+            case 3:
+                query = "SELECT COUNT(*) FROM VillageTicket WHERE status = ? AND typeID LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                break;
+            default:
+                query = "SELECT COUNT(*) FROM VillageTicket WHERE status = ?";
+                break;
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, status);
+            if (hasContent) {
+                ps.setString(2, contentSearch);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count;
     }
 
     public int getVillageIDByTicketID(int ticketId) {
@@ -254,7 +399,7 @@ public class TicketDAO {
         }
         return 0;
     }
-    
+
     public Ticket getTicketByTicketId(int ticketId) {
         String query = "SELECT * FROM VillageTicket WHERE ticketID = ? and status = 1";
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {

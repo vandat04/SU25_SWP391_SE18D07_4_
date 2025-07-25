@@ -22,9 +22,9 @@ import service.VillageService;
  * @author ACER
  */
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024,       // 1MB: Khi vượt ngưỡng này, file sẽ lưu vào ổ đĩa tạm
-    maxFileSize = 10 * 1024 * 1024,        // 10MB: Kích thước tối đa của từng file
-    maxRequestSize = 20 * 1024 * 1024      // 20MB: Tổng dung lượng toàn bộ request (nếu có nhiều file)
+        fileSizeThreshold = 1024 * 1024, // 1MB: Khi vượt ngưỡng này, file sẽ lưu vào ổ đĩa tạm
+        maxFileSize = 10 * 1024 * 1024, // 10MB: Kích thước tối đa của từng file
+        maxRequestSize = 20 * 1024 * 1024 // 20MB: Tổng dung lượng toàn bộ request (nếu có nhiều file)
 )
 @WebServlet(name = "AdminVillageManagement", urlPatterns = {"/admin-village-management"})
 public class AdminVillageManagement extends HttpServlet {
@@ -55,30 +55,54 @@ public class AdminVillageManagement extends HttpServlet {
         }
         int offset = (page - 1) * PAGE_SIZE;
 
-        String statusStr = request.getParameter("status");
-        String searchIDStr = request.getParameter("searchID");
-        String contentSearch = request.getParameter("contentSearch");
+        String statusStr = request.getParameter("status") != null ? request.getParameter("status") : "1";
+        String searchIDStr = request.getParameter("searchID") != null ? request.getParameter("searchID") : "0";
+        String contentSearch = request.getParameter("contentSearch") != null ? request.getParameter("contentSearch") : "";
+
+        String error = request.getParameter("error");
+        String message = "";
+        if (error != null) {
+            switch (error) {
+                case "1":
+                    message = "Update Success";
+                    break;
+                case "2":
+                    message = "Update Fail";
+                    break;
+                case "3":
+                    message = "Delete Success";
+                    break;
+                case "4":
+                    message = "Delete Fail";
+                    break;
+                case "5":
+                    message = "Create Success";
+                    break;
+                case "6":
+                    message = "Create Fail";
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+            request.setAttribute("error", error);
+            request.setAttribute("message", message);
+        }
 
         List<CraftVillage> villages;
         int totalVillages;
 
-        if (statusStr != null && searchIDStr != null) {
-            int status = Integer.parseInt(statusStr);
-            int searchID = Integer.parseInt(searchIDStr);
-            villages = vService.getSearchVillageByAdmin(status, searchID, contentSearch, offset, PAGE_SIZE);
-            totalVillages = vService.getTotalSearchVillages(status, searchID, contentSearch);
+        int status = Integer.parseInt(statusStr);
+        int searchID = Integer.parseInt(searchIDStr);
+        villages = vService.getSearchVillageByAdmin(status, searchID, contentSearch, offset, PAGE_SIZE);
+        totalVillages = vService.getTotalSearchVillages(status, searchID, contentSearch);
 
-            request.setAttribute("status", statusStr);
-            request.setAttribute("searchID", searchIDStr);
-            request.setAttribute("contentSearch", contentSearch);
-        } else {
-            villages = vService.getAllCraftVillageActive(offset, PAGE_SIZE);
-            totalVillages = vService.getTotalActiveVillages();
-        }
+        request.setAttribute("status", statusStr);
+        request.setAttribute("searchID", searchIDStr);
+        request.setAttribute("contentSearch", contentSearch);
 
         int totalPages = (totalVillages + PAGE_SIZE - 1) / PAGE_SIZE;
 
-        request.setAttribute("listAllVillage", villages);
+        request.setAttribute("listAllVillages", villages);
         request.setAttribute("totalVillages", totalVillages);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
@@ -101,6 +125,7 @@ public class AdminVillageManagement extends HttpServlet {
 
         String typeName = request.getParameter("action");
         String villageID = request.getParameter("villageID");
+        String status = request.getParameter("status");
 
         String villageName = request.getParameter("villageName");
         String typeID = request.getParameter("typeName");
@@ -108,7 +133,7 @@ public class AdminVillageManagement extends HttpServlet {
         String address = request.getParameter("address");
         String contactPhone = request.getParameter("contactPhone");
         String contactEmail = request.getParameter("contactEmail");
-        String status = request.getParameter("status");
+        String statusVillage = request.getParameter("statusVillage");
         String sellerId = request.getParameter("sellerId");
         String openingHours = request.getParameter("openingHours");
         String closingDays = request.getParameter("closingDays");
@@ -122,7 +147,7 @@ public class AdminVillageManagement extends HttpServlet {
         String videoDescriptionUrl = request.getParameter("videoDescriptionUrl");
         String travelTips = request.getParameter("travelTips");
         String existingMainImageUrl = request.getParameter("existingMainImageUrl");
-        
+
         String mainImageUrl = "";
         try {
             Part filePart = request.getPart("mainImageUrl");
@@ -132,71 +157,49 @@ public class AdminVillageManagement extends HttpServlet {
         } catch (Exception e) {
             // Handle upload error
         }
-        if (mainImageUrl.equals("")){
-            mainImageUrl = existingMainImageUrl ;
+        if (mainImageUrl.equals("")) {
+            mainImageUrl = existingMainImageUrl;
         }
-        
-        
-        
+
         CraftVillage village;
         boolean success = false;
         String message = "";
         String errorCode = "0";
 
-     
         switch (typeName) {
             case "updateVillage":
-                try {
-                    village = new CraftVillage(Integer.parseInt(villageID), villageName, Integer.parseInt(typeID), description, address, 0.0, 0.0 , contactPhone, contactEmail, Integer.parseInt(status), Integer.parseInt(sellerId), openingHours, closingDays, mapEmbedUrl, virtualTourUrl, history, specialFeatures, famousProducts, culturalEvents, craftProcess, videoDescriptionUrl, travelTips, mainImageUrl);
-                    success = vService.updateCraftVillageByAdmin(village);
-                    if (success) {
-                        message = "Update Success";
-                        errorCode = "1";
-                    } else {
-                        message = "Update error Name Village already exists";
-                    }
-                } catch (Exception e) {
-                    message = "Update Fail";
+                village = new CraftVillage(Integer.parseInt(villageID), villageName, Integer.parseInt(typeID), description, address, 0.0, 0.0, contactPhone, contactEmail, Integer.parseInt(statusVillage), Integer.parseInt(sellerId), openingHours, closingDays, mapEmbedUrl, virtualTourUrl, history, specialFeatures, famousProducts, culturalEvents, craftProcess, videoDescriptionUrl, travelTips, mainImageUrl);
+                success = vService.updateCraftVillageByAdmin(village);
+                if (success) {
+                    errorCode = "1";
+                } else {
+                    errorCode = "2";
                 }
                 break;
             case "deleteVillage":
-                try {
-                    success = vService.deleteVillageByAdmin(Integer.parseInt(villageID));
-                    if (success) {
-                        message = "Delete Success";
-                        errorCode = "1";
-                    } else {
-                        message = "Deactive success";
-                        errorCode = "1";
-                    }
-                } catch (Exception e) {
-                    message = "Delete Fails";
+                success = vService.deleteVillageByAdmin(Integer.parseInt(villageID));
+                if (success) {
+                    errorCode = "3";
+                } else {
+                    errorCode = "4";
                 }
                 break;
             case "addVillage":
-                try {
-                    village = new CraftVillage(villageName, Integer.parseInt(typeID), description, address, 0.0, 0.0, contactPhone, contactEmail, Integer.parseInt(status), Integer.parseInt(sellerId), openingHours, closingDays, mapEmbedUrl, virtualTourUrl, history, specialFeatures, famousProducts, culturalEvents, craftProcess, videoDescriptionUrl, travelTips, mainImageUrl);
-                    success = vService.addNewVillageByAdmin(village);
-                     
-                    if (success) {
-                        message = "Create Success";
-                        errorCode = "1";
-                    } else {
-                        message = "Create Fail: Name Village already exists";
-                    }
-                   
-                } catch (Exception e) {
-                    message = "Create Fail";
+                village = new CraftVillage(villageName, Integer.parseInt(typeID), description, address, 0.0, 0.0, contactPhone, contactEmail, Integer.parseInt(statusVillage), Integer.parseInt(sellerId), openingHours, closingDays, mapEmbedUrl, virtualTourUrl, history, specialFeatures, famousProducts, culturalEvents, craftProcess, videoDescriptionUrl, travelTips, mainImageUrl);
+                success = vService.addNewVillageByAdmin(village);
+
+                if (success) {
+                    errorCode = "5";
+                } else {
+                    errorCode = "6";
                 }
                 break;
-           
+
         }
 
         request.setAttribute("error", errorCode);
         request.setAttribute("message", message);
-         response.sendRedirect("admin-village-management?ss"+typeID+"&"+status);
-                     return;
-//        response.sendRedirect("admin-village-management?status=1&searchID=0&contentSearch= ");
+        response.sendRedirect("admin-village-management?status=" + status + "&error=" + errorCode);
     }
 
     /**

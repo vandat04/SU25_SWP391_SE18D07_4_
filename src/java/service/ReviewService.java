@@ -368,9 +368,9 @@ public class ReviewService implements IReviewService {
         return rDAO.deleteVillageReviewByAdmin(reviewID);
     }
 
-    @Override
-    public List<ProductReview> searchProductReviewByAdmin(int userID) {
-        return rDAO.searchProductReviewByAdmin(userID);
+
+    public List<ProductReview> searchProductReviewByAdmin(int pid, int searchID) {
+        return rDAO.searchProductReviewByAdmin(pid, searchID);
     }
 
     @Override
@@ -695,5 +695,18 @@ public class ReviewService implements IReviewService {
             LOGGER.log(Level.SEVERE, "Error adding village review from order: " + e.getMessage(), e);
             return false;
         }
+    }
+
+    @Override
+    public List<ProductReview> searchProductReviewByAdmin(int userID) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public List<ProductReview> searchProductReviewByAdmin(int pidInt, int searchID, int page, int pageSize) {
+        return rDAO.searchProductReviewByAdmin(pidInt, searchID, page, pageSize);
+    }
+
+    public int countProductReviews(int pidInt) {
+        return rDAO.countProductReviews(pidInt);
     }
 }

@@ -630,7 +630,7 @@ public class CraftVillageDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println(new CraftVillageDAO().addNewVillageByAdmin(new CraftVillage("BC", 1, "AC", "AC", 1, 1, "AC", "A", 1, 1, "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A")));
+        System.out.println(new CraftVillageDAO().getSearchVillageByAdmin(1, 0, "", 0, 10));
     }
 
     public List<CraftVillage> getVillageByFilter(String provinceCodeSearch, String typeIDStr) {
@@ -702,77 +702,90 @@ public class CraftVillageDAO {
     }
 
     public List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch, int offset, int limit) {
-    if (contentSearch == null) {
-        contentSearch = "";
-    } else {
-        contentSearch = contentSearch.trim();
-    }
+        List<CraftVillage> list = new ArrayList<>();
 
-    String query;
-    boolean hasContentSearch = true;
-
-    switch (searchID) {
-        case 1:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND CAST(typeID AS NVARCHAR) LIKE ? ORDER BY villageID ASC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-        case 2:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageName ASC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-        case 3:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageName DESC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-        case 4:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-        case 5:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND CAST(villageID AS NVARCHAR) LIKE ? ORDER BY villageID ASC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-        case 6:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND address COLLATE Latin1_General_CI_AI LIKE ? ORDER BY villageID ASC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-        case 7:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND CONVERT(date, createdDate) = CONVERT(date, GETDATE()) ORDER BY createdDate DESC";
-            hasContentSearch = false;
-            break;
-        default:
-            query = "SELECT * FROM CraftVillage WHERE status = ? AND villageName COLLATE Latin1_General_CI_AI LIKE ? ORDER BY createdDate DESC";
-            contentSearch = "%" + contentSearch + "%";
-            break;
-    }
-
-    // Thêm phân trang
-    query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
-    List<CraftVillage> list = new ArrayList<>();
-    try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-        int paramIndex = 1;
-        ps.setInt(paramIndex++, status);
-
-        if (hasContentSearch) {
-            ps.setString(paramIndex++, contentSearch);
+        if (contentSearch == null) {
+            contentSearch = "";
+        } else {
+            contentSearch = contentSearch.trim();
         }
 
-        ps.setInt(paramIndex++, offset);
-        ps.setInt(paramIndex, limit);
+        String baseWhere = "WHERE status = ?";
+        String orderBy = "ORDER BY villageID ASC";
+        String filter = "";
+        boolean hasContent = false;
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(mapResultSetToCraftVillage(rs));
+        switch (searchID) {
+            case 7: // All villages
+                orderBy = "ORDER BY villageID ASC";
+                break;
+
+            case 1: // Sort by villageName ASC
+                orderBy = "ORDER BY villageName ASC";
+                break;
+
+            case 2: // Search by villageName
+                filter = " AND villageName COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                orderBy = "ORDER BY villageName ASC";
+                break;
+
+            case 3: // Sort by typeID ASC
+                orderBy = "ORDER BY typeID ASC";
+                break;
+
+            case 4: // Search by typeID
+                filter = " AND typeID LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                orderBy = "ORDER BY typeID ASC";
+                break;
+
+            case 5: // Sort by createdDate ASC
+                orderBy = "ORDER BY createdDate ASC";
+                break;
+
+            case 6: // Sort by createdDate DESC
+                orderBy = "ORDER BY createdDate DESC";
+                break;
+
+            default:
+                filter = " AND villageName COLLATE Latin1_General_CI_AI LIKE ?";
+                contentSearch = "%" + contentSearch + "%";
+                hasContent = true;
+                orderBy = "ORDER BY villageName ASC";
+                break;
+        }
+
+        String query = "SELECT * FROM ("
+                + " SELECT *, ROW_NUMBER() OVER (" + orderBy + ") AS rn"
+                + " FROM CraftVillage " + baseWhere + filter
+                + ") AS sub "
+                + "WHERE rn BETWEEN ? AND ?";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            int index = 1;
+            ps.setInt(index++, status);
+
+            if (hasContent) {
+                ps.setString(index++, contentSearch);
             }
+
+            ps.setInt(index++, offset + 1); // từ dòng
+            ps.setInt(index, offset + limit); // đến dòng
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCraftVillage(rs));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
-    } catch (SQLException e) {
-        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+
+        return list;
     }
-
-    return list;
-}
-
 
     public int getTotalSearchVillages(int status, int searchID, String contentSearch) {
         if (contentSearch == null) {

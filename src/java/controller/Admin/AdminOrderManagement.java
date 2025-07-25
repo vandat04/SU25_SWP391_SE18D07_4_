@@ -50,11 +50,13 @@ public class AdminOrderManagement extends HttpServlet {
         // Search parameters
         String statusStr = request.getParameter("status");
         String searchIDStr = request.getParameter("searchID");
+        String searchContent = request.getParameter("contentSearch") != null ? request.getParameter("contentSearch") : "";
+        
         int status = statusStr != null && !statusStr.isEmpty() ? Integer.parseInt(statusStr) : 7; // Default to 7 (All Status)
         int searchID = searchIDStr != null && !searchIDStr.isEmpty() ? Integer.parseInt(searchIDStr) : 0; // Default to 0 (All Village)
 
         // Calculate total orders and pages first
-        int totalOrders = oService.getTotalSubOrders(status, searchID);
+        int totalOrders = oService.getTotalSubOrders(status, searchID, searchContent);
         int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
         if (totalPages == 0) {
             totalPages = 1; // Show page 1 even if empty
@@ -69,7 +71,7 @@ public class AdminOrderManagement extends HttpServlet {
         }
 
         // Fetch paginated orders
-        List<SubOrder> subOrder = oService.getSearchSubOrderByAdmin(status, searchID, page, pageSize);
+        List<SubOrder> subOrder = oService.getSearchSubOrderByAdmin(status, searchID, searchContent, page, pageSize);
 
         // Set attributes for JSP
         request.setAttribute("subOrder", subOrder);
@@ -77,6 +79,7 @@ public class AdminOrderManagement extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("status", status);
         request.setAttribute("searchID", searchID);
+        request.setAttribute("searchContent", searchContent);
 
         request.getRequestDispatcher("admin-order-management.jsp").forward(request, response);
     }

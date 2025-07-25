@@ -92,16 +92,17 @@ public class UpdateOrderListServlet extends HttpServlet {
                 if (subOrder.getPaymentMethod().equalsIgnoreCase("bankTransfer") && subOrder.getPaymentStatus() == 1) {
                     oService.refundSubOrderPayment(subOrderId);
                 }
-                response.sendRedirect("order?cas=0&userID=" + userID);
+                cas="0";
                 break;
             case "refundOrder":
                 result = oService.refundSubOrder(subOrderId, reason);
-                response.sendRedirect("order?cas=2&userID=" + userID);
+                cas="2";
                 break;
             default:
                 throw new AssertionError();
         }
-        request.getRequestDispatcher("newjsp.jsp").forward(request, response);
+        response.sendRedirect("order?cas="+cas+"&userID=" + userID);
+        
     }
 
     /**

@@ -10,8 +10,14 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+        <link rel="icon" type="image/png" href="hinhanh\Logo\cropped-Favicon-1-32x32.png">
     </head>
     <body class="bg-gray-100">
+        <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay"
+             class="fixed inset-0 z-[999] bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
         <div class="flex h-screen">
             <!-- Sidebar -->
             <jsp:include page="admin-sidebar.jsp"></jsp:include>
@@ -50,11 +56,18 @@
                 Map<Integer, Integer> statusOrder = (Map<Integer, Integer>) request.getAttribute("statusOrder");
                 int processing = statusOrder != null && statusOrder.containsKey(0) ? statusOrder.get(0) : 0;
                 int delivery = statusOrder != null && statusOrder.containsKey(1) ? statusOrder.get(1) : 0;
-                int cancelled = statusOrder != null && statusOrder.containsKey(2) ? statusOrder.get(2) : 0;
-                int refunded = statusOrder != null && statusOrder.containsKey(3) ? statusOrder.get(3) : 0;
+                int received = statusOrder != null && statusOrder.containsKey(2) ? statusOrder.get(2) : 0;
+                int cancelled = statusOrder != null && statusOrder.containsKey(3) ? statusOrder.get(3) : 0;
+                int refunded = statusOrder != null && statusOrder.containsKey(4) ? statusOrder.get(4) : 0;
             %>
             <!-- Main content -->
             <div class="w-5/6 p-6 overflow-y-auto">
+
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded mb-6 shadow">
+                    <p class="text-lg font-semibold">Welcome to the Admin page!</p>
+                    <p class="text-sm">Manage products, orders and users efficiently.</p>
+                </div>
+
                 <!-- Statistic Cards -->
                 <div class="grid grid-cols-3 gap-4 mb-6">
                     <div class="bg-white p-4 rounded shadow">
@@ -116,6 +129,10 @@
                                 <div class="flex items-left">
                                     <span class="w-4 h-4 bg-green-500 rounded mr-2"></span>
                                     On delivery: <strong class="ml-1 text-gray-800"><%= delivery%></strong>
+                                </div>
+                                <div class="flex items-left">
+                                    <span class="w-4 h-4 bg-black rounded mr-2"></span>
+                                    Received: <strong class="ml-1 text-gray-800"><%= received%></strong>
                                 </div>
                                 <div class="flex items-left">
                                     <span class="w-4 h-4 bg-red-500 rounded mr-2"></span>
@@ -204,8 +221,8 @@
             });
 
             // Pie Chart - Order Status
-            const pieLabels = ['Processing', 'on delivery', 'Canceled', 'Refund'];
-            const pieData = [<%= processing%>, <%= delivery%>, <%= cancelled%>, <%= refunded%>];
+            const pieLabels = ['Processing', 'on delivery', 'Canceled', 'Received', 'Refund'];
+            const pieData = [<%= processing%>, <%= delivery%>, <%= received%>,<%= cancelled%>, <%= refunded%>];
 
             new Chart(document.getElementById('pieChart'), {
                 type: 'pie',
@@ -213,7 +230,7 @@
                     labels: pieLabels,
                     datasets: [{
                             data: pieData,
-                            backgroundColor: ['#FBBF24', '#10B981', '#EF4444', '#6366F1']
+                            backgroundColor: ['#FBBF24', '#10B981', '#EF33333', '#EF4444', '#6366F1']
                         }]
                 },
                 options: {
@@ -236,5 +253,23 @@
                 }
             });
         </script>
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    document.getElementById("loadingOverlay").classList.remove("hidden");
+                });
+            });
+
+            // Cũng có thể áp dụng khi click vào link có href (ví dụ đổi trang, export PDF…)
+            document.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", e => {
+                    const href = link.getAttribute("href");
+                    if (href && !href.startsWith("#") && !href.startsWith("javascript")) {
+                        document.getElementById("loadingOverlay").classList.remove("hidden");
+                    }
+                });
+            });
+        </script>
+
     </body>
 </html>

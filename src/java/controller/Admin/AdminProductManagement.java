@@ -25,9 +25,9 @@ import service.ProductService;
  * @author ACER
  */
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024,       // 1MB: Khi vượt ngưỡng này, file sẽ lưu vào ổ đĩa tạm
-    maxFileSize = 10 * 1024 * 1024,        // 10MB: Kích thước tối đa của từng file
-    maxRequestSize = 20 * 1024 * 1024      // 20MB: Tổng dung lượng toàn bộ request (nếu có nhiều file)
+        fileSizeThreshold = 1024 * 1024, // 1MB: Khi vượt ngưỡng này, file sẽ lưu vào ổ đĩa tạm
+        maxFileSize = 10 * 1024 * 1024, // 10MB: Kích thước tối đa của từng file
+        maxRequestSize = 20 * 1024 * 1024 // 20MB: Tổng dung lượng toàn bộ request (nếu có nhiều file)
 )
 @WebServlet(name = "AdminProductManagement", urlPatterns = {"/admin-product-management"})
 public class AdminProductManagement extends HttpServlet {
@@ -64,10 +64,40 @@ public class AdminProductManagement extends HttpServlet {
         // Get search parameters with defaults
         String statusStr = request.getParameter("status");
         int status = (statusStr != null && !statusStr.isEmpty()) ? Integer.parseInt(statusStr) : 1; // Default to 1 (Active)
+        request.getSession().setAttribute("status", status);
         String searchIDStr = request.getParameter("searchID");
         int searchID = (searchIDStr != null && !searchIDStr.isEmpty()) ? Integer.parseInt(searchIDStr) : 0; // Default to 0 (All)
         String contentSearch = request.getParameter("contentSearch");
         contentSearch = (contentSearch != null) ? contentSearch.trim() : "";
+        
+        String error = request.getParameter("error");
+        String message = "";
+        if (error != null) {
+            switch (error) {
+                case "1":
+                    message = "Update Success";
+                    break;
+                case "2":
+                    message = "Update Fail";
+                    break;
+                case "3":
+                    message = "Delete Success";
+                    break;
+                case "4":
+                    message = "Delete Fail";
+                    break;
+                case "5":
+                    message = "Create Success";
+                    break;
+                case "6":
+                    message = "Create Fail";
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+            request.setAttribute("error", error);
+            request.setAttribute("message", message);
+        }
 
         // Calculate total products and pages
         int totalProducts = ps.getTotalSearchProducts(status, searchID, contentSearch);
@@ -94,19 +124,6 @@ public class AdminProductManagement extends HttpServlet {
         request.setAttribute("status", status);
         request.setAttribute("searchID", searchID);
         request.setAttribute("contentSearch", contentSearch);
-
-        // Handle flash message from POST redirect
-        String message = request.getParameter("message");
-        String error = request.getParameter("error");
-        if (message != null && !message.isEmpty()) {
-            request.setAttribute("message", message);
-            request.setAttribute("error", error);
-        }
-
-        // Assume you need to set other attributes like listCC, listAllVillage, listVillages here
-        // For example:
-        // request.setAttribute("listCC", ps.getAllCategory());
-        // Add similar for villages and craft types if needed
 
         request.getRequestDispatcher("admin-product-management.jsp").forward(request, response);
     }
@@ -140,10 +157,10 @@ public class AdminProductManagement extends HttpServlet {
         String materials = request.getParameter("materials");
         String careInstructions = request.getParameter("careInstructions");
         String warranty = request.getParameter("warranty");
-        String status = request.getParameter("status");
+        String statusProduct = request.getParameter("statusProduct");
         String existingMainImageUrl = request.getParameter("existingMainImageUrl");
         String existingModelFileUrl = request.getParameter("existingModelFileUrl");
-        
+
         String mainImageUrl = "";
         try {
             Part filePart = request.getPart("mainImageUrl");
@@ -157,7 +174,7 @@ public class AdminProductManagement extends HttpServlet {
         if (mainImageUrl.isEmpty()) {
             mainImageUrl = existingMainImageUrl;
         }
-        
+
         String modelFile = "";
         try {
             Part filePart = request.getPart("modelFile");
@@ -171,7 +188,7 @@ public class AdminProductManagement extends HttpServlet {
         if (modelFile.isEmpty()) {
             modelFile = existingModelFileUrl;
         }
-        
+
         boolean success = false;
         String message = "";
         String errorCode = "0";
@@ -187,15 +204,15 @@ public class AdminProductManagement extends HttpServlet {
                     int craftTypeID = Integer.parseInt(craftTypeIDStr);
                     double price = Double.parseDouble(priceStr);
                     double weight = Double.parseDouble(weightStr);
-                    int productStatus = Integer.parseInt(status);
+                    int productStatus = Integer.parseInt(statusProduct);
 
                     Product product = new Product(pid, name, BigDecimal.valueOf(price), description, stock, stockAdd, productStatus, villageID, categoryID, mainImageUrl, craftTypeID, sku, BigDecimal.valueOf(weight), dimensions, materials, careInstructions, warranty, modelFile);
                     success = ps.updateProductByAdmin(product);
                     if (success) {
-                        message = "Update Success";
+
                         errorCode = "1";
                     } else {
-                        message = "Update error: Name Product already exists";
+                        errorCode = "2";
                     }
                 } catch (Exception e) {
                     message = "Update Fail";
@@ -209,15 +226,14 @@ public class AdminProductManagement extends HttpServlet {
                     int craftTypeID = Integer.parseInt(craftTypeIDStr);
                     double price = Double.parseDouble(priceStr);
                     double weight = Double.parseDouble(weightStr);
-                    int productStatus = Integer.parseInt(status);
+                    int productStatus = Integer.parseInt(statusProduct);
 
                     Product product = new Product(name, BigDecimal.valueOf(price), description, stock, productStatus, villageID, categoryID, mainImageUrl, craftTypeID, sku, BigDecimal.valueOf(weight), dimensions, materials, careInstructions, warranty, modelFile);
                     success = ps.createProductByAdmin(product);
                     if (success) {
-                        message = "Create Success";
-                        errorCode = "1";
+                        errorCode = "5";
                     } else {
-                        message = "Create Fail: Name Product already exists";
+                        errorCode = "6";
                     }
                 } catch (Exception e) {
                     message = "Create Fail";
@@ -228,11 +244,9 @@ public class AdminProductManagement extends HttpServlet {
                     int pid = Integer.parseInt(pidStr);
                     success = ps.deleteProductByAdmin(pid);
                     if (success) {
-                        message = "Delete Success";
-                        errorCode = "1";
+                        errorCode = "3";
                     } else {
-                        message = "Deactive success";
-                        errorCode = "1";
+                        errorCode = "4";
                     }
                 } catch (Exception e) {
                     message = "Delete Fail";

@@ -2,13 +2,17 @@ package controller.ExportPDF;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import entity.CraftVillage.CraftType;
 import entity.CraftVillage.CraftVillage;
+import entity.Orders.Order;
+import entity.Orders.Payment;
+import entity.Orders.SubOrder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import service.OrderService;
+import service.ReportService;
 import service.VillageService;
 
 import java.io.IOException;
@@ -21,6 +25,8 @@ import java.util.List;
 public class ExportOrderPDFServlet extends HttpServlet {
 
     private final VillageService vService = new VillageService();
+    private final OrderService oService = new OrderService();
+    private final ReportService rService = new ReportService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -29,10 +35,8 @@ public class ExportOrderPDFServlet extends HttpServlet {
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=\"order-report.pdf\"");
 
-        String cas = request.getParameter("cas");
-
-        List<CraftVillage> listCraftVillage = (List<CraftVillage>) request.getAttribute("listAllVillage");
-        List<CraftType> listCraftType = (List<CraftType>) request.getAttribute("listVillages");
+        int villageID = Integer.parseInt(request.getParameter("cas"));
+        CraftVillage village = vService.getVillageById(villageID);
 
         try {
             Document document = new Document(PageSize.A3.rotate(), 20, 20, 20, 20);
@@ -44,104 +48,105 @@ public class ExportOrderPDFServlet extends HttpServlet {
             Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
 
             document.add(new Paragraph("Village Management Report", titleFont));
-            document.add(new Paragraph("Generated at: "
-                    + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()), dataFont));
+            document.add(new Paragraph("Generated at: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()), dataFont));
             document.add(Chunk.NEWLINE);
 
-            PdfPTable table;
+            // I. General Info
+            String[] headers1 = {"Type", "Village Name", "Address", "Contact Phone", "Contact Email"};
+            PdfPTable table = new PdfPTable(headers1.length);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{3, 3, 4, 3, 3});
+            document.add(new Paragraph("I. General information of the craft village\n", titleFont));
+            addTableHeader(table, headers1, headerFont);
+            addVillageRow(village, table, dataFont);
+            document.add(table); // ✅ Bắt buộc phải add bảng
+            document.add(Chunk.NEWLINE);
 
-            String[] headers1 = {
-                    "Village ID", "Type ID", "Village Name", "Description", "Address", "Latitude",
-                    "Longitude", "Contact Phone", "Contact Email", "Status", "Click Count", "Last Clicked",
-                    "Main Image URL", "Created Date", "Updated Date", "Seller ID", "Opening Hours",
-                    "Closing Days", "Average Rating", "Total Reviews", "Map Embed URL", "Virtual Tour URL",
-                    "History", "Special Features", "Famous Products", "Cultural Events",
-                    "Craft Process", "Video Description URL", "Travel Tips"
-            };
+            // II. Summary
+            List<SubOrder> orderList = oService.getSubOrderByVillageID(villageID);
+            int revenue = 0, realRevenue = 0, totalPaid = 0, totalUnpaid = 0;
+            int processingOrder = 0, deliveringOrder = 0, receivedOrder = 0;
+            int canceledOrder = 0, refundedOrder = 0, refundingOrder = 0;
+
+            for (SubOrder so : orderList) {
+                Payment payment = rService.getPaymentBySubOrderID(so.getSubOrderId());
+                if (payment != null) {
+                    int amount = payment.getAmount().intValue();
+                    revenue += amount;
+                    if ("points".equals(payment.getPaymentMethod()) || payment.getPaymentStatus() == 0) {
+                        realRevenue += amount;
+                    }
+                    if (payment.getPaymentStatus() == 1) {
+                        totalPaid++;
+                    } else {
+                        totalUnpaid++;
+                    }
+                }
+                switch (so.getOrderStatus()) {
+                    case 0 -> processingOrder++;
+                    case 1 -> deliveringOrder++;
+                    case 2 -> receivedOrder++;
+                    case 3 -> canceledOrder++;
+                    case 4 -> refundedOrder++;
+                    case 5 -> refundingOrder++;
+                }
+            }
+            realRevenue = revenue - realRevenue;
 
             String[] headers2 = {
-                    "Type ID", "Type Name", "Village ID", "Village Name", "Address",
-                    "Click Count", "Created Date", "Average Rating", "Total Reviews"
+                "Total Order", "Total Revenue", "Total Real Revenue", "Total Paid Orders",
+                "Total Unpaid Orders", "Processing Orders", "Delivering Orders", "Received Orders",
+                "Canceled Orders", "Refund Orders", "Refunding Orders"
             };
 
-            String[] headers4 = {
-                    "Village ID", "Village Name", "Type ID", "Average Rating",
-                    "Total Reviews", "Address", "Created Date"
-            };
-
-            float[] widths1 = new float[headers1.length];
-                    for (int i = 0; i < widths1.length; i++) {
-                        widths1[i] = 3.0f;
-                    }
-            switch (cas) {
-                case "1":
-                    document.add(new Paragraph("All Village Report", titleFont));
-                    table = new PdfPTable(headers1.length);
-                    table.setWidthPercentage(100);
-                    
-                    table.setWidths(widths1);
-                    addTableHeader(table, headers1, headerFont);
-                    for (CraftVillage village : listCraftVillage) {
-                        addVillageRow(village, table, dataFont);
-                    }
-                    break;
-
-                case "2":
-                    document.add(new Paragraph("All Village By Craft Type Report", titleFont));
-                    table = new PdfPTable(headers2.length);
-                    table.setWidthPercentage(100);
-                    float[] widths2 = {2f, 4f, 2f, 4f, 4f, 2f, 3f, 2f, 2f};
-                    table.setWidths(widths2);
-                    addTableHeader(table, headers2, headerFont);
-                    for (CraftType type : listCraftType) {
-                        for (CraftVillage v : vService.getVillageByCategory(type.getTypeID())) {
-                            table.addCell(cell(type.getTypeID(), dataFont));
-                            table.addCell(cell(type.getTypeName(), dataFont));
-                            table.addCell(cell(v.getVillageID(), dataFont));
-                            table.addCell(cell(v.getVillageName(), dataFont));
-                            table.addCell(cell(v.getAddress(), dataFont));
-                            table.addCell(cell(v.getClickCount(), dataFont));
-                            table.addCell(cell(v.getCreatedDate(), dataFont));
-                            table.addCell(cell(v.getAverageRating(), dataFont));
-                            table.addCell(cell(v.getTotalReviews(), dataFont));
-                        }
-                    }
-                    break;
-
-                case "3":
-                    document.add(new Paragraph("All Deactivated Village Report", titleFont));
-                    table = new PdfPTable(headers1.length);
-                    table.setWidthPercentage(100);
-                    table.setWidths(widths1);
-                    addTableHeader(table, headers1, headerFont);
-                    for (CraftVillage village : vService.getSearchVillageByAdmin(0, 0, "")) {
-                        addVillageRow(village, table, dataFont);
-                    }
-                    break;
-
-                case "4":
-                    document.add(new Paragraph("Top Rated Village Report", titleFont));
-                    table = new PdfPTable(headers4.length);
-                    table.setWidthPercentage(100);
-                    float[] widths4 = {2f, 4f, 2f, 2f, 2f, 4f, 3f};
-                    table.setWidths(widths4);
-                    addTableHeader(table, headers4, headerFont);
-                    for (CraftVillage v : vService.getTopRatedByAdmin()) {
-                        table.addCell(cell(v.getVillageID(), dataFont));
-                        table.addCell(cell(v.getVillageName(), dataFont));
-                        table.addCell(cell(v.getTypeID(), dataFont));
-                        table.addCell(cell(v.getAverageRating(), dataFont));
-                        table.addCell(cell(v.getTotalReviews(), dataFont));
-                        table.addCell(cell(v.getAddress(), dataFont));
-                        table.addCell(cell(v.getCreatedDate(), dataFont));
-                    }
-                    break;
-
-                default:
-                    throw new ServletException("Invalid cas value");
-            }
-
+            table = new PdfPTable(headers2.length);
+            table.setWidthPercentage(100);
+            float[] widths2 = new float[headers2.length];
+            for (int i = 0; i < headers2.length; i++) widths2[i] = 3f;
+            table.setWidths(widths2);
+            document.add(new Paragraph("II. Summary of order statistics\n", titleFont));
+            addTableHeader(table, headers2, headerFont);
+            table.addCell(cell(orderList.size(), dataFont));
+            table.addCell(cell(revenue, dataFont));
+            table.addCell(cell(realRevenue, dataFont));
+            table.addCell(cell(totalPaid, dataFont));
+            table.addCell(cell(totalUnpaid, dataFont));
+            table.addCell(cell(processingOrder, dataFont));
+            table.addCell(cell(deliveringOrder, dataFont));
+            table.addCell(cell(receivedOrder, dataFont));
+            table.addCell(cell(canceledOrder, dataFont));
+            table.addCell(cell(refundedOrder, dataFont));
+            table.addCell(cell(refundingOrder, dataFont));
             document.add(table);
+            document.add(Chunk.NEWLINE);
+
+            // III. Detailed Order List
+            String[] headers3 = {
+                "STT", "OrderID", "Total Amount", "Payment Method", "Payment Status",
+                "Order Status", "Note", "Email", "Created Date"
+            };
+
+            table = new PdfPTable(headers3.length);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{1, 2, 2, 2, 2, 2, 3, 3, 2});
+            document.add(new Paragraph("III. Detailed list of orders \n ", titleFont));
+            addTableHeader(table, headers3, headerFont);
+
+            int stt = 1;
+            for (SubOrder so : orderList) {
+                table.addCell(cell(stt++, dataFont));
+                table.addCell(cell("OD" + so.getSubOrderId(), dataFont));
+                table.addCell(cell(so.getTotalPrice(), dataFont));
+                table.addCell(cell(so.getPaymentMethod(), dataFont));
+                table.addCell(cell(so.getPaymentStatus() == 1 ? "Paid" : "Unpaid", dataFont));
+                table.addCell(cell(orderStatusToString(so.getOrderStatus()), dataFont));
+                table.addCell(cell(so.getNote(), dataFont));
+                table.addCell(cell(oService.getOrderById(so.getOrderId()).getEmail(), dataFont));
+                table.addCell(cell(so.getCreatedDate(), dataFont));
+            }
+            document.add(table);
+
+            // Finalize
             document.close();
 
         } catch (DocumentException e) {
@@ -149,9 +154,9 @@ public class ExportOrderPDFServlet extends HttpServlet {
         }
     }
 
-    private void addTableHeader(PdfPTable table, String[] headers, Font headerFont) {
+    private void addTableHeader(PdfPTable table, String[] headers, Font font) {
         for (String header : headers) {
-            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            PdfPCell cell = new PdfPCell(new Phrase(header, font));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
@@ -161,43 +166,19 @@ public class ExportOrderPDFServlet extends HttpServlet {
     }
 
     private void addVillageRow(CraftVillage v, PdfPTable table, Font font) {
-        table.addCell(cell(v.getVillageID(), font));
-        table.addCell(cell(v.getTypeID(), font));
+        table.addCell(cell(vService.getCraftTypeNameByID(v.getTypeID()), font));
         table.addCell(cell(v.getVillageName(), font));
-        table.addCell(cell(v.getDescription(), font));
         table.addCell(cell(v.getAddress(), font));
-        table.addCell(cell(v.getLatitude(), font));
-        table.addCell(cell(v.getLongitude(), font));
         table.addCell(cell(v.getContactPhone(), font));
         table.addCell(cell(v.getContactEmail(), font));
-        table.addCell(cell(v.getStatus(), font));
-        table.addCell(cell(v.getClickCount(), font));
-        table.addCell(cell(v.getLastClicked(), font));
-        table.addCell(cell(v.getMainImageUrl(), font));
-        table.addCell(cell(v.getCreatedDate(), font));
-        table.addCell(cell(v.getUpdatedDate(), font));
-        table.addCell(cell(v.getSellerId(), font));
-        table.addCell(cell(v.getOpeningHours(), font));
-        table.addCell(cell(v.getClosingDays(), font));
-        table.addCell(cell(v.getAverageRating(), font));
-        table.addCell(cell(v.getTotalReviews(), font));
-        table.addCell(cell(v.getMapEmbedUrl(), font));
-        table.addCell(cell(v.getVirtualTourUrl(), font));
-        table.addCell(cell(v.getHistory(), font));
-        table.addCell(cell(v.getSpecialFeatures(), font));
-        table.addCell(cell(v.getFamousProducts(), font));
-        table.addCell(cell(v.getCulturalEvents(), font));
-        table.addCell(cell(v.getCraftProcess(), font));
-        table.addCell(cell(v.getVideoDescriptionUrl(), font));
-        table.addCell(cell(v.getTravelTips(), font));
     }
 
     private PdfPCell cell(Object value, Font font) {
         String text;
         if (value == null) {
             text = "-";
-        } else if (value instanceof Timestamp) {
-            text = new SimpleDateFormat("dd/MM/yyyy HH:mm").format((Timestamp) value);
+        } else if (value instanceof Timestamp ts) {
+            text = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(ts);
         } else {
             text = value.toString();
         }
@@ -205,7 +186,18 @@ public class ExportOrderPDFServlet extends HttpServlet {
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setPadding(3f);
-        cell.setNoWrap(false);
         return cell;
+    }
+
+    private String orderStatusToString(Integer status) {
+        return switch (status) {
+            case 0 -> "Processing";
+            case 1 -> "Delivering";
+            case 2 -> "Received";
+            case 3 -> "Canceled";
+            case 4 -> "Refunded";
+            case 5 -> "Refunding";
+            default -> "Unknown";
+        };
     }
 }

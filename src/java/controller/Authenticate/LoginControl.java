@@ -47,7 +47,6 @@ public class LoginControl extends HttpServlet {
             session.setAttribute("userName", a.getUserName());
             session.setAttribute("fullName", a.getFullName()); // ✅ Added fullName
             session.setAttribute("roleID", a.getRoleID());
-            session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
             session.setMaxInactiveInterval(1800); // 30 minutes
 
             // Get wishlist count
@@ -57,7 +56,13 @@ public class LoginControl extends HttpServlet {
             } catch (Exception e) {
                 session.setAttribute("wishlistCount", 0);
             }
-            response.sendRedirect("home");
+            if (a.getRoleID() == 1) {
+                response.sendRedirect("home");
+            } else if (a.getRoleID() == 2) {
+                response.sendRedirect("seller");
+            } else if (a.getRoleID() == 3) {
+                response.sendRedirect("admin");
+            }
         }
     }
 
@@ -65,7 +70,6 @@ public class LoginControl extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String code = request.getParameter("code"); // Lấy mã code từ Google
-        
 
         if (code == null || code.isEmpty()) {
             request.getRequestDispatcher("Login.jsp").forward(request, response);
@@ -77,14 +81,12 @@ public class LoginControl extends HttpServlet {
             LoginGmail gg = new LoginGmail();
             String accessToken = gg.getToken(code);
 
-
             if (accessToken == null) {
                 throw new IOException("Failed to get access token");
             }
 
             // Bước 2: Lấy thông tin user từ Google
             GoogleAccount acc = gg.getUserInfo(accessToken);
-
 
             if (acc == null || acc.getEmail() == null) {
                 throw new IOException("Failed to get Google account info");
@@ -107,7 +109,7 @@ public class LoginControl extends HttpServlet {
                 session.setAttribute("userName", a.getUserName());
                 session.setAttribute("fullName", a.getFullName()); // ✅ Added fullName
                 session.setAttribute("roleID", a.getRoleID());
-                 session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
+                session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
                 session.setMaxInactiveInterval(1800); // 30 minutes
 
                 // Get wishlist count
@@ -118,7 +120,13 @@ public class LoginControl extends HttpServlet {
 
                     session.setAttribute("wishlistCount", 0);
                 }
-                response.sendRedirect("home");
+                if (a.getRoleID() == 1) {
+                    response.sendRedirect("home");
+                } else if (a.getRoleID() == 2) {
+                    response.sendRedirect("seller");
+                } else if (a.getRoleID() == 3) {
+                    response.sendRedirect("admin");
+                }
 
             }
         } catch (Exception e) {
@@ -136,8 +144,6 @@ public class LoginControl extends HttpServlet {
         String u = request.getParameter("user");
         String p = request.getParameter("pass");
 
-
-
         // Controller calls Service for business logic
         Account a = accountService.login(u, p);
 
@@ -150,9 +156,9 @@ public class LoginControl extends HttpServlet {
             session.setAttribute("account", a);  // FOR MENU.JSP COMPATIBILITY
             session.setAttribute("userID", a.getUserID());
             session.setAttribute("userName", a.getUserName());
-            session.setAttribute("fullName", a.getFullName()); 
+            session.setAttribute("fullName", a.getFullName());
             session.setAttribute("roleID", a.getRoleID());
-             session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
+            session.setAttribute("points", accountService.getPointsByUserID(a.getUserID()));
             session.setMaxInactiveInterval(1800); // 30 minutes
 
             // Get wishlist count
@@ -172,7 +178,13 @@ public class LoginControl extends HttpServlet {
                 response.addCookie(usernameCookie);
                 response.addCookie(passwordCookie);
             }
-            response.sendRedirect("home");
+            if (a.getRoleID() == 1) {
+                response.sendRedirect("home");
+            } else if (a.getRoleID() == 2) {
+                response.sendRedirect("seller");
+            } else if (a.getRoleID() == 3) {
+                response.sendRedirect("admin");
+            }
         }
     }
 

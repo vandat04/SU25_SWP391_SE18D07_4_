@@ -77,6 +77,7 @@ public class UserProfileController extends HttpServlet {
             if (refreshedAccount != null) {
                 // Update session with fresh data
                 session.setAttribute("acc", refreshedAccount);
+                session.setAttribute("points", accountService.getPointsByUserID(refreshedAccount.getUserID()));
                 LOGGER.log(Level.INFO, "Profile loaded successfully for user: {0}", refreshedAccount.getUserName());
             } else {
                 LOGGER.log(Level.WARNING, "Account not found in database for ID: {0}", sessionAccount.getUserID());

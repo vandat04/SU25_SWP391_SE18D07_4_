@@ -207,38 +207,37 @@ public class ReportDAO {
                 contentSearch = "%" + contentSearch + "%"; // Cho phép tìm gần đúng
                 break;
         }
-        if (searchID == 4 || searchID == 5){
+        if (searchID == 4 || searchID == 5) {
             query += " , createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         } else {
-        query += " ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            query += " ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         }
         List<Account> list = new ArrayList<>();
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-    ps.setInt(1, status);
-    int index = 2;
+            ps.setInt(1, status);
+            int index = 2;
 
-    if (searchID == 11) {
-        // Không có contentSearch
-    } else if (searchID == 7 || searchID == 10) {
-        ps.setString(index++, contentSearch);
-    } else {
-        ps.setString(index++, contentSearch);
-    }
+            if (searchID == 11) {
+                // Không có contentSearch
+            } else if (searchID == 7 || searchID == 10) {
+                ps.setString(index++, contentSearch);
+            } else {
+                ps.setString(index++, contentSearch);
+            }
 
-    ps.setInt(index++, offset);
-    ps.setInt(index, pageSize);
+            ps.setInt(index++, offset);
+            ps.setInt(index, pageSize);
 
-    try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            list.add(mapResultSetToAccount(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToAccount(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Hoặc log ra hệ thống
         }
-    }
-} catch (SQLException e) {
-    e.printStackTrace(); // Hoặc log ra hệ thống
-}
         return list;
     }
-
 
     public Map<Integer, Integer> getRegistrationSummaryByMonthYear(int year) {
         String query = "SELECT MONTH(createdDate) AS [Month], COUNT(*) AS [Total] "
@@ -730,7 +729,7 @@ public class ReportDAO {
         }
         return list;
     }
-    
+
     public int getTotalAccounts() {
         int count = 0;
         Connection conn = null;
@@ -747,11 +746,11 @@ public class ReportDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-           closeResources(conn, ps, rs);
+            closeResources(conn, ps, rs);
         }
         return count;
     }
-    
+
     public int getTotalSearchAccounts(int status, int searchID, String contentSearch) {
         int count = 0;
         StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM Account WHERE 1=1");
@@ -829,11 +828,31 @@ public class ReportDAO {
         return count;
     }
 //----Main test    
+
     public static void main(String[] args) {
         //   System.out.println(new ReportDAO().getRegistrationSummaryByMonthYear(2024));
         // Payment p = new Payment(new ReportDAO().getSellerIdByProductId(1), 9, null, BigDecimal.valueOf(250000), "bankTransfer", 1);
         //System.out.println(p.getPaymentMethod());
-        System.out.println(new ReportDAO().getSearchAccount(0,4,"",0,10));
+        System.out.println(new ReportDAO().getPaymentBySubOrderID(3).getAmount().intValue());
+    }
+
+    public Payment getPaymentBySubOrderID(int subOrderId) {
+        String query = "SELECT * FROM Payment WHERE subOrderId = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, subOrderId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPayment(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error in getPaymentBySubOrderID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

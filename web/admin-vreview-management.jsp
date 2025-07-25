@@ -39,6 +39,11 @@
         </script>
     </head>
     <body>
+        <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay"
+             class="fixed inset-0 z-[999] bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
         <div class="flex min-h-screen">
             <jsp:include page="admin-sidebar.jsp"/>
 
@@ -92,11 +97,57 @@
                     <table class="w-full table-auto border border-gray-300 text-sm">
                         <thead class="bg-gray-200 text-center">
                             <tr>
-                                <th class="p-2 border">Review ID</th>
+                                <th class="p-2 border">No.</th>
                                 <th class="p-2 border">User ID</th>
-                                <th class="p-2 border">Rating</th>
+
+                                <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                    <div class="relative inline-flex items-center space-x-1">
+                                        <span class="text-sm font-semibold text-black">Rating</span>
+                                        <button onclick="toggleMenu('ratingMenu')"
+                                                class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                            ▼
+                                        </button>
+
+                                        <!-- Dropdown menu -->
+                                        <div id="ratingMenu"
+                                             class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                            <a href="admin-preview-management?pid=${pid}&searchID=1"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort Low - High
+                                            </a>
+                                            <a href="admin-preview-management?pid=${pid}&searchID=2"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort High - Low
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th>
+
                                 <th class="p-2 border">Text</th>
-                                <th class="p-2 border">Date</th>
+                                <th class="p-2 border">Image</th>
+                                <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                    <div class="relative inline-flex items-center space-x-1">
+                                        <span class="text-sm font-semibold text-black">Date</span>
+                                        <button onclick="toggleMenu('dateMenu')"
+                                                class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                            ▼
+                                        </button>
+
+                                        <!-- Dropdown menu -->
+                                        <div id="dateMenu"
+                                             class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                            <a href="admin-preview-management?pid=${pid}&searchID=3"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort Early → Late
+                                            </a>
+                                            <a href="admin-preview-management?pid=${pid}&searchID=4"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Sort Late → Early
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th>
+
                                 <th class="p-2 border">Response</th>
                                 <th class="p-2 border">Response Date</th>
                                 <th class="p-2 border">Action</th>
@@ -159,5 +210,70 @@
                 </form>
             </div>
         </div>
+        <script>
+            function toggleMenu(menuId) {
+                const menus = document.querySelectorAll('.absolute.z-10');
+                menus.forEach(menu => {
+                    if (menu.id !== menuId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) {
+                    targetMenu.classList.toggle('hidden');
+                }
+            }
+
+            // Optional: Đóng menu nếu click ra ngoài
+            window.addEventListener('click', function (e) {
+                const ratingMenu = document.getElementById('ratingMenu');
+                const button = e.target.closest('button');
+                const insideMenu = e.target.closest('#ratingMenu');
+                if (!insideMenu && (!button || !button.onclick?.toString().includes('toggleMenu'))) {
+                    ratingMenu?.classList.add('hidden');
+                }
+            });
+        </script>
+        <script>
+            function toggleMenu(menuId) {
+                const menus = document.querySelectorAll('.absolute.z-10');
+                menus.forEach(menu => {
+                    if (menu.id !== menuId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) {
+                    targetMenu.classList.toggle('hidden');
+                }
+            }
+
+            // Đóng menu nếu click ra ngoài
+            window.addEventListener('click', function (e) {
+                const isMenuToggle = e.target.closest('button')?.onclick?.toString().includes('toggleMenu');
+                const insideAnyMenu = e.target.closest('.absolute.z-10');
+                if (!insideAnyMenu && !isMenuToggle) {
+                    document.querySelectorAll('.absolute.z-10').forEach(menu => menu.classList.add('hidden'));
+                }
+            });
+        </script>
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    document.getElementById("loadingOverlay").classList.remove("hidden");
+                });
+            });
+
+            // Cũng có thể áp dụng khi click vào link có href (ví dụ đổi trang, export PDF…)
+            document.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", e => {
+                    const href = link.getAttribute("href");
+                    if (href && !href.startsWith("#") && !href.startsWith("javascript")) {
+                        document.getElementById("loadingOverlay").classList.remove("hidden");
+                    }
+                });
+            });
+        </script>
+
     </body>
 </html>

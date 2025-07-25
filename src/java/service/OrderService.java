@@ -304,11 +304,15 @@ public class OrderService implements IOrderService {
         return oDAO.getSearchSubOrderByAdmin( status,  searchID);
     }
 
-    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, int page, int pageSize) {
-        return oDAO.getSearchSubOrderByAdmin( status,  searchID,  page,  pageSize) ;
+    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID,String contentSearch, int page, int pageSize) {
+        return oDAO.getSearchSubOrderByAdmin( status,  searchID,contentSearch,  page,  pageSize) ;
     }
 
-    public int getTotalSubOrders(int status, int searchID) {
-        return oDAO.getTotalSubOrders( status,  searchID);
+    public int getTotalSubOrders(int status, int searchID,String contentSearch) {
+        return oDAO.getTotalSubOrders( status,  searchID,contentSearch);
+    }
+
+    public List<SubOrder> getSubOrderByVillageID(int villageID) {
+        return oDAO.getSubOrderByVillageID(villageID);
     }
 }

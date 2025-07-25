@@ -29,7 +29,7 @@ public class ReviewDAO {
                 rs.getTimestamp("reviewDate"),
                 rs.getString("response"),
                 rs.getTimestamp("responseDate"),
-                rs.getString("pictureUrl")
+                rs.getString("pictrureUrl")
         );
     }
 
@@ -44,7 +44,7 @@ public class ReviewDAO {
                 rs.getTimestamp("reviewDate"),
                 rs.getString("response"),
                 rs.getTimestamp("responseDate"),
-                rs.getString("pictureUrl")
+                rs.getString("pictrureUrl")
         );
     }
 
@@ -218,8 +218,25 @@ public class ReviewDAO {
         return false;
     }
 
-    public List<ProductReview> searchProductReviewByAdmin(int userID) {
-        String query = "SELECT * FROM ProductReview WHERE userID = ?";
+    public List<ProductReview> searchProductReviewByAdmin(int pid, int searchID) {
+        String query;
+        switch (searchID) {
+            case 1:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY rating ASC";
+                break;
+            case 2:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY rating DESC";
+                break;
+            case 3:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY reviewDate ASC";
+                break;
+            case 4:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY reviewDate DESC";
+                break;
+            default:
+                throw new AssertionError();
+        }
+
         List<ProductReview> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -228,7 +245,7 @@ public class ReviewDAO {
         try {
             conn = DBContext.getConnection();
             ps = conn.prepareStatement(query);
-            ps.setInt(1, userID); // Gán giá trị cho tham số ?
+            ps.setInt(1, pid); // Gán giá trị cho tham số ?
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -240,6 +257,58 @@ public class ReviewDAO {
             closeResources(conn, ps, rs);
         }
         return list;
+    }
+
+    public List<ProductReview> searchProductReviewByAdmin(int pid, int searchID, int page, int pageSize) {
+        String query;
+        switch (searchID) {
+            case 1:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY rating ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+            case 2:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY rating DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+            case 3:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY reviewDate ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+            case 4:
+            default:
+                query = "SELECT * FROM ProductReview WHERE productID = ? ORDER BY reviewDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                break;
+        }
+
+        List<ProductReview> list = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            int offset = Math.max((page - 1) * pageSize, 0);  // ✅ Tránh OFFSET âm
+            ps.setInt(1, pid);
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProductReview(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countProductReviews(int pid) {
+        String query = "SELECT COUNT(*) FROM ProductReview WHERE productID = ?";
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, pid);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public List<CraftReview> searchVillageReviewByAdmin(int userID) {
@@ -403,12 +472,11 @@ public class ReviewDAO {
         }
         return false;
     }
-    
- 
+
     // Test thử
     public static void main(String[] args) {
         ReviewDAO dao = new ReviewDAO();
-        System.out.println(dao.getAllVillageReviewByAdmin(6));
+        System.out.println(dao.searchProductReviewByAdmin(6, 1, 0, 10));
     }
 
     /**
@@ -854,13 +922,12 @@ public class ReviewDAO {
     public java.util.Map<String, Object> getCompleteProductInfo(int productID) {
         String sql = "{call sp_GetCompleteProductInfo(?)}";
         java.util.Map<String, Object> productInfo = new java.util.HashMap<>();
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, productID);
             ResultSet rs = cs.executeQuery();
-            
+
             if (rs.next()) {
                 productInfo.put("pid", rs.getInt("pid"));
                 productInfo.put("name", rs.getString("name"));
@@ -892,7 +959,7 @@ public class ReviewDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting complete product info: " + e.getMessage(), e);
         }
-        
+
         return productInfo;
     }
 
@@ -905,13 +972,12 @@ public class ReviewDAO {
     public java.util.Map<String, Object> getCompleteVillageInfo(int villageID) {
         String sql = "{call sp_GetCompleteVillageInfo(?)}";
         java.util.Map<String, Object> villageInfo = new java.util.HashMap<>();
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, villageID);
             ResultSet rs = cs.executeQuery();
-            
+
             if (rs.next()) {
                 villageInfo.put("villageID", rs.getInt("villageID"));
                 villageInfo.put("villageName", rs.getString("villageName"));
@@ -950,7 +1016,7 @@ public class ReviewDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting complete village info: " + e.getMessage(), e);
         }
-        
+
         return villageInfo;
     }
 
@@ -963,13 +1029,12 @@ public class ReviewDAO {
     public java.util.Map<String, Object> getCompleteTicketInfo(int ticketID) {
         String sql = "{call sp_GetCompleteTicketInfo(?)}";
         java.util.Map<String, Object> ticketInfo = new java.util.HashMap<>();
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, ticketID);
             ResultSet rs = cs.executeQuery();
-            
+
             if (rs.next()) {
                 ticketInfo.put("ticketID", rs.getInt("ticketID"));
                 ticketInfo.put("price", rs.getBigDecimal("price"));
@@ -998,7 +1063,7 @@ public class ReviewDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting complete ticket info: " + e.getMessage(), e);
         }
-        
+
         return ticketInfo;
     }
 
@@ -1011,13 +1076,12 @@ public class ReviewDAO {
     public List<java.util.Map<String, Object>> getUserReviewableProducts(int userID) {
         String sql = "{call sp_GetUserReviewableProducts(?)}";
         List<java.util.Map<String, Object>> reviewableProducts = new ArrayList<>();
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, userID);
             ResultSet rs = cs.executeQuery();
-            
+
             while (rs.next()) {
                 java.util.Map<String, Object> product = new java.util.HashMap<>();
                 product.put("productID", rs.getInt("productID"));
@@ -1037,7 +1101,7 @@ public class ReviewDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting user reviewable products: " + e.getMessage(), e);
         }
-        
+
         return reviewableProducts;
     }
 
@@ -1050,13 +1114,12 @@ public class ReviewDAO {
     public List<java.util.Map<String, Object>> getUserReviewableVillages(int userID) {
         String sql = "{call sp_GetUserReviewableVillages(?)}";
         List<java.util.Map<String, Object>> reviewableVillages = new ArrayList<>();
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, userID);
             ResultSet rs = cs.executeQuery();
-            
+
             while (rs.next()) {
                 java.util.Map<String, Object> village = new java.util.HashMap<>();
                 village.put("villageID", rs.getInt("villageID"));
@@ -1074,7 +1137,7 @@ public class ReviewDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting user reviewable villages: " + e.getMessage(), e);
         }
-        
+
         return reviewableVillages;
     }
 
@@ -1088,17 +1151,16 @@ public class ReviewDAO {
      */
     public boolean canUserReviewProduct_v2(int userID, int productID, int orderID) {
         String sql = "{call sp_CheckProductReviewEligibility(?, ?, ?, ?)}";
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, userID);
             cs.setInt(2, productID);
             cs.setInt(3, orderID);
             cs.registerOutParameter(4, Types.INTEGER);
-            
+
             cs.execute();
-            
+
             int result = cs.getInt(4);
             return result == 1; // Eligible for review
         } catch (SQLException e) {
@@ -1117,17 +1179,16 @@ public class ReviewDAO {
      */
     public boolean canUserReviewVillage_v2(int userID, int villageID, int orderID) {
         String sql = "{call sp_CheckVillageReviewEligibility(?, ?, ?, ?)}";
-        
-        try (Connection conn = DBContext.getConnection(); 
-             CallableStatement cs = conn.prepareCall(sql)) {
-            
+
+        try (Connection conn = DBContext.getConnection(); CallableStatement cs = conn.prepareCall(sql)) {
+
             cs.setInt(1, userID);
             cs.setInt(2, villageID);
             cs.setInt(3, orderID);
             cs.registerOutParameter(4, Types.INTEGER);
-            
+
             cs.execute();
-            
+
             int result = cs.getInt(4);
             return result == 1; // Eligible for review
         } catch (SQLException e) {
@@ -1137,7 +1198,8 @@ public class ReviewDAO {
     }
 
     /**
-     * Add product review with updated order validation (status=2, paymentStatus=1)
+     * Add product review with updated order validation (status=2,
+     * paymentStatus=1)
      *
      * @param review The product review
      * @param orderID The order ID this review relates to
@@ -1179,7 +1241,8 @@ public class ReviewDAO {
     }
 
     /**
-     * Add village review with updated ticket order validation (status=2, paymentStatus=1)
+     * Add village review with updated ticket order validation (status=2,
+     * paymentStatus=1)
      *
      * @param review The village review
      * @param orderID The ticket order ID this review relates to

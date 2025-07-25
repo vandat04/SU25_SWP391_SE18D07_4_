@@ -73,6 +73,30 @@ public class AdminAccountManagement extends HttpServlet {
             totalAccounts = aService.getTotalAccounts(); // New method needed in AccountService
             totalPages = (int) Math.ceil((double) totalAccounts / PAGE_SIZE);
         }
+        
+        String error = request.getParameter("error");
+        String message = "";
+        if (error != null) {
+            switch (error) {
+                case "1":
+                    message = "Update Success";
+                    break;
+                case "2":
+                    message = "Update Fail";
+                    break;
+                case "3":
+                    message = "Create Success";
+                    break;
+                case "4":
+                    message = "Create Fail";
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+            request.setAttribute("error", error);
+            request.setAttribute("message", message);
+        }
+
 
         request.setAttribute("listAccount", listAccount);
         request.setAttribute("currentPage", currentPage);
@@ -119,39 +143,30 @@ public class AdminAccountManagement extends HttpServlet {
         String status = request.getParameter("status");
         String searchID = request.getParameter("searchID");
         String contentSearch = request.getParameter("contentSearch");
+        Account account;
+        boolean result;
+        String errorCode;
 
         switch (typeName) {
             case "updateProfile":
-                try {
-                    Account account = new Account(Integer.parseInt(userID), userName, password, email, address, phoneNumber, Integer.parseInt(status), Integer.parseInt(roleID), fullName);
-                    boolean result = aService.updateProfile(account);
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Update Success");
-                    } else {
-                        request.setAttribute("error", "0");
-                        request.setAttribute("message", "Update error Email or phone number already exists");
-                    }
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Update Fail");
+                account = new Account(Integer.parseInt(userID), userName, password, email, address, phoneNumber, Integer.parseInt(status), Integer.parseInt(roleID), fullName);
+                result = aService.updateProfile(account);
+                if (result) {
+                    errorCode = "1";
+                } else {
+                    errorCode = "2";
                 }
+
                 break;
             case "addAccount":
-                try {
-                    Account account = new Account(userName, password, email, address, phoneNumber, Integer.parseInt(status), Integer.parseInt(roleID), fullName);
-                    boolean result = aService.addNewAccountFull(account);
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Add Success");
-                    } else {
-                        request.setAttribute("error", "0");
-                        request.setAttribute("message", "Add error Email or phone number already exists");
-                    }
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Add Fail");
+                account = new Account(userName, password, email, address, phoneNumber, Integer.parseInt(status), Integer.parseInt(roleID), fullName);
+                result = aService.addNewAccountFull(account);
+                if (result) {
+                    errorCode = "3";
+                } else {
+                    errorCode = "4";
                 }
+
                 break;
             case "searchAccount":
                 // Redirect to GET with search params for pagination support
@@ -162,7 +177,7 @@ public class AdminAccountManagement extends HttpServlet {
                 throw new AssertionError();
         }
         // For update/add, continue to processRequest to reload the list
-        processRequest(request, response);
+        response.sendRedirect("admin-account-management?error=" + errorCode);
     }
 
     /**

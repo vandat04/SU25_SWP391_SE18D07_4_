@@ -32,9 +32,24 @@
                 const menu = document.getElementById('exportMenu');
                 menu.classList.toggle('hidden');
             }
+
+            // Hide all menus when clicking outside (except for export)
+            window.addEventListener('click', function (e) {
+                const isMenuButton = e.target.closest('button')?.getAttribute("onclick")?.includes("toggleMenu") ||
+                        e.target.id === 'exportButton';
+                const insideMenu = e.target.closest('.absolute.z-10') || e.target.closest('#exportMenu');
+                if (!isMenuButton && !insideMenu) {
+                    document.querySelectorAll('.absolute.z-10').forEach(menu => menu.classList.add('hidden'));
+                }
+            });
         </script>
     </head>
     <body class="bg-gray-100">
+        <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay"
+             class="fixed inset-0 z-[999] bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
         <div class="flex min-h-screen">
             <jsp:include page="admin-sidebar.jsp"/>
             <div class="flex-1 p-6">
@@ -43,7 +58,7 @@
                 <c:if test="${not empty message}">
                     <div id="notification"
                          class="fixed top-5 right-5 z-50 px-4 py-3 rounded shadow-lg text-white transition-opacity duration-500
-                         ${error == '1' ? 'bg-green-500' : 'bg-red-500'}">
+                         ${error == '1' || error == '3' || error =='5' ? 'bg-green-500' : 'bg-red-500'}">
                         ${message}
                     </div>
                     <script>
@@ -62,6 +77,33 @@
                         Village List 
                     </h1>
 
+                    <div class="flex justify-center mb-6">
+                        <form action="admin-village-management" method="get" class="flex gap-2 items-center">
+                            <!-- Dropdown Status -->
+                            <select name="status"
+                                    class="h-[42px] border border-gray-300 rounded px-3 py-2 text-sm">
+                                <option value="1" ${status == '1' ? 'selected' : ''}>Active</option>
+                                <option value="0" ${status == '0' ? 'selected' : ''}>Inactive</option>
+                            </select>
+
+                            <!-- Input Search -->
+                            <input type="text" name="contentSearch"
+                                   placeholder="Search by Name"
+                                   class="h-[42px] border border-gray-300 rounded px-3 text-sm w-64" />
+
+                            <!-- Button Icon Search -->
+                            <button type="submit"
+                                    class="h-[42px] w-[42px] bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                     class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1011.5 3a7.5 7.5 0 005.15 13.65z" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+
                     <div class="flex flex-col md:flex-row items-center gap-2">
                         <i id="tooltip-icon" class="bi bi-exclamation-circle-fill text-warning"></i>
 
@@ -79,37 +121,12 @@
                             });
                         </script>
 
-                        <form action="admin-village-management" method="get" class="flex flex-wrap gap-2 items-center">
-                            <select name="status"
-                                    class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                <option value="1" ${status == '1' ? 'selected' : ''}>Active</option>
-                                <option value="0" ${status == '0' ? 'selected' : ''}>Inactive</option>
-                            </select>
 
-                            <select name="searchID"
-                                    class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
-                                <option value="0" ${searchID == '0' ? 'selected' : ''}>All Village</option>
-                                <option value="1" ${searchID == '1' ? 'selected' : ''}>By Category</option>
-                                <option value="2" ${searchID == '2' ? 'selected' : ''}>Sort A - Z</option>
-                                <option value="3" ${searchID == '3' ? 'selected' : ''}>Sort Z - A</option>
-                                <option value="4" ${searchID == '4' ? 'selected' : ''}>Village Name</option>
-                                <option value="5" ${searchID == '5' ? 'selected' : ''}>Village ID</option>
-                                <option value="6" ${searchID == '6' ? 'selected' : ''}>Location</option>
-                                <option value="7" ${searchID == '7' ? 'selected' : ''}>New Village Post</option>
-                            </select>
-
-                            <input type="text" name="contentSearch" value="${fn:escapeXml(contentSearch)}" placeholder="Search by Name, ID"
-                                   class="border border-gray-300 rounded px-3 py-2 text-sm w-64"/>
-
-                            <button type="submit"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                Search
-                            </button>
-                        </form>
 
                         <div class="relative inline-block">
-                            <button onclick="toggleExportMenu()"
-                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                            <button id="exportButton"
+                                    onclick="toggleMenu('exportMenu')"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm w-32">
                                 Export
                             </button>
                             <div id="exportMenu"
@@ -126,7 +143,7 @@
                         </div>
 
                         <button onclick="openAddVillageModal()"
-                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                                class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 text-sm">
                             Add Village
                         </button>
                     </div>
@@ -136,19 +153,93 @@
                 <table class="w-full table-auto border border-gray-300 text-sm">
                     <thead class="bg-gray-200 text-center">
                         <tr>
-                            <th class="p-3 border">Village ID</th>
+                            <th class="p-3 border">No. </th>
                             <th class="p-3 border">Image</th>
-                            <th class="p-3 border">Type Name</th>
-                            <th class="p-3 border">Village Name</th>
+
+                            <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                <div class="relative inline-flex items-center space-x-1">
+                                    <span class="text-sm font-semibold text-black">Village Name</span>
+                                    <button onclick="toggleMenu('villageMenu')"
+                                            class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                        ▼
+                                    </button>
+
+                                    <!-- Dropdown menu -->
+                                    <div id="villageMenu"
+                                         class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                        <a href="admin-village-management?status=${status}&searchID=7"
+                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            All Village
+                                        </a>
+                                        <c:forEach var="v" items="${listAllVillage}">
+                                            <a href="admin-village-management?status=${status}&searchID=2&contentSearch=${v.villageName}"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                ${v.villageName}
+                                            </a>
+                                        </c:forEach>
+
+                                    </div>
+                                </div>
+                            </th>
+
+                            <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                <div class="relative inline-flex items-center space-x-1">
+                                    <span class="text-sm font-semibold text-black">Type Name</span>
+                                    <button onclick="toggleMenu('ratingMenu')"
+                                            class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                        ▼
+                                    </button>
+
+                                    <!-- Dropdown menu -->
+                                    <div id="ratingMenu"
+                                         class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                        <a href="admin-village-management?status=${status}&searchID=3"
+                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            All Type
+                                        </a>
+                                        <c:forEach var="c" items="${listVillages}">
+                                            <a href="admin-village-management?status=${status}&searchID=4&contentSearch=${c.typeID}"
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                ${c.typeName}
+                                            </a>
+                                        </c:forEach>
+
+                                    </div>
+                                </div>
+                            </th>
+
                             <th class="p-3 border">Description</th>
                             <th class="p-3 border">Address</th>
                             <th class="p-3 border">Status</th>
-                            <th class="p-3 border">Created Date</th>
+
+                            <th class="p-3 border w-48 bg-[#e4e6e9]">
+                                <div class="relative inline-flex items-center space-x-1">
+                                    <span class="text-sm font-semibold text-black">Created Date</span>
+                                    <button onclick="toggleMenu('dateMenu')"
+                                            class="text-black text-sm hover:text-blue-600 focus:outline-none">
+                                        ▼
+                                    </button>
+
+                                    <!-- Dropdown menu -->
+                                    <div id="dateMenu"
+                                         class="hidden absolute top-full left-0 z-10 mt-1 w-48 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                                        <a href="admin-village-management?status=${status}&searchID=5"
+                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Sort Early → Late
+                                        </a>
+                                        <a href="admin-village-management?status=${status}&searchID=6"
+                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Sort Late → Early
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+
                             <th class="p-3 border">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="v" items="${listAllVillage}">
+                        <c:forEach var="v" items="${listAllVillages}" varStatus="loop">
                             <c:set var="villageTypeName" value="" />
                             <c:forEach var="type" items="${listVillages}">
                                 <c:if test="${type.typeID == v.typeID}">
@@ -156,13 +247,14 @@
                                 </c:if>
                             </c:forEach>
                             <tr class="text-center border hover:bg-gray-50">
-                                <td class="p-3 border">${v.villageID}</td>
+                                <td class="p-3 border">${loop.index + 1}</td> <!-- Số thứ tự -->
                                 <td class="p-3 border">
                                     <img src="${v.mainImageUrl}" alt="Image"
                                          class="w-16 h-16 object-cover mx-auto rounded"/>
                                 </td>
-                                <td class="p-3 border">${villageTypeName}</td>
+
                                 <td class="p-3 border">${v.villageName}</td>
+                                <td class="p-3 border">${villageTypeName}</td>
                                 <td class="p-3 border text-left max-w-xs truncate">${v.description}</td>
                                 <td class="p-3 border">${v.address}</td>
                                 <td class="p-3 border">
@@ -215,9 +307,9 @@
                                             View
                                         </button>
                                         <a href="admin-vreview-management?villageID=${v.villageID}&villageName=${v.villageName}"
-                                           class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">Review</a>
+                                           class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">Review</a>
                                         <!-- Delete -->
-                                        <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+                                        <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
                                                 onclick="confirmDelete('${v.villageID}')">
                                             Delete
                                         </button>
@@ -266,6 +358,7 @@
                         <h2 class="text-xl font-semibold mb-4">Add Village</h2>
                         <form id="villageAddForm" action="admin-village-management" method="post" enctype="multipart/form-data" class="space-y-4">
                             <input type="hidden" name="action" id="action" value="addVillage">
+                            <div><input type="hidden" name="status" value="${status}"/></div>
                             <!-- fields giống edit nhưng không có ID -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label>Village Name</label><input type="text" name="villageName" class="w-full border p-2" required/></div>
@@ -281,10 +374,11 @@
                                 <div class="col-span-2"><label>Address</label><input type="text" name="address" class="w-full border p-2" required/></div>
                                 <div><input type="hidden" name="latitude" class="w-full border p-2"/></div>
                                 <div><input type="hidden" name="longitude" class="w-full border p-2"/></div>
+
                                 <div><label>Phone</label><input type="text" name="contactPhone" class="w-full border p-2" pattern="^\d{10}$" title="Phone number must be exactly 10 digits"/></div>
                                 <div><label>Email</label><input type="text" name="contactEmail" class="w-full border p-2"/></div>
                                 <div><label>Status</label>
-                                    <select name="status" class="w-full border p-2">
+                                    <select name="statusVillage" class="w-full border p-2">
                                         <option value="1">Active</option>
                                         <option value="0">Hidden</option>
                                     </select>
@@ -318,6 +412,7 @@
                         <form id="villageForm" action="admin-village-management" method="post" enctype="multipart/form-data" class="space-y-4">
                             <input type="hidden" name="action" value="updateVillage">
                             <input type="hidden" name="villageID" id="villageID" />
+                            <div><input type="hidden" name="status" value="${status}"/></div>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label>Village Name</label><input type="text" name="villageName" id="villageName" class="w-full border p-2" required /></div>
@@ -336,7 +431,7 @@
                                 <div><label>Phone</label><input type="text" name="contactPhone" id="contactPhone" class="w-full border p-2" pattern="^\d{10}$" title="Phone number must be exactly 10 digits"/></div>
                                 <div><label>Email</label><input type="text" name="contactEmail" id="contactEmail" class="w-full border p-2" /></div>
                                 <div><label>Status</label>
-                                    <select name="status" id="status" class="w-full border p-2">
+                                    <select name="statusVillage" id="status" class="w-full border p-2">
                                         <option value="1">Active</option>
                                         <option value="0">Hidden</option>
                                     </select>
@@ -424,5 +519,105 @@
                 document.getElementById('villageModal').classList.remove('hidden');
             }
         </script>
+        <script>
+            function toggleMenu(menuId) {
+                const menus = document.querySelectorAll('.absolute.z-10');
+                menus.forEach(menu => {
+                    if (menu.id !== menuId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) {
+                    targetMenu.classList.toggle('hidden');
+                }
+            }
+
+            // Optional: Đóng menu nếu click ra ngoài
+            window.addEventListener('click', function (e) {
+                const ratingMenu = document.getElementById('ratingMenu');
+                const button = e.target.closest('button');
+                const insideMenu = e.target.closest('#ratingMenu');
+                if (!insideMenu && (!button || !button.onclick?.toString().includes('toggleMenu'))) {
+                    ratingMenu?.classList.add('hidden');
+                }
+            });
+        </script>
+        <script>
+            function toggleMenu(menuId) {
+                const menus = document.querySelectorAll('.absolute.z-10');
+                menus.forEach(menu => {
+                    if (menu.id !== menuId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) {
+                    targetMenu.classList.toggle('hidden');
+                }
+            }
+
+            // Đóng menu nếu click ra ngoài
+            window.addEventListener('click', function (e) {
+                const isMenuToggle = e.target.closest('button')?.onclick?.toString().includes('toggleMenu');
+                const insideAnyMenu = e.target.closest('.absolute.z-10');
+                if (!insideAnyMenu && !isMenuToggle) {
+                    document.querySelectorAll('.absolute.z-10').forEach(menu => menu.classList.add('hidden'));
+                }
+            });
+        </script>
+        <script>
+    // Hiển thị loading overlay khi submit form
+    document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", () => {
+            document.getElementById("loadingOverlay").classList.remove("hidden");
+        });
+    });
+
+    // Hiển thị loading overlay khi click vào link, trừ các link đặc biệt
+    document.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", e => {
+            const href = link.getAttribute("href");
+            if (
+                href &&
+                !href.startsWith("#") &&
+                !href.startsWith("javascript") &&
+                !href.includes("export-village-pdf")
+            ) {
+                document.getElementById("loadingOverlay").classList.remove("hidden");
+            }
+        });
+    });
+</script>
+
+        <script>
+            // Đóng modal khi click ra ngoài nội dung của modal
+            function setupModalClose(modalId, closeFunction) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.addEventListener('click', function (event) {
+                        // Nếu click đúng vào phần nền đen (chính modal), thì đóng
+                        if (event.target === modal) {
+                            closeFunction();
+                        }
+                    });
+                }
+            }
+
+            // Hàm đóng modal chỉnh sửa village
+            function closeEditVillageModal() {
+                document.getElementById('villageModal').classList.add('hidden');
+            }
+
+            // Hàm đóng modal thêm village
+            function closeAddVillageModal() {
+                document.getElementById('villageAddModal').classList.add('hidden');
+            }
+
+            // Gán sự kiện đóng cho từng modal
+            setupModalClose('villageModal', closeEditVillageModal);
+            setupModalClose('villageAddModal', closeAddVillageModal);
+        </script>
+
     </body>
 </html>

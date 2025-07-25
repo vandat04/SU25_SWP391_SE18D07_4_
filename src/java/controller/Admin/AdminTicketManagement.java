@@ -24,7 +24,7 @@ public class AdminTicketManagement extends HttpServlet {
 
     List<Ticket> listTicket;
     TicketService tService = new TicketService();
-    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -36,8 +36,52 @@ public class AdminTicketManagement extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String error = request.getParameter("error");
+        String statusStr = request.getParameter("status");
+        String searchIDStr = request.getParameter("searchID");
+        String searchContent = request.getParameter("contentSearch") != null ? request.getParameter("contentSearch") : "";
+        int searchID = 0;
+        int status = 1;
         
-        listTicket = new TicketService().getAllTicketActive();
+        int page = 1;
+int pageSize = 10;
+
+String pageStr = request.getParameter("page");
+if (pageStr != null) {
+    try {
+        page = Integer.parseInt(pageStr);
+    } catch (NumberFormatException e) {
+        page = 1;
+    }
+}
+        try {
+            searchID = Integer.parseInt(searchIDStr);
+        } catch (Exception e) {
+        }
+        try {
+            status = Integer.parseInt(statusStr);
+        } catch (Exception e) {
+        }
+        int offset = (page - 1) * pageSize;
+listTicket = tService.searchTicketByAdmin(status, searchID, searchContent, offset, pageSize);
+
+// Lấy tổng số ticket để tính số trang
+int totalTicket = tService.countTotalTicketByAdmin(status, searchID, searchContent);
+int totalPage = (int) Math.ceil((double) totalTicket / pageSize);
+
+request.setAttribute("listTicket", listTicket);
+request.setAttribute("totalPage", totalPage);
+request.setAttribute("currentPage", page);
+        if (error != null){
+            if (error.equals("1")){
+                request.setAttribute("error", error);
+                request.setAttribute("message", "Load success");
+            } else {
+                request.setAttribute("error", error);
+                request.setAttribute("message", "Load fail");
+            }
+        }
+        request.setAttribute("status", status);
         request.setAttribute("listTicket", listTicket);
         request.getRequestDispatcher("admin-ticket-management.jsp").forward(request, response);
     }
@@ -68,85 +112,48 @@ public class AdminTicketManagement extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-      
-        String typeName =request.getParameter("typeName");
-        
+
+        String typeName = request.getParameter("typeName");
+
         String ticketID = request.getParameter("ticketID");
         String villageID = request.getParameter("villageID");
         String typeID = request.getParameter("typeID");
         String price = request.getParameter("price");
         String status = request.getParameter("status");
-        
+        String statusTicket = request.getParameter("statusTicket");
+        boolean result = false;
+        int error = 0;
         switch (typeName) {
+
             case "updateTicket":
                 try {
-                    Ticket ticket = new Ticket(Integer.parseInt(ticketID), BigDecimal.valueOf(Double.parseDouble(price)), Integer.parseInt(status));
-                    boolean result = tService.updateTicketByAdmin(ticket);
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Update Success");
-                    } else {
-                        request.setAttribute("error", "0");
-                        request.setAttribute("message", "Update error Ticket already exists");
-                    }
+                    Ticket ticket = new Ticket(Integer.parseInt(ticketID), BigDecimal.valueOf(Double.parseDouble(price)), Integer.parseInt(statusTicket));
+                    result = tService.updateTicketByAdmin(ticket);
                 } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Update Fail");
                 }
-                listTicket = tService.getAllTicketActive();
-                request.setAttribute("listTicket", listTicket);
                 break;
             case "createTicket":
                 try {
                     Ticket ticket = new Ticket(Integer.parseInt(villageID), Integer.parseInt(typeID), BigDecimal.valueOf(Double.parseDouble(price)), Integer.parseInt(status));
-                    boolean result = tService.createTicketByAdmin(ticket);
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Create Success");
-                    } else {
-                        request.setAttribute("error", "0");
-                        request.setAttribute("message", "Create Fail: Ticket already exists");
-                    }
+                    result = tService.createTicketByAdmin(ticket);
                 } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Create Fail");
                 }
-                listTicket = tService.getAllTicketActive();
-                request.setAttribute("listTicket", listTicket);
                 break;
             case "deleteTicket":
                 try {
-                    boolean result = tService.deleteTicketByAdmin(Integer.parseInt(ticketID));
-                    if (result) {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Delete Success");
-                    } else {
-                        request.setAttribute("error", "1");
-                        request.setAttribute("message", "Deactive success");
-                    }
+                    result = tService.deleteTicketByAdmin(Integer.parseInt(ticketID));
                 } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Delete Fails");
-                }
-                listTicket = tService.getAllTicketActive();
-                request.setAttribute("listTicket", listTicket);
-                break;
-            case "searchTicket":
-                try {
-                    listTicket = new TicketService().searchTicketByAdmin(Integer.parseInt(status), Integer.parseInt(villageID));
-                    request.setAttribute("error", "1");
-                    request.setAttribute("message", "Search Success");
-                    request.setAttribute("listTicket", listTicket);
-                } catch (Exception e) {
-                    request.setAttribute("error", "0");
-                    request.setAttribute("message", "Search Fail");
                 }
                 break;
+
             default:
                 throw new AssertionError();
         }
-        request.getRequestDispatcher("admin-ticket-management.jsp").forward(request, response);
-        
+        if (result) {
+            error = 1;
+        }
+        response.sendRedirect("admin-ticket-management?status=" + status + "&error=" + error);
+
     }
 
     /**

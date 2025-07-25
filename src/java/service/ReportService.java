@@ -6,9 +6,7 @@ package service;
 
 import DAO.ReportDAO;
 import entity.Orders.Payment;
-import entity.Orders.SubOrder;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,5 +62,9 @@ public class ReportService implements IReportService{
     
     public int getSellerIdByVillageId(int villageId){ 
         return rDAO.getSellerIdByVillageId(villageId);
+    }
+
+    public Payment getPaymentBySubOrderID(int subOrderId) {
+        return rDAO.getPaymentBySubOrderID(subOrderId);
     }
 }

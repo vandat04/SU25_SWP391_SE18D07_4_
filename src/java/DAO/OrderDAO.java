@@ -430,8 +430,7 @@ public class OrderDAO {
     }
 
     public static void main(String[] args) {
-        System.out.println("");
-        System.out.println(new OrderDAO().getSearchSubOrderByAdmin(0, 0,0,10));
+        System.out.println(new OrderDAO().getSubOrderByVillageID(1));
     }
 
     public double getOrderTotal(int orderID) {
@@ -1339,82 +1338,232 @@ public class OrderDAO {
         return list;
     }
 
-    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, int page, int pageSize) {
-        List<SubOrder> list = new ArrayList<>();
-        StringBuilder query = new StringBuilder("SELECT * FROM SubOrders WHERE 1=1");
+   public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, String contentSearch, int page, int pageSize) {
+    List<SubOrder> list = new ArrayList<>();
+    String query = "";
+    int paramIndex = 1;
 
-        // Thêm điều kiện lọc nếu có
-        if (status != 7) {
-            query.append(" AND orderStatus = ?");
+    // Validate và chuẩn hóa input
+    if (contentSearch == null) contentSearch = "";
+    contentSearch = contentSearch.trim();
+    if (page < 1) page = 1;
+    if (pageSize <= 0) pageSize = 10;
+
+    // Xác định có lọc theo orderStatus hay không
+    boolean filterByStatus = (status != 7);
+
+    // Xây dựng câu lệnh SQL tương ứng với searchID và status
+    if (filterByStatus) {
+        switch (searchID) {
+            case 0:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate DESC";
+                break;
+            case 1:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND villageId = ? ORDER BY createdDate DESC";
+                break;
+            case 2:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY total_price ASC ";
+                break;
+            case 3:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY total_price  DESC";
+                break;
+            case 4:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND paymentMethod LIKE ? ORDER BY paymentMethod";
+                break;
+            case 5:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND paymentStatus = ? ORDER BY paymentStatus";
+                break;
+            case 6:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY orderStatus";
+                break;
+            case 7:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate ASC";
+                break;
+            case 8:
+                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate DESC ";
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid searchID: " + searchID);
         }
-        if (searchID != 0) {
-            query.append(" AND villageId = ?");
+    } else {
+        // Trường hợp không lọc theo orderStatus (status == 7)
+        switch (searchID) {
+            case 0:
+                query = "SELECT * FROM SubOrders ORDER BY createdDate DESC";
+                break;
+            case 1:
+                query = "SELECT * FROM SubOrders WHERE villageId = ? ORDER BY createdDate DESC";
+                break;
+            case 2:
+                query = "SELECT * FROM SubOrders ORDER BY total_price ASC";
+                break;
+            case 3:
+                query = "SELECT * FROM SubOrders ORDER BY total_price DESC ";
+                break;
+            case 4:
+                query = "SELECT * FROM SubOrders WHERE paymentMethod LIKE ? ORDER BY paymentMethod";
+                break;
+            case 5:
+                query = "SELECT * FROM SubOrders WHERE paymentStatus = ? ORDER BY paymentStatus";
+                break;
+            case 6:
+                query = "SELECT * FROM SubOrders ORDER BY orderStatus";
+                break;
+            case 7:
+                query = "SELECT * FROM SubOrders ORDER BY createdDate ASC";
+                break;
+            case 8:
+                query = "SELECT * FROM SubOrders ORDER BY createdDate DESC ";
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid searchID: " + searchID);
+        }
+    }
+
+    // Thêm phân trang SQL Server
+    query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+    try (Connection conn = DBContext.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        // Nếu cần lọc theo orderStatus
+        if (filterByStatus) {
+            ps.setInt(paramIndex++, status);
         }
 
-        // Thêm sắp xếp và phân trang cho SQL Server
-        query.append(" ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        // Nếu searchID có sử dụng LIKE
+        if (searchID == 4 ) {
+            ps.setString(paramIndex++, "%" + contentSearch + "%");
+        } else if (searchID == 1 || searchID == 5 ){
+            ps.setInt(paramIndex++, Integer.parseInt(contentSearch) );
+        }
 
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query.toString())) {
+        // Phân trang
+        int offset = Math.max((page - 1) * pageSize, 0);
+        ps.setInt(paramIndex++, offset);
+        ps.setInt(paramIndex++, pageSize);
 
-            // Gán giá trị theo thứ tự
-            int paramIndex = 1;
-            if (status != 7) {
-                ps.setInt(paramIndex++, status);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            list.add(mapResultSetToSubOrder(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+
+
+public int getTotalSubOrders(int status, int searchID, String contentSearch) {
+    int total = 0;
+    StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM SubOrders WHERE 1=1");
+
+    boolean filterByStatus = (status != 7);
+    if (filterByStatus) {
+        query.append(" AND orderStatus = ?");
+    }
+
+    if (contentSearch == null) contentSearch = "";
+    contentSearch = contentSearch.trim();
+
+    // Xây dựng điều kiện tìm kiếm bổ sung
+    switch (searchID) {
+        case 1: // Village ID (LIKE)
+            query.append(" AND villageId LIKE ?");
+            break;
+        case 4: // Payment method (LIKE)
+            query.append(" AND paymentMethod LIKE ?");
+            break;
+        case 5: // Payment status (LIKE)
+            query.append(" AND paymentStatus LIKE ?");
+            break;
+        case 6: // Order status (chỉ dùng nếu status == 7)
+            if (!filterByStatus) {
+                query.append(" AND orderStatus = ?");
             }
-            if (searchID != 0) {
-                ps.setInt(paramIndex++, searchID);
-            }
+            break;
+        // Các searchID 0, 2, 3, 7, 8 không thêm điều kiện COUNT
+    }
 
-            // Gán giá trị cho OFFSET và FETCH NEXT
-            ps.setInt(paramIndex++, (page - 1) * pageSize); // OFFSET
-            ps.setInt(paramIndex, pageSize); // FETCH NEXT
+    try (Connection conn = DBContext.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query.toString())) {
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToSubOrder(rs));
+        int paramIndex = 1;
+
+        // Trường hợp có lọc status != 7
+        if (filterByStatus) {
+            ps.setInt(paramIndex++, status);
+        }
+
+        // Gán tham số tìm kiếm
+        switch (searchID) {
+            case 1:
+            case 4:
+            case 5:
+                ps.setString(paramIndex++, "%" + contentSearch + "%");
+                break;
+            case 6:
+                if (!filterByStatus) {
+                    try {
+                        ps.setInt(paramIndex++, Integer.parseInt(contentSearch));
+                    } catch (NumberFormatException e) {
+                        ps.setInt(paramIndex++, -1); // không tìm thấy
+                    }
                 }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+                break;
         }
 
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return total;
+}
+    public List<SubOrder> getSubOrderByVillageID(int villageID) {
+        List<SubOrder> list = new ArrayList<>();
+        String sql = "SELECT * FROM SubOrders WHERE villageId = ?";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, villageID);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(mapResultSetToSubOrder(rs));
+                list.add(mapResultSetToSubOrder(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
         return list;
     }
 
-    public int getTotalSubOrders(int status, int searchID) {
-        int total = 0;
-        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM SubOrders WHERE 1=1");
-
-        // Thêm điều kiện lọc nếu có
-        if (status != 7) {
-            query.append(" AND orderStatus = ?");
-        }
-        if (searchID != 0) {
-            query.append(" AND villageId = ?");
-        }
-
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query.toString())) {
-
-            // Gán giá trị theo thứ tự
-            int paramIndex = 1;
-            if (status != 7) {
-                ps.setInt(paramIndex++, status);
-            }
-            if (searchID != 0) {
-                ps.setInt(paramIndex++, searchID);
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    total = rs.getInt(1);
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return total;
-    }
 }

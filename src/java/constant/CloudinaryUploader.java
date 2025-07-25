@@ -6,6 +6,7 @@ import com.cloudinary.utils.ObjectUtils;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
 
 public class CloudinaryUploader {
@@ -47,6 +48,36 @@ public class CloudinaryUploader {
 
                 fileUrl = (String) uploadResult.get("secure_url");
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fileUrl;
+    }
+    public static String uploadRawFromUrl(String glbUrl) {
+        String fileUrl = "";
+        try {
+            URL url = new URL(glbUrl);
+            InputStream inputStream = url.openStream();
+
+            // Đọc dữ liệu từ URL thành byte[]
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] data = new byte[1024];
+            int nRead;
+            while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            buffer.flush();
+            byte[] fileBytes = buffer.toByteArray();
+
+            Cloudinary cloudinary = CloudinaryConfig.getInstance();
+
+            Map uploadResult = cloudinary.uploader().upload(
+                    fileBytes,
+                    ObjectUtils.asMap("resource_type", "raw") // vì .glb không phải ảnh
+            );
+
+            fileUrl = (String) uploadResult.get("secure_url");
 
         } catch (Exception e) {
             e.printStackTrace();
