@@ -37,6 +37,11 @@
         </script>
     </head>
     <body class="bg-gray-100">
+         <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay"
+             class="fixed inset-0 z-[999] bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
         <div class="flex min-h-screen">
 
             <!-- Sidebar -->
@@ -293,5 +298,23 @@
                 </c:if>
             </div>
         </div>
+             <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    document.getElementById("loadingOverlay").classList.remove("hidden");
+                });
+            });
+
+            // Cũng có thể áp dụng khi click vào link có href (ví dụ đổi trang, export PDF…)
+            document.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", e => {
+                    const href = link.getAttribute("href");
+                    if (href && !href.startsWith("#") && !href.startsWith("javascript") &&  !href.includes("export-request-pdf")) {
+                        document.getElementById("loadingOverlay").classList.remove("hidden");
+                    }
+                });
+            });
+        </script>
+
     </body>
 </html>
