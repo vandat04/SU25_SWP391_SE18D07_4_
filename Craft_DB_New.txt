@@ -1,0 +1,3162 @@
+create database CraftDB
+go
+
+USE [CraftDB]
+GO
+
+-- Create Password Hashing Function
+CREATE FUNCTION [dbo].[HashPassword](@password NVARCHAR(100))
+RETURNS VARBINARY(64)
+AS
+BEGIN
+    RETURN HASHBYTES('SHA2_512', @password);
+END
+GO
+
+
+----------------------------------------------------Account-------------
+--Table [Role] -- Tạo thêm bảng Role để mô tả về Role
+CREATE TABLE [dbo].[Role](
+	[roleID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[roleName] [nvarchar](100) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[status] [int] NOT NULL DEFAULT(1),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE()
+)
+GO
+
+--Table [Account] -- THEM UNIQUE CHO USERNAME, EMAIL
+CREATE TABLE [dbo].[Account](
+	[userID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userName] [nvarchar](100) UNIQUE NOT NULL,
+	[password] [varbinary](64) NOT NULL,
+	[email] [nvarchar](100) UNIQUE NOT NULL,
+	[address] [nvarchar](200) NULL,
+	[phoneNumber] [nvarchar](20) NULL,
+	[status] [int] NOT NULL DEFAULT(1), --1: hoạt động, 0: bị chặn 
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	[roleID] [int] NOT NULL DEFAULT(1) CHECK (([roleID]=(3) OR [roleID]=(2) OR [roleID]=(1))), --User: 1 - Seller: 2, Admin: 3
+	[isEmailVerified] [bit] NOT NULL DEFAULT(0), 
+	[lastLoginDate] [datetime] NULL,
+	[loginAttempts] [int] NOT NULL DEFAULT(0),
+	[lockedUntil] [datetime] NULL, 
+	[avatarUrl] [varchar](max) NULL,
+	[preferredLanguage] [varchar](10) DEFAULT('vi'),
+	fullName NVARCHAR(100),
+	CONSTRAINT FK_Account_Role FOREIGN KEY (roleID) REFERENCES [dbo].[Role](roleID)
+)
+GO
+
+--Table [AccountPoints]
+CREATE TABLE [dbo].[AccountPoints](
+	[pointsID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[points]  [int] NOT NULL default(0),
+	CONSTRAINT [FK_AccountPoints_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+
+--Table [EmailVerification] 
+CREATE TABLE [dbo].[EmailVerification](
+	[verificationID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[verificationToken] [varchar](100) NOT NULL UNIQUE,
+	[expiryDate] [datetime] NOT NULL,
+	[isUsed] [bit] NOT NULL DEFAULT(0),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_EmailVerification_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+--Table [PasswordReset]
+CREATE TABLE [dbo].[PasswordReset](
+	[resetID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[resetToken] [varchar](100) NOT NULL UNIQUE,
+	[expiryDate] [datetime] NOT NULL,
+	[isUsed] [bit] NOT NULL DEFAULT(0),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[usedDate] [datetime] NULL,
+	CONSTRAINT [FK_PasswordReset_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+----------------------------------------------------Craft Village-------------
+--Table [CraftType] 
+CREATE TABLE [dbo].[CraftType](
+	[typeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[typeName] [nvarchar](100) NOT NULL UNIQUE,
+	[description] [nvarchar](max) NULL,
+	[status] [int] NOT NULL DEFAULT(1), --1: hoạt động, 0: ẩn
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL
+)
+GO
+
+-- Table [CraftVillage]
+CREATE TABLE [dbo].[CraftVillage](
+	[villageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL ,
+	[typeID] [int],
+	[villageName] [nvarchar](100) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[address] [nvarchar](200) NOT NULL,
+	[latitude] [float] NULL,
+	[longitude] [float] NULL,
+	[contactPhone] [nvarchar](20) NULL,
+	[contactEmail] [nvarchar](100) NULL,
+	[status] [int] NOT NULL, -- 0: đang ẩn, 1 đang hoạt động, 2: đang duyệt
+	[clickCount] [int] NOT NULL DEFAULT(0),
+	[lastClicked] [datetime] NULL DEFAULT GETDATE(),
+	[mainImageUrl] [varchar](max) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	[sellerId] [int] NULL,
+	[openingHours] [nvarchar](200) NULL,
+	[closingDays] [nvarchar](100) NULL,
+	[averageRating] [decimal](3, 2) NULL,
+	[totalReviews] [int] NOT NULL DEFAULT(0),
+	[mapEmbedUrl] [varchar](max) NULL,
+	[virtualTourUrl] [varchar](max) NULL,
+	[history] [nvarchar](max) NULL,
+	[specialFeatures] [nvarchar](max) NULL,
+	[famousProducts] [nvarchar](max) NULL,
+	[culturalEvents] [nvarchar](max) NULL,
+	[craftProcess] [nvarchar](max) NULL,
+	[videoDescriptionUrl] [nvarchar](500) NULL,
+	[travelTips] [nvarchar](max) NULL,
+	CONSTRAINT [FK_CraftVillage_Seller] FOREIGN KEY([sellerId]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [FK_CraftVillage_CraftType] FOREIGN KEY([typeID]) REFERENCES [dbo].[CraftType] ([typeID])
+)
+GO
+
+--Table [NavigationPoints]
+CREATE TABLE [dbo].[NavigationPoints](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[villageId] [int] NULL,
+	[currentImage] [int] NULL,
+	[nextImage] [int] NULL,
+	[x] [float] NULL,
+	[y] [float] NULL,
+	[description] [nvarchar](255) NULL,
+	CONSTRAINT [FK_NavigationPoints_CraftVillage] FOREIGN KEY([villageId]) REFERENCES [dbo].[CraftVillage]([villageID])
+)
+GO
+
+--Table [VillageImage]
+CREATE TABLE [dbo].[VillageImage](
+	[imageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[villageID] [int] NOT NULL,
+	[imageUrl] [varchar](max) NOT NULL,
+	[isMain] [bit] NOT NULL DEFAULT(0),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_VillageImage_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID])
+)
+GO
+
+--Table [FavoriteVillage]
+CREATE TABLE [dbo].[FavoriteVillage](
+	[favoriteID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[villageID] [int] NOT NULL,
+	[addedDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_FavoriteVillage_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [FK_FavoriteVillage_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
+	CONSTRAINT [UC_FavoriteVillage] UNIQUE NONCLUSTERED ([userID], [villageID]) --1 NGƯỜI THÍCH 1 LÀNG 1 LẦN
+)
+GO
+
+--Table [VillageReview]
+CREATE TABLE [dbo].[VillageReview](
+	[reviewID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[villageID] [int] NOT NULL,
+	[userID] [int] NOT NULL,
+	[rating] [int] NOT NULL CHECK  (([rating]>=(1) AND [rating]<=(5))),
+	[reviewText] [nvarchar](max) NULL,
+	[reviewDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[response] [nvarchar](max) NULL,
+	[responseDate] [datetime] NULL,
+	CONSTRAINT [FK_VillageReview_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [FK_VillageReview_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID])
+)
+GO
+----------------------------------------------------Ticket-------------
+--Table [TicketType]
+CREATE TABLE [dbo].[TicketType](
+	[typeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[typeName] [nvarchar](50) NOT NULL UNIQUE,
+	[description] [nvarchar](200) NULL,
+	[ageRange] [nvarchar](50) NULL,
+	[status] [int] NOT NULL DEFAULT(1),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL
+)
+GO
+
+--Table [VillageTicket]
+CREATE TABLE [dbo].[VillageTicket](
+	[ticketID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[villageID] [int] NOT NULL,
+	[typeID] [int] NOT NULL,
+	[price] [decimal](10, 2) NOT NULL,
+	[status] [int] NOT NULL  DEFAULT(1),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_VillageTicket_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
+	CONSTRAINT [FK_VillageTicket_TicketType] FOREIGN KEY([typeID]) REFERENCES [dbo].[TicketType] ([typeID]),
+	CONSTRAINT [UC_FavoriteTicket] UNIQUE NONCLUSTERED ([villageID], [typeID])
+)
+GO
+
+----------------------------------------------------Product-------------
+--Table [ProductCategory]
+CREATE TABLE [dbo].[ProductCategory](
+	[categoryID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[categoryName] [nvarchar](100) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[status] [int] NOT NULL DEFAULT(1),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL
+)
+GO
+
+--Table [Product] 
+CREATE TABLE [dbo].[Product]( --22 trường
+	[pid] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](100) NOT NULL,
+	[price] [decimal](10, 2) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[stock] [int] NOT NULL,
+	[status] [int] NOT NULL DEFAULT(1), --1: hoạt dông, 2: ẩn, 3: đợi admin duyêt
+	[villageID] [int] NOT NULL,
+	[categoryID] [int] NOT NULL,
+	[mainImageUrl] [varchar](max) NULL,
+	[clickCount] [int] NOT NULL DEFAULT(0),
+	[lastClicked] [datetime] NULL DEFAULT GETDATE(),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	[craftTypeID] [int] NULL, 
+	[sku] [varchar](50) NULL,
+	[weight] [decimal](10, 2) NULL,
+	[dimensions] [nvarchar](100) NULL,
+	[materials] [nvarchar](500) NULL,
+	[careInstructions] [nvarchar](max) NULL,
+	[warranty] [nvarchar](200) NULL,
+	[isFeatured] [bit] NOT NULL DEFAULT(0), -- Bỏ
+	[averageRating] [decimal](3, 2) NULL,
+	[totalReviews] [int] NOT NULL DEFAULT(0),
+	[modelFile] [nvarchar](max) NULL,
+	CONSTRAINT [FK_Product_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
+	CONSTRAINT [FK_Product_Category] FOREIGN KEY([categoryID]) REFERENCES [dbo].[ProductCategory] ([categoryID]),
+	CONSTRAINT [FK_Product_CraftType] FOREIGN KEY([craftTypeID]) REFERENCES [dbo].[CraftType] ([typeID])
+)
+GO
+
+--Table [ProductImage]
+CREATE TABLE [dbo].[ProductImage](
+	[imageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[productID] [int] NOT NULL,
+	[imageUrl] [varchar](max) NOT NULL,
+	[isMain] [bit] NOT NULL DEFAULT(0),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_ProductImage_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid])
+)
+GO
+
+--Table [ProductReview]
+CREATE TABLE [dbo].[ProductReview](
+	[reviewID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[productID] [int] NOT NULL,
+	[userID] [int] NOT NULL,
+	[rating] [int] NOT NULL CHECK (([rating]>=(1) AND [rating]<=(5))),
+	[reviewText] [nvarchar](max) NULL,
+	[reviewDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[response] [nvarchar](max) NULL,
+	[responseDate] [datetime] NULL,
+	CONSTRAINT [FK_ProductReview_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid]),
+	CONSTRAINT [FK_ProductReview_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+--Table [Wishlist]
+CREATE TABLE [dbo].[Wishlist](
+	[wishlistID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[productID] [int] NOT NULL,
+	[addedDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_Wishlist_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid]),
+	CONSTRAINT [FK_Wishlist_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [UC_FavoriteProduct] UNIQUE NONCLUSTERED ([userID], [productID]) --1 User, 1 SP, Thêm 1 lần
+)
+GO
+
+--Table [Cart]
+CREATE TABLE [dbo].[Cart](
+	[cartID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_Cart_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+--Table [CartItem]
+CREATE TABLE [dbo].[CartItem](
+	[itemID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[cartID] [int] NOT NULL,
+	[productID] [int] NOT NULL,
+	[quantity] [int] NOT NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_CartItem_Cart] FOREIGN KEY([cartID]) REFERENCES [dbo].[Cart] ([cartID]),
+	CONSTRAINT [FK_CartItem_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product] ([pid])
+)
+GO
+
+----------------------------------------------------Order-------------
+--Table [Orders] -- 
+CREATE TABLE [dbo].[Orders](
+	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[total_price] [decimal](10, 2) NOT NULL,
+	[shippingAddress] [nvarchar](200) NOT NULL,
+	[shippingPhone] [nvarchar](20) NOT NULL,
+	[shippingName] [nvarchar](100) NOT NULL,
+	[paymentMethod] [nvarchar](50) NOT NULL,
+	[paymentStatus] [int] DEFAULT(0) NOT NULL, --0: CHƯA, 1: ĐÃ THANH TOÁN
+	[note] [nvarchar](max) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	[trackingNumber] [varchar](100) NULL,
+	[estimatedDeliveryDate] [datetime] NULL,
+	[actualDeliveryDate] [datetime] NULL,
+	[cancelReason] [nvarchar](500) NULL,
+	[cancelDate] [datetime] NULL,
+	[refundAmount] [decimal](10, 2) NULL,
+	[refundDate] [datetime] NULL,
+	[refundReason] [nvarchar](500) NULL,
+	email NVARCHAR(100),
+	points int,
+	CONSTRAINT FK_Orders_Account FOREIGN KEY (userID) REFERENCES [dbo].[Account](userID)
+)
+
+--Table [OrderDetail]
+CREATE TABLE [dbo].[OrderDetail](
+	[id] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[order_id] [int] NOT NULL,
+	[product_id] [int] NOT NULL,
+	[quantity] [int] NOT NULL,
+	[price] [decimal](10, 2) NOT NULL,
+	[subtotal] [decimal](10, 2) NOT NULL,
+	[status] int default(0),
+	[villageID] int,
+	paymentMethod [nvarchar](50),
+	paymentStatus int,
+	[cancelReason] [nvarchar](500) NULL,
+	[cancelDate] [datetime] NULL,
+	[refundAmount] [decimal](10, 2) NULL,
+	[refundDate] [datetime] NULL,
+	[refundReason] [nvarchar](500) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	 points int ,
+	CONSTRAINT FK_OrderDetail_Orders FOREIGN KEY (order_id) REFERENCES [dbo].[Orders](id),
+	CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (product_id) REFERENCES [dbo].[Product](pid),
+	CONSTRAINT FK_OrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
+)
+GO
+
+
+--Table [TicketOrderDetail]
+CREATE TABLE [dbo].[TicketOrderDetail](
+	[detailID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[orderID] [int] NOT NULL,
+	[ticketID] [int] NOT NULL,
+	[quantity] [int] NOT NULL,
+	[price] [decimal](10, 2) NOT NULL,
+	[subtotal] [decimal](10, 2) NOT NULL,
+	[status] int default(0),
+	[villageID] int,
+	paymentMethod [nvarchar](50),
+	paymentStatus int,
+	[cancelReason] [nvarchar](500) NULL,
+	[cancelDate] [datetime] NULL,
+	[refundAmount] [decimal](10, 2) NULL,
+	[refundDate] [datetime] NULL,
+	[refundReason] [nvarchar](500) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	points int ,
+	CONSTRAINT [FK_TicketOrderDetail_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[Orders] (id),
+	CONSTRAINT [FK_TicketOrderDetail_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]),
+	CONSTRAINT FK_TicketOrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
+)
+GO
+
+--Table [TicketCode] 
+CREATE TABLE [dbo].[TicketCode](
+	[codeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[orderDetailID] [int] NOT NULL,
+	[ticketCode] [varchar](20) NOT NULL UNIQUE ,
+	[qrCode] [varchar](max) NULL,
+	[issueDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[expiryDate] [datetime] NOT NULL,
+	[usageDate] [datetime] NULL,
+	[status] [int] NOT NULL DEFAULT(0), 
+	[usedBy] [nvarchar](100) NULL,
+	[notes] [nvarchar](500) NULL,
+	CONSTRAINT [FK_TicketCode_OrderDetail] FOREIGN KEY([orderDetailID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID])
+)
+GO
+
+
+----------------------------------------------------Support-------------
+--Table [MessageThread]---Dư thì lma
+CREATE TABLE [dbo].[MessageThread](
+	[threadID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[sellerID] [int] NOT NULL,
+	[messageName] [varchar](max) NULL,
+	CONSTRAINT [FK_MessageThread_User1] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [FK_MessageThread_User2] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+--Table [Message]---Dư thì lma
+CREATE TABLE [dbo].[Message](
+	[messageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[threadID] [int] NOT NULL,
+	[senderID] [int] NOT NULL,
+	[messageContent] [nvarchar](max) NOT NULL,
+	[attachmentUrl] [varchar](max) NULL,
+	[sentDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[userRead] int default (0),
+	CONSTRAINT [FK_Message_Sender] FOREIGN KEY([senderID]) REFERENCES [dbo].[Account] ([userID]),
+	CONSTRAINT [FK_Message_Thread] FOREIGN KEY([threadID]) REFERENCES [dbo].[MessageThread] ([threadID])
+)
+GO
+
+----------------------------------------------------Notification-------------
+--Table [NotificationType]
+CREATE TABLE [dbo].[NotificationType](
+	[typeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[typeName] [nvarchar](50) UNIQUE NOT NULL
+)
+GO
+
+--Table [Notification]
+CREATE TABLE [dbo].[Notification](
+	[notificationID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[typeID] [int] NOT NULL,
+	[title] [nvarchar](200) NOT NULL,
+	[content] [nvarchar](max) NOT NULL,
+	[targetUrl] [varchar](500) NULL,
+	[isRead] [bit] NOT NULL DEFAULT(0),
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[readDate] [datetime] NULL,
+	CONSTRAINT [FK_Notification_Type] FOREIGN KEY([typeID]) REFERENCES [dbo].[NotificationType] ([typeID]),
+	CONSTRAINT [FK_Notification_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+--Table [PageView] -- tham chieu dfen ban????
+CREATE TABLE [dbo].[PageView](
+	[viewID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[pageUrl] [varchar](500) NOT NULL,
+	[userID] [int] NULL,
+	[ipAddress] [varchar](50) NULL,
+	[userAgent] [varchar](500) NULL,
+	[referrer] [varchar](500) NULL,
+	[sessionID] [varchar](100) NULL,
+	[viewDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_PageView_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+--Table [SearchHistory] --- SearchType: nvarchar --> int  BOTCHAT
+CREATE TABLE [dbo].[SearchHistory](
+	[searchID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[userID] [int] NULL,
+	[searchKeyword] [nvarchar](200) NOT NULL,
+	[searchType] [nvarchar](50) NULL,
+	[resultCount] [int] NULL,
+	[ipAddress] [varchar](50) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_SearchHistory_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+----------------------------------------------------Payment-------------
+--Table [Payment]
+CREATE TABLE [dbo].[Payment](
+	[paymentID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[sellerID] int,
+	[orderID] [int] NULL,
+	[ticketOrderID] [int] NULL,
+	[amount] [decimal](10, 2) NOT NULL,
+	[paymentMethod] [nvarchar](50) NOT NULL,
+	[paymentStatus] int default(0) NOT NULL, -- 0: Trả tiền , 1: đã thanh toán
+	[transactionID] [nvarchar](100) NULL,
+	[paymentDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_Payment_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[OrderDetail] ([id]),
+	CONSTRAINT [FK_Payment_TicketOrderDetails] FOREIGN KEY([ticketOrderID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID]),
+	CONSTRAINT [FK_Payment_Account] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account] ([userID])
+)
+GO
+
+----------------------------------------------------Admin-Seller-------------
+--Table [SalesReport]
+CREATE TABLE [dbo].[SalesReport](
+	[reportID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[sellerID] [int] NOT NULL,
+	[reportMonth] [int] NOT NULL,
+	[reportYear] [int] NOT NULL,
+	[totalOrders] [int] NOT NULL DEFAULT(0),
+	[totalRevenue] [decimal](15, 2) NOT NULL DEFAULT(0),
+	[totalProducts] [int] NOT NULL  DEFAULT(0),
+	[commission] [decimal](15, 2) NOT NULL  DEFAULT(0),
+	[netRevenue] [decimal](15, 2) NOT NULL  DEFAULT(0),
+	[generatedDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT [FK_SalesReport_Seller] FOREIGN KEY([sellerID]) REFERENCES [dbo].[Account]([userID])
+)
+GO
+
+--Table [SellerVerification] --loại làng nggeef đăng kí. 
+CREATE TABLE [dbo].[SellerVerification] (
+    [verificationID] INT IDENTITY(1,1) PRIMARY KEY NOT NULL,   
+    -- Khóa ngoại liên kết với User muốn nâng cấp-- Check thử account >18 tuổi
+    [sellerID] INT NOT NULL,
+    -- Thông tin cơ bản
+    [businessType] NVARCHAR(100) NOT NULL,         -- Cá nhân / Hộ kinh doanh / Công ty TNHH / HTX / Làng nghề
+    [businessVillageCategry] NVARCHAR(200) NOT NULL, -- Loại làng
+    [businessVillageName] NVARCHAR(200) NOT NULL,         -- Tên cá nhân / tổ chức / làng nghề
+    [businessVillageAddress] NVARCHAR(500) NOT NULL,      -- Địa chỉ kinh doanh
+    [productProductCategory] NVARCHAR(200) NOT NULL,      -- Nhóm sản phẩm kinh doanh/ Thêm cột cho ProductCategory
+    [profileVillagePictureUrl] VARCHAR(MAX) NULL,         -- Ảnh đại diện hoặc logo
+    -- Thông tin liên hệ lấy từ bảng Account
+    [contactPerson] NVARCHAR(200) NOT NULL,        -- Người đại diện 
+    [contactPhone] NVARCHAR(20) NOT NULL,          -- Số điện thoại liên hệ - 
+    [contactEmail] NVARCHAR(200) NOT NULL,         -- Email liên hệ
+    -- Thông tin cá nhân (dùng khi businessType = Cá nhân)
+    [idCardNumber] NVARCHAR(50) NULL,              -- Số CMND/CCCD
+    [idCardFrontUrl] VARCHAR(MAX) NULL,            -- Link ảnh mặt trước CMND/CCCD
+    [idCardBackUrl] VARCHAR(MAX) NULL,             -- Link ảnh mặt sau CMND/CCCD
+    -- Thông tin doanh nghiệp (dùng khi businessType != Cá nhân)
+    [businessLicense] NVARCHAR(100) NULL,          -- Số giấy phép kinh doanh
+    [taxCode] NVARCHAR(50) NULL,                   -- Mã số thuế
+    [documentUrl] VARCHAR(MAX) NULL,               -- Link ảnh/file giấy phép kinh doanh
+    -- Ghi chú bổ sung
+    [note] NVARCHAR(MAX) NULL,                     -- Ghi chú Seller gửi Admin
+    -- Trạng thái duyệt
+    [verificationStatus] INT NOT NULL DEFAULT 0,   -- 0: Đang xử lý, 1: Đã duyệt, 2: Từ chối
+    [verifiedBy] INT NULL,                         -- Admin duyệt
+    [verifiedDate] DATETIME NULL,                  -- Ngày duyệt
+    [rejectReason] NVARCHAR(MAX) NULL,             -- Lý do từ chối
+    -- Ngày tạo
+    [createdDate] DATETIME NOT NULL DEFAULT GETDATE(),    
+    -- Ràng buộc FK
+    CONSTRAINT [FK_SellerVerification_Admin] FOREIGN KEY ([verifiedBy]) REFERENCES [dbo].[Account] ([userID]),
+    CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY ([sellerID]) REFERENCES [dbo].[Account] ([userID])
+);
+GO
+
+-- 2. TẠO BẢNG CÒN THIẾU
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CartTicket]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[CartTicket](
+        [itemID] [int] IDENTITY(1,1) NOT NULL,
+        [cartID] [int] NOT NULL,
+        [ticketID] [int] NOT NULL,
+        [quantity] [int] NOT NULL,
+        [ticketDate] [date] NOT NULL,
+        [createdDate] [datetime] NOT NULL,
+        [updatedDate] [datetime] NULL,
+        PRIMARY KEY CLUSTERED ([itemID] ASC),
+        CONSTRAINT [UC_CartTicket_Item] UNIQUE NONCLUSTERED ([cartID] ASC, [ticketID] ASC, [ticketDate] ASC)
+    );
+    ALTER TABLE [dbo].[CartTicket] ADD CONSTRAINT [FK_CartTicket_Cart] FOREIGN KEY([cartID]) REFERENCES [dbo].[Cart] ([cartID]);
+    ALTER TABLE [dbo].[CartTicket] ADD CONSTRAINT [FK_CartTicket_VillageTicket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]);
+    ALTER TABLE [dbo].[CartTicket] ADD CHECK ([quantity] > 0);
+    CREATE NONCLUSTERED INDEX [IX_CartTicket_CartID] ON [dbo].[CartTicket]([cartID] ASC);
+    CREATE NONCLUSTERED INDEX [IX_CartTicket_TicketDate] ON [dbo].[CartTicket]([ticketDate] ASC);
+END
+Go
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TicketAvailability]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[TicketAvailability](
+        [availabilityID] [int] IDENTITY(1,1) NOT NULL,
+        [ticketID] [int] NOT NULL,
+        [availableDate] [date] NOT NULL,
+        [totalSlots] [int] NOT NULL,
+        [bookedSlots] [int] NOT NULL DEFAULT(0),
+        [availableSlots] [int] NOT NULL, -- Cột này giống y Database 1
+        [status] [bit] NOT NULL DEFAULT(1),
+        [createdDate] [datetime] NOT NULL DEFAULT(GETDATE()),
+        [updatedDate] [datetime] NULL,
+        CONSTRAINT [PK_TicketAvailability] PRIMARY KEY CLUSTERED ([availabilityID] ASC),
+        CONSTRAINT [UC_TicketAvailability_TicketDate] UNIQUE NONCLUSTERED ([ticketID] ASC, [availableDate] ASC)
+    );
+    ALTER TABLE [dbo].[TicketAvailability] ADD CONSTRAINT [FK_TicketAvailability_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]);
+END
+Go
+
+IF NOT EXISTS (
+    SELECT * FROM sys.indexes WHERE name = 'IX_TicketAvailability_Date' AND object_id = OBJECT_ID('dbo.TicketAvailability')
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_TicketAvailability_Date] ON [dbo].[TicketAvailability]([availableDate] ASC)
+    WHERE ([status]=(1));
+END
+Go
+-- 5. BỔ SUNG CONSTRAINT/CHECK CÒN THIẾU
+-- TicketAvailability
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([bookedSlots] >= 0);
+Go
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CHECK ([totalSlots] > 0);
+Go
+ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CONSTRAINT [CK_TicketAvailability_BookedSlots] CHECK ([bookedSlots] <= [totalSlots]);
+Go
+
+
+USE [CraftDB]
+GO
+
+--PROCEDURE [AddAccount]
+CREATE PROCEDURE [dbo].[AddAccount]
+    @userName NVARCHAR(100),
+    @password NVARCHAR(100), -- plain text password
+    @email NVARCHAR(100),
+    @address NVARCHAR(200) = NULL,
+    @phoneNumber NVARCHAR(20) = NULL,
+    @roleID INT = 1, -- Default: User
+	@fullName NVARCHAR(100),
+    @result INT OUTPUT  -- kết quả trả về
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        -- Kiểm tra trùng username
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userName = @userName)
+        BEGIN
+            SET @result = 2; -- Trùng username
+            RETURN;
+        END
+        -- Kiểm tra trùng email
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE email = @email)
+        BEGIN
+            SET @result = 3; -- Trùng email
+            RETURN;
+        END
+		-- Kiểm tra trùng sdt
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE phoneNumber = @phoneNumber)
+        BEGIN
+            SET @result = 4; -- Trùng sdt
+            RETURN;
+        END
+        -- Nếu không trùng thì thêm mới
+        INSERT INTO [dbo].[Account] (
+            userName, password, email, address, phoneNumber,
+            roleID, fullName
+        )
+        VALUES (
+            @userName, dbo.HashPassword(@password), @email, @address,@phoneNumber, @roleID, @fullName
+        );
+        SET @result = 1; -- thành công
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- thất bại do lỗi hệ thống
+    END CATCH
+END
+GO
+
+--PROCEDURE [ChangePassword]
+CREATE PROCEDURE [dbo].[ChangePassword]
+    @userID INT,
+    @oldPassword NVARCHAR(100),
+    @newPassword NVARCHAR(100)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM Account WHERE userID = @userID AND password = dbo.HashPassword(@oldPassword))
+    BEGIN
+        UPDATE Account
+        SET password = dbo.HashPassword(@newPassword)
+        WHERE userID = @userID;
+        SELECT 'Password changed successfully' AS Result;
+        RETURN 1;
+    END
+    ELSE
+    BEGIN
+        SELECT 'Current password is incorrect' AS Result;
+        RETURN 0;
+    END
+END
+GO
+--PROCCEDURE [UpdateAccount]
+CREATE PROCEDURE [dbo].[UpdateAccount]
+    @userID INT,
+    @email NVARCHAR(100),
+    @address NVARCHAR(200) = NULL,
+    @phoneNumber NVARCHAR(20) = NULL,
+    @avatarUrl VARCHAR(MAX) = NULL,
+	@fullName NVARCHAR(100),
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        -- Kiểm tra user tồn tại
+        IF NOT EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userID = @userID)
+        BEGIN
+            SET @result = 2; -- Trung user
+            RETURN;
+        END
+        -- Kiểm tra email đã được dùng bởi user khác chưa
+        IF EXISTS (
+            SELECT 1 FROM [dbo].[Account]
+            WHERE email = @email AND userID != @userID
+        )
+        BEGIN
+            SET @result = 3; -- Email bị trùng
+            RETURN;
+        END
+		IF EXISTS (
+            SELECT 1 FROM [dbo].[Account]
+            WHERE phoneNumber = @phoneNumber AND userID != @userID
+        )
+        BEGIN
+            SET @result = 4; -- SDT bị trùng
+            RETURN;
+        END
+        -- Cập nhật thông tin cho user
+        UPDATE [dbo].[Account]
+        SET
+            email = @email, address = @address, phoneNumber = @phoneNumber, avatarUrl = @avatarUrl, updatedDate = GETDATE() , fullName = @fullName
+        WHERE userID = @userID;
+        SET @result = 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+--PROCEDURE [AddCraftVillage]
+CREATE PROCEDURE [dbo].[AddCraftVillage]
+    @typeID INT,
+    @villageName NVARCHAR(100),
+    @description NVARCHAR(MAX) = NULL,
+    @address NVARCHAR(200),
+    @latitude FLOAT = NULL,
+    @longitude FLOAT = NULL,
+    @contactPhone NVARCHAR(20) = NULL,
+    @contactEmail NVARCHAR(100) = NULL,
+    @sellerId INT = NULL,
+    @openingHours NVARCHAR(200) = NULL,
+    @closingDays NVARCHAR(100) = NULL,
+    @mainImageUrl VARCHAR(MAX) = NULL,
+    @mapEmbedUrl VARCHAR(MAX) = NULL,
+    @virtualTourUrl VARCHAR(MAX) = NULL,
+    @history NVARCHAR(MAX) = NULL,
+    @specialFeatures NVARCHAR(MAX) = NULL,
+    @famousProducts NVARCHAR(MAX) = NULL,
+    @culturalEvents NVARCHAR(MAX) = NULL,
+    @craftProcess NVARCHAR(MAX) = NULL,
+    @videoDescriptionUrl NVARCHAR(500) = NULL,
+    @travelTips NVARCHAR(MAX) = NULL,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        INSERT INTO [dbo].[CraftVillage] (
+            typeID, villageName, description, address, latitude, longitude, contactPhone, contactEmail, status, clickCount, lastClicked,
+            mainImageUrl, createdDate, sellerId, openingHours, closingDays, mapEmbedUrl, virtualTourUrl, history, specialFeatures,
+            famousProducts, culturalEvents, craftProcess, videoDescriptionUrl, travelTips
+        )
+        VALUES (
+            @typeID, @villageName, @description, @address, @latitude, @longitude, @contactPhone, @contactEmail, 2, 0, GETDATE(),
+            @mainImageUrl, GETDATE(), @sellerId, @openingHours, @closingDays, @mapEmbedUrl, @virtualTourUrl, @history, @specialFeatures,
+            @famousProducts, @culturalEvents, @craftProcess, @videoDescriptionUrl, @travelTips
+        );
+        SET @result = 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Lỗi
+    END CATCH
+END
+GO
+
+--PROCEDURE [DeleteCraftVillage]
+CREATE PROCEDURE [dbo].[DeleteCraftVillage]
+    @villageID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        DECLARE @hasProduct INT, @hasTicket INT;
+        -- Kiểm tra có liên kết Product
+        SELECT @hasProduct = COUNT(*) FROM [dbo].[Product] WHERE villageID = @villageID;
+        -- Kiểm tra có liên kết Ticket
+        SELECT @hasTicket = COUNT(*) FROM [dbo].[VillageTicket] WHERE villageID = @villageID;
+        -- Nếu không có liên kết -> XÓA
+        IF (@hasProduct = 0 AND @hasTicket = 0)
+        BEGIN
+            DELETE FROM [dbo].[CraftVillage] WHERE villageID = @villageID;
+            SET @result = 1; -- Xoá thành công
+        END
+        ELSE
+        BEGIN
+            -- Nếu có liên kết -> cập nhật status = 0
+            UPDATE [dbo].[CraftVillage] SET status = 0 WHERE villageID = @villageID;
+            UPDATE [dbo].[Product] SET status = 0 WHERE villageID = @villageID;
+            UPDATE [dbo].[VillageTicket] SET status = 0 WHERE villageID = @villageID;
+            SET @result = 1; -- Cập nhật trạng thái thành công (có liên kết nên không xoá)
+        END
+    END TRY
+    BEGIN CATCH
+        SET @result = -1; -- Lỗi hệ thống
+    END CATCH
+END
+Go 
+
+--PROCEDURE [RegisterAccount]
+CREATE PROCEDURE RegisterAccount
+    @UserName NVARCHAR(100),
+    @Password NVARCHAR(100),        -- dạng text, sẽ được hash trong procedure
+    @Email NVARCHAR(100),
+    @fullName NVARCHAR(100),
+    @Address NVARCHAR(200) = NULL,
+    @PhoneNumber NVARCHAR(20) = NULL,   
+    @NewUserID INT OUTPUT 
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- 1. Kiểm tra trùng username
+    IF EXISTS (SELECT 1 FROM Account WHERE userName = @UserName)
+    BEGIN
+        RAISERROR('Username already exists.', 16, 1);
+        RETURN;
+    END
+    -- 2. Kiểm tra trùng email
+    IF EXISTS (SELECT 1 FROM Account WHERE email = @Email)
+    BEGIN
+        RAISERROR('Email already exists.', 16, 1);
+        RETURN;
+    END
+    -- 3. Tạo tài khoản mới, hash password ngay trong SQL
+    INSERT INTO Account (
+        userName, password, email, address, phoneNumber, fullName
+    )
+    VALUES (
+        @UserName, dbo.HashPassword(@Password), @Email, @Address, @PhoneNumber, @fullName
+    );
+    -- 4. Trả về userID
+    SET @NewUserID = SCOPE_IDENTITY();
+END;
+GO
+
+--Login
+
+CREATE PROCEDURE [dbo].[LoginAccount]
+    @userNameOrEmail NVARCHAR(100),
+    @password NVARCHAR(100)
+AS
+BEGIN
+    DECLARE @hashedPassword VARBINARY(64) = dbo.HashPassword(@password);
+    
+    SELECT
+        userID,
+        userName,
+        email,
+		fullName,
+        address,
+        phoneNumber,
+        roleID,
+        status,
+        createdDate,
+        updatedDate
+    FROM Account
+    WHERE (userName = @userNameOrEmail OR email = @userNameOrEmail)
+    AND password = @hashedPassword
+    AND status = 1;
+END
+GO
+
+--PROCEDURE [LoginByEmail] for Google OAuth
+CREATE PROCEDURE [dbo].[LoginByEmail]
+    @email NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT
+        userID,
+        userName,
+        email,
+        address,
+        phoneNumber,
+        roleID,
+        status,
+        createdDate,
+        updatedDate,
+		fullName
+    FROM Account
+    WHERE TRIM(email) = @email
+    AND status = 1;
+END
+GO
+
+CREATE PROCEDURE UpdateAccountFull
+    @userID INT,
+    @Username NVARCHAR(50),
+    @Password NVARCHAR(255),
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(20),
+    @Address NVARCHAR(255),
+    @RoleID INT,
+    @Status INT,
+    @FullName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Kiểm tra Email duy nhất (trừ chính account hiện tại)
+    IF EXISTS (SELECT 1 FROM Account WHERE Email = @Email AND userID <> @userID)
+    BEGIN
+        RAISERROR('Email already exists.', 16, 1);
+        RETURN 0;
+    END
+    -- Kiểm tra Phone duy nhất
+    IF EXISTS (SELECT 1 FROM Account WHERE PhoneNumber = @PhoneNumber AND userID <> @userID)
+    BEGIN
+        RAISERROR('Phone number already exists.', 16, 1);
+        RETURN 0;
+    END
+    -- Cập nhật tất cả thông tin
+    UPDATE Account
+    SET
+        UserName = @Username,
+        [Password] = [dbo].HashPassword(@Password),
+        Email = @Email,
+        PhoneNumber = @PhoneNumber,
+        Address = @Address,
+        RoleID = @RoleID,
+        Status = @Status,
+        FullName = @FullName,
+        UpdatedDate = GETDATE()
+    WHERE userID = @userID
+	RETURN 1;
+END
+Go
+
+CREATE PROCEDURE UpdateAccountWithoutPassword
+    @userID INT,
+    @Username NVARCHAR(50),
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(20),
+    @Address NVARCHAR(255),
+    @RoleID INT,
+    @Status INT,
+    @FullName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra Email duy nhất
+    IF EXISTS (SELECT 1 FROM Account WHERE Email = @Email AND userID <> @userID)
+    BEGIN
+        RAISERROR('Email already exists.', 16, 1);
+        RETURN 0;
+    END
+
+    -- Kiểm tra Phone duy nhất
+    IF EXISTS (SELECT 1 FROM Account WHERE PhoneNumber = @PhoneNumber AND userID <> @userID)
+    BEGIN
+        RAISERROR('Phone number already exists.', 16, 1);
+        RETURN 0;
+    END
+
+    -- Cập nhật không thay đổi mật khẩu
+    UPDATE Account
+    SET
+        UserName = @Username,
+        Email = @Email,
+        PhoneNumber = @PhoneNumber,
+        Address = @Address,
+        RoleID = @RoleID,
+        Status = @Status,
+        FullName = @FullName,
+        UpdatedDate = GETDATE()
+    WHERE userID = @userID
+	return 1;
+END
+Go
+--PROCEDURE [AddAccountFull]
+CREATE PROCEDURE [dbo].[AddAccountFull]
+    @userName NVARCHAR(100),
+    @password NVARCHAR(100), -- plain text password
+    @email NVARCHAR(100),
+	@FullName  NVARCHAR(100), 
+    @phoneNumber NVARCHAR(20) = NULL,
+	@address NVARCHAR(200) = NULL,
+    @roleID INT , 
+	@status INT ,
+    @result INT OUTPUT  -- kết quả trả về
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        -- Kiểm tra trùng username
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE userName = @userName)
+        BEGIN
+            SET @result = 2; -- Trùng username
+            RETURN;
+        END
+        -- Kiểm tra trùng email
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE email = @email)
+        BEGIN
+            SET @result = 3; -- Trùng email
+            RETURN;
+        END
+		-- Kiểm tra trùng sdt
+        IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE phoneNumber = @phoneNumber)
+        BEGIN
+            SET @result = 4; -- Trùng sdt
+            RETURN;
+        END
+        -- Nếu không trùng thì thêm mới
+        INSERT INTO [dbo].[Account] (
+            userName, password, email, address, phoneNumber, roleID, status, FullName
+        )
+        VALUES (
+            @userName, dbo.HashPassword(@password), @email, @address,@phoneNumber, @roleID, @status, @FullName
+        );
+        SET @result = 1; -- thành công
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- thất bại do lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateProductFull]
+    @pid INT,
+    @name NVARCHAR(100),
+    @price DECIMAL(10, 2),
+    @description NVARCHAR(MAX) = NULL,
+    @stock INT,
+    @stockAdd INT = NULL,
+    @status INT,
+    @villageID INT,
+    @categoryID INT,
+    @mainImageUrl VARCHAR(MAX) = NULL,
+    @craftTypeID INT = NULL,
+    @sku VARCHAR(50) = NULL,
+    @weight DECIMAL(10, 2) = NULL,
+    @dimensions NVARCHAR(100) = NULL,
+    @materials NVARCHAR(500) = NULL,
+    @careInstructions NVARCHAR(MAX) = NULL,
+    @warranty NVARCHAR(200) = NULL,
+	@modelFile [nvarchar](max) NULL,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        -- Kiểm tra trùng tên sản phẩm (nhưng phải khác chính sản phẩm đang sửa)
+        IF EXISTS (
+            SELECT 1 
+            FROM [dbo].[Product] 
+            WHERE [name] = @name AND pid <> @pid
+        )
+        BEGIN
+            SET @result = 2; -- Trùng tên sản phẩm khác
+            RETURN;
+        END
+
+        -- Cập nhật sản phẩm
+        UPDATE [dbo].[Product]
+        SET 
+            [name] = @name,
+            [price] = @price,
+            [description] = @description,
+            [stock] = @stock + @stockAdd,
+            [status] = @status,
+            [villageID] = @villageID,
+            [categoryID] = @categoryID,
+            [mainImageUrl] = @mainImageUrl,
+            [craftTypeID] = @craftTypeID,
+            [sku] = @sku,
+            [weight] = @weight,
+            [dimensions] = @dimensions,
+            [materials] = @materials,
+            [careInstructions] = @careInstructions,
+            [warranty] = @warranty,
+			[modelFile] = @modelFile,
+            [updatedDate] = GETDATE()
+        WHERE pid = @pid;
+
+        -- Kiểm tra nếu không có dòng nào bị ảnh hưởng
+        IF @@ROWCOUNT = 0
+        BEGIN
+            SET @result = 0; -- Không tìm thấy sản phẩm
+            RETURN;
+        END
+
+        SET @result = 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE CreateProductFull
+    @Name NVARCHAR(255),
+    @Price DECIMAL(18, 2),
+    @Description NVARCHAR(MAX),
+    @Stock INT,
+    @Status INT,
+    @VillageID INT,
+    @CategoryID INT,
+    @MainImageUrl NVARCHAR(500),
+    @CraftTypeID INT,
+    @Sku NVARCHAR(100),
+    @Weight DECIMAL(10, 2),
+    @Dimensions NVARCHAR(100),
+    @Materials NVARCHAR(500),
+    @CareInstructions NVARCHAR(1000),
+    @Warranty NVARCHAR(255),
+	@modelFile [nvarchar](max) NULL,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Kiểm tra trùng tên sản phẩm (không phân biệt hoa thường)
+        IF EXISTS (
+            SELECT 1 FROM Product WHERE LOWER(Name) = LOWER(@Name)
+        )
+        BEGIN
+            SET @Result = -1; -- Tên đã tồn tại
+            RETURN;
+        END
+
+        -- Thêm sản phẩm mới
+        INSERT INTO Product (
+            Name, Price,  Description, Stock,  Status,  VillageID, CategoryID,  MainImageUrl,
+            CraftTypeID, SKU,  Weight, Dimensions, Materials, CareInstructions,  Warranty,  createdDate, modelFile
+        )
+        VALUES (
+            @Name, @Price,  @Description,  @Stock, @Status,  @VillageID,  @CategoryID, @MainImageUrl,
+            @CraftTypeID, @Sku, @Weight, @Dimensions, @Materials, @CareInstructions, @Warranty, GETDATE(), @modelFile
+        );
+
+        SET @Result = 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        SET @Result = 0; -- Lỗi SQL khác
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE DeleteProductByAdmin
+    @pid INT,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (
+        SELECT 1
+        FROM OrderDetail
+        WHERE product_id = @pid
+    )
+    BEGIN
+        -- Sản phẩm có tồn tại trong OrderDetail → chỉ update status = 0
+        UPDATE Product
+        SET status = 0
+        WHERE pid = @pid;
+        SET @Result = 0;
+    END
+    ELSE
+    BEGIN
+        -- Sản phẩm chưa từng bán → xóa luôn
+        DELETE FROM Product
+        WHERE pid = @pid;
+        SET @Result = 1;
+    END
+END
+GO
+
+-- Them SellerVerification
+CREATE PROCEDURE sp_InsertSellerVerification_Individual
+    @sellerID INT,
+    @businessType NVARCHAR(100),
+    @businessVillageCategry NVARCHAR(200),
+    @businessVillageName NVARCHAR(200),
+    @businessVillageAddress NVARCHAR(500),
+    @productProductCategory NVARCHAR(200),
+    @profileVillagePictureUrl VARCHAR(MAX),
+    @contactPerson NVARCHAR(200),
+    @contactPhone NVARCHAR(20),
+    @contactEmail NVARCHAR(200),
+    @idCardNumber NVARCHAR(50),
+    @idCardFrontUrl VARCHAR(MAX),
+    @idCardBackUrl VARCHAR(MAX),
+    @note NVARCHAR(MAX)
+AS
+BEGIN
+    -- Check for duplicate
+    IF EXISTS (
+        SELECT 1
+        FROM SellerVerification
+        WHERE businessVillageName = @businessVillageName and verificationStatus = 1
+    )
+    BEGIN
+        RETURN 0; -- Duplicate found
+    END
+
+    -- Insert if no duplicate
+    INSERT INTO SellerVerification
+    (
+        sellerID,
+        businessType,
+        businessVillageCategry,
+        businessVillageName,
+        businessVillageAddress,
+        productProductCategory,
+        profileVillagePictureUrl,
+        contactPerson,
+        contactPhone,
+        contactEmail,
+        idCardNumber,
+        idCardFrontUrl,
+        idCardBackUrl,
+        note
+    )
+    VALUES
+    (
+        @sellerID,
+        @businessType,
+        @businessVillageCategry,
+        @businessVillageName,
+        @businessVillageAddress,
+        @productProductCategory,
+        @profileVillagePictureUrl,
+        @contactPerson,
+        @contactPhone,
+        @contactEmail,
+        @idCardNumber,
+        @idCardFrontUrl,
+        @idCardBackUrl,
+        @note
+    )
+
+    RETURN 1; -- Success
+END
+GO
+
+CREATE PROCEDURE sp_InsertSellerVerification_CraftVillage
+    @sellerID INT,
+    @businessType NVARCHAR(100),
+    @businessVillageCategry NVARCHAR(200),
+    @businessVillageName NVARCHAR(200),
+    @businessVillageAddress NVARCHAR(500),
+    @productProductCategory NVARCHAR(200),
+    @profileVillagePictureUrl VARCHAR(MAX),
+    @contactPerson NVARCHAR(200),
+    @contactPhone NVARCHAR(20),
+    @contactEmail NVARCHAR(200),
+    @businessLicense NVARCHAR(100),
+    @taxCode NVARCHAR(50),
+    @documentUrl VARCHAR(MAX),
+    @note NVARCHAR(MAX)
+AS
+BEGIN
+    -- Check for duplicate
+    IF EXISTS (
+        SELECT 1
+        FROM SellerVerification
+        WHERE businessVillageName = @businessVillageName and verificationStatus = 1
+    )
+    BEGIN
+        RETURN 0; -- Duplicate found
+    END
+
+    -- Insert if no duplicate
+    INSERT INTO SellerVerification
+    (
+        sellerID,
+        businessType,
+        businessVillageCategry,
+        businessVillageName,
+        businessVillageAddress,
+        productProductCategory,
+        profileVillagePictureUrl,
+        contactPerson,
+        contactPhone,
+        contactEmail,
+        businessLicense,
+        taxCode,
+        documentUrl,
+        note
+    )
+    VALUES
+    (
+        @sellerID,
+        @businessType,
+        @businessVillageCategry,
+        @businessVillageName,
+        @businessVillageAddress,
+        @productProductCategory,
+        @profileVillagePictureUrl,
+        @contactPerson,
+        @contactPhone,
+        @contactEmail,
+        @businessLicense,
+        @taxCode,
+        @documentUrl,
+        @note
+    )
+
+    RETURN 1; -- Success
+END
+GO
+
+CREATE PROCEDURE sp_ApprovedUpgradeAccount
+(
+    @verificationID INT,
+    @sellerID INT,
+    @businessVillageCategry NVARCHAR(200),
+    @businessVillageName NVARCHAR(200),
+    @businessVillageAddress NVARCHAR(500),
+    @productProductCategory NVARCHAR(200),
+    @profileVillagePictureUrl NVARCHAR(MAX),
+    @contactPerson NVARCHAR(200),
+    @contactPhone NVARCHAR(20),
+    @contactEmail NVARCHAR(200),
+    @verificationStatus INT,
+    @verifiedBy INT,
+    @newVillageID INT OUTPUT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        DECLARE @typeID INT;
+        DECLARE @villageID INT;
+        DECLARE @categoryID INT;
+
+        -- 1. Tìm hoặc thêm mới CraftType
+        SELECT TOP 1 @typeID = typeID
+        FROM dbo.CraftType
+        WHERE typeName COLLATE Latin1_General_CI_AI = @businessVillageCategry COLLATE Latin1_General_CI_AI;
+
+        IF @typeID IS NULL
+        BEGIN
+            INSERT INTO dbo.CraftType (typeName)
+            VALUES (@businessVillageCategry);
+
+            SET @typeID = SCOPE_IDENTITY();
+        END
+
+        -- 2. Kiểm tra trùng tên CraftVillage (không phân biệt dấu)
+        IF EXISTS (
+            SELECT 1
+            FROM dbo.CraftVillage
+            WHERE villageName COLLATE Latin1_General_CI_AI = @businessVillageName COLLATE Latin1_General_CI_AI
+        )
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RETURN -2; -- Trùng tên làng nghề
+        END
+
+        -- 3. Thêm mới CraftVillage
+        INSERT INTO dbo.CraftVillage
+        (
+            typeID,
+            villageName,
+            address,
+            contactPhone,
+            contactEmail,
+            status,
+            mainImageUrl,
+            sellerId
+        )
+        VALUES
+        (
+            @typeID,
+            @businessVillageName,
+            @businessVillageAddress,
+            @contactPhone,
+            @contactEmail,
+            1, -- status = active
+            @profileVillagePictureUrl,
+            @sellerID
+        );
+
+        SET @villageID = SCOPE_IDENTITY();
+        SET @newVillageID = @villageID;
+
+        -- 4. Tìm hoặc thêm mới ProductCategory
+        SELECT TOP 1 @categoryID = categoryID
+        FROM dbo.ProductCategory
+        WHERE categoryName COLLATE Latin1_General_CI_AI = @productProductCategory COLLATE Latin1_General_CI_AI;
+
+        IF @categoryID IS NULL
+        BEGIN
+            INSERT INTO dbo.ProductCategory (categoryName)
+            VALUES (@productProductCategory);
+
+            SET @categoryID = SCOPE_IDENTITY();
+        END
+
+        -- 5. Update SellerVerification
+        UPDATE dbo.SellerVerification
+        SET 
+            verificationStatus = @verificationStatus,
+            verifiedBy = @verifiedBy,
+            verifiedDate = GETDATE()
+        WHERE
+            verificationID = @verificationID;
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RETURN -3; -- Không tìm thấy verificationID
+        END
+
+        -- 6. Update Account role
+        UPDATE dbo.Account
+        SET 
+            roleID = 2
+        WHERE
+            userID = @sellerID;
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RETURN -4; -- Không tìm thấy sellerID trong Account
+        END
+
+        COMMIT TRANSACTION;
+
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        RETURN -1; -- Lỗi tổng quát
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_RejectedUpgradeAccount
+(
+    @verificationID INT,
+    @verificationStatus INT,
+    @verifiedBy INT,
+    @rejectReason NVARCHAR(MAX) = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.SellerVerification
+    SET 
+        verificationStatus = @verificationStatus,
+        verifiedBy = @verifiedBy,
+        verifiedDate = GETDATE(),
+        rejectReason = @rejectReason
+    WHERE
+        verificationID = @verificationID;
+    -- Kiểm tra có cập nhật được bản ghi nào không
+    IF @@ROWCOUNT > 0
+        RETURN 1;      -- thành công
+    ELSE
+        RETURN 0;      -- không thành công
+END
+GO
+
+--Add New Ticket
+CREATE OR ALTER PROCEDURE AddTicketByAdmin
+(
+    @villageID INT,
+    @typeID INT,
+    @price DECIMAL(10,2),
+    @status INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if ticket already exists
+    IF EXISTS (
+        SELECT 1 
+        FROM VillageTicket 
+        WHERE villageID = @villageID 
+          AND typeID = @typeID
+    )
+    BEGIN
+        -- Return 0 → fail because ticket exists
+        RETURN 0;
+    END
+
+    -- Insert new Ticket
+    INSERT INTO VillageTicket (villageID, typeID, price, status, createdDate)
+    VALUES (@villageID, @typeID, @price, @status, GETDATE());
+
+    -- Return 1 → success
+    RETURN 1;
+END
+GO
+
+--Update Ticket
+CREATE PROCEDURE UpdateTicketByAdmin
+(
+    @ticketID INT,
+    @price DECIMAL(10, 2),
+    @status INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE VillageTicket
+    SET
+        price = @price,
+        status = @status,
+        updatedDate = GETDATE()
+    WHERE ticketID = @ticketID;
+    RETURN 1;
+END
+GO
+
+--Delete Ticket
+CREATE PROCEDURE DeleteTicketByAdmin
+(
+    @ticketID INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE VillageTicket
+    SET
+        status = 0,
+        updatedDate = GETDATE()
+    WHERE ticketID = @ticketID;
+    RETURN 1;
+END
+GO
+-------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp_ResponseProductReviewByAdmin
+    @reviewID INT,
+    @response NVARCHAR(MAX),
+    @result INT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM ProductReview WHERE reviewID = @reviewID)
+    BEGIN
+        UPDATE ProductReview
+        SET response = @response,
+            responseDate = GETDATE()
+        WHERE reviewID = @reviewID;
+
+        SET @result = 1; -- Thành công
+    END
+    ELSE
+    BEGIN
+        SET @result = 0; -- Không tồn tại review
+    END
+END
+Go
+
+CREATE PROCEDURE sp_DeleteProductReviewByAdmin
+    @reviewID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @productID INT;
+    DECLARE @rating INT;
+    DECLARE @averageRating DECIMAL(10,2);
+    DECLARE @totalReview INT;
+
+    -- Lấy thông tin review cần xóa
+    SELECT 
+        @productID = productID,
+        @rating = rating
+    FROM ProductReview
+    WHERE reviewID = @reviewID;
+
+    -- Nếu không tìm thấy review
+    IF (@productID IS NULL)
+    BEGIN
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Lấy thông tin Product hiện tại
+    SELECT 
+        @averageRating = averageRating,
+        @totalReview = totalReviews
+    FROM Product
+    WHERE pid = @productID;
+
+    -- Nếu chỉ còn 1 review, reset về 0
+    IF (@totalReview <= 1)
+    BEGIN
+        UPDATE Product
+        SET 
+            averageRating = 0,
+            totalReviews = 0
+        WHERE pid = @productID;
+    END
+    ELSE
+    BEGIN
+        DECLARE @newAverage DECIMAL(10,2);
+        DECLARE @newTotal INT;
+
+        SET @newTotal = @totalReview - 1;
+        SET @newAverage = 
+            CASE 
+                WHEN @newTotal > 0 
+                THEN ROUND(((@averageRating * @totalReview) - @rating) / @newTotal, 2)
+                ELSE 0
+            END;
+
+        UPDATE Product
+        SET
+            averageRating = @newAverage,
+            totalReviews = @newTotal
+        WHERE pid = @productID;
+    END
+
+    -- Xóa review
+    DELETE FROM ProductReview
+    WHERE reviewID = @reviewID;
+
+    SET @result = 1;
+END
+GO
+
+CREATE PROCEDURE sp_ResponseVillageReviewByAdmin
+    @reviewID INT,
+    @response NVARCHAR(MAX),
+    @result INT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM VillageReview WHERE reviewID = @reviewID)
+    BEGIN
+        UPDATE VillageReview
+        SET response = @response,
+            responseDate = GETDATE()
+        WHERE reviewID = @reviewID;
+
+        SET @result = 1; -- Thành công
+    END
+    ELSE
+    BEGIN
+        SET @result = 0; -- Không tồn tại review
+    END
+END
+go
+
+CREATE PROCEDURE sp_DeleteVillageReviewByAdmin
+    @reviewID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @villageID INT;
+    DECLARE @rating INT;
+    DECLARE @averageRating FLOAT;
+    DECLARE @totalReview INT;
+
+    -- Lấy thông tin review cần xóa
+    SELECT 
+        @villageID = villageID,
+        @rating = rating
+    FROM VillageReview
+    WHERE reviewID = @reviewID;
+    -- Nếu không tìm thấy review
+    IF (@villageID IS NULL)
+    BEGIN
+        SET @result = 0;
+        RETURN;
+    END
+    -- Lấy thông tin CraftVillage hiện tại
+    SELECT 
+        @averageRating = averageRating,
+        @totalReview = totalReviews
+    FROM CraftVillage
+    WHERE villageID = @villageID;
+    -- Nếu totalReview <= 1, sau khi xóa sẽ còn 0 review
+    IF (@totalReview <= 1)
+    BEGIN
+        -- Reset rating về 0
+        UPDATE CraftVillage
+        SET 
+            averageRating = 0,
+            totalReviews = 0
+        WHERE villageID = @villageID;
+    END
+    ELSE
+    BEGIN
+        DECLARE @newAverage FLOAT;
+        DECLARE @newTotal INT;
+        SET @newTotal = @totalReview - 1;
+        SET @newAverage = (@averageRating * @totalReview - @rating) / @newTotal;
+        -- Cập nhật CraftVillage
+        UPDATE CraftVillage
+        SET
+            averageRating = @newAverage,
+            totalReviews = @newTotal
+        WHERE villageID = @villageID;
+    END
+    -- Xóa review
+    DELETE FROM VillageReview
+    WHERE reviewID = @reviewID;
+    SET @result = 1;
+END
+GO
+
+CREATE PROCEDURE UpdateVillageFullByAdmin
+    @villageID int,
+    @villageName nvarchar(255),
+    @typeID int,
+    @description nvarchar(max),
+    @address nvarchar(max),
+    @latitude float,
+    @longitude float,
+    @contactPhone nvarchar(100),
+    @contactEmail nvarchar(200),
+    @status int,
+    @sellerId int,
+    @openingHours nvarchar(255),
+    @closingDays nvarchar(255),
+    @mapEmbedUrl nvarchar(max),
+    @virtualTourUrl nvarchar(max),
+    @history nvarchar(max),
+    @specialFeatures nvarchar(max),
+    @famousProducts nvarchar(max),
+    @culturalEvents nvarchar(max),
+    @craftProcess nvarchar(max),
+    @videoDescriptionUrl nvarchar(500),
+    @travelTips nvarchar(max),
+    @mainImageUrl nvarchar(500),
+    @result int OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra tên không trùng (không phân biệt hoa thường, không dấu)
+    IF EXISTS (
+        SELECT 1
+        FROM CraftVillage
+        WHERE
+            villageID <> @villageID
+            AND villageName COLLATE Latin1_General_CI_AI
+                = @villageName COLLATE Latin1_General_CI_AI
+    )
+    BEGIN
+        -- Trùng tên với village khác → không update
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Thực hiện UPDATE
+    UPDATE CraftVillage
+    SET
+        villageName = @villageName,
+        typeID = @typeID,
+        description = @description,
+        address = @address,
+        latitude = @latitude,
+        longitude = @longitude,
+        contactPhone = @contactPhone,
+        contactEmail = @contactEmail,
+        status = @status,
+        sellerId = @sellerId,
+        openingHours = @openingHours,
+        closingDays = @closingDays,
+        mapEmbedUrl = @mapEmbedUrl,
+        virtualTourUrl = @virtualTourUrl,
+        history = @history,
+        specialFeatures = @specialFeatures,
+        famousProducts = @famousProducts,
+        culturalEvents = @culturalEvents,
+        craftProcess = @craftProcess,
+        videoDescriptionUrl = @videoDescriptionUrl,
+        travelTips = @travelTips,
+        mainImageUrl = @mainImageUrl,
+        updatedDate = GETDATE()
+    WHERE villageID = @villageID;
+
+    SET @result = 1;
+END;
+go
+
+
+CREATE PROCEDURE DeleteVillageByAdmin
+    @villageID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @existsInProduct BIT = 0;
+    DECLARE @existsInTicket BIT = 0;
+
+    -- Kiểm tra xem villageID có tồn tại trong Product
+    IF EXISTS (
+        SELECT 1
+        FROM Product
+        WHERE villageID = @villageID
+    )
+    BEGIN
+        SET @existsInProduct = 1;
+    END
+
+    -- Kiểm tra xem villageID có tồn tại trong VillageTicket
+    IF EXISTS (
+        SELECT 1
+        FROM VillageTicket
+        WHERE villageID = @villageID
+    )
+    BEGIN
+        SET @existsInTicket = 1;
+    END
+
+    -- Nếu có xuất hiện ở Product hoặc VillageTicket
+    IF @existsInProduct = 1 OR @existsInTicket = 1
+    BEGIN
+        -- Update status = 0 trong Product
+        UPDATE Product
+        SET status = 0
+        WHERE villageID = @villageID;
+
+        -- Update status = 0 trong VillageTicket
+        UPDATE VillageTicket
+        SET status = 0
+        WHERE villageID = @villageID;
+
+		UPDATE CraftVillage
+        SET status = 0
+        WHERE villageID = @villageID;
+
+        -- Không xóa CraftVillage
+        SET @result = 2; -- 2 = Chỉ update status, không xóa
+    END
+    ELSE
+    BEGIN
+        -- Không tồn tại ở các bảng → XÓA hẳn CraftVillage
+        DELETE FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        SET @result = 1; -- 1 = Xóa thành công
+    END
+END;
+go
+
+
+CREATE PROCEDURE AddVillageFullByAdmin
+    @villageName nvarchar(255),
+    @typeID int,
+    @description nvarchar(max),
+    @address nvarchar(max),
+    @latitude float,
+    @longitude float,
+    @contactPhone nvarchar(100),
+    @contactEmail nvarchar(200),
+    @status int,
+    @sellerId int,
+    @openingHours nvarchar(255),
+    @closingDays nvarchar(255),
+    @mapEmbedUrl nvarchar(max),
+    @virtualTourUrl nvarchar(max),
+    @history nvarchar(max),
+    @specialFeatures nvarchar(max),
+    @famousProducts nvarchar(max),
+    @culturalEvents nvarchar(max),
+    @craftProcess nvarchar(max),
+    @videoDescriptionUrl nvarchar(500),
+    @travelTips nvarchar(max),
+    @mainImageUrl nvarchar(500),
+    @result int OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra villageName đã tồn tại chưa (bỏ dấu, không phân biệt hoa thường)
+    IF EXISTS (
+        SELECT 1
+        FROM CraftVillage
+        WHERE
+            LTRIM(RTRIM(villageName)) COLLATE Latin1_General_CI_AI
+            = LTRIM(RTRIM(@villageName)) COLLATE Latin1_General_CI_AI
+    )
+    BEGIN
+        -- Trùng tên → không thêm
+        SET @result = 0;
+        RETURN;
+    END
+
+    -- Nếu chưa tồn tại thì thêm mới
+    INSERT INTO CraftVillage (
+        villageName,
+        typeID,
+        description,
+        address,
+        latitude,
+        longitude,
+        contactPhone,
+        contactEmail,
+        status,
+        sellerId,
+        openingHours,
+        closingDays,
+        mapEmbedUrl,
+        virtualTourUrl,
+        history,
+        specialFeatures,
+        famousProducts,
+        culturalEvents,
+        craftProcess,
+        videoDescriptionUrl,
+        travelTips,
+        mainImageUrl,
+        createdDate
+    )
+    VALUES (
+        @villageName,
+        @typeID,
+        @description,
+        @address,
+        @latitude,
+        @longitude,
+        @contactPhone,
+        @contactEmail,
+        @status,
+        @sellerId,
+        @openingHours,
+        @closingDays,
+        @mapEmbedUrl,
+        @virtualTourUrl,
+        @history,
+        @specialFeatures,
+        @famousProducts,
+        @culturalEvents,
+        @craftProcess,
+        @videoDescriptionUrl,
+        @travelTips,
+        @mainImageUrl,
+        GETDATE()
+    );
+
+    SET @result = 1;
+END;
+GO
+
+-- 3. BỔ SUNG HOẶC CẬP NHẬT STORED PROCEDURE CÒN THIẾU/CHƯA ĐÚNG
+IF OBJECT_ID('[dbo].[AddTicketToCart]', 'P') IS NOT NULL DROP PROCEDURE [dbo].[AddTicketToCart];
+GO
+CREATE PROCEDURE [dbo].[AddTicketToCart]
+    @cartID INT,
+    @ticketID INT,
+    @quantity INT,
+    @ticketDate DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        DECLARE @availableSlots INT;
+        DECLARE @currentCartQuantity INT = 0;
+        DECLARE @maxBookingDate DATE = DATEADD(DAY, 30, GETDATE());
+        -- Validate booking date
+        IF @ticketDate > @maxBookingDate OR @ticketDate < CAST(GETDATE() AS DATE)
+        BEGIN
+            RAISERROR('Invalid booking date', 16, 1);
+            RETURN;
+        END
+        -- Get current quantity in cart for this ticket and date
+        SELECT @currentCartQuantity = ISNULL(quantity, 0)
+        FROM [CartTicket]
+        WHERE cartID = @cartID AND ticketID = @ticketID AND ticketDate = @ticketDate;
+        -- Get available slots
+        SELECT @availableSlots = availableSlots 
+        FROM [TicketAvailability] 
+        WHERE ticketID = @ticketID AND availableDate = @ticketDate AND status = 1;
+        -- Create availability record if not exists
+        IF @availableSlots IS NULL
+        BEGIN
+            INSERT INTO [TicketAvailability] (ticketID, availableDate, totalSlots, bookedSlots)
+            VALUES (@ticketID, @ticketDate, 20, 0);
+            SET @availableSlots = 20;
+        END
+        -- Check if we can add the requested quantity
+        IF (@availableSlots + @currentCartQuantity) < @quantity
+        BEGIN
+            RAISERROR('Not enough tickets available', 16, 1);
+            RETURN;
+        END
+        -- Update or insert cart item
+        IF @currentCartQuantity > 0
+        BEGIN
+            UPDATE [CartTicket] 
+            SET quantity = @quantity, updatedDate = GETDATE()
+            WHERE cartID = @cartID AND ticketID = @ticketID AND ticketDate = @ticketDate;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO [CartTicket] (cartID, ticketID, quantity, ticketDate)
+            VALUES (@cartID, @ticketID, @quantity, @ticketDate);
+        END
+        COMMIT TRANSACTION;
+        SELECT 1 AS Success, 'Ticket added to cart successfully' AS Message;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+IF OBJECT_ID('[dbo].[ReserveTickets]', 'P') IS NOT NULL DROP PROCEDURE [dbo].[ReserveTickets];
+GO
+CREATE PROCEDURE [dbo].[ReserveTickets]
+    @cartID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        -- Reserve all tickets in cart
+        UPDATE ta
+        SET bookedSlots = ta.bookedSlots + ct.quantity,
+            updatedDate = GETDATE()
+        FROM [TicketAvailability] ta
+        INNER JOIN [CartTicket] ct ON ta.ticketID = ct.ticketID AND ta.availableDate = ct.ticketDate
+        WHERE ct.cartID = @cartID;
+        -- Clear cart tickets after reservation
+        DELETE FROM [CartTicket] WHERE cartID = @cartID;
+        COMMIT TRANSACTION;
+        SELECT 1 AS Success, 'Tickets reserved successfully' AS Message;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+IF OBJECT_ID('[dbo].[CheckTicketAvailability]', 'P') IS NOT NULL DROP PROCEDURE [dbo].[CheckTicketAvailability];
+GO
+CREATE PROCEDURE [dbo].[CheckTicketAvailability]
+    @ticketID INT,
+    @requestedDate DATE,
+    @quantity INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @availableSlots INT = 0;
+    DECLARE @maxBookingDate DATE = DATEADD(DAY, 30, GETDATE());
+    -- Check if date is within 30 days
+    IF @requestedDate > @maxBookingDate
+    BEGIN
+        SELECT 0 AS IsAvailable, 'Booking date exceeds 30-day limit' AS Message;
+        RETURN;
+    END
+    -- Check if date is in the past
+    IF @requestedDate < CAST(GETDATE() AS DATE)
+    BEGIN
+        SELECT 0 AS IsAvailable, 'Cannot book for past dates' AS Message;
+        RETURN;
+    END
+    -- Get or create availability record
+    SELECT @availableSlots = availableSlots 
+    FROM [TicketAvailability] 
+    WHERE ticketID = @ticketID AND availableDate = @requestedDate AND status = 1;
+    -- If no record exists, create one with default 20 slots
+    IF @availableSlots IS NULL
+    BEGIN
+        INSERT INTO [TicketAvailability] (ticketID, availableDate, totalSlots, bookedSlots)
+        VALUES (@ticketID, @requestedDate, 20, 0);
+        SET @availableSlots = 20;
+    END
+    -- Check availability
+    IF @availableSlots >= @quantity
+    BEGIN
+        SELECT 1 AS IsAvailable, 
+               @availableSlots AS AvailableSlots,
+               'Tickets available' AS Message;
+    END
+    ELSE
+    BEGIN
+        SELECT 0 AS IsAvailable, 
+               @availableSlots AS AvailableSlots,
+               CONCAT('Only ', @availableSlots, ' tickets available') AS Message;
+    END
+END
+GO
+
+CREATE PROCEDURE sp_addVillageReview
+    @villageID INT,
+    @userID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Insert review
+        INSERT INTO VillageReview (VillageID, UserID, ReviewText, Rating, ReviewDate)
+        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại CraftVillage
+        UPDATE CraftVillage
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE villageID = @villageID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+Go
+--Chat User - Seller
+CREATE PROCEDURE addNewMessageThread
+    @userID INT,
+    @sellerID INT,
+    @messageName NVARCHAR(255),
+    @result INT OUTPUT
+AS
+BEGIN
+    -- Kiểm tra tồn tại
+    IF EXISTS (
+        SELECT 1
+        FROM MessageThread
+        WHERE userID = @userID
+          AND sellerID = @sellerID
+          AND messageName = @messageName
+    )
+    BEGIN
+        -- Đã tồn tại → trả 0
+        SET @result = 0;
+    END
+    ELSE
+    BEGIN
+        BEGIN TRY
+            INSERT INTO MessageThread (userID, sellerID, messageName)
+            VALUES (@userID, @sellerID, @messageName);
+            
+            IF @@ROWCOUNT > 0
+                SET @result = 1;
+            ELSE
+                SET @result = 0;
+        END TRY
+        BEGIN CATCH
+            -- Có lỗi khi INSERT → trả 0
+            SET @result = 0;
+        END CATCH
+    END
+END
+go
+
+CREATE PROCEDURE sendMessage
+    @threadID INT,
+    @senderID INT,
+    @messageContent NVARCHAR(MAX),
+    @attachmentUrl VARCHAR(MAX) = NULL,
+    @result INT OUTPUT
+AS
+BEGIN
+    BEGIN TRY
+        INSERT INTO [dbo].[Message] (
+            threadID,
+            senderID,
+            messageContent,
+            attachmentUrl,
+            sentDate
+        )
+        VALUES (
+            @threadID,
+            @senderID,
+            @messageContent,
+            @attachmentUrl,
+            GETDATE()
+        );
+        IF @@ROWCOUNT > 0
+            SET @result = 1;
+        ELSE
+            SET @result = 0;
+    END TRY
+    BEGIN CATCH
+        -- Có lỗi xảy ra
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+--11/7--
+CREATE PROCEDURE AddOrder
+    @userID INT,
+    @total_price DECIMAL(18,2),
+    @shippingAddress NVARCHAR(500),
+    @shippingPhone NVARCHAR(50),
+    @email NVARCHAR(255),
+    @paymentMethod NVARCHAR(100),
+    @paymentStatus INT,
+	@note NVARCHAR(255),
+	@shippingName NVARCHAR(255),
+	@points int,
+    @orderIDnew INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO Orders
+    (
+        userID,  total_price, shippingAddress,
+        shippingPhone, email,   paymentMethod, paymentStatus, note, shippingName, points
+    )
+    VALUES
+    (
+        @userID, @total_price,@shippingAddress,
+        @shippingPhone, @email, @paymentMethod, @paymentStatus, @note, @shippingName, @points
+    );
+
+    -- Lấy ID vừa insert (SQL Server)
+    SET @orderIDnew = SCOPE_IDENTITY();
+END;
+go 
+
+
+CREATE PROCEDURE AddOrderDetail
+    @order_id INT,
+    @product_id INT,
+    @quantity INT,
+    @price DECIMAL(10, 2),
+	@status int,
+	@villageID int,
+	@paymentMethod nvarchar(50),
+	@paymentStatus int,
+	 @newDetailID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO OrderDetail (order_id, product_id, quantity, price, subtotal, status, villageID, paymentMethod, paymentStatus, points)
+    VALUES (
+        @order_id,
+        @product_id,
+        @quantity,
+        @price,
+        @quantity * @price,
+		@status,
+		@villageID,
+		@paymentMethod,
+		@paymentStatus,
+		@quantity * @price / 100
+    );
+	 SET @newDetailID = SCOPE_IDENTITY();
+END;
+GO
+ 
+CREATE PROCEDURE AddTicketOrderDetail
+    @order_id INT,
+    @ticketid INT,
+    @quantity INT,
+    @price DECIMAL(10, 2),
+	@status int,
+	@villageID int,
+	@paymentMethod nvarchar(50),
+	@paymentStatus int,
+	 @TicketOrderDetailID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO TicketOrderDetail (orderID, ticketID, quantity, price, subtotal, status, villageID, paymentMethod, paymentStatus, points)
+    VALUES (
+        @order_id,
+        @ticketid,
+        @quantity,
+        @price,
+        @quantity * @price,
+		@status,
+		@villageID,
+		@paymentMethod,
+		@paymentStatus,
+		@quantity * @price / 100
+    );
+	SET @TicketOrderDetailID = SCOPE_IDENTITY();
+END;
+GO
+
+CREATE PROCEDURE CheckOutOfStockItems
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT p.name
+    FROM CartItem ci
+    INNER JOIN Product p ON ci.productID = p.pid
+    WHERE ci.quantity > p.stock;
+END;
+GO
+
+CREATE PROCEDURE PayPoints
+    @userID INT,
+    @points INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check tồn tại User
+    IF EXISTS (SELECT 1 FROM AccountPoints WHERE userID = @userID)
+    BEGIN
+        -- Update trừ điểm, đảm bảo không âm
+        UPDATE AccountPoints
+        SET points = CASE 
+                        WHEN points >= @points THEN points - @points
+                        ELSE 0
+                     END
+        WHERE userID = @userID;
+    END
+END;
+GO
+
+---thêm mới khi review-
+
+CREATE PROCEDURE sp_addProductReview
+    @productID INT,
+    @userID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Insert review
+        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
+        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM Product
+        WHERE pid = @productID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại Product
+        UPDATE Product
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE pid = @productID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_addProductReviewWithOrderValidation
+    @productID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Check if order is eligible for review (status=2 AND paymentStatus=1)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM Orders o
+        INNER JOIN OrderDetail od ON o.id = od.order_id
+        WHERE o.id = @orderID 
+          AND o.userID = @userID 
+          AND od.product_id = @productID
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1; -- Order not eligible
+            RETURN;
+        END
+
+        -- Check if user has already reviewed this product from this order
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM ProductReview pr
+        WHERE pr.userID = @userID 
+          AND pr.productID = @productID
+          AND EXISTS (
+              SELECT 1 FROM OrderDetail od 
+              WHERE od.order_id = @orderID 
+                AND od.product_id = @productID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2; -- Already reviewed
+            RETURN;
+        END
+
+        -- Insert review
+        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
+        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM Product
+        WHERE pid = @productID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại Product
+        UPDATE Product
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE pid = @productID;
+
+        SET @result = 1; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Error
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_addVillageReviewWithOrderValidation
+    @villageID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Check if ticket order is eligible for review (status=2 AND paymentStatus=1)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM TicketOrderDetail o
+        WHERE o.orderID = @orderID 
+          AND o.villageID = @villageID
+          AND o.status = 1 
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1; -- Order not eligible
+            RETURN;
+        END
+
+        -- Check if user has already reviewed this village from this order
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM VillageReview vr
+        WHERE vr.userID = @userID 
+          AND vr.villageID = @villageID
+          AND EXISTS (
+              SELECT 1 FROM TicketOrderDetail to_check
+              WHERE to_check.orderID = @orderID 
+                AND to_check.villageID = @villageID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2; -- Already reviewed
+            RETURN;
+        END
+
+        -- Insert review
+        INSERT INTO VillageReview (villageID, userID, reviewText, rating, reviewDate)
+        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        -- Lấy giá trị cũ
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        -- Tính toán giá trị mới
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        -- Update lại CraftVillage
+        UPDATE CraftVillage
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE villageID = @villageID;
+
+        SET @result = 1; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @result = 0; -- Error
+    END CATCH
+END
+GO
+
+
+--13/7---------
+CREATE PROCEDURE sp_AddNewPayment
+    @sellerID INT,
+    @orderID INT = NULL,
+    @ticketOrderID INT = NULL,
+    @amount DECIMAL(10,2),
+    @paymentMethod NVARCHAR(50),
+    @paymentStatus INT,
+    @newPaymentID INT OUTPUT
+AS
+BEGIN
+    INSERT INTO Payment
+    ( sellerID, orderID,  ticketOrderID, amount, paymentMethod, paymentStatus )
+    VALUES
+    (@sellerID, @orderID,  @ticketOrderID,  @amount, @paymentMethod, @paymentStatus );
+    -- Trả về ID mới được sinh ra
+    SET @newPaymentID = SCOPE_IDENTITY();
+END
+GO
+---------------
+
+-- Xóa và tạo lại thủ tục thêm đánh giá sản phẩm
+DROP PROCEDURE IF EXISTS sp_addProductReviewWithOrderValidation_v2;
+GO
+CREATE PROCEDURE sp_addProductReviewWithOrderValidation_v2
+    @productID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Kiểm tra đơn hàng hợp lệ (đã giao và đã thanh toán)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM OrderDetail o
+        INNER JOIN OrderDetail od ON o.id = od.order_id
+        WHERE o.id = @orderID 
+          AND od.product_id = @productID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        -- Kiểm tra đã đánh giá chưa
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM ProductReview pr
+        WHERE pr.userID = @userID 
+          AND pr.productID = @productID
+          AND EXISTS (
+              SELECT 1 FROM OrderDetail od 
+              WHERE od.order_id = @orderID 
+                AND od.product_id = @productID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        -- Thêm đánh giá
+        INSERT INTO ProductReview (productID, userID, reviewText, rating, reviewDate)
+        VALUES (@productID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM Product
+        WHERE pid = @productID;
+
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        UPDATE Product
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE pid = @productID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục thêm đánh giá làng nghề
+DROP PROCEDURE IF EXISTS sp_addVillageReviewWithOrderValidation_v2;
+GO
+CREATE PROCEDURE sp_addVillageReviewWithOrderValidation_v2
+    @villageID INT,
+    @userID INT,
+    @orderID INT,
+    @reviewText NVARCHAR(MAX),
+    @rating INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Kiểm tra đơn vé hợp lệ (đã giao và đã thanh toán)
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM TicketOrderDetail o
+        WHERE o.orderID = @orderID
+          AND o.villageID = @villageID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        -- Kiểm tra đã đánh giá chưa
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM VillageReview vr
+        WHERE vr.userID = @userID 
+          AND vr.villageID = @villageID
+          AND EXISTS (
+              SELECT 1 FROM TicketOrderDetail to_check
+              WHERE to_check.orderID = @orderID 
+                AND to_check.villageID = @villageID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        -- Thêm đánh giá
+        INSERT INTO VillageReview (villageID, userID, reviewText, rating, reviewDate)
+        VALUES (@villageID, @userID, @reviewText, @rating, GETDATE());
+
+        DECLARE @oldTotal INT;
+        DECLARE @oldAvg FLOAT;
+        DECLARE @newTotal INT;
+        DECLARE @newAvg FLOAT;
+
+        SELECT @oldTotal = totalReviews, @oldAvg = averageRating
+        FROM CraftVillage
+        WHERE villageID = @villageID;
+
+        SET @newTotal = ISNULL(@oldTotal,0) + 1;
+
+        IF @oldTotal > 0
+            SET @newAvg = (@oldAvg * @oldTotal + @rating) / @newTotal;
+        ELSE
+            SET @newAvg = @rating * 1.0;
+
+        UPDATE CraftVillage
+        SET
+            totalReviews = @newTotal,
+            averageRating = @newAvg
+        WHERE villageID = @villageID;
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục kiểm tra điều kiện đánh giá sản phẩm
+DROP PROCEDURE IF EXISTS sp_CheckProductReviewEligibility;
+GO
+CREATE PROCEDURE sp_CheckProductReviewEligibility
+    @userID INT,
+    @productID INT,
+    @orderID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM Orders o
+        INNER JOIN OrderDetail od ON o.id = od.order_id
+        WHERE o.id = @orderID 
+          AND o.userID = @userID 
+          AND od.product_id = @productID
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM ProductReview pr
+        WHERE pr.userID = @userID 
+          AND pr.productID = @productID
+          AND EXISTS (
+              SELECT 1 FROM OrderDetail od 
+              WHERE od.order_id = @orderID 
+                AND od.product_id = @productID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục kiểm tra điều kiện đánh giá làng nghề
+DROP PROCEDURE IF EXISTS sp_CheckVillageReviewEligibility;
+GO
+CREATE PROCEDURE sp_CheckVillageReviewEligibility
+    @userID INT,
+    @villageID INT,
+    @orderID INT,
+    @result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @orderEligible INT = 0;
+        SELECT @orderEligible = COUNT(*)
+        FROM TicketOrderDetail o
+        WHERE o.orderID = @orderID 
+          AND o.villageID = @villageID
+          AND o.status = 2
+          AND o.paymentStatus = 1;
+
+        IF @orderEligible = 0
+        BEGIN
+            SET @result = -1;
+            RETURN;
+        END
+
+        DECLARE @alreadyReviewed INT = 0;
+        SELECT @alreadyReviewed = COUNT(*)
+        FROM VillageReview vr
+        WHERE vr.userID = @userID 
+          AND vr.villageID = @villageID
+          AND EXISTS (
+              SELECT 1 FROM TicketOrderDetail to_check
+              WHERE to_check.orderID = @orderID 
+                AND to_check.villageID = @villageID
+          );
+
+        IF @alreadyReviewed > 0
+        BEGIN
+            SET @result = -2;
+            RETURN;
+        END
+
+        SET @result = 1;
+    END TRY
+    BEGIN CATCH
+        SET @result = 0;
+    END CATCH
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy thông tin sản phẩm đầy đủ
+DROP PROCEDURE IF EXISTS sp_GetCompleteProductInfo;
+GO
+CREATE PROCEDURE sp_GetCompleteProductInfo
+    @productID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        p.pid,
+        p.name,
+        p.price,
+        p.description,
+        p.stock,
+        p.status,
+        p.sku,
+        p.weight,
+        p.dimensions,
+        p.materials,
+        p.careInstructions,
+        p.warranty,
+        p.isFeatured,
+        p.averageRating,
+        p.totalReviews,
+        p.createdDate,
+        p.updatedDate,
+        pc.categoryName,
+        cv.villageName,
+        cv.address as villageAddress,
+        cv.contactPhone as villagePhone,
+        cv.contactEmail as villageEmail,
+        ct.typeName as craftTypeName,
+        a.userName as sellerName,
+        a.email as sellerEmail,
+        a.phoneNumber as sellerPhone
+    FROM Product p
+    INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
+    INNER JOIN CraftVillage cv ON p.villageID = cv.villageID
+    LEFT JOIN CraftType ct ON p.craftTypeID = ct.typeID
+    LEFT JOIN Account a ON cv.sellerId = a.userID
+    WHERE p.pid = @productID AND p.status = 1;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy thông tin làng nghề đầy đủ
+DROP PROCEDURE IF EXISTS sp_GetCompleteVillageInfo;
+GO
+CREATE PROCEDURE sp_GetCompleteVillageInfo
+    @villageID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        cv.villageID,
+        cv.villageName,
+        cv.description,
+        cv.address,
+        cv.latitude,
+        cv.longitude,
+        cv.contactPhone,
+        cv.contactEmail,
+        cv.status,
+        cv.clickCount,
+        cv.lastClicked,
+        cv.mainImageUrl,
+        cv.createdDate,
+        cv.updatedDate,
+        cv.openingHours,
+        cv.closingDays,
+        cv.averageRating,
+        cv.totalReviews,
+        cv.mapEmbedUrl,
+        cv.virtualTourUrl,
+        cv.history,
+        cv.specialFeatures,
+        cv.famousProducts,
+        cv.culturalEvents,
+        cv.craftProcess,
+        cv.videoDescriptionUrl,
+        cv.travelTips,
+        ct.typeName as craftTypeName,
+        ct.description as craftTypeDescription,
+        a.userName as sellerName,
+        a.email as sellerEmail,
+        a.phoneNumber as sellerPhone,
+        a.address as sellerAddress
+    FROM CraftVillage cv
+    LEFT JOIN CraftType ct ON cv.typeID = ct.typeID
+    LEFT JOIN Account a ON cv.sellerId = a.userID
+    WHERE cv.villageID = @villageID AND cv.status = 1;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy thông tin vé đầy đủ
+DROP PROCEDURE IF EXISTS sp_GetCompleteTicketInfo;
+GO
+CREATE PROCEDURE sp_GetCompleteTicketInfo
+    @ticketID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        vt.ticketID,
+        vt.price,
+        vt.status as ticketStatus,
+        vt.createdDate as ticketCreatedDate,
+        vt.updatedDate as ticketUpdatedDate,
+        tt.typeName as ticketTypeName,
+        tt.description as ticketTypeDescription,
+        tt.ageRange,
+        cv.villageID,
+        cv.villageName,
+        cv.description as villageDescription,
+        cv.address as villageAddress,
+        cv.contactPhone as villagePhone,
+        cv.contactEmail as villageEmail,
+        cv.openingHours,
+        cv.closingDays,
+        cv.averageRating as villageRating,
+        cv.totalReviews as villageTotalReviews,
+        cv.mainImageUrl as villageImage,
+        ct.typeName as craftTypeName,
+        a.userName as sellerName,
+        a.email as sellerEmail,
+        a.phoneNumber as sellerPhone
+    FROM VillageTicket vt
+    INNER JOIN TicketType tt ON vt.typeID = tt.typeID
+    INNER JOIN CraftVillage cv ON vt.villageID = cv.villageID
+    LEFT JOIN CraftType ct ON cv.typeID = ct.typeID
+    LEFT JOIN Account a ON cv.sellerId = a.userID
+    WHERE vt.ticketID = @ticketID AND vt.status = 1;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy danh sách sản phẩm có thể đánh giá
+DROP PROCEDURE IF EXISTS sp_GetUserReviewableProducts;
+GO
+CREATE PROCEDURE sp_GetUserReviewableProducts
+    @userID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT DISTINCT
+        p.pid as productID,
+        p.name as productName,
+        p.mainImageUrl as productImage,
+        p.price,
+        pc.categoryName,
+        cv.villageName,
+        o.id as orderID,
+        o.createdDate as orderDate,
+        o.status as orderStatus,
+        o.paymentStatus,
+        od.quantity,
+        od.subtotal
+    FROM OrderDetail o
+    INNER JOIN OrderDetail od ON o.id = od.order_id
+    INNER JOIN Product p ON od.product_id = p.pid
+    INNER JOIN ProductCategory pc ON p.categoryID = pc.categoryID
+    INNER JOIN CraftVillage cv ON p.villageID = cv.villageID
+    WHERE  o.status = 2
+      AND o.paymentStatus = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM ProductReview pr 
+          WHERE pr.userID = @userID 
+            AND pr.productID = p.pid
+      )
+    ORDER BY o.createdDate DESC;
+END
+GO
+
+-- Xóa và tạo lại thủ tục lấy danh sách làng nghề có thể đánh giá
+DROP PROCEDURE IF EXISTS sp_GetUserReviewableVillages;
+GO
+CREATE PROCEDURE sp_GetUserReviewableVillages
+    @userID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT DISTINCT
+        cv.villageID,
+        cv.villageName,
+        cv.mainImageUrl as villageImage,
+        cv.address as villageAddress,
+        tk.orderID,
+        tk.createdDate as orderDate,
+        tk.status as orderStatus,
+        tk.paymentStatus,
+        tk.subtotal,
+        tk.quantity
+    FROM TicketOrderDetail tk
+    INNER JOIN CraftVillage cv ON tk.villageID = cv.villageID
+    WHERE tk.status = 2
+      AND tk.paymentStatus = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM VillageReview vr 
+          WHERE vr.userID = @userID 
+            AND vr.villageID = cv.villageID
+      )
+    ORDER BY tk.createdDate DESC;
+END
+GO
+--------------------------------------------------------------------
+CREATE PROCEDURE sp_CancelOrder
+(
+    @orderDetailID INT,
+    @cancelReason NVARCHAR(500)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        UPDATE [dbo].[OrderDetail]
+        SET 
+            cancelReason = @cancelReason,
+            cancelDate = GETDATE(),
+            status = 3,
+            updatedDate = GETDATE()
+        WHERE
+            [id] = @orderDetailID;
+
+        -- Kiểm tra xem có row nào được update không
+        IF @@ROWCOUNT = 0
+        BEGIN
+            -- Không tìm thấy orderDetailID
+            RETURN -1;
+        END
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -2; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_RefundOrderPayment
+(
+    @orderID INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        UPDATE [dbo].[Payment]
+        SET 
+            paymentStatus = 0,
+            updatedDate = GETDATE()
+        WHERE
+            orderID = @orderID;
+
+        IF @@ROWCOUNT = 0
+            RETURN -1; -- Không tìm thấy orderID
+
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -99; -- Lỗi hệ thống
+    END CATCH
+END
+GO
+
+CREATE PROCEDURE sp_RefundTicketPayment
+(
+    @ticketOrderID INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        UPDATE [dbo].[Payment]
+        SET 
+            paymentStatus = 0,
+            updatedDate = GETDATE()
+        WHERE
+            ticketOrderID = @ticketOrderID;
+
+        IF @@ROWCOUNT = 0
+            RETURN -2; -- Không tìm thấy ticketOrderID
+
+        RETURN 1; -- Thành công
+    END TRY
+    BEGIN CATCH
+        RETURN -99; -- Lỗi hệ thống
+    END CATCH
+END
+GO
