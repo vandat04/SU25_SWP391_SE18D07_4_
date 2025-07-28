@@ -9,6 +9,7 @@ import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Product.Product;
 import entity.Product.ProductCategory;
+import entity.Product.ProductImage;
 import entity.Ticket.Ticket;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -1061,5 +1062,39 @@ public class ProductDAO {
             closeResources(conn, ps, rs);
         }
         return products;
+    }
+
+    public List<ProductImage> getProductImages(int productId) {
+        List<ProductImage> images = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT * FROM ProductImage WHERE productID = ? AND status = 1 ORDER BY displayOrder";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, productId);
+            rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                entity.Product.ProductImage image = new entity.Product.ProductImage();
+                image.setImageID(rs.getInt("imageID"));
+                image.setProductID(rs.getInt("productID"));
+                image.setImageUrl(rs.getString("imageUrl"));
+                image.setIsMain(rs.getBoolean("isMain"));
+                image.setAltText(rs.getString("altText"));
+                image.setDisplayOrder(rs.getInt("displayOrder"));
+                image.setStatus(rs.getInt("status"));
+                image.setCreatedDate(rs.getTimestamp("createdDate"));
+                image.setUpdatedDate(rs.getTimestamp("updatedDate"));
+                images.add(image);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return images;
     }
 }

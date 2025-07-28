@@ -40,6 +40,7 @@ public class ProductImage {
     }
 
     //--------------------------------------------------------------------------
+    
     public int getImageID() {
         return imageID;
     }

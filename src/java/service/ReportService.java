@@ -67,4 +67,9 @@ public class ReportService implements IReportService{
     public Payment getPaymentBySubOrderID(int subOrderId) {
         return rDAO.getPaymentBySubOrderID(subOrderId);
     }
+
+    public BigDecimal getSellerMonthlyRevenue(int sellerId, int month, int year) {
+        return rDAO.getSellerMonthlyRevenue(sellerId, month, year);
+    }
+
 }

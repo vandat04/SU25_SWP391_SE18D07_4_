@@ -143,4 +143,37 @@ public class CategoryDAO {
         }
         return false;
     }
+
+    /**
+     * Get all active categories specifically for status = 1
+     */
+    public List<ProductCategory> getAllActiveCategories() {
+        List<ProductCategory> list = new ArrayList<>();
+        String sql = "SELECT * FROM ProductCategory WHERE status = 1 ORDER BY categoryName";
+        
+        try {
+            Connection conn = DBContext.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                ProductCategory category = new ProductCategory();
+                category.setCategoryID(rs.getInt("categoryID"));
+                category.setCategoryName(rs.getString("categoryName"));
+                category.setDescription(rs.getString("description"));
+                category.setStatus(rs.getInt("status"));
+                category.setCreatedDate(rs.getTimestamp("createdDate"));
+                category.setUpdatedDate(rs.getTimestamp("updatedDate"));
+                list.add(category);
+            }
+            
+            rs.close();
+            ps.close();
+            conn.close();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 } 

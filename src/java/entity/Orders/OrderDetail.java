@@ -4,6 +4,7 @@
  */
 package entity.Orders;
 
+import entity.Product.Product;
 import java.math.BigDecimal;
 
 public class OrderDetail {
@@ -18,7 +19,8 @@ public class OrderDetail {
     private Integer villageId;
     private String productName;
     private int reviewStatus;
-
+    private Product product; // Added for seller management
+    
     // Constructors
     public OrderDetail() {
     }
@@ -80,6 +82,14 @@ public class OrderDetail {
         this.quantity = quantity;
         this.price = price;
         this.villageId = villageId;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public int getReviewStatus() {

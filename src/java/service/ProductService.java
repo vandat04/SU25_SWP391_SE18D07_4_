@@ -9,6 +9,7 @@ import entity.CartWishList.CartItem;
 import entity.CartWishList.CartTicket;
 import entity.Product.Product;
 import entity.Product.ProductCategory;
+import entity.Product.ProductImage;
 import entity.Product.ProductReview;
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class ProductService implements IProductService {
 
     ProductDAO pDAO = new ProductDAO();
+    SellerService sellerService = new SellerService();
 
     @Override
     public int addProduct(Product product) throws Exception {
@@ -360,4 +362,14 @@ public class ProductService implements IProductService {
         return pDAO.getTotalActiveProducts();
     }
 
+    public List<ProductImage> getProductImages(int productId) {
+        return pDAO.getProductImages(productId);
+    }
+
+    /**
+     * Add product image (delegated to seller service)
+     */
+    public boolean addProductImage(ProductImage productImage) {
+        return sellerService.addProductImage(productImage);
+    }
 }

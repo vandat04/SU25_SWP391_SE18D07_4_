@@ -5,6 +5,7 @@
 package service;
 
 import DAO.OrderDAO;
+import entity.Account.Account;
 import entity.CartWishList.CartItem;
 import entity.CraftVillage.CraftReview;
 import entity.Orders.Order;
@@ -315,4 +316,26 @@ public class OrderService implements IOrderService {
     public List<SubOrder> getSubOrderByVillageID(int villageID) {
         return oDAO.getSubOrderByVillageID(villageID);
     }
+
+    public List<SubOrder> getSellerRecentOrders(int sellerId, int limit) {
+        return oDAO.getSellerRecentOrders(sellerId, limit);
+    }
+
+     public OrderDetail getOrderDetailById(int orderDetailId) {
+        return oDAO.getOrderDetailById(orderDetailId);
+    }
+
+    public Account getCustomerByOrderId(int orderId) {
+        return oDAO.getCustomerByOrderId(orderId);
+    }
+
+    // Methods for seller order management using OrderDetail
+    public List<OrderDetail> getOrderDetailsByVillageId(int villageId, int status, String searchKeyword, int page, int pageSize) {
+        return oDAO.getOrderDetailsByVillageId(villageId, status, searchKeyword, page, pageSize);
+    }
+
+   public int getTotalOrderDetailsByVillageId(int villageId, int status, String searchKeyword) {
+        return oDAO.getTotalOrderDetailsByVillageId(villageId, status, searchKeyword);
+    }
+
 }

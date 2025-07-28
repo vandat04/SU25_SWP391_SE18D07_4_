@@ -855,4 +855,47 @@ public class ReportDAO {
         return null;
     }
 
+    public BigDecimal getSellerMonthlyRevenue(int sellerId, int month, int year) {
+        BigDecimal revenue = BigDecimal.ZERO;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT SUM(p.amount) as total_revenue " +
+                        "FROM Payment p " +
+                        "JOIN SubOrder so ON p.subOrderId = so.subOrderId " +
+                        "JOIN CraftVillage cv ON so.villageID = cv.villageID " +
+                        "WHERE cv.sellerId = ? " +
+                        "AND MONTH(p.paymentDate) = ? " +
+                        "AND YEAR(p.paymentDate) = ? " +
+                        "AND p.paymentStatus = 1";
+            
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, sellerId);
+            ps.setInt(2, month);
+            ps.setInt(3, year);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                revenue = rs.getBigDecimal("total_revenue");
+                if (revenue == null) {
+                    revenue = BigDecimal.ZERO;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return revenue;
+    }
+
 }

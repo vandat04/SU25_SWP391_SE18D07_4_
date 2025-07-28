@@ -6,6 +6,7 @@ package DAO;
 
 import entity.Orders.Order;
 import context.DBContext;
+import entity.Account.Account;
 import entity.CartWishList.CartItem;
 import entity.CraftVillage.CraftReview;
 import entity.CraftVillage.CraftVillage;
@@ -1338,196 +1339,201 @@ public class OrderDAO {
         return list;
     }
 
-   public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, String contentSearch, int page, int pageSize) {
-    List<SubOrder> list = new ArrayList<>();
-    String query = "";
-    int paramIndex = 1;
-
-    // Validate và chuẩn hóa input
-    if (contentSearch == null) contentSearch = "";
-    contentSearch = contentSearch.trim();
-    if (page < 1) page = 1;
-    if (pageSize <= 0) pageSize = 10;
-
-    // Xác định có lọc theo orderStatus hay không
-    boolean filterByStatus = (status != 7);
-
-    // Xây dựng câu lệnh SQL tương ứng với searchID và status
-    if (filterByStatus) {
-        switch (searchID) {
-            case 0:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate DESC";
-                break;
-            case 1:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND villageId = ? ORDER BY createdDate DESC";
-                break;
-            case 2:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY total_price ASC ";
-                break;
-            case 3:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY total_price  DESC";
-                break;
-            case 4:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND paymentMethod LIKE ? ORDER BY paymentMethod";
-                break;
-            case 5:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND paymentStatus = ? ORDER BY paymentStatus";
-                break;
-            case 6:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY orderStatus";
-                break;
-            case 7:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate ASC";
-                break;
-            case 8:
-                query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate DESC ";
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid searchID: " + searchID);
-        }
-    } else {
-        // Trường hợp không lọc theo orderStatus (status == 7)
-        switch (searchID) {
-            case 0:
-                query = "SELECT * FROM SubOrders ORDER BY createdDate DESC";
-                break;
-            case 1:
-                query = "SELECT * FROM SubOrders WHERE villageId = ? ORDER BY createdDate DESC";
-                break;
-            case 2:
-                query = "SELECT * FROM SubOrders ORDER BY total_price ASC";
-                break;
-            case 3:
-                query = "SELECT * FROM SubOrders ORDER BY total_price DESC ";
-                break;
-            case 4:
-                query = "SELECT * FROM SubOrders WHERE paymentMethod LIKE ? ORDER BY paymentMethod";
-                break;
-            case 5:
-                query = "SELECT * FROM SubOrders WHERE paymentStatus = ? ORDER BY paymentStatus";
-                break;
-            case 6:
-                query = "SELECT * FROM SubOrders ORDER BY orderStatus";
-                break;
-            case 7:
-                query = "SELECT * FROM SubOrders ORDER BY createdDate ASC";
-                break;
-            case 8:
-                query = "SELECT * FROM SubOrders ORDER BY createdDate DESC ";
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid searchID: " + searchID);
-        }
-    }
-
-    // Thêm phân trang SQL Server
-    query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
-    try (Connection conn = DBContext.getConnection();
-         PreparedStatement ps = conn.prepareStatement(query)) {
-
-        // Nếu cần lọc theo orderStatus
-        if (filterByStatus) {
-            ps.setInt(paramIndex++, status);
-        }
-
-        // Nếu searchID có sử dụng LIKE
-        if (searchID == 4 ) {
-            ps.setString(paramIndex++, "%" + contentSearch + "%");
-        } else if (searchID == 1 || searchID == 5 ){
-            ps.setInt(paramIndex++, Integer.parseInt(contentSearch) );
-        }
-
-        // Phân trang
-        int offset = Math.max((page - 1) * pageSize, 0);
-        ps.setInt(paramIndex++, offset);
-        ps.setInt(paramIndex++, pageSize);
-
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            list.add(mapResultSetToSubOrder(rs));
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    return list;
-}
-
-
-
-public int getTotalSubOrders(int status, int searchID, String contentSearch) {
-    int total = 0;
-    StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM SubOrders WHERE 1=1");
-
-    boolean filterByStatus = (status != 7);
-    if (filterByStatus) {
-        query.append(" AND orderStatus = ?");
-    }
-
-    if (contentSearch == null) contentSearch = "";
-    contentSearch = contentSearch.trim();
-
-    // Xây dựng điều kiện tìm kiếm bổ sung
-    switch (searchID) {
-        case 1: // Village ID (LIKE)
-            query.append(" AND villageId LIKE ?");
-            break;
-        case 4: // Payment method (LIKE)
-            query.append(" AND paymentMethod LIKE ?");
-            break;
-        case 5: // Payment status (LIKE)
-            query.append(" AND paymentStatus LIKE ?");
-            break;
-        case 6: // Order status (chỉ dùng nếu status == 7)
-            if (!filterByStatus) {
-                query.append(" AND orderStatus = ?");
-            }
-            break;
-        // Các searchID 0, 2, 3, 7, 8 không thêm điều kiện COUNT
-    }
-
-    try (Connection conn = DBContext.getConnection();
-         PreparedStatement ps = conn.prepareStatement(query.toString())) {
-
+    public List<SubOrder> getSearchSubOrderByAdmin(int status, int searchID, String contentSearch, int page, int pageSize) {
+        List<SubOrder> list = new ArrayList<>();
+        String query = "";
         int paramIndex = 1;
 
-        // Trường hợp có lọc status != 7
+        // Validate và chuẩn hóa input
+        if (contentSearch == null) {
+            contentSearch = "";
+        }
+        contentSearch = contentSearch.trim();
+        if (page < 1) {
+            page = 1;
+        }
+        if (pageSize <= 0) {
+            pageSize = 10;
+        }
+
+        // Xác định có lọc theo orderStatus hay không
+        boolean filterByStatus = (status != 7);
+
+        // Xây dựng câu lệnh SQL tương ứng với searchID và status
         if (filterByStatus) {
-            ps.setInt(paramIndex++, status);
-        }
-
-        // Gán tham số tìm kiếm
-        switch (searchID) {
-            case 1:
-            case 4:
-            case 5:
-                ps.setString(paramIndex++, "%" + contentSearch + "%");
-                break;
-            case 6:
-                if (!filterByStatus) {
-                    try {
-                        ps.setInt(paramIndex++, Integer.parseInt(contentSearch));
-                    } catch (NumberFormatException e) {
-                        ps.setInt(paramIndex++, -1); // không tìm thấy
-                    }
-                }
-                break;
-        }
-
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                total = rs.getInt(1);
+            switch (searchID) {
+                case 0:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate DESC";
+                    break;
+                case 1:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND villageId = ? ORDER BY createdDate DESC";
+                    break;
+                case 2:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY total_price ASC ";
+                    break;
+                case 3:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY total_price  DESC";
+                    break;
+                case 4:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND paymentMethod LIKE ? ORDER BY paymentMethod";
+                    break;
+                case 5:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? AND paymentStatus = ? ORDER BY paymentStatus";
+                    break;
+                case 6:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY orderStatus";
+                    break;
+                case 7:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate ASC";
+                    break;
+                case 8:
+                    query = "SELECT * FROM SubOrders WHERE orderStatus = ? ORDER BY createdDate DESC ";
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid searchID: " + searchID);
+            }
+        } else {
+            // Trường hợp không lọc theo orderStatus (status == 7)
+            switch (searchID) {
+                case 0:
+                    query = "SELECT * FROM SubOrders ORDER BY createdDate DESC";
+                    break;
+                case 1:
+                    query = "SELECT * FROM SubOrders WHERE villageId = ? ORDER BY createdDate DESC";
+                    break;
+                case 2:
+                    query = "SELECT * FROM SubOrders ORDER BY total_price ASC";
+                    break;
+                case 3:
+                    query = "SELECT * FROM SubOrders ORDER BY total_price DESC ";
+                    break;
+                case 4:
+                    query = "SELECT * FROM SubOrders WHERE paymentMethod LIKE ? ORDER BY paymentMethod";
+                    break;
+                case 5:
+                    query = "SELECT * FROM SubOrders WHERE paymentStatus = ? ORDER BY paymentStatus";
+                    break;
+                case 6:
+                    query = "SELECT * FROM SubOrders ORDER BY orderStatus";
+                    break;
+                case 7:
+                    query = "SELECT * FROM SubOrders ORDER BY createdDate ASC";
+                    break;
+                case 8:
+                    query = "SELECT * FROM SubOrders ORDER BY createdDate DESC ";
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid searchID: " + searchID);
             }
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        // Thêm phân trang SQL Server
+        query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+
+            // Nếu cần lọc theo orderStatus
+            if (filterByStatus) {
+                ps.setInt(paramIndex++, status);
+            }
+
+            // Nếu searchID có sử dụng LIKE
+            if (searchID == 4) {
+                ps.setString(paramIndex++, "%" + contentSearch + "%");
+            } else if (searchID == 1 || searchID == 5) {
+                ps.setInt(paramIndex++, Integer.parseInt(contentSearch));
+            }
+
+            // Phân trang
+            int offset = Math.max((page - 1) * pageSize, 0);
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToSubOrder(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 
-    return total;
-}
+    public int getTotalSubOrders(int status, int searchID, String contentSearch) {
+        int total = 0;
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM SubOrders WHERE 1=1");
+
+        boolean filterByStatus = (status != 7);
+        if (filterByStatus) {
+            query.append(" AND orderStatus = ?");
+        }
+
+        if (contentSearch == null) {
+            contentSearch = "";
+        }
+        contentSearch = contentSearch.trim();
+
+        // Xây dựng điều kiện tìm kiếm bổ sung
+        switch (searchID) {
+            case 1: // Village ID (LIKE)
+                query.append(" AND villageId LIKE ?");
+                break;
+            case 4: // Payment method (LIKE)
+                query.append(" AND paymentMethod LIKE ?");
+                break;
+            case 5: // Payment status (LIKE)
+                query.append(" AND paymentStatus LIKE ?");
+                break;
+            case 6: // Order status (chỉ dùng nếu status == 7)
+                if (!filterByStatus) {
+                    query.append(" AND orderStatus = ?");
+                }
+                break;
+            // Các searchID 0, 2, 3, 7, 8 không thêm điều kiện COUNT
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query.toString())) {
+
+            int paramIndex = 1;
+
+            // Trường hợp có lọc status != 7
+            if (filterByStatus) {
+                ps.setInt(paramIndex++, status);
+            }
+
+            // Gán tham số tìm kiếm
+            switch (searchID) {
+                case 1:
+                case 4:
+                case 5:
+                    ps.setString(paramIndex++, "%" + contentSearch + "%");
+                    break;
+                case 6:
+                    if (!filterByStatus) {
+                        try {
+                            ps.setInt(paramIndex++, Integer.parseInt(contentSearch));
+                        } catch (NumberFormatException e) {
+                            ps.setInt(paramIndex++, -1); // không tìm thấy
+                        }
+                    }
+                    break;
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
     public List<SubOrder> getSubOrderByVillageID(int villageID) {
         List<SubOrder> list = new ArrayList<>();
         String sql = "SELECT * FROM SubOrders WHERE villageId = ?";
@@ -1564,6 +1570,271 @@ public int getTotalSubOrders(int status, int searchID, String contentSearch) {
             }
         }
         return list;
+    }
+
+    public List<SubOrder> getSellerRecentOrders(int sellerId, int limit) {
+        List<SubOrder> orders = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT TOP (?) so.*, cv.villageName "
+                    + "FROM SubOrder so "
+                    + "JOIN CraftVillage cv ON so.villageID = cv.villageID "
+                    + "WHERE cv.sellerId = ? "
+                    + "ORDER BY so.createdDate DESC";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, limit);
+            ps.setInt(2, sellerId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                orders.add(mapResultSetToSubOrder(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return orders;
+    }
+
+   public OrderDetail getOrderDetailById(int orderDetailId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        OrderDetail orderDetail = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT od.*, o.shippingAddress, o.shippingPhone, o.shippingName, " +
+                        "o.paymentMethod as orderPaymentMethod, o.paymentStatus as orderPaymentStatus, " +
+                        "o.createdDate as orderCreatedDate, o.email, " +
+                        "a.userName, a.fullName, " +
+                        "p.name as pname, p.mainImageUrl as pimage " +
+                        "FROM OrderDetail od " +
+                        "JOIN Orders o ON od.order_id = o.id " +
+                        "JOIN Account a ON o.userID = a.userID " +
+                        "JOIN Product p ON od.product_id = p.pid " +
+                        "WHERE od.id = ?";
+            
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, orderDetailId);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                orderDetail = new OrderDetail();
+                orderDetail.setId(rs.getInt("id"));
+                orderDetail.setOrderId(rs.getInt("order_id"));
+                orderDetail.setProductId(rs.getInt("product_id"));
+                orderDetail.setQuantity(rs.getInt("quantity"));
+                orderDetail.setPrice(rs.getBigDecimal("price"));
+                orderDetail.setSubtotal(rs.getBigDecimal("subtotal"));
+                // Additional fields from joins
+                orderDetail.setProductName(rs.getString("pname"));
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return orderDetail;
+    }
+
+    public Account getCustomerByOrderId(int orderId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT a.* FROM Account a " +
+                        "JOIN Orders o ON a.userID = o.userID " +
+                        "WHERE o.id = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                entity.Account.Account account = new entity.Account.Account();
+                account.setUserID(rs.getInt("userID"));
+                account.setUserName(rs.getString("userName"));
+                account.setEmail(rs.getString("email"));
+                account.setPhoneNumber(rs.getString("phoneNumber"));
+                account.setAddress(rs.getString("address"));
+                account.setFullName(rs.getString("fullName"));
+                return account;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    // Methods for seller order management using OrderDetail
+    public List<OrderDetail> getOrderDetailsByVillageId(int villageId, int status, String searchKeyword, int page, int pageSize) {
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            StringBuilder sql = new StringBuilder();
+            sql.append("SELECT od.*, o.shippingAddress, o.shippingPhone, o.shippingName, ")
+               .append("o.paymentMethod as orderPaymentMethod, o.paymentStatus as orderPaymentStatus, ")
+               .append("o.createdDate as orderCreatedDate, o.email, ")
+               .append("a.userName, a.fullName, ")
+               .append("p.name as pname, p.mainImageUrl as pimage ")
+               .append("FROM OrderDetail od ")
+               .append("JOIN Orders o ON od.order_id = o.id ")
+               .append("JOIN Account a ON o.userID = a.userID ")
+               .append("JOIN Product p ON od.product_id = p.pid ")
+               .append("WHERE p.villageID = ? ");
+            
+            if (status >= 0) {
+                sql.append("AND od.status = ? ");
+            }
+            
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                sql.append("AND (o.shippingName LIKE ? OR o.shippingPhone LIKE ? OR od.id LIKE ? OR o.id LIKE ?) ");
+            }
+            
+            sql.append("ORDER BY od.createdDate DESC ")
+               .append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+            
+            ps = conn.prepareStatement(sql.toString());
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, villageId);
+            
+            if (status >= 0) {
+                ps.setInt(paramIndex++, status);
+            }
+            
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                String keyword = "%" + searchKeyword + "%";
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+            }
+            
+            ps.setInt(paramIndex++, (page - 1) * pageSize);
+            ps.setInt(paramIndex++, pageSize);
+            
+            rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setId(rs.getInt("id"));
+                orderDetail.setOrderId(rs.getInt("order_id"));
+                orderDetail.setProductId(rs.getInt("product_id"));
+                orderDetail.setQuantity(rs.getInt("quantity"));
+                orderDetail.setPrice(rs.getBigDecimal("price"));
+                orderDetail.setSubtotal(rs.getBigDecimal("subtotal"));
+               
+                orderDetail.setProductName(rs.getString("pname"));
+                
+                
+                orderDetails.add(orderDetail);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return orderDetails;
+    }
+
+    public int getTotalOrderDetailsByVillageId(int villageId, int status, String searchKeyword) {
+        int total = 0;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBContext.getConnection();
+            StringBuilder sql = new StringBuilder();
+            sql.append("SELECT COUNT(*) as total ")
+               .append("FROM OrderDetail od ")
+               .append("JOIN Orders o ON od.order_id = o.id ")
+               .append("WHERE od.villageID = ? ");
+            
+            if (status >= 0) {
+                sql.append("AND od.status = ? ");
+            }
+            
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                sql.append("AND (o.shippingName LIKE ? OR o.shippingPhone LIKE ? OR od.id LIKE ? OR o.id LIKE ?) ");
+            }
+            
+            ps = conn.prepareStatement(sql.toString());
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, villageId);
+            
+            if (status >= 0) {
+                ps.setInt(paramIndex++, status);
+            }
+            
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                String keyword = "%" + searchKeyword + "%";
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+            }
+            
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return total;
     }
 
 }

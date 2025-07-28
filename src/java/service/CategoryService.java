@@ -136,4 +136,26 @@ public class CategoryService {
                !category.getCategoryName().trim().isEmpty() &&
                category.getStatus() == 1;
     }
+
+    /**
+     * Get all active categories (status = 1)
+     */
+    public List<ProductCategory> getAllActiveCategories() {
+        try {
+            LOGGER.log(Level.INFO, "Getting all active categories");
+            List<ProductCategory> categories = categoryDAO.getAllActiveCategories();
+            
+            if (categories.isEmpty()) {
+                LOGGER.log(Level.WARNING, "No active categories found in database");
+            } else {
+                LOGGER.log(Level.INFO, "Successfully retrieved {0} active categories", categories.size());
+            }
+            
+            return categories;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error in CategoryService.getAllActiveCategories()", e);
+            throw new RuntimeException("Service error while retrieving active categories", e);
+        }
+    }
+
 } 

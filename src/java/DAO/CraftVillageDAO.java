@@ -885,4 +885,60 @@ public class CraftVillageDAO {
         return 0;
     }
 
+    public List<CraftVillage> getVillagesBySellerId(int sellerId) {
+        List<CraftVillage> villages = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT * FROM CraftVillage WHERE sellerId = ? AND status = 1";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, sellerId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                villages.add(mapResultSetToCraftVillage(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return villages;
+    }
+
+    public List<CraftType> getAllActiveCraftTypes() {
+        List<CraftType> craftTypes = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            String sql = "SELECT * FROM CraftType WHERE status = 1 ORDER BY typeName";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                CraftType craftType = new CraftType(
+                        rs.getInt("typeID"),
+                        rs.getString("typeName"),
+                        rs.getString("description"),
+                        rs.getInt("status"),
+                        rs.getTimestamp("createdDate"),
+                        rs.getTimestamp("updatedDate")
+                );
+                craftTypes.add(craftType);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, ps, rs);
+        }
+        return craftTypes;
+
+    }
+
 }

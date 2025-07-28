@@ -96,7 +96,6 @@ public class VillageService implements IVillageService {
         return vDAO.getSearchVillageByAdmin(status, searchID, contentSearch);
     }
 
-
     public List<CraftVillage> getTopRatedByAdmin() {
         return vDAO.getTopRatedByAdmin();
     }
@@ -113,15 +112,17 @@ public class VillageService implements IVillageService {
 
     /**
      * Get all village IDs owned by a specific seller
+     *
      * @param sellerID The seller ID
      * @return List of village IDs owned by the seller
      */
     public List<Integer> getVillageIdsBySeller(int sellerID) {
         return vDAO.getVillageIdsBySeller(sellerID);
     }
-    
+
     /**
      * Check if a village is owned by a specific seller
+     *
      * @param villageID The village ID
      * @param sellerID The seller ID
      * @return true if the village is owned by the seller
@@ -131,23 +132,39 @@ public class VillageService implements IVillageService {
     }
 
     public List<CraftVillage> getVillageByFilter(String provinceCodeSearch, String typeID) {
-        return vDAO.getVillageByFilter(provinceCodeSearch,typeID);
+        return vDAO.getVillageByFilter(provinceCodeSearch, typeID);
     }
 
     public List<CraftVillage> getSearchVillageByAdmin(int status, int searchID, String contentSearch, int offset, int PAGE_SIZE) {
-        return vDAO.getSearchVillageByAdmin( status,  searchID,  contentSearch,  offset,  PAGE_SIZE);
+        return vDAO.getSearchVillageByAdmin(status, searchID, contentSearch, offset, PAGE_SIZE);
     }
 
     public int getTotalSearchVillages(int status, int searchID, String contentSearch) {
-        return vDAO.getTotalSearchVillages( status,  searchID,  contentSearch) ;
+        return vDAO.getTotalSearchVillages(status, searchID, contentSearch);
     }
 
     public List<CraftVillage> getAllCraftVillageActive(int offset, int PAGE_SIZE) {
-        return vDAO.getAllCraftVillageActive( offset,  PAGE_SIZE);
+        return vDAO.getAllCraftVillageActive(offset, PAGE_SIZE);
     }
 
     public int getTotalActiveVillages() {
         return vDAO.getTotalActiveVillages();
+    }
+
+    public List<CraftVillage> getVillagesBySellerId(int sellerId) {
+        return vDAO.getVillagesBySellerId(sellerId);
+    }
+
+    public int getVillageIdBySellerId(int sellerId) {
+        List<CraftVillage> villages = vDAO.getVillagesBySellerId(sellerId);
+        if (villages != null && !villages.isEmpty()) {
+            return villages.get(0).getVillageID(); // Return first village ID
+        }
+        return 0; // No village found
+    }
+
+    public List<CraftType> getAllActiveCraftTypes() {
+        return vDAO.getAllActiveCraftTypes();
     }
 
 }
