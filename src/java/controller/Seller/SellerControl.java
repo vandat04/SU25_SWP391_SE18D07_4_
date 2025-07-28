@@ -150,7 +150,7 @@ public class SellerControl extends HttpServlet {
             request.setAttribute("revenueData", defaultRevenueData);
             
             // Set error message for user
-            request.setAttribute("errorMessage", "Có lỗi xảy ra khi tải dữ liệu dashboard. Vui lòng thử lại sau.");
+            request.setAttribute("errorMessage", "An error occurred while loading dashboard data. Please try again later..");
         }
         
         // Forward to seller dashboard

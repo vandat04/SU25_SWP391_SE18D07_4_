@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller.Seller;
 
 import entity.Account.Account;
@@ -132,13 +128,13 @@ public class SellerUpdateOrderStatus extends HttpServlet {
             }
             
             if (result) {
-                request.getSession().setAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công!");
+                request.getSession().setAttribute("successMessage", "Order status update successful!");
             } else {
-                request.getSession().setAttribute("errorMessage", "Không thể cập nhật trạng thái đơn hàng!");
+                request.getSession().setAttribute("errorMessage", "Unable to update order status!");
             }
             
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("errorMessage", "ID đơn hàng không hợp lệ!");
+            request.getSession().setAttribute("errorMessage", "Invalid order ID!");
         }
         
         response.sendRedirect("seller-order-management");

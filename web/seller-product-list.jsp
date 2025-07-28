@@ -1,20 +1,14 @@
-<%-- 
-    Document   : seller-product-list
-    Created on : Jul 27, 2025
-    Author     : GitHub Copilot
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sản phẩm - Seller Dashboard</title>
+    <title>Product Management - Seller Dashboard</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -57,25 +51,31 @@
         }
         
         .filters-card {
-            background: white;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .filters-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .product-card {
-            background: white;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             height: 100%;
         }
         
         .product-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .product-image {
@@ -93,50 +93,85 @@
         }
         
         .status-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 0.3rem 1rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
         .status-active {
-            background: #10b981;  /* Darker green background */
-            color: white;         /* White text for better contrast */
+            background: #10b981;
+            color: white;
             border: 1px solid #059669;
         }
         
+        .status-active::before {
+            content: "\f058"; /* Check icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 0.8rem;
+        }
+        
         .status-inactive {
-            background: #6b7280;  /* Gray background */
-            color: white;         /* White text */
+            background: #6b7280;
+            color: white;
             border: 1px solid #4b5563;
         }
         
+        .status-inactive::before {
+            content: "\f071"; /* Exclamation icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 0.8rem;
+        }
+        
         .bulk-actions {
-            background: white;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
             padding: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
             display: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         .bulk-actions.show {
             display: block;
         }
         
+        .bulk-actions:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
         .table-view .product-row {
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             border-radius: 0.5rem;
             margin-bottom: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .table-view .product-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         
         .view-toggle {
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             border-radius: 0.5rem;
             padding: 0.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .view-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         
         .view-toggle button {
@@ -150,6 +185,11 @@
         .view-toggle button.active {
             background: #3b82f6;
             color: white;
+        }
+        
+        .view-toggle button:hover {
+            background: #e0e7ff;
+            color: #3b82f6;
         }
         
         .breadcrumb {
@@ -200,14 +240,14 @@
                         <li class="breadcrumb-item">
                             <a href="seller-dashboard" class="text-decoration-none">Dashboard</a>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page">Quản lý sản phẩm</li>
+                        <li class="breadcrumb-item active" aria-current="page">Product Management</li>
                     </ol>
                 </nav>
                 
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="h3 mb-1">Quản lý sản phẩm</h1>
-                        <p class="text-muted mb-0">Quản lý tất cả sản phẩm của bạn</p>
+                        <h1 class="h3 mb-1">Product Management</h1>
+                        <p class="text-muted mb-0">Manage all your products</p>
                     </div>
                     <div class="d-flex gap-2 align-items-center">
                         <!-- View Toggle -->
@@ -221,7 +261,7 @@
                         </div>
                         
                         <a href="seller-product-management?action=add" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Thêm sản phẩm mới
+                            <i class="fas fa-plus me-2"></i>Add New Product
                         </a>
                     </div>
                 </div>
@@ -248,18 +288,18 @@
                 <div class="filters-card">
                     <form method="GET" action="seller-product-management" class="row g-3 align-items-end">
                         <div class="col-md-4">
-                            <label for="status" class="form-label">Trạng thái</label>
+                            <label for="status" class="form-label">Status</label>
                             <select name="status" id="status" class="form-select">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="1" ${selectedStatus == '1' ? 'selected' : ''}>Hoạt động</option>
-                                <option value="0" ${selectedStatus == '0' ? 'selected' : ''}>Không hoạt động</option>
+                                <option value="">All statuses</option>
+                                <option value="1" ${selectedStatus == '1' ? 'selected' : ''}>Active</option>
+                                <option value="0" ${selectedStatus == '0' ? 'selected' : ''}>Inactive</option>
                             </select>
                         </div>
                         
                         <div class="col-md-4">
-                            <label for="categoryId" class="form-label">Danh mục</label>
+                            <label for="categoryId" class="form-label">Category</label>
                             <select name="categoryId" id="categoryId" class="form-select">
-                                <option value="">Tất cả danh mục</option>
+                                <option value="">All categories</option>
                                 <c:forEach items="${categories}" var="category">
                                     <option value="${category.categoryID}" ${selectedCategoryId == category.categoryID ? 'selected' : ''}>
                                         ${category.categoryName}
@@ -269,10 +309,10 @@
                         </div>
                         
                         <div class="col-md-3">
-                            <label for="search" class="form-label">Tìm kiếm</label>
+                            <label for="search" class="form-label">Search</label>
                             <div class="input-group">
                                 <input type="text" name="search" id="search" class="form-control" 
-                                       placeholder="Tên sản phẩm..." value="${searchQuery}">
+                                       placeholder="Product name..." value="${searchQuery}">
                                 <button type="submit" class="btn btn-outline-primary">
                                     <i class="fas fa-search"></i>
                                 </button>
@@ -291,14 +331,14 @@
                 <div class="bulk-actions" id="bulkActions">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong><span id="selectedCount">0</span> sản phẩm được chọn</strong>
+                            <strong><span id="selectedCount">0</span> products selected</strong>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-success btn-sm" data-bulk-action="activate">
-                                <i class="fas fa-check me-1"></i>Kích hoạt
+                                <i class="fas fa-check me-1"></i>Activate
                             </button>
                             <button type="button" class="btn btn-warning btn-sm" data-bulk-action="deactivate">
-                                <i class="fas fa-ban me-1"></i>Vô hiệu hóa
+                                <i class="fas fa-ban me-1"></i>Deactivate
                             </button>
                         </div>
                     </div>
@@ -319,10 +359,10 @@
                                                 <div class="product-status">
                                                     <c:choose>
                                                         <c:when test="${product.status == 1}">
-                                                            <span class="status-badge status-active">Hoạt động</span>
+                                                            <span class="status-badge status-active">Active</span>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <span class="status-badge status-inactive">Không hoạt động</span>
+                                                            <span class="status-badge status-inactive">Inactive</span>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </div>
@@ -360,7 +400,7 @@
                                                     </div>
                                                     
                                                     <div class="mb-2 small text-muted">
-                                                        <i class="fas fa-box me-1"></i>Kho: ${product.stock}
+                                                        <i class="fas fa-box me-1"></i>Stock: ${product.stock}
                                                         <c:if test="${product.stock < 10}">
                                                             <span class="text-warning">
                                                                 <i class="fas fa-exclamation-triangle ms-1"></i>
@@ -399,18 +439,18 @@
                                                 <th width="50">
                                                     <input type="checkbox" class="form-check-input" id="selectAll">
                                                 </th>
-                                                <th width="80">Ảnh</th>
-                                                <th>Tên sản phẩm</th>
-                                                <th width="120">Giá</th>
-                                                <th width="80">Kho</th>
-                                                <th width="100">Trạng thái</th>
-                                                <th width="120">Ngày tạo</th>
-                                                <th width="150">Thao tác</th>
+                                                <th width="80">Image</th>
+                                                <th>Product Name</th>
+                                                <th width="120">Price</th>
+                                                <th width="80">Stock</th>
+                                                <th width="100">Status</th>
+                                                <th width="120">Created Date</th>
+                                                <th width="150">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <c:forEach items="${products}" var="product">
-                                                <tr>
+                                                <tr class="product-row">
                                                     <td>
                                                         <input type="checkbox" class="form-check-input product-select" 
                                                                value="${product.pid}" data-select-row>
@@ -449,10 +489,10 @@
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${product.status == 1}">
-                                                                <span class="badge bg-success">Hoạt động</span>
+                                                                <span class="badge bg-success">Active</span>
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <span class="badge bg-secondary">Không hoạt động</span>
+                                                                <span class="badge bg-secondary">Inactive</span>
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </td>
@@ -462,11 +502,11 @@
                                                     <td>
                                                         <div class="btn-group btn-group-sm" role="group">
                                                             <a href="seller-product-management?action=view&id=${product.pid}" 
-                                                               class="btn btn-outline-primary" title="Xem chi tiết">
+                                                               class="btn btn-outline-primary" title="View details">
                                                                 <i class="fas fa-eye"></i>
                                                             </a>
                                                             <a href="seller-product-management?action=edit&id=${product.pid}" 
-                                                               class="btn btn-outline-secondary" title="Chỉnh sửa">
+                                                               class="btn btn-outline-secondary" title="Edit">
                                                                 <i class="fas fa-edit"></i>
                                                             </a>
                                                         </div>
@@ -484,12 +524,12 @@
                                 <div class="mb-4">
                                     <i class="fas fa-box-open fa-4x text-muted"></i>
                                 </div>
-                                <h4 class="text-muted mb-3">Chưa có sản phẩm nào</h4>
+                                <h4 class="text-muted mb-3">No Products Yet</h4>
                                 <p class="text-muted mb-4">
-                                    Bạn chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên để bắt đầu bán hàng!
+                                    You don’t have any products yet. Add your first product to start selling!
                                 </p>
                                 <a href="seller-product-management?action=add" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Thêm sản phẩm mới
+                                    <i class="fas fa-plus me-2"></i>Add New Product
                                 </a>
                             </div>
                         </c:otherwise>
@@ -537,8 +577,8 @@
                     <c:if test="${totalProducts > 0}">
                         <div class="text-center mt-3">
                             <small class="text-muted">
-                                Hiển thị ${(currentPage - 1) * 8 + 1} - ${currentPage * 8 > totalProducts ? totalProducts : currentPage * 8} 
-                                trong tổng số ${totalProducts} sản phẩm
+                                Showing ${(currentPage - 1) * 8 + 1} - ${currentPage * 8 > totalProducts ? totalProducts : currentPage * 8} 
+                                out of ${totalProducts} products
                             </small>
                         </div>
                     </c:if>
@@ -609,5 +649,3 @@
             window.location.href = 'seller-product-management';
         }
     </script>
-</body>
-</html>

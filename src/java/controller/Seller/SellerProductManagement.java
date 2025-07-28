@@ -231,7 +231,7 @@ public class SellerProductManagement extends HttpServlet {
         } catch (Exception e) {
             // Log the error for debugging
             e.printStackTrace();
-            request.setAttribute("error", "Có lỗi xảy ra khi tải trang thêm sản phẩm: " + e.getMessage());
+            request.setAttribute("error", "An error occurred while loading the add product page.: " + e.getMessage());
             handleListProducts(request, response, seller);
         }
     }
@@ -245,7 +245,7 @@ public class SellerProductManagement extends HttpServlet {
         try {
             String idParam = request.getParameter("id");
             if (idParam == null || idParam.trim().isEmpty()) {
-                request.setAttribute("error", "ID sản phẩm không được cung cấp");
+                request.setAttribute("error", "Product ID not provided");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -254,7 +254,7 @@ public class SellerProductManagement extends HttpServlet {
             Product product = productService.getProductById(productId);
             
             if (product == null) {
-                request.setAttribute("error", "Sản phẩm không tồn tại");
+                request.setAttribute("error", "Product does not exist");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -265,7 +265,7 @@ public class SellerProductManagement extends HttpServlet {
                 .anyMatch(village -> village.getVillageID() == product.getVillageID());
             
             if (!ownsProduct) {
-                request.setAttribute("error", "Bạn không có quyền chỉnh sửa sản phẩm này");
+                request.setAttribute("error", "You do not have permission to edit this product");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -287,12 +287,12 @@ public class SellerProductManagement extends HttpServlet {
             request.getRequestDispatcher("seller-product-form.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "ID sản phẩm không hợp lệ: " + e.getMessage());
+            request.setAttribute("error", "Invalid product ID: " + e.getMessage());
             handleListProducts(request, response, seller);
         } catch (Exception e) {
             // Log the error for debugging
             e.printStackTrace();
-            request.setAttribute("error", "Có lỗi xảy ra khi tải trang chỉnh sửa: " + e.getMessage());
+            request.setAttribute("error", "An error occurred while loading the edit page.: " + e.getMessage());
             handleListProducts(request, response, seller);
         }
     }
@@ -328,7 +328,7 @@ public class SellerProductManagement extends HttpServlet {
                 .anyMatch(village -> village.getVillageID() == villageId);
             
             if (!ownsVillage) {
-                request.setAttribute("error", "Bạn không có quyền thêm sản phẩm vào làng này");
+                request.setAttribute("error", "You do not have permission to add products to this village.");
                 handleAddProductForm(request, response, seller);
                 return;
             }
@@ -366,13 +366,13 @@ public class SellerProductManagement extends HttpServlet {
                 // Handle additional images
                 handleAdditionalImages(request, productId);
                 
-                request.setAttribute("success", "Thêm sản phẩm thành công!");
+                request.setAttribute("success", "Product added successfully!");
             } else {
-                request.setAttribute("error", "Có lỗi xảy ra khi thêm sản phẩm");
+                request.setAttribute("error", "An error occurred while adding the product.");
             }
             
         } catch (Exception e) {
-            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            request.setAttribute("error", "An error occurred.: " + e.getMessage());
         }
         
         handleListProducts(request, response, seller);
@@ -389,7 +389,7 @@ public class SellerProductManagement extends HttpServlet {
             Product existingProduct = productService.getProductById(productId);
             
             if (existingProduct == null) {
-                request.setAttribute("error", "Sản phẩm không tồn tại");
+                request.setAttribute("error", "Product does not exist");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -400,7 +400,7 @@ public class SellerProductManagement extends HttpServlet {
                 .anyMatch(village -> village.getVillageID() == existingProduct.getVillageID());
             
             if (!ownsProduct) {
-                request.setAttribute("error", "Bạn không có quyền chỉnh sửa sản phẩm này");
+                request.setAttribute("error", "You do not have permission to edit this product");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -494,13 +494,13 @@ public class SellerProductManagement extends HttpServlet {
                 // Handle additional images
                 handleAdditionalImages(request, productId);
                 
-                request.setAttribute("success", "Cập nhật sản phẩm thành công!");
+                request.setAttribute("success", "Product update successful!");
             } else {
-                request.setAttribute("error", "Có lỗi xảy ra khi cập nhật sản phẩm");
+                request.setAttribute("error", "An error occurred while updating the product.");
             }
             
         } catch (Exception e) {
-            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            request.setAttribute("error", "An error occurred.: " + e.getMessage());
         }
         
         handleListProducts(request, response, seller);
@@ -517,7 +517,7 @@ public class SellerProductManagement extends HttpServlet {
             Product product = productService.getProductById(productId);
             
             if (product == null) {
-                request.setAttribute("error", "Sản phẩm không tồn tại");
+                request.setAttribute("error", "Product does not exist");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -528,7 +528,7 @@ public class SellerProductManagement extends HttpServlet {
                 .anyMatch(village -> village.getVillageID() == product.getVillageID());
             
             if (!ownsProduct) {
-                request.setAttribute("error", "Bạn không có quyền xóa sản phẩm này");
+                request.setAttribute("error", "You do not have permission to delete this product.");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -538,13 +538,13 @@ public class SellerProductManagement extends HttpServlet {
             boolean success = productService.updateProduct(product);
             
             if (success) {
-                request.setAttribute("success", "Xóa sản phẩm thành công!");
+                request.setAttribute("success", "Product deleted successfully!");
             } else {
-                request.setAttribute("error", "Có lỗi xảy ra khi xóa sản phẩm");
+                request.setAttribute("error", "An error occurred while deleting the product.");
             }
             
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "ID sản phẩm không hợp lệ");
+            request.setAttribute("error", "Invalid product ID");
         }
         
         handleListProducts(request, response, seller);
@@ -561,7 +561,7 @@ public class SellerProductManagement extends HttpServlet {
             Product product = productService.getProductById(productId);
             
             if (product == null) {
-                request.setAttribute("error", "Sản phẩm không tồn tại");
+                request.setAttribute("error", "Product does not exist");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -572,7 +572,7 @@ public class SellerProductManagement extends HttpServlet {
                 .anyMatch(village -> village.getVillageID() == product.getVillageID());
             
             if (!ownsProduct) {
-                request.setAttribute("error", "Bạn không có quyền xem sản phẩm này");
+                request.setAttribute("error", "You do not have permission to view this product.");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -589,7 +589,7 @@ public class SellerProductManagement extends HttpServlet {
             request.getRequestDispatcher("seller-product-view.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "ID sản phẩm không hợp lệ");
+            request.setAttribute("error", "Invalid product ID");
             handleListProducts(request, response, seller);
         }
     }
@@ -607,7 +607,7 @@ public class SellerProductManagement extends HttpServlet {
             Product product = productService.getProductById(productId);
             
             if (product == null) {
-                request.setAttribute("error", "Sản phẩm không tồn tại");
+                request.setAttribute("error", "Product does not exist");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -618,14 +618,14 @@ public class SellerProductManagement extends HttpServlet {
                 .anyMatch(village -> village.getVillageID() == product.getVillageID());
             
             if (!ownsProduct) {
-                request.setAttribute("error", "Bạn không có quyền cập nhật sản phẩm này");
+                request.setAttribute("error", "You do not have permission to update this product.");
                 handleListProducts(request, response, seller);
                 return;
             }
             
             // Sellers can only set status to active (1) or inactive (0)
             if (status != 1 && status != 0) {
-                request.setAttribute("error", "Trạng thái không hợp lệ");
+                request.setAttribute("error", "Invalid status");
                 handleListProducts(request, response, seller);
                 return;
             }
@@ -634,14 +634,14 @@ public class SellerProductManagement extends HttpServlet {
             boolean success = productService.updateProduct(product);
             
             if (success) {
-                String statusText = (status == 1) ? "kích hoạt" : "vô hiệu hóa";
-                request.setAttribute("success", "Đã " + statusText + " sản phẩm thành công!");
+                String statusText = (status == 1) ? "activate" : "inactive";
+                request.setAttribute("success", "Already " + statusText + " product successfully!");
             } else {
-                request.setAttribute("error", "Có lỗi xảy ra khi cập nhật trạng thái");
+                request.setAttribute("error", "An error occurred while updating the status.");
             }
             
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Dữ liệu không hợp lệ");
+            request.setAttribute("error", "Invalid data");
         }
         
         handleListProducts(request, response, seller);

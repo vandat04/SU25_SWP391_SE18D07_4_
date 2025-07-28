@@ -1,20 +1,14 @@
-<%-- 
-    Document   : seller-village-management
-    Created on : Jul 27, 2025
-    Author     : GitHub Copilot
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý làng nghề - CraftVillage</title>
+    <title>Craft Village Management - CraftVillage</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,298 +19,151 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/seller-style.css">
+    <link rel="stylesheet" href="assets/css/seller.css">
     
     <style>
-        :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #3b82f6;
-        }
-
         body {
-            background: #f8f9fa;
+            background-color: #f8fafc;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
-        .village-card {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            overflow: hidden;
-            height: 100%;
-        }
-        
-        .village-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .village-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        .village-status {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .status-active {
-            background: var(--success-color);
-            color: white;
-        }
-        
-        .status-inactive {
-            background: var(--danger-color);
-            color: white;
-        }
-        
-        .village-info {
-            padding: 20px;
-        }
-        
-        .village-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-        
-        .village-description {
-            color: #718096;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 16px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .village-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: #f7fafc;
-            border-radius: 8px;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 2px;
-        }
-        
-        .stat-label {
-            font-size: 11px;
-            color: #a0aec0;
-            font-weight: 500;
-        }
-        
-        .village-contact {
-            margin-bottom: 16px;
-            padding: 12px;
-            background: #f0f4f8;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary-color);
-        }
-        
-        .contact-item {
+        .dashboard-layout {
             display: flex;
-            align-items: center;
-            margin-bottom: 6px;
-            font-size: 13px;
-            color: #4a5568;
-        }
-        
-        .contact-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .contact-item i {
-            width: 16px;
-            margin-right: 8px;
-            color: var(--primary-color);
-        }
-        
-        .village-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .btn-village {
-            flex: 1;
-            padding: 8px 12px;
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            text-align: center;
-            border: 1px solid transparent;
-        }
-        
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-outline-success {
-            color: var(--success-color);
-            border-color: var(--success-color);
-        }
-        
-        .btn-outline-success:hover {
-            background: var(--success-color);
-            color: white;
-        }
-        
-        .btn-outline-info {
-            color: var(--info-color);
-            border-color: var(--info-color);
-        }
-        
-        .btn-outline-info:hover {
-            background: var(--info-color);
-            color: white;
-        }
-        
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 30px 0;
-            margin-bottom: 30px;
-        }
-        
-        .breadcrumb {
-            background: transparent;
-            margin-bottom: 0;
-            padding: 0;
-        }
-        
-        .breadcrumb-item a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-        }
-        
-        .breadcrumb-item.active {
-            color: white;
-        }
-        
-        .seller-content {
-            margin-left: 280px;
-            padding: 0;
             min-height: 100vh;
         }
         
-        .summary-card {
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+                padding: 0 16px;
+            }
+        }
+        
+        .content-header {
             background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .summary-card .card-header {
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            padding: 16px 20px;
-        }
-        
-        .summary-card .card-header h5 {
+        .breadcrumb {
+            background: none;
+            padding: 0;
             margin: 0;
-            color: #2d3748;
+            font-size: 0.875rem;
+        }
+        
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            color: #6b7280;
+        }
+        
+        .breadcrumb-item a {
+            color: #6b7280;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: #3b82f6;
+        }
+        
+        .breadcrumb-item.active {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: #e0e7ff;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .card-header h5 {
+            color: #1e293b;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
         }
         
         .summary-stats {
-            padding: 20px;
+            padding: 1.5rem;
         }
         
         .summary-stat-box {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
             text-align: center;
-            padding: 20px;
-            border-radius: 8px;
-            background: #f7fafc;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         .summary-stat-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .summary-stat-box h3 {
-            font-size: 28px;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 0.5rem;
         }
         
-        .stat-primary h3 { color: var(--primary-color); }
-        .stat-success h3 { color: var(--success-color); }
-        .stat-warning h3 { color: var(--warning-color); }
-        .stat-info h3 { color: var(--info-color); }
+        .stat-primary h3 { color: #3b82f6; }
+        .stat-success h3 { color: #10b981; }
+        .stat-warning h3 { color: #f59e0b; }
+        .stat-info h3 { color: #60a5fa; }
         
-        .empty-state {
-            text-align: center;
-            padding: 60px 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .summary-stat-box p {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin: 0;
         }
         
-        .empty-state i {
-            font-size: 3rem;
-            color: #cbd5e0;
-            margin-bottom: 20px;
+        .village-table-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
-        .empty-state h4 {
-            color: #4a5568;
-            margin-bottom: 12px;
+        .village-table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
-        .empty-state p {
-            color: #718096;
-            margin-bottom: 24px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        /* Table Styles */
         .village-thumb {
             width: 320px;
             height: 200px;
             object-fit: cover;
-            border-radius: 12px;
-            border: 2px solid #e9ecef;
-            transition: transform 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 0.75rem;
+            border: 2px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         .village-thumb:hover {
@@ -325,19 +172,19 @@
         }
         
         .village-info-table {
-            max-width: none;
-            padding-right: 15px;
+            padding: 1rem 1.5rem;
         }
         
         .village-name {
             color: #2d3748;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 0.25rem;
         }
         
         .village-desc-short {
-            font-size: 12px;
+            font-size: 0.875rem;
             line-height: 1.4;
+            color: #64748b;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             line-clamp: 2;
@@ -346,38 +193,69 @@
         }
         
         .table > :not(caption) > * > * {
-            padding: 20px 15px;
+            padding: 1rem 1.5rem;
             vertical-align: middle;
         }
         
         .table-hover > tbody > tr:hover > * {
-            background-color: rgba(103, 126, 234, 0.05);
+            background-color: rgba(59, 130, 246, 0.05);
         }
         
-        .btn-group-sm .btn {
-            padding: 4px 8px;
-            font-size: 12px;
+        .empty-state {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
-        @media (max-width: 768px) {
-            .seller-content {
-                margin-left: 0;
-                padding: 0 16px;
-            }
-            
-            .village-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .village-actions {
-                flex-direction: column;
-            }
+        .empty-state:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
-        @media (max-width: 480px) {
-            .village-stats {
-                grid-template-columns: 1fr;
-            }
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-state h4 {
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state p {
+            color: #64748b;
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #9ca3af;
+            color: #9ca3af;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #9ca3af;
+            color: white;
         }
     </style>
 </head>
@@ -392,32 +270,28 @@
     <jsp:include page="seller-sidebar.jsp" />
     
     <!-- Main content -->
-    <div class="seller-content">
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="seller"><i class="fas fa-home"></i> Dashboard</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Quản lý làng nghề
-                                </li>
-                            </ol>
-                        </nav>
-                        <h1 class="h2 mb-0">
-                            <i class="fas fa-map-marker-alt"></i> Quản lý làng nghề của tôi
-                        </h1>
-                    </div>
+    <div class="main-content">
+        <!-- Content Header -->
+        <div class="content-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-map-marker-alt"></i> My Craft Village Management
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="seller" class="text-decoration-none">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Craft Village Management</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
         
-        <!-- Content -->
-        <div class="container-fluid">
+        <!-- Content Body -->
+        <div class="content-body">
             <c:choose>
                 <c:when test="${not empty sellerVillages}">
                     <!-- Village Statistics Summary -->
@@ -426,8 +300,8 @@
                             <div class="summary-card">
                                 <div class="card-header">
                                     <h5 class="mb-0 d-flex align-items-center">
-                                        <i class="fas fa-chart-line me-3" style="color: var(--primary-color);"></i>
-                                        <span>Tóm tắt thống kê làng nghề</span>
+                                        <i class="fas fa-chart-line me-3" style="color: #3b82f6;"></i>
+                                        <span>Craft Village Statistics Summary</span>
                                     </h5>
                                 </div>
                                 <div class="summary-stats">
@@ -435,7 +309,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="summary-stat-box stat-primary">
                                                 <h3>${fn:length(sellerVillages)}</h3>
-                                                <p class="text-muted mb-0">Tổng số làng nghề</p>
+                                                <p class="text-muted mb-0">Total Villages</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-6">
@@ -449,7 +323,7 @@
                                                     </c:forEach>
                                                     ${activeCount}
                                                 </h3>
-                                                <p class="text-muted mb-0">Đang hoạt động</p>
+                                                <p class="text-muted mb-0">Active</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-6">
@@ -461,7 +335,7 @@
                                                     </c:forEach>
                                                     ${totalReviews}
                                                 </h3>
-                                                <p class="text-muted mb-0">Tổng đánh giá</p>
+                                                <p class="text-muted mb-0">Total Reviews</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-6">
@@ -473,7 +347,7 @@
                                                     </c:forEach>
                                                     ${totalViews}
                                                 </h3>
-                                                <p class="text-muted mb-0">Tổng lượt xem</p>
+                                                <p class="text-muted mb-0">Total Views</p>
                                             </div>
                                         </div>
                                     </div>
@@ -482,14 +356,14 @@
                         </div>
                     </div>
                     
-                    <!-- Village Cards -->
+                    <!-- Village Table -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <div class="summary-card">
+                            <div class="village-table-card">
                                 <div class="card-header">
                                     <h5 class="mb-0 d-flex align-items-center">
-                                        <i class="fas fa-map-marked-alt me-3" style="color: var(--primary-color);"></i>
-                                        <span>Danh sách làng nghề của bạn</span>
+                                        <i class="fas fa-map-marked-alt me-3" style="color: #3b82f6;"></i>
+                                        <span>Your Craft Village List</span>
                                     </h5>
                                 </div>
                                 <div class="card-body p-0">
@@ -497,12 +371,12 @@
                                         <table class="table table-hover mb-0">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th style="width: 350px;">Hình ảnh</th>
-                                                    <th style="width: auto;">Tên làng nghề</th>
-                                                    <th style="width: 130px;">Trạng thái</th>
-                                                    <th style="width: 110px;" class="text-center">Đánh giá</th>
-                                                    <th style="width: 110px;" class="text-center">Điểm TB</th>
-                                                    <th style="width: 110px;" class="text-center">Lượt xem</th>
+                                                    <th style="width: 350px;">Image</th>
+                                                    <th style="width: auto;">Village Name</th>
+                                                    <th style="width: 130px;">Status</th>
+                                                    <th style="width: 110px;" class="text-center">Reviews</th>
+                                                    <th style="width: 110px;" class="text-center">Average Rating</th>
+                                                    <th style="width: 110px;" class="text-center">Views</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -526,7 +400,7 @@
                                                         </td>
                                                         <td>
                                                             <span class="badge ${village.status == 1 ? 'bg-success' : 'bg-danger'}">
-                                                                ${village.status == 1 ? 'Hoạt động' : 'Tạm ngưng'}
+                                                                ${village.status == 1 ? 'Active' : 'Inactive'}
                                                             </span>
                                                         </td>
                                                         <td class="text-center">
@@ -561,14 +435,14 @@
                 <c:otherwise>
                     <div class="empty-state">
                         <i class="fas fa-map-marker-alt"></i>
-                        <h4>Chưa có làng nghề nào</h4>
-                        <p>Bạn chưa quản lý làng nghề nào. Liên hệ với quản trị viên để được thêm làng nghề và bắt đầu bán sản phẩm truyền thống.</p>
+                        <h4>No Craft Villages Yet</h4>
+                        <p>You are not managing any craft villages yet. Contact an administrator to add a craft village and start selling traditional products.</p>
                         <div class="d-flex gap-3 justify-content-center">
-                            <a href="contact.jsp" class="btn btn-primary btn-lg px-4 py-2" style="border-radius: 12px;">
-                                <i class="fas fa-envelope me-2"></i> Liên hệ hỗ trợ
+                            <a href="contact.jsp" class="btn btn-primary btn-lg px-4 py-2">
+                                <i class="fas fa-envelope me-2"></i> Contact Support
                             </a>
-                            <a href="seller" class="btn btn-outline-secondary btn-lg px-4 py-2" style="border-radius: 12px;">
-                                <i class="fas fa-arrow-left me-2"></i> Về Dashboard
+                            <a href="seller" class="btn btn-outline-secondary btn-lg px-4 py-2">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
                             </a>
                         </div>
                     </div>
@@ -589,11 +463,11 @@
             });
             
             // Progressive loading animation for village cards
-            const villageCards = document.querySelectorAll('.village-card.fade-in-up');
-            villageCards.forEach((card, index) => {
+            const villageRows = document.querySelectorAll('.table tbody tr');
+            villageRows.forEach((row, index) => {
                 setTimeout(() => {
-                    card.style.animationDelay = '0s';
-                    card.classList.add('fade-in-up');
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
                 }, index * 100);
             });
         });
@@ -613,12 +487,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             const mobileToggle = document.getElementById('mobileNavToggle');
             const sidebar = document.getElementById('sellerSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.querySelector('.main-content');
             
             if (mobileToggle) {
                 mobileToggle.addEventListener('click', function() {
                     sidebar.classList.add('active');
-                    overlay.classList.add('active');
+                    mainContent.classList.add('expanded');
                 });
             }
         });
@@ -636,23 +510,4 @@
                 }
             });
         });
-        
-        // Add loading state for external links
-        document.addEventListener('DOMContentLoaded', function() {
-            const externalLinks = document.querySelectorAll('a[target="_blank"]');
-            externalLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    const icon = this.querySelector('i');
-                    if (icon) {
-                        const originalClass = icon.className;
-                        icon.className = 'fas fa-spinner fa-spin';
-                        setTimeout(() => {
-                            icon.className = originalClass;
-                        }, 1000);
-                    }
-                });
-            });
-        });
     </script>
-</body>
-</html>

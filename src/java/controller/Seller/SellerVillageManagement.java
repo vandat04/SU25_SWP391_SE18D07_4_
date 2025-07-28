@@ -13,10 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import service.VillageService;
 
-/**
- * Servlet for managing seller's craft villages
- * @author ACER
- */
 @WebServlet(name = "SellerVillageManagement", urlPatterns = {"/seller-village-management"})
 public class SellerVillageManagement extends HttpServlet {
 

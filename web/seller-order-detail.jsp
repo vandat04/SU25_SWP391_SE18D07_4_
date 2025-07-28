@@ -1,14 +1,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<fmt:setLocale value="vi_VN"/>
+<fmt:setLocale value="en_US"/>
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết đơn hàng #${orderDetail.orderId} - Mã chi tiết #${orderDetail.id} - Seller Dashboard</title>
+    <title>Order Detail #${orderDetail.orderId} - Detail #${orderDetail.id} - Seller Dashboard</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -51,96 +51,117 @@
         }
         
         .order-detail-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .order-detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .status-badge {
             font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
             color: white;
-            font-size: 1rem;
-            display: inline-block;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
-        .status-pending { background-color: #ffc107; }
-        .status-confirmed { background-color: #17a2b8; }
-        .status-packaging { background-color: #6f42c1; }
-        .status-preparing { background-color: #fd7e14; }
-        .status-shipping { background-color: #007bff; }
-        .status-delivered { background-color: #28a745; }
-        .status-failed { background-color: #dc3545; }
-        .status-cancelled { background-color: #6c757d; }
+        .status-pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .status-confirmed { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .status-packaging { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .status-preparing { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .status-shipping { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .status-delivered { background: linear-gradient(135deg, #10b981, #059669); }
+        .status-failed { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .status-cancelled { background: linear-gradient(135deg, #6b7280, #4b5563); }
         
         .info-section {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3b82f6;
         }
         
         .info-section h5 {
-            color: #333;
-            margin-bottom: 15px;
+            color: #1e293b;
             font-weight: 600;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 0.5rem;
         }
         
         .info-row {
             display: flex;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
         }
         
         .info-label {
-            font-weight: 600;
+            font-weight: 500;
             width: 150px;
-            color: #555;
+            color: #64748b;
         }
         
         .info-value {
             flex: 1;
-            color: #333;
+            color: #1e293b;
         }
         
         .product-item {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
             background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .product-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .product-image {
             width: 80px;
             height: 80px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
         }
         
         .action-buttons {
-            margin-top: 20px;
+            margin-top: 1.5rem;
             display: flex;
-            gap: 15px;
+            gap: 0.75rem;
             flex-wrap: wrap;
+            align-items: center;
         }
         
         .btn-action {
-            padding: 10px 20px;
+            padding: 0.75rem 1.25rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 0.5rem;
             cursor: pointer;
             font-weight: 500;
-            text-decoration: none;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
+            gap: 0.375rem;
+            text-decoration: none;
         }
         
         .btn-action:hover {
@@ -170,34 +191,34 @@
             <div class="content-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="h3 mb-0">Chi tiết đơn hàng</h1>
-                        <p class="text-muted mb-0">Đơn hàng #${orderDetail.orderId} - Mã chi tiết #${orderDetail.id}</p>
+                        <h1 class="h3 mb-0">Order Detail</h1>
+                        <p class="text-muted mb-0">Order #${orderDetail.orderId} - Detail #${orderDetail.id}</p>
                     </div>
                     <div>
                         <c:choose>
                             <c:when test="${orderDetail.status == 0}">
-                                <span class="status-badge status-pending">Chờ xác nhận</span>
+                                <span class="status-badge status-pending">Pending</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 1}">
-                                <span class="status-badge status-confirmed">Đã xác nhận</span>
+                                <span class="status-badge status-confirmed">Confirmed</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 2}">
-                                <span class="status-badge status-packaging">Đang đóng gói</span>
+                                <span class="status-badge status-packaging">Packaging</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 3}">
-                                <span class="status-badge status-preparing">Chuẩn bị giao</span>
+                                <span class="status-badge status-preparing">Preparing</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 4}">
-                                <span class="status-badge status-shipping">Đang giao</span>
+                                <span class="status-badge status-shipping">Shipping</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 5}">
-                                <span class="status-badge status-delivered">Giao thành công</span>
+                                <span class="status-badge status-delivered">Delivered</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 6}">
-                                <span class="status-badge status-failed">Giao thất bại</span>
+                                <span class="status-badge status-failed">Failed</span>
                             </c:when>
                             <c:when test="${orderDetail.status == 7}">
-                                <span class="status-badge status-cancelled">Đã hủy</span>
+                                <span class="status-badge status-cancelled">Cancelled</span>
                             </c:when>
                         </c:choose>
                     </div>
@@ -208,13 +229,13 @@
                 <!-- Customer Information -->
                 <div class="order-detail-card">
                     <div class="info-section">
-                        <h5><i class="fas fa-user"></i> Thông tin khách hàng</h5>
+                        <h5><i class="fas fa-user"></i> Customer Information</h5>
                         <div class="info-row">
-                            <div class="info-label">Tên khách hàng:</div>
+                            <div class="info-label">Customer Name:</div>
                             <div class="info-value">${orderDetail.shippingName}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Số điện thoại:</div>
+                            <div class="info-label">Phone Number:</div>
                             <div class="info-value">${orderDetail.shippingPhone}</div>
                         </div>
                         <div class="info-row">
@@ -222,7 +243,7 @@
                             <div class="info-value">${orderDetail.email}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Địa chỉ giao hàng:</div>
+                            <div class="info-label">Shipping Address:</div>
                             <div class="info-value">${orderDetail.shippingAddress}</div>
                         </div>
                     </div>
@@ -231,33 +252,33 @@
                 <!-- Order Information -->
                 <div class="order-detail-card">
                     <div class="info-section">
-                        <h5><i class="fas fa-shopping-cart"></i> Thông tin đơn hàng</h5>
+                        <h5><i class="fas fa-shopping-cart"></i> Order Information</h5>
                         <div class="info-row">
-                            <div class="info-label">Mã đơn hàng:</div>
+                            <div class="info-label">Order ID:</div>
                             <div class="info-value">#${orderDetail.orderId}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Mã chi tiết:</div>
+                            <div class="info-label">Detail ID:</div>
                             <div class="info-value">#${orderDetail.id}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Ngày đặt hàng:</div>
+                            <div class="info-label">Order Date:</div>
                             <div class="info-value">
                                 <fmt:formatDate value="${orderDetail.orderCreatedDate}" pattern="dd/MM/yyyy HH:mm:ss"/>
                             </div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Phương thức thanh toán:</div>
+                            <div class="info-label">Payment Method:</div>
                             <div class="info-value">${orderDetail.paymentMethod}</div>
                         </div>
                         <c:if test="${not empty orderDetail.cancelReason}">
                             <div class="info-row">
-                                <div class="info-label">Lý do hủy/thất bại:</div>
+                                <div class="info-label">Reason for Cancellation/Failure:</div>
                                 <div class="info-value text-danger">${orderDetail.cancelReason}</div>
                             </div>
                             <c:if test="${not empty orderDetail.cancelDate}">
                                 <div class="info-row">
-                                    <div class="info-label">Ngày hủy:</div>
+                                    <div class="info-label">Cancellation Date:</div>
                                     <div class="info-value">
                                         <fmt:formatDate value="${orderDetail.cancelDate}" pattern="dd/MM/yyyy HH:mm:ss"/>
                                     </div>
@@ -270,7 +291,7 @@
                 <!-- Product Information -->
                 <div class="order-detail-card">
                     <div class="info-section">
-                        <h5><i class="fas fa-box"></i> Thông tin sản phẩm</h5>
+                        <h5><i class="fas fa-box"></i> Product Information</h5>
                         <div class="product-item">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
@@ -288,21 +309,21 @@
                                 <div class="col-md-6">
                                     <div class="product-name">${orderDetail.productName}</div>
                                     <div class="product-details">
-                                        Mã sản phẩm: #${orderDetail.productId}
+                                        Product ID: #${orderDetail.productId}
                                     </div>
                                 </div>
                                 <div class="col-md-2 text-center">
-                                    <div class="fw-bold">Số lượng</div>
+                                    <div class="fw-bold">Quantity</div>
                                     <div>${orderDetail.quantity}</div>
                                 </div>
                                 <div class="col-md-2 text-end">
-                                    <div class="fw-bold">Đơn giá</div>
+                                    <div class="fw-bold">Unit Price</div>
                                     <div class="product-price">
-                                        <fmt:formatNumber value="${orderDetail.price}" type="currency" currencySymbol="₫"/>
+                                        <fmt:formatNumber value="${orderDetail.price}" type="currency" currencySymbol="$"/>
                                     </div>
-                                    <div class="fw-bold mt-2">Thành tiền</div>
+                                    <div class="fw-bold mt-2">Subtotal</div>
                                     <div class="product-price text-primary">
-                                        <fmt:formatNumber value="${orderDetail.subtotal}" type="currency" currencySymbol="₫"/>
+                                        <fmt:formatNumber value="${orderDetail.subtotal}" type="currency" currencySymbol="$"/>
                                     </div>
                                 </div>
                             </div>
@@ -314,7 +335,7 @@
                 <div class="order-detail-card">
                     <div class="action-buttons">
                         <a href="seller-order-management" class="btn-action btn-back">
-                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                            <i class="fas fa-arrow-left"></i> Back to List
                         </a>
                         
                         <!-- Status Update Buttons -->
@@ -322,51 +343,51 @@
                             <c:when test="${orderDetail.status == 0}">
                                 <button type="button" class="btn-action btn-confirm" 
                                         onclick="updateOrderStatus('${orderDetail.id}', 'confirm')">
-                                    <i class="fas fa-check"></i> Xác nhận đơn hàng
+                                    <i class="fas fa-check"></i> Confirm Order
                                 </button>
                                 <button type="button" class="btn-action btn-cancel" 
                                         onclick="showCancelModal('${orderDetail.id}')">
-                                    <i class="fas fa-times"></i> Hủy đơn hàng
+                                    <i class="fas fa-times"></i> Cancel Order
                                 </button>
                             </c:when>
                             
                             <c:when test="${orderDetail.status == 1}">
                                 <button type="button" class="btn-action btn-package" 
                                         onclick="updateOrderStatus('${orderDetail.id}', 'package')">
-                                    <i class="fas fa-box"></i> Bắt đầu đóng gói
+                                    <i class="fas fa-box"></i> Start Packaging
                                 </button>
                                 <button type="button" class="btn-action btn-cancel" 
                                         onclick="showCancelModal('${orderDetail.id}')">
-                                    <i class="fas fa-times"></i> Hủy đơn hàng
+                                    <i class="fas fa-times"></i> Cancel Order
                                 </button>
                             </c:when>
                             
                             <c:when test="${orderDetail.status == 2}">
                                 <button type="button" class="btn-action btn-prepare" 
                                         onclick="updateOrderStatus('${orderDetail.id}', 'prepare')">
-                                    <i class="fas fa-truck"></i> Chuẩn bị giao hàng
+                                    <i class="fas fa-truck"></i> Prepare for Delivery
                                 </button>
                                 <button type="button" class="btn-action btn-cancel" 
                                         onclick="showCancelModal('${orderDetail.id}')">
-                                    <i class="fas fa-times"></i> Hủy đơn hàng
+                                    <i class="fas fa-times"></i> Cancel Order
                                 </button>
                             </c:when>
                             
                             <c:when test="${orderDetail.status == 3}">
                                 <button type="button" class="btn-action btn-ship" 
                                         onclick="updateOrderStatus('${orderDetail.id}', 'shipping')">
-                                    <i class="fas fa-shipping-fast"></i> Bắt đầu vận chuyển
+                                    <i class="fas fa-shipping-fast"></i> Start Shipping
                                 </button>
                             </c:when>
                             
                             <c:when test="${orderDetail.status == 4}">
                                 <button type="button" class="btn-action btn-deliver" 
                                         onclick="updateOrderStatus('${orderDetail.id}', 'delivered')">
-                                    <i class="fas fa-check-circle"></i> Hoàn thành giao hàng
+                                    <i class="fas fa-check-circle"></i> Complete Delivery
                                 </button>
                                 <button type="button" class="btn-action btn-fail" 
                                         onclick="showFailureModal('${orderDetail.id}')">
-                                    <i class="fas fa-exclamation-triangle"></i> Giao hàng thất bại
+                                    <i class="fas fa-exclamation-triangle"></i> Delivery Failed
                                 </button>
                             </c:when>
                         </c:choose>
@@ -381,7 +402,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cancelModalLabel">Hủy đơn hàng</h5>
+                    <h5 class="modal-title" id="cancelModalLabel">Cancel Order</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="cancelForm" action="seller-update-order-status" method="post">
@@ -389,14 +410,14 @@
                         <input type="hidden" name="action" value="cancel">
                         <input type="hidden" name="orderDetailId" id="cancelOrderDetailId">
                         <div class="mb-3">
-                            <label for="cancelReason" class="form-label">Lý do hủy đơn hàng:</label>
+                            <label for="cancelReason" class="form-label">Reason for Cancellation:</label>
                             <textarea class="form-control" name="cancelReason" id="cancelReason" 
-                                      rows="3" required placeholder="Vui lòng nhập lý do hủy đơn hàng..."></textarea>
+                                      rows="3" required placeholder="Please enter the reason for cancellation..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
                     </div>
                 </form>
             </div>
@@ -408,7 +429,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="failureModalLabel">Giao hàng thất bại</h5>
+                    <h5 class="modal-title" id="failureModalLabel">Delivery Failed</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="failureForm" action="seller-update-order-status" method="post">
@@ -416,14 +437,14 @@
                         <input type="hidden" name="action" value="failed">
                         <input type="hidden" name="orderDetailId" id="failureOrderDetailId">
                         <div class="mb-3">
-                            <label for="failureReason" class="form-label">Lý do giao hàng thất bại:</label>
+                            <label for="failureReason" class="form-label">Reason for Delivery Failure:</label>
                             <textarea class="form-control" name="failureReason" id="failureReason" 
-                                      rows="3" required placeholder="Vui lòng nhập lý do giao hàng thất bại..."></textarea>
+                                      rows="3" required placeholder="Please enter the reason for delivery failure..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-danger">Xác nhận</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Confirm</button>
                     </div>
                 </form>
             </div>
@@ -435,7 +456,7 @@
     
     <script>
         function updateOrderStatus(orderDetailId, action) {
-            if (confirm('Bạn có chắc chắn muốn thực hiện hành động này?')) {
+            if (confirm('Are you sure you want to perform this action?')) {
                 window.location.href = 'seller-update-order-status?orderDetailId=' + orderDetailId + '&action=' + action;
             }
         }
@@ -452,5 +473,3 @@
             modal.show();
         }
     </script>
-</body>
-</html>

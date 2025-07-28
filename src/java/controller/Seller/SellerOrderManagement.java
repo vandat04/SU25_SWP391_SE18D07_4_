@@ -19,10 +19,6 @@ import java.util.List;
 import service.OrderService;
 import service.VillageService;
 
-/**
- *
- * @author ACER
- */
 @WebServlet(name = "SellerOrderManagement", urlPatterns = {"/seller-order-management"})
 public class SellerOrderManagement extends HttpServlet {
 
@@ -58,7 +54,7 @@ public class SellerOrderManagement extends HttpServlet {
         System.out.println("DEBUG: Village ID = " + villageId);
         
         if (villageId == 0) {
-            request.setAttribute("error", "Bạn chưa có làng nghề để quản lý đơn hàng");
+            request.setAttribute("error", "You do not have a craft village to manage orders");
             request.getRequestDispatcher("seller-dashboard.jsp").forward(request, response);
             return;
         }

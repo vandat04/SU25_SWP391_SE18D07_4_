@@ -1,20 +1,14 @@
-<%-- 
-    Document   : seller-product-view
-    Created on : Jul 27, 2025
-    Author     : GitHub Copilot
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết sản phẩm - Seller Dashboard</title>
+    <title>Product Detail - Seller Dashboard</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -28,6 +22,7 @@
     <style>
         body {
             background-color: #f8fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
         .dashboard-layout {
@@ -57,17 +52,22 @@
         }
         
         .detail-card {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: none;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .detail-card .card-header {
-            background: #f8fafc;
+            background: #e0e7ff;
             border-bottom: 1px solid #e2e8f0;
-            border-radius: 0.75rem 0.75rem 0 0 !important;
+            border-radius: 1rem 1rem 0 0;
             padding: 1.25rem 1.5rem;
         }
         
@@ -80,18 +80,21 @@
             border-radius: 9999px;
             font-size: 0.875rem;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
         .status-active {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
-            border: 1px solid #059669;
+            border: 1px solid #047857;
         }
         
         .status-inactive {
-            background: #6b7280;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
             color: white;
-            border: 1px solid #4b5563;
+            border: 1px solid #374151;
         }
         
         .product-image-main {
@@ -100,7 +103,12 @@
             object-fit: cover;
             border-radius: 0.5rem;
             border: 2px solid #e2e8f0;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .product-image-main:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
         
         .product-image-thumb {
@@ -116,12 +124,13 @@
         .product-image-thumb:hover {
             border-color: #3b82f6;
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .info-table th {
             font-weight: 600;
-            color: #374151;
-            background: #f9fafb;
+            color: #1e293b;
+            background: #f1f5f9;
             border: none;
             padding: 1rem;
         }
@@ -129,15 +138,44 @@
         .info-table td {
             padding: 1rem;
             border: none;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .action-buttons {
-            background: white;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .action-buttons:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #9ca3af;
+            color: #9ca3af;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #9ca3af;
+            color: white;
         }
         
         @media (max-width: 1024px) {
@@ -158,12 +196,12 @@
             <div class="content-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="h3 mb-1">Chi tiết sản phẩm</h1>
+                        <h1 class="h3 mb-1">Product Detail</h1>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a href="seller-dashboard.jsp" class="text-decoration-none">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="seller-product-management" class="text-decoration-none">Quản lý sản phẩm</a></li>
-                                <li class="breadcrumb-item active">Chi tiết sản phẩm</li>
+                                <li class="breadcrumb-item"><a href="seller-product-management" class="text-decoration-none">Product Management</a></li>
+                                <li class="breadcrumb-item active">Product Detail</li>
                             </ol>
                         </nav>
                     </div>
@@ -172,10 +210,10 @@
                             <i class="fas fa-bars"></i>
                         </button>
                         <a href="seller-product-management?action=edit&id=${product.pid}" class="btn btn-primary">
-                            <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                            <i class="fas fa-edit me-2"></i>Edit
                         </a>
                         <a href="seller-product-management" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Quay lại
+                            <i class="fas fa-arrow-left me-2"></i>Back
                         </a>
                     </div>
                 </div>
@@ -190,7 +228,7 @@
                         <div class="detail-card h-100">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">
-                                    <i class="fas fa-images me-2 text-primary"></i>Hình ảnh sản phẩm
+                                    <i class="fas fa-images me-2 text-primary"></i>Product Images
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -208,7 +246,7 @@
                                                  style="height: 400px;">
                                                 <div class="text-center text-muted">
                                                     <i class="fas fa-image fa-4x mb-3 text-muted"></i>
-                                                    <p class="mb-0 fs-6">Không có hình ảnh</p>
+                                                    <p class="mb-0 fs-6">No image available</p>
                                                 </div>
                                             </div>
                                         </c:otherwise>
@@ -244,63 +282,63 @@
                         <div class="detail-card h-100">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">
-                                    <i class="fas fa-info-circle me-2 text-primary"></i>Thông tin sản phẩm
+                                    <i class="fas fa-info-circle me-2 text-primary"></i>Product Information
                                 </h5>
                             </div>
                             <div class="card-body">
                                 <table class="table info-table">
                                     <tbody>
                                         <tr>
-                                            <th width="35%">Tên sản phẩm:</th>
+                                            <th width="35%">Product Name:</th>
                                             <td><strong class="text-dark">${product.name}</strong></td>
                                         </tr>
                                         <tr>
-                                            <th>Mã sản phẩm:</th>
+                                            <th>Product ID:</th>
                                             <td><span class="badge bg-light text-dark">#${product.pid}</span></td>
                                         </tr>
                                         <tr>
-                                            <th>Giá bán:</th>
+                                            <th>Price:</th>
                                             <td>
                                                 <span class="fs-4 fw-bold text-primary">
                                                     <fmt:formatNumber value="${product.price}" type="currency" 
-                                                                    currencySymbol="₫" groupingUsed="true"/>
+                                                                    currencySymbol="$" groupingUsed="true"/>
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Số lượng tồn kho:</th>
+                                            <th>Stock Quantity:</th>
                                             <td>
                                                 <span class="badge ${product.stock > 10 ? 'bg-success' : product.stock > 0 ? 'bg-warning text-dark' : 'bg-danger'} px-3 py-2">
-                                                    <i class="fas fa-box me-1"></i>${product.stock} sản phẩm
+                                                    <i class="fas fa-box me-1"></i>${product.stock} items
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Trạng thái:</th>
+                                            <th>Status:</th>
                                             <td>
                                                 <c:choose>
                                                     <c:when test="${product.status == 1}">
                                                         <span class="status-badge status-active">
-                                                            <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                                            <i class="fas fa-check-circle me-1"></i>Active
                                                         </span>
                                                     </c:when>
                                                     <c:otherwise>
                                                         <span class="status-badge status-inactive">
-                                                            <i class="fas fa-ban me-1"></i>Không hoạt động
+                                                            <i class="fas fa-ban me-1"></i>Inactive
                                                         </span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Làng nghề:</th>
+                                            <th>Craft Village:</th>
                                             <td>
                                                 <i class="fas fa-map-marker-alt text-muted me-1"></i>
                                                 ${village.villageName}
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Danh mục:</th>
+                                            <th>Category:</th>
                                             <td>
                                                 <span class="badge bg-secondary px-3 py-2">
                                                     <i class="fas fa-tag me-1"></i>${category.categoryName}
@@ -308,21 +346,21 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Lượt xem:</th>
+                                            <th>Views:</th>
                                             <td>
                                                 <i class="fas fa-eye text-primary me-1"></i>
-                                                <strong>${product.clickCount}</strong> lượt
+                                                <strong>${product.clickCount}</strong> views
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Ngày tạo:</th>
+                                            <th>Created Date:</th>
                                             <td>
                                                 <i class="fas fa-calendar-plus text-muted me-1"></i>
                                                 <fmt:formatDate value="${product.createdDate}" pattern="dd/MM/yyyy HH:mm"/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Cập nhật:</th>
+                                            <th>Updated Date:</th>
                                             <td>
                                                 <i class="fas fa-calendar-edit text-muted me-1"></i>
                                                 <fmt:formatDate value="${product.updatedDate}" pattern="dd/MM/yyyy HH:mm"/>
@@ -341,7 +379,7 @@
                         <div class="detail-card">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">
-                                    <i class="fas fa-align-left me-2 text-primary"></i>Mô tả sản phẩm
+                                    <i class="fas fa-align-left me-2 text-primary"></i>Product Description
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -354,7 +392,7 @@
                                     <c:otherwise>
                                         <div class="text-center py-4">
                                             <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
-                                            <p class="text-muted mb-0 fs-6">Chưa có mô tả cho sản phẩm này.</p>
+                                            <p class="text-muted mb-0 fs-6">No description available for this product.</p>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -370,7 +408,10 @@
                             <div class="d-flex gap-2 justify-content-end flex-wrap">
                                 <a href="seller-product-management?action=edit&id=${product.pid}" 
                                    class="btn btn-primary">
-                                    <i class="fas fa-edit me-2"></i>Chỉnh sửa sản phẩm
+                                    <i class="fas fa-edit me-2"></i>Edit Product
+                                </a>
+                                <a href="seller-product-management" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to List
                                 </a>
                             </div>
                         </div>
@@ -384,18 +425,17 @@
                         <div class="mb-4">
                             <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
                         </div>
-                        <h4 class="text-muted mb-3">Không tìm thấy sản phẩm</h4>
+                        <h4 class="text-muted mb-3">Product Not Found</h4>
                         <p class="text-muted mb-4">
-                            Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+                            The product you are looking for does not exist or has been deleted.
                         </p>
                         <a href="seller-product-management" class="btn btn-primary">
-                            <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
                         </a>
                     </div>
                 </div>
             </c:if>
         </div>
-    </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -422,5 +462,3 @@
             }
         });
     </script>
-</body>
-</html>

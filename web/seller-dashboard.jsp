@@ -1,16 +1,10 @@
-<%-- 
-    Document   : seller-dashboard
-    Created on : Jul 27, 2025
-    Author     : GitHub Copilot
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,17 +58,17 @@
         }
         
         .stat-card {
-            background: white;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-left: 4px solid #3b82f6;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .stat-card.success {
@@ -90,17 +84,26 @@
         }
         
         .chart-container {
-            background: white;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .chart-container h5 {
             color: #1e293b;
-            font-weight: 600;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3b82f6;
+            display: inline-block;
         }
         
         .chart-container small {
@@ -116,17 +119,20 @@
         .chart-stats-summary .bg-light {
             background: white !important;
             border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
             transition: all 0.2s ease;
         }
         
         .chart-stats-summary .bg-light:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .btn-group .btn-outline-primary {
             border-color: #e2e8f0;
             color: #64748b;
+            border-radius: 0.5rem;
         }
         
         .btn-group .btn-outline-primary:hover,
@@ -137,20 +143,31 @@
         }
         
         .recent-activities {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .recent-activities:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .activity-item {
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
+            transition: background 0.2s ease;
         }
         
         .activity-item:last-child {
             border-bottom: none;
+        }
+        
+        .activity-item:hover {
+            background: #f1f5f9;
         }
         
         .activity-icon {
@@ -162,6 +179,11 @@
             justify-content: center;
             margin-right: 1rem;
             font-size: 1rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .activity-icon:hover {
+            transform: scale(1.1);
         }
         
         .activity-icon.success {
@@ -187,28 +209,38 @@
         }
         
         .quick-action-btn {
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             border: 2px dashed #e2e8f0;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             padding: 1.5rem;
             text-align: center;
             text-decoration: none;
             color: #64748b;
             transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
         .quick-action-btn:hover {
             border-color: #3b82f6;
             color: #3b82f6;
             background: rgba(59, 130, 246, 0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         
         .welcome-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             padding: 2rem;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .welcome-banner:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
         }
         
         @media (max-width: 1024px) {
@@ -230,14 +262,14 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h1 class="h3 mb-1">Dashboard</h1>
-                        <p class="text-muted mb-0">Chào mừng trở lại, ${sessionScope.acc.fullName}!</p>
+                        <p class="text-muted mb-0">Welcome back, ${sessionScope.acc.fullName}!</p>
                     </div>
                     <div class="d-flex gap-2">
                         <button type="button" class="seller-toggle-sidebar btn btn-outline-primary d-lg-none">
                             <i class="fas fa-bars"></i>
                         </button>
                         <a href="seller-product-management?action=add" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Thêm sản phẩm mới
+                            <i class="fas fa-plus me-2"></i>Add New Product
                         </a>
                     </div>
                 </div>
@@ -258,12 +290,12 @@
                 <div class="welcome-banner">
                     <div class="row align-items-center">
                         <div class="col-lg-8">
-                            <h2 class="h4 mb-2">Chào mừng đến với Seller Dashboard!</h2>
+                            <h2 class="h4 mb-2">Welcome to Seller Dashboard!</h2>
                             <p class="mb-3 opacity-90">
-                                Quản lý sản phẩm, đơn hàng và làng nghề của bạn một cách dễ dàng và hiệu quả.
+                                Manage your products, orders, and craft villages easily and efficiently.
                             </p>
                             <a href="seller-product-management" class="btn btn-light">
-                                <i class="fas fa-rocket me-2"></i>Bắt đầu ngay
+                                <i class="fas fa-rocket me-2"></i>Get Started Now
                             </a>
                         </div>
                         <div class="col-lg-4 text-center">
@@ -278,7 +310,7 @@
                         <div class="stat-card">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="text-muted mb-2">Tổng sản phẩm</h6>
+                                    <h6 class="text-muted mb-2">Total Products</h6>
                                     <h3 class="mb-0">
                                         <c:choose>
                                             <c:when test="${totalProducts != null}">${totalProducts}</c:when>
@@ -290,7 +322,7 @@
                                         <c:choose>
                                             <c:when test="${activeProducts != null}">${activeProducts}</c:when>
                                             <c:otherwise>0</c:otherwise>
-                                        </c:choose> đang hoạt động
+                                        </c:choose> active
                                     </small>
                                 </div>
                                 <div class="bg-primary bg-opacity-10 p-3 rounded">
@@ -304,7 +336,7 @@
                         <div class="stat-card success">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="text-muted mb-2">Làng nghề</h6>
+                                    <h6 class="text-muted mb-2">Craft Villages</h6>
                                     <h3 class="mb-0">
                                         <c:choose>
                                             <c:when test="${sellerVillages != null}">${fn:length(sellerVillages)}</c:when>
@@ -321,9 +353,9 @@
                                                         <c:set var="activeVillages" value="${activeVillages + 1}"/>
                                                     </c:if>
                                                 </c:forEach>
-                                                ${activeVillages} đã xác thực
+                                                ${activeVillages} verified
                                             </c:when>
-                                            <c:otherwise>0 đã xác thực</c:otherwise>
+                                            <c:otherwise>0 verified</c:otherwise>
                                         </c:choose>
                                     </small>
                                 </div>
@@ -338,7 +370,7 @@
                         <div class="stat-card warning">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="text-muted mb-2">Đơn hàng gần đây</h6>
+                                    <h6 class="text-muted mb-2">Recent Orders</h6>
                                     <h3 class="mb-0">
                                         <c:choose>
                                             <c:when test="${recentOrders != null}">${fn:length(recentOrders)}</c:when>
@@ -347,7 +379,7 @@
                                     </h3>
                                     <small class="text-warning">
                                         <i class="fas fa-clock me-1"></i>
-                                        7 ngày qua
+                                        Last 7 days
                                     </small>
                                 </div>
                                 <div class="bg-warning bg-opacity-10 p-3 rounded">
@@ -361,7 +393,7 @@
                         <div class="stat-card danger">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="text-muted mb-2">Doanh thu tháng</h6>
+                                    <h6 class="text-muted mb-2">Monthly Revenue</h6>
                                     <h3 class="mb-0">
                                         <c:choose>
                                             <c:when test="${revenueData != null && revenueData['currentMonth'] != null}">
@@ -372,7 +404,7 @@
                                     </h3>
                                     <small class="text-info">
                                         <i class="fas fa-chart-line me-1"></i>
-                                        Tháng hiện tại
+                                        Current month
                                     </small>
                                 </div>
                                 <div class="bg-danger bg-opacity-10 p-3 rounded">
@@ -387,26 +419,26 @@
                 <div class="quick-actions">
                     <a href="seller-product-management?action=add" class="quick-action-btn">
                         <i class="fas fa-plus-circle fa-2x mb-2 d-block"></i>
-                        <strong>Thêm sản phẩm mới</strong>
-                        <small class="d-block text-muted">Tạo sản phẩm mới cho làng nghề</small>
+                        <strong>Add New Product</strong>
+                        <small class="d-block text-muted">Create a new product for your craft village</small>
                     </a>
                     
                     <a href="seller-order-management" class="quick-action-btn">
                         <i class="fas fa-list-alt fa-2x mb-2 d-block"></i>
-                        <strong>Xem đơn hàng</strong>
-                        <small class="d-block text-muted">Quản lý đơn hàng từ khách hàng</small>
+                        <strong>View Orders</strong>
+                        <small class="d-block text-muted">Manage orders from customers</small>
                     </a>
                     
                     <a href="seller-inventory-management" class="quick-action-btn">
                         <i class="fas fa-warehouse fa-2x mb-2 d-block"></i>
-                        <strong>Quản lý kho</strong>
-                        <small class="d-block text-muted">Cập nhật số lượng tồn kho</small>
+                        <strong>Manage Inventory</strong>
+                        <small class="d-block text-muted">Update stock quantities</small>
                     </a>
                     
                     <a href="seller-reports" class="quick-action-btn">
                         <i class="fas fa-chart-bar fa-2x mb-2 d-block"></i>
-                        <strong>Xem báo cáo</strong>
-                        <small class="d-block text-muted">Phân tích doanh số bán hàng</small>
+                        <strong>View Reports</strong>
+                        <small class="d-block text-muted">Analyze sales performance</small>
                     </a>
                 </div>
                 
@@ -416,18 +448,18 @@
                         <div class="chart-container">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <h5 class="mb-0">Doanh thu theo tháng</h5>
-                                    <small class="text-muted">Theo dõi xu hướng doanh thu 6 tháng gần nhất</small>
+                                    <h5 class="mb-0">Revenue by Month</h5>
+                                    <small class="text-muted">Track revenue trends for the last 6 months</small>
                                 </div>
                                 <div class="btn-group btn-group-sm" role="group">
                                     <input type="radio" class="btn-check" name="chartPeriod" id="chart3months">
-                                    <label class="btn btn-outline-primary" for="chart3months">3 tháng</label>
+                                    <label class="btn btn-outline-primary" for="chart3months">3 months</label>
                                     
                                     <input type="radio" class="btn-check" name="chartPeriod" id="chart6months" checked>
-                                    <label class="btn btn-outline-primary" for="chart6months">6 tháng</label>
+                                    <label class="btn btn-outline-primary" for="chart6months">6 months</label>
                                     
                                     <input type="radio" class="btn-check" name="chartPeriod" id="chart12months">
-                                    <label class="btn btn-outline-primary" for="chart12months">12 tháng</label>
+                                    <label class="btn btn-outline-primary" for="chart12months">12 months</label>
                                 </div>
                             </div>
                             
@@ -435,19 +467,19 @@
                             <div class="row mb-3">
                                 <div class="col-4">
                                     <div class="text-center p-2 bg-light rounded">
-                                        <div class="text-muted small">Tổng doanh thu</div>
+                                        <div class="text-muted small">Total Revenue</div>
                                         <div class="fw-bold text-primary" id="totalRevenue">₫0</div>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="text-center p-2 bg-light rounded">
-                                        <div class="text-muted small">Trung bình/tháng</div>
+                                        <div class="text-muted small">Average/Month</div>
                                         <div class="fw-bold text-success" id="avgRevenue">₫0</div>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="text-center p-2 bg-light rounded">
-                                        <div class="text-muted small">Tháng cao nhất</div>
+                                        <div class="text-muted small">Highest Month</div>
                                         <div class="fw-bold text-warning" id="bestMonth">₫0</div>
                                     </div>
                                 </div>
@@ -463,7 +495,7 @@
                     <div class="col-lg-4">
                         <div class="recent-activities">
                             <div class="p-3 border-bottom">
-                                <h5 class="mb-0">Hoạt động gần đây</h5>
+                                <h5 class="mb-0">Recent Activities</h5>
                             </div>
                             
                             <c:choose>
@@ -474,7 +506,7 @@
                                                 <i class="fas fa-shopping-bag"></i>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <h6 class="mb-1">Đơn hàng mới #${order.id}</h6>
+                                                <h6 class="mb-1">New Order #${order.id}</h6>
                                                 <p class="text-muted mb-1 small">
                                                     <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" groupingUsed="true" />
                                                 </p>
@@ -491,9 +523,9 @@
                                             <i class="fas fa-info-circle"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h6 class="mb-1">Chưa có đơn hàng nào</h6>
+                                            <h6 class="mb-1">No Orders Yet</h6>
                                             <p class="text-muted mb-0 small">
-                                                Hãy thêm sản phẩm để bắt đầu bán hàng!
+                                                Add products to start selling!
                                             </p>
                                         </div>
                                     </div>
@@ -503,7 +535,7 @@
                             <!-- View all activities -->
                             <div class="p-3 text-center border-top">
                                 <a href="seller-activity-log" class="btn btn-sm btn-outline-primary">
-                                    Xem tất cả hoạt động
+                                    View All Activities
                                 </a>
                             </div>
                         </div>
@@ -542,7 +574,7 @@
                 const now = new Date();
                 for (let i = 5; i >= 0; i--) {
                     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                    monthLabels.push(date.toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' }));
+                    monthLabels.push(date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
                 }
                 
                 // Create gradient
@@ -561,7 +593,7 @@
                     data: {
                         labels: monthLabels,
                         datasets: [{
-                            label: 'Doanh thu (VNĐ)',
+                            label: 'Revenue (VND)',
                             data: revenueData,
                             backgroundColor: gradient,
                             borderColor: '#3b82f6',
@@ -594,10 +626,10 @@
                                 displayColors: false,
                                 callbacks: {
                                     title: function(context) {
-                                        return 'Tháng ' + context[0].label;
+                                        return 'Month ' + context[0].label;
                                     },
                                     label: function(context) {
-                                        return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN', {
+                                        return 'Revenue: ' + new Intl.NumberFormat('vi-VN', {
                                             style: 'currency',
                                             currency: 'VND',
                                             minimumFractionDigits: 0,

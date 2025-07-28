@@ -1,9 +1,3 @@
-<%-- 
-    Document   : seller-sidebar
-    Created on : Jul 27, 2025
-    Author     : GitHub Copilot
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
@@ -37,7 +31,7 @@
             <li>
                 <a href="seller-product-management" class="sidebar-link">
                     <i class="fas fa-box"></i>
-                    <span>Quản lý sản phẩm</span>
+                    <span>Product Management</span>
                 </a>
             </li>
 
@@ -45,15 +39,15 @@
             <li>
                 <a href="seller-product-management?action=add" class="sidebar-link">
                     <i class="fas fa-plus-circle"></i>
-                    <span>Thêm sản phẩm mới</span>
+                    <span>Add New Product</span>
                 </a>
             </li>
 
             <!-- Village Management -->
             <li>
-                <a href="seller-village-management" class="sidebar-link" title="Xem và quản lý thông tin làng nghề của bạn">
+                <a href="seller-village-management" class="sidebar-link" title="View and manage your craft village information">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span>Quản lý làng nghề</span>
+                    <span>Village Management</span>
                 </a>
             </li>
 
@@ -61,15 +55,15 @@
             <li>
                 <a href="seller-order-management" class="sidebar-link">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Quản lý đơn hàng</span>
+                    <span>Order Management</span>
                 </a>
             </li>
 
             <!-- Reviews Management -->
             <li>
-                <a href="seller-review-management" class="sidebar-link">
+                <a href="seller-feedback-management" class="sidebar-link">
                     <i class="fas fa-star"></i>
-                    <span>Quản lý đánh giá</span>
+                    <span>Reviews Management</span>
                 </a>
             </li>
 
@@ -77,7 +71,7 @@
             <li>
                 <a href="seller-inventory-management" class="sidebar-link">
                     <i class="fas fa-warehouse"></i>
-                    <span>Quản lý kho</span>
+                    <span>Inventory Management</span>
                 </a>
             </li>
 
@@ -85,7 +79,7 @@
             <li>
                 <a href="seller-reports" class="sidebar-link">
                     <i class="fas fa-chart-bar"></i>
-                    <span>Báo cáo bán hàng</span>
+                    <span>Sales Reports</span>
                 </a>
             </li>
 
@@ -93,7 +87,7 @@
             <li>
                 <a href="seller-messages" class="sidebar-link">
                     <i class="fas fa-envelope"></i>
-                    <span>Tin nhắn khách hàng</span>
+                    <span>Customer Messages</span>
                     <c:if test="${not empty unreadMessages && unreadMessages > 0}">
                         <span class="badge badge-danger">${unreadMessages}</span>
                     </c:if>
@@ -104,7 +98,7 @@
             <li>
                 <a href="seller-profile" class="sidebar-link">
                     <i class="fas fa-user-cog"></i>
-                    <span>Cài đặt tài khoản</span>
+                    <span>Account Settings</span>
                 </a>
             </li>
 
@@ -115,14 +109,14 @@
 
             <!-- Quick Actions -->
             <li class="sidebar-section-title">
-                <span>Thao tác nhanh</span>
+                <span>Quick Actions</span>
             </li>
 
             <!-- View Public Profile -->
             <li>
                 <a href="village?id=${sessionScope.acc.userID}" target="_blank" class="sidebar-link">
                     <i class="fas fa-external-link-alt"></i>
-                    <span>Xem trang công khai</span>
+                    <span>View Public Profile</span>
                 </a>
             </li>
 
@@ -130,7 +124,7 @@
             <li>
                 <a href="seller-export" class="sidebar-link">
                     <i class="fas fa-download"></i>
-                    <span>Xuất dữ liệu</span>
+                    <span>Export Data</span>
                 </a>
             </li>
 
@@ -138,7 +132,7 @@
             <li>
                 <a href="seller-support" class="sidebar-link">
                     <i class="fas fa-question-circle"></i>
-                    <span>Hỗ trợ</span>
+                    <span>Support</span>
                 </a>
             </li>
 
@@ -151,15 +145,15 @@
             <li>
                 <a href="home" class="sidebar-link">
                     <i class="fas fa-arrow-left"></i>
-                    <span>Về trang chủ</span>
+                    <span>Back to Home</span>
                 </a>
             </li>
 
             <!-- Logout -->
             <li>
-                <a href="logout" class="sidebar-link text-danger" data-confirm="Bạn có chắc chắn muốn đăng xuất?">
+                <a href="logout" class="sidebar-link text-danger" data-confirm="Are you sure you want to log out?">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Đăng xuất</span>
+                    <span>Log Out</span>
                 </a>
             </li>
         </ul>
@@ -290,7 +284,7 @@
 
 .sidebar-link:hover,
 .sidebar-link.active {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     color: white;
     border-left-color: #3b82f6;
 }
@@ -302,9 +296,10 @@
 }
 
 .seller-sidebar-footer {
-    margin-top: auto;
     padding: 1rem;
     border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: auto;
+    background: linear-gradient(135deg, #1e293b 0%, #1e40af 100%);
 }
 
 .seller-info {
@@ -343,7 +338,7 @@
 }
 
 .badge-danger {
-    background: #dc2626;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
     color: white;
 }
 
