@@ -106,24 +106,9 @@
                                     </li>
                                 </c:otherwise>
                             </c:choose>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.acc}">
-                                    <!-- Đã đăng nhập -->
-                                    <li class="menu-item">
-                                        <a href="notification-for-user?userID=${sessionScope.acc.userID}" class="menu-name" data-title="Notification">
-                                            Notification
-                                        </a>
-                                    </li>
-                                </c:when>
-                                <c:otherwise>
-                                    <!-- Chưa đăng nhập -->
-                                    <li class="menu-item">
-                                        <a href="Login.jsp" class="menu-name" data-title="Notification">
-                                            Notification
-                                        </a>
-                                    </li>
-                                </c:otherwise>
-                            </c:choose>
+                            <c:if test="${sessionScope.account.roleID == 2 }">
+                                <li class="menu-item"><a href="seller-scanner-ticket-code">Scan Ticket</a></li>
+                                </c:if>
                             <c:if test="${sessionScope.account.roleID == 3}">
                                 <li class="menu-item"><a href="admin">Dashboard</a></li>
                                 </c:if>

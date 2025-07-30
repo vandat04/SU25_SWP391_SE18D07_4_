@@ -123,6 +123,62 @@
                 border-radius: 3px;
                 transition: width 0.4s;
             }
+            
+            /* Cải thiện hiển thị text review */
+            .comment-content .comment-in .post-name {
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                line-height: 1.5 !important;
+                color: #333 !important;
+                margin-bottom: 8px !important;
+                display: block !important;
+            }
+            
+            .comment-content .author {
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                color: #666 !important;
+                margin-top: 8px !important;
+            }
+            
+            .comment-content .post-date {
+                font-size: 12px !important;
+                color: #999 !important;
+                font-style: italic !important;
+            }
+            
+            /* Vô hiệu hóa CSS ::before cho star-rating để tránh xung đột */
+            .star-rating::before {
+                display: none !important;
+                content: none !important;
+            }
+            
+            .rating .star-rating::before {
+                display: none !important;
+                content: none !important;
+            }
+            
+            .comment-content .rating .star-rating::before {
+                display: none !important;
+                content: none !important;
+            }
+            
+            /* Cải thiện hiển thị star rating cho từng review */
+            .comment-content .rating .star-rating {
+                display: inline-block;
+                margin: 5px 0;
+            }
+            
+            /* Phóng to phần rating-info */
+            .rating-info {
+                transform: scale(1.5);
+                transform-origin: top left;
+            }
+            
+            /* Điều chỉnh width của rating-bar để phù hợp với scale */
+            .rating-info .rating-bar {
+                width: 195px; /* 130px * 1.5 = 195px */
+            }
 
         </style>
         <script>
@@ -264,7 +320,7 @@
                                         <i class="fa fa-star-o" style="color: #ffc107;"></i>
                                     </c:forEach>
                                 </div>
-                                <span class="review-count">(${averageRating} Reviews)</span>
+                                <span class="review-count">(<fmt:formatNumber value="${averageRating}" maxFractionDigits="2"/> Reviews)</span>
 
                             </div>
 
@@ -285,12 +341,7 @@
                                            data-min_value="1" 
                                            data-step="1"
                                            oninput="validateQuantity()">
-                                    <a  class="qty-btn btn-up" onclick="event.preventDefault();
-                                            var q = document.getElementById('quantity');
-                                            if (parseInt(q.value) < ${detail.stock})
-                                                q.value++;
-                                            else
-                                                alert('Số lượng vượt quá hàng tồn kho! (Còn ${detail.stock} sản phẩm)');"><i class="fa fa-caret-up" aria-hidden="true"></i>
+                                    <a  class="qty-btn btn-up" onclick="event.preventDefault(); var q = document.getElementById('quantity'); if (parseInt(q.value) < ${detail.stock}) { q.value++; } else { alert('Số lượng vượt quá hàng tồn kho! (Còn ${detail.stock} sản phẩm)'); }"><i class="fa fa-caret-up" aria-hidden="true"></i>
                                     </a>
                                     <a  class="qty-btn btn-down" onclick="event.preventDefault();
                                             var q = document.getElementById('quantity');
@@ -327,34 +378,34 @@
                     </div>
                     <!-- Tab info -->
                     <div class="container mt-5">
-                        <button id="toggle3dBtn" type="button" class="btn btn-success">
-                            View 3D Model
-                        </button>
+                        <c:if test="${not empty product3D}">
+                            <button id="toggle3dBtn" type="button" class="btn btn-success">
+                                View 3D Model
+                            </button>
+                            
+                            <button id="open3dViewerBtn" type="button" class="btn btn-primary ms-2" 
+                                    onclick="open3DViewer('${product3D}', '${productName}', '${img}')">
+                                Open in Full Viewer
+                            </button>
 
-                        <div id="viewerContainer" style="display: none; margin-top: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                            <c:choose>
-                                <c:when test="${not empty product3D}">
-                                    <model-viewer
-                                        src="${product3D}"
-                                        alt="${productName}"
-                                        camera-controls
-                                        auto-rotate
-                                        shadow-intensity="1"
-                                        style="width: 100%; height: 300px;">
-                                    </model-viewer>
-                                </c:when>
-                                <c:otherwise>
-                                    <p style="color: red; font-weight: bold;">Model not available</p>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
+                            <div id="viewerContainer" style="display: none; margin-top: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                <model-viewer
+                                    src="${product3D}"
+                                    alt="${productName}"
+                                    camera-controls
+                                    auto-rotate
+                                    shadow-intensity="1"
+                                    style="width: 100%; height: 300px;">
+                                </model-viewer>
+                            </div>
+                        </c:if>
                     </div>
                     <!-- Tab info -->
                     <div class="product-tabs single-layout biolife-tab-contain" style="margin-top: 10px">
                         <div class="tab-head">
                             <ul class="tabs">
                                 <li class="tab-element active"><a href="#tab_1st" class="tab-link">Products Descriptions</a></li>
-                                <li class="tab-element" ><a href="#tab_4th" class="tab-link">Customer Reviews <sup>${averageRating}</sup></a></li>
+                                <li class="tab-element" ><a href="#tab_4th" class="tab-link">Customer Reviews <sup><fmt:formatNumber value="${averageRating}" maxFractionDigits="2"/></sup></a></li>
                             </ul>
                         </div>
                         <div class="tab-content">
@@ -375,10 +426,10 @@
                                                 <p class="index">
                                                     <strong class="rating">
                                                         <c:choose>
-                                                            <c:when test="${averageRating != null}">
-                                                                <fmt:formatNumber value="${averageRating}" maxFractionDigits="1"/>
-                                                            </c:when>
-                                                            <c:otherwise>0.0</c:otherwise>
+                                                                                                                    <c:when test="${averageRating != null}">
+                                                            <fmt:formatNumber value="${averageRating}" maxFractionDigits="2"/>
+                                                        </c:when>
+                                                            <c:otherwise>0.00</c:otherwise>
                                                         </c:choose>
                                                     </strong> out of 5
                                                 </p>
@@ -406,8 +457,7 @@
                                                             <div class="detail-for" style="display: flex; align-items: center; gap: 8px;">
                                                                 <span class="option-name" style="width: 50px;">${6 - i} star<c:if test="${6 - i > 1}">s</c:if></span>
                                                                     <div class="rating-bar" style="width: 130px; height: 8px; background: #eee; border-radius: 3px; overflow: hidden;">
-                                                                        <div class="bar-fill"
-                                                                             style="height: 100%; background: #ffc107; border-radius: 3px; transition: width 0.4s; width: ${percentRounded}%;"></div>
+                                                                        <div class="bar-fill" style="height: 100%; background: #ffc107; border-radius: 3px; transition: width 0.4s; width: ${percentRounded}%;"></div>
                                                                 </div>
                                                                 <span class="number" style="width: 24px; text-align: right;">${ratingDistribution[5 - i]}</span>
                                                             </div>
@@ -436,9 +486,18 @@
                                                                         </span>
                                                                     </p>
                                                                     <div class="rating">
-                                                                        <p class="star-rating">
-                                                                            <span class="width-${review.rating * 20}percent"></span>
-                                                                        </p>
+                                                                        <div class="star-rating">
+                                                                            <c:forEach var="i" begin="1" end="5">
+                                                                                <c:choose>
+                                                                                    <c:when test="${i <= review.rating}">
+                                                                                        <i class="fa fa-star" style="color: #ffc107; font-size: 14px;"></i>
+                                                                                    </c:when>
+                                                                                    <c:otherwise>
+                                                                                        <i class="fa fa-star-o" style="color: #ccc; font-size: 14px;"></i>
+                                                                                    </c:otherwise>
+                                                                                </c:choose>
+                                                                            </c:forEach>
+                                                                        </div>
                                                                     </div>
                                                                     <p class="author">by: <b>${review.userName}</b></p>
 
@@ -768,21 +827,36 @@
                                                         });
         </script>
         <script>
+            function open3DViewer(modelUrl, productName, productImage) {
+                if (!modelUrl || modelUrl.trim() === '') {
+                    alert('No 3D model available for this product.');
+                    return;
+                }
+                
+                // Open 3D viewer in new window
+                const viewerUrl = '3DViewer.jsp?modelUrl=' + encodeURIComponent(modelUrl) + 
+                                '&productName=' + encodeURIComponent(productName) +
+                                (productImage ? '&productImage=' + encodeURIComponent(productImage) : '');
+                window.open(viewerUrl, '_blank', 'width=1200,height=800');
+            }
+            
             document.addEventListener('DOMContentLoaded', function () {
                 var btn = document.getElementById('toggle3dBtn');
                 var viewerContainer = document.getElementById('viewerContainer');
                 var isVisible = false;
 
-                btn.addEventListener('click', function () {
-                    isVisible = !isVisible;
-                    if (isVisible) {
-                        viewerContainer.style.display = 'block';
-                        btn.textContent = 'Hide 3D Model';
-                    } else {
-                        viewerContainer.style.display = 'none';
-                        btn.textContent = 'View 3D Model';
-                    }
-                });
+                if (btn && viewerContainer) {
+                    btn.addEventListener('click', function () {
+                        isVisible = !isVisible;
+                        if (isVisible) {
+                            viewerContainer.style.display = 'block';
+                            btn.textContent = 'Hide 3D Model';
+                        } else {
+                            viewerContainer.style.display = 'none';
+                            btn.textContent = 'View 3D Model';
+                        }
+                    });
+                }
             });
         </script>
     </body>
