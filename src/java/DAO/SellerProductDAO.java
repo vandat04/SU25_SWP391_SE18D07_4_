@@ -39,11 +39,21 @@ public class SellerProductDAO {
                 rs.getInt("status"),
                 rs.getInt("villageID"),
                 rs.getInt("categoryID"),
+                rs.getInt("craftTypeID"),
                 rs.getString("mainImageUrl"),
                 rs.getInt("clickCount"),
                 rs.getTimestamp("lastClicked"),
                 rs.getTimestamp("createdDate"),
-                rs.getTimestamp("updatedDate")
+                rs.getTimestamp("updatedDate"),
+                rs.getString("sku"),
+                rs.getBigDecimal("weight"),
+                rs.getString("dimensions"),
+                rs.getString("materials"),
+                rs.getString("careInstructions"),
+                rs.getString("warranty"),
+                rs.getBigDecimal("averageRating"),
+                rs.getInt("totalReviews"),
+                rs.getString("modelFile")
         );
     }
     
@@ -51,6 +61,9 @@ public class SellerProductDAO {
      * Get products by seller with filtering and pagination
      * Filters products by seller through village ownership relationship
      */
+    public static void main(String[] args) {
+        System.out.println(new SellerProductDAO().getProductsBySeller(6, 1, 4, 0, null, null, 1, 10).size());
+    }
     public List<Product> getProductsBySeller(int sellerId, int status, int villageId, int categoryId, 
                                            String searchQuery, String sortBy, int offset, int limit) {
         List<Product> products = new ArrayList<>();

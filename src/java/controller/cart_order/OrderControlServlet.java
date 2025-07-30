@@ -82,6 +82,9 @@ public class OrderControlServlet extends HttpServlet {
             ticketOrderDetailsList.addAll(oService.getAllTicketOrderDetailByOrderID(orderId));
         }
         
+        for (TicketOrderDetail ticket : ticketOrderDetailsList) {
+    System.out.println("Ticket: " + ticket.getDetailID() + ", bookDate: " + ticket.getBookDate());
+}
 
         request.setAttribute("orderList", orderList);
         request.setAttribute("subOrderList", paginatedSubOrders);
@@ -115,7 +118,7 @@ public class OrderControlServlet extends HttpServlet {
                 }
             }
             if (status == 4) {
-                if (status == od.getOrderStatus() || 5 == od.getOrderStatus()) {
+                if (status == od.getOrderStatus() || 5 == od.getOrderStatus() || 6 == od.getOrderStatus()) {
                     String subName = "#" + od.getSubOrderId() + ": " + new VillageService().getVillageNameByID(od.getVillageId());
                     od.setSubName(subName);
                     filteredList.add(0, od);

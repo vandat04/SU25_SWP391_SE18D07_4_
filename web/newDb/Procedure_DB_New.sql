@@ -1739,6 +1739,7 @@ GO
     @price DECIMAL(10, 2),
     @villageID INT,
 	@ticketCode nvarchar(50),
+@bookDate DATETIME,
     @TicketOrderDetailID INT OUTPUT
 AS
 BEGIN
@@ -1751,7 +1752,8 @@ BEGIN
         quantity,
         price,
         villageID,
-		TicketCode
+		TicketCode,
+                bookDate
     )
     VALUES (
         @order_id,
@@ -1760,7 +1762,8 @@ BEGIN
         @quantity,
         @price,
         @villageID,
-		@ticketCode
+		@ticketCode,
+@bookDate
     );
 
     SET @TicketOrderDetailID = SCOPE_IDENTITY();

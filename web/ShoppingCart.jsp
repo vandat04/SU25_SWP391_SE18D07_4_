@@ -164,6 +164,27 @@
         <!-- HEADER -->
         <jsp:include page="Menu.jsp"></jsp:include>
 
+        <!-- Toast Messages -->
+        <div class="success-message" id="successMessage" style="display:none;"><i class="fa fa-circle-check"></i> Thao tác thành công!</div>
+        <div class="success-message" id="errorMessage" style="background: #e74c3c; z-index: 1003; display:none;"></div>
+
+        <!-- Custom Popup Modal -->
+        <div id="customPopup" class="custom-popup" style="display:none;">
+            <div class="popup-content">
+                <div class="popup-header">
+                    <h3 id="popupTitle">Xác nhận</h3>
+                    <button class="popup-close" onclick="closePopup()">&times;</button>
+                </div>
+                <div class="popup-body">
+                    <p id="popupMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+                </div>
+                <div class="popup-footer">
+                    <button class="btn btn-secondary" onclick="closePopup()">Hủy</button>
+                    <button class="btn btn-primary" id="popupConfirmBtn" onclick="confirmPopupAction()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+
             <!-- Hero Section -->
             <div class="hero-section hero-background">
                 <h1 class="page-title">Cart</h1>
@@ -277,13 +298,12 @@
                                                             </c:forEach>
                                                         </c:if>
 
-                                                        <tr class="cart_item ${isOutOfStock ? 'out-of-stock-item' : (hasInsufficientStock ? 'insufficient-stock-item' : '')}" 
-                                                            style="${isOutOfStock ? 'background-color: #ffebee; opacity: 0.7;' : (hasInsufficientStock ? 'background-color: #fff3e0;' : '')}">
+                                                        <tr class="cart_item ${isOutOfStock ? 'out-of-stock-item' : (hasInsufficientStock ? 'insufficient-stock-item' : '')}">
                                                             <td class="product-thumbnail" data-title="Product Name">
                                                                 <a class="prd-thumb" href="#">
                                                                     <figure><img width="113" height="113" src="${item.imageUrl}" alt="shipping cart"></figure>
                                                                 </a>
-                                                                <a class="prd-name" href="#" style="${isOutOfStock ? 'color: #666; text-decoration: line-through;' : ''}">${item.productName}</a>
+                                                                <a class="prd-name ${isOutOfStock ? 'out-of-stock-text' : ''}" href="#">${item.productName}</a>
                                                             </td>
                                                             <td class="product-price" data-title="Price">
                                                                 <div class="price price-contain">
@@ -300,13 +320,12 @@
                                                                                 </div>
                                                                             </c:when>
                                                                             <c:otherwise>
-                                                                                <form action="cart" method="POST" style="display:flex;align-items:center;">
+                                                                                <form action="cart" method="POST" style="display:flex;align-items:center;" onsubmit="return handleQuantityUpdate(this, 'product')">
                                                                                     <input type="hidden" name="action" value="update">
                                                                                     <input type="hidden" name="id" value="${item.productID}">
                                                                                     <input type="hidden" name="timestamp" value="<%= System.currentTimeMillis()%>">
                                                                                     <input type="number" name="quantity" value="${item.quantity}" min="1" 
-                                                                                           max="${hasInsufficientStock ? availableStock : item.quantity}"
-                                                                                           style="width:80px; height:35px; padding:0 10px; border:1px solid #e6e6e6; ${hasInsufficientStock ? 'border-color: #ff9800;' : ''}"
+                                                                                           class="quantity-input ${hasInsufficientStock ? 'insufficient-stock-input' : ''}"
                                                                                            oninput="this.value = Math.abs(this.value || 1)">
                                                                                     <button type="submit" class="btn btn-info" style="padding:5px 10px; margin-left:10px;">
                                                                                         <i class="fa fa-refresh"></i> Update
@@ -322,11 +341,11 @@
                                                                     <div class="price price-contain">
                                                                         <ins><span class="price-amount"><span class="currencySymbol"></span><fmt:formatNumber value="${item.price * item.quantity}" type="currency"/></span></ins>
                                                                     </div>
-                                                                    <form action="cart" method="POST" style="display: inline;">
+                                                                    <form action="cart" method="POST" style="display: inline;" onsubmit="return handleRemoveItem(this, 'product')">
                                                                         <input type="hidden" name="action" value="remove">
                                                                         <input type="hidden" name="id" value="${item.productID}">
                                                                         <input type="hidden" name="timestamp" value="<%= System.currentTimeMillis()%>">
-                                                                        <button type="submit" class="btn-remove" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                                                        <button type="submit" class="btn-remove">
                                                                             <i class="fa fa-times" aria-hidden="true"></i>
                                                                         </button>
                                                                     </form>
@@ -430,20 +449,19 @@
                                                             </c:forEach>
                                                         </c:if>
 
-                                                        <tr class="cart_ticket_item ${isSoldOut ? 'sold-out-ticket' : (hasLimitedAvailability ? 'limited-availability-ticket' : (hasDateIssue ? 'date-issue-ticket' : ''))}" 
-                                                            style="${isSoldOut ? 'background-color: #ffebee; opacity: 0.7;' : (hasLimitedAvailability ? 'background-color: #fff3e0; opacity: 0.8;' : (hasDateIssue ? 'background-color: #f3e5f5; opacity: 0.8;' : ''))}">
+                                                        <tr class="cart_ticket_item ${isSoldOut ? 'sold-out-ticket' : (hasLimitedAvailability ? 'limited-availability-ticket' : (hasDateIssue ? 'date-issue-ticket' : ''))}">
 
                                                             <td class="ticket-type-cell">
-                                                                <span style="${isSoldOut ? 'color: #666; text-decoration: line-through;' : (hasLimitedAvailability ? 'color: #666; font-style: italic;' : (hasDateIssue ? 'color: #666; font-style: italic;' : ''))}">${ticket.ticketTypeName}</span>
+                                                                <span class="${isSoldOut ? 'sold-out-text' : (hasLimitedAvailability ? 'limited-availability-text' : (hasDateIssue ? 'date-issue-text' : ''))}">${ticket.ticketTypeName}</span>
                                                             </td>
                                                             <td class="ticket-village-cell">
-                                                                <span style="${isSoldOut || hasLimitedAvailability || hasDateIssue ? 'color: #666;' : ''}">${ticket.villageName}</span>
+                                                                <span class="${isSoldOut || hasLimitedAvailability || hasDateIssue ? 'dimmed-text' : ''}">${ticket.villageName}</span>
                                                             </td>
                                                             <td class="ticket-date-cell">
-                                                                <span style="${hasDateIssue ? 'color: #e91e63; font-weight: bold;' : (isSoldOut || hasLimitedAvailability ? 'color: #666;' : '')}">${ticket.formattedTicketDate}</span>
+                                                                <span class="${hasDateIssue ? 'date-issue-date' : (isSoldOut || hasLimitedAvailability ? 'dimmed-text' : '')}">${ticket.formattedTicketDate}</span>
                                                             </td>
                                                             <td class="ticket-price-cell">
-                                                                <div class="price price-contain" style="${isSoldOut || hasLimitedAvailability || hasDateIssue ? 'opacity: 0.7;' : ''}">
+                                                                <div class="price price-contain ${isSoldOut || hasLimitedAvailability || hasDateIssue ? 'dimmed-price' : ''}">
                                                                     <ins><span class="price-amount"><span class="currencySymbol"></span><fmt:formatNumber value="${ticket.price}" type="currency"/></span></ins>
                                                                 </div>
                                                             </td>
@@ -457,13 +475,12 @@
                                                                                 </div>
                                                                             </c:when>
                                                                             <c:otherwise>
-                                                                                <form action="cart" method="POST" style="display:flex;align-items:center;">
+                                                                                <form action="cart" method="POST" style="display:flex;align-items:center;" onsubmit="return handleQuantityUpdate(this, 'ticket')">
                                                                                     <input type="hidden" name="action" value="updateTicket">
                                                                                     <input type="hidden" name="itemId" value="${ticket.cartTicketId}">
                                                                                     <input type="hidden" name="timestamp" value="<%= System.currentTimeMillis()%>">
                                                                                     <input type="number" name="quantity" value="${ticket.quantity}" min="1" 
-                                                                                           max="${hasLimitedAvailability ? availableSlots : ticket.quantity}"
-                                                                                           style="width:60px; height:35px; padding:0 10px; border:1px solid #e6e6e6; text-align: center; ${hasLimitedAvailability ? 'border-color: #ff9800;' : (hasDateIssue ? 'border-color: #e91e63;' : '')}"
+                                                                                           class="ticket-quantity-input ${hasLimitedAvailability ? 'limited-availability-input' : (hasDateIssue ? 'date-issue-input' : '')}"
                                                                                            oninput="this.value = Math.abs(this.value || 1)">
                                                                                     <button type="submit" class="btn btn-info" style="padding:5px 10px; margin-left:10px;">
                                                                                         <i class="fa fa-refresh"></i> Update
@@ -515,11 +532,11 @@
                                                                 </c:if>
                                                             </td>
                                                             <td class="ticket-action-cell">
-                                                                <form action="cart" method="POST" style="display: inline;">
+                                                                <form action="cart" method="POST" style="display: inline;" onsubmit="return handleRemoveItem(this, 'ticket')">
                                                                     <input type="hidden" name="action" value="removeTicket">
                                                                     <input type="hidden" name="itemId" value="${ticket.cartTicketId}">
                                                                     <input type="hidden" name="timestamp" value="<%= System.currentTimeMillis()%>">
-                                                                    <button type="submit" class="btn-remove" onclick="return confirm('Bạn có chắc muốn xóa vé này?');">
+                                                                    <button type="submit" class="btn-remove">
                                                                         <i class="fa fa-times" aria-hidden="true"></i>
                                                                     </button>
                                                                 </form>
@@ -538,7 +555,7 @@
                                 </p>
                                 <div class="wrap-btn-control" style="margin-bottom: 30px;">
                                     <a href="home" class="btn back-to-shop">Back to Shop</a>
-                                    <form action="cart" method="post" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?');">
+                                    <form action="cart" method="post" style="display: inline;" onsubmit="return handleClearCart(this)">
                                         <input type="hidden" name="action" value="clear">
                                         <input type="hidden" name="timestamp" value="<%= System.currentTimeMillis()%>">
                                         <button type="submit" class="btn btn-clear">Clear Cart</button>
@@ -707,6 +724,32 @@
         </style>
 
         <script>
+                                        // Notification functions (exactly matching product.jsp)
+                                        function showSuccessMessage() {
+                                            const message = document.getElementById('successMessage');
+                                            message.style.display = 'block';
+                                            setTimeout(() => {
+                                                message.style.display = 'none';
+                                            }, 3000);
+                                        }
+                                        
+                                        function showErrorMessage(msg) {
+                                            let message = document.getElementById('errorMessage');
+                                            if (!message) {
+                                                message = document.createElement('div');
+                                                message.id = 'errorMessage';
+                                                message.className = 'success-message';
+                                                message.style.background = '#e74c3c';
+                                                message.style.zIndex = 1003;
+                                                document.body.appendChild(message);
+                                            }
+                                            message.innerHTML = '<i class="fa fa-circle-xmark"></i> ' + msg;
+                                            message.style.display = 'block';
+                                            setTimeout(() => {
+                                                message.style.display = 'none';
+                                            }, 3500);
+                                        }
+
                                         $(document).ready(function () {
                                             // Prevent browser caching
                                             window.history.replaceState(null, null, window.location.href);
@@ -716,6 +759,13 @@
                                                 var currentValue = $(this).val();
                                                 $(this).val('');
                                                 $(this).val(currentValue);
+                                            });
+
+                                            // Add cache-busting timestamp to all forms
+                                            $('form[action="cart"]').each(function() {
+                                                if (!$(this).find('input[name="timestamp"]').length) {
+                                                    $(this).append('<input type="hidden" name="timestamp" value="' + Date.now() + '">');
+                                                }
                                             });
 
                                             // Handle quantity input changes to ensure fresh values
@@ -792,6 +842,22 @@
                                                     scrollTop: $('.stock-warning-banner').offset().top - 100
                                                 }, 1000);
                                             }
+
+                                            // Close popup when clicking outside
+                                            $('#customPopup').click(function(e) {
+                                                if (e.target === this) {
+                                                    closePopup();
+                                                }
+                                            });
+
+                                            // Close popup with Escape key
+                                            $(document).keydown(function(e) {
+                                                if (e.key === 'Escape' && $('#customPopup').is(':visible')) {
+                                                    closePopup();
+                                                }
+                                            });
+
+
                                         });
 
                                         // Function to force form refresh
@@ -858,15 +924,110 @@
                                             return summary;
                                         }
 
-                                        // Function to handle checkout validation
+                                        // Function to handle checkout validation with custom popup
                                         function validateCheckout() {
                                             if (hasStockIssues()) {
                                                 var summary = getStockIssueSummary();
-                                                alert('Không thể thanh toán! Giỏ hàng có vấn đề: ' + summary +
-                                                        '\nVui lòng xử lý các vấn đề này trước khi thanh toán.');
+                                                const title = 'Không thể thanh toán';
+                                                const message = 'Giỏ hàng có vấn đề: ' + summary + '. Vui lòng xử lý các vấn đề này trước khi thanh toán.';
+                                                
+                                                showPopup(title, message, null, 'error');
                                                 return false;
                                             }
                                             return true;
+                                        }
+
+                                        // Function to handle quantity updates with notifications
+                                        function handleQuantityUpdate(form, type) {
+                                            const formData = new FormData(form);
+                                            const action = formData.get('action');
+                                            const quantity = formData.get('quantity');
+                                            
+                                            if (!quantity || quantity < 1) {
+                                                showErrorMessage('Please enter a valid quantity!');
+                                                return false;
+                                            }
+
+                                            // Show success message for quantity update
+                                            showSuccessMessage('Đã cập nhật số lượng!');
+                                            
+                                            return true;
+                                        }
+
+                                        // Global variables for popup
+                                        let currentForm = null;
+                                        let currentAction = null;
+
+                                        // Function to show custom popup
+                                        function showPopup(title, message, form, action) {
+                                            document.getElementById('popupTitle').textContent = title;
+                                            document.getElementById('popupMessage').textContent = message;
+                                            currentForm = form;
+                                            currentAction = action;
+                                            document.getElementById('customPopup').style.display = 'flex';
+                                        }
+
+                                        // Function to show success message with custom text
+                                        function showSuccessMessage(customMessage) {
+                                            const message = document.getElementById('successMessage');
+                                            if (customMessage) {
+                                                message.innerHTML = '<i class="fa fa-circle-check"></i> ' + customMessage;
+                                            } else {
+                                                message.innerHTML = '<i class="fa fa-circle-check"></i> Thao tác thành công!';
+                                            }
+                                            message.style.display = 'block';
+                                            setTimeout(() => {
+                                                message.style.display = 'none';
+                                            }, 3000);
+                                        }
+
+                                        // Function to close popup
+                                        function closePopup() {
+                                            document.getElementById('customPopup').style.display = 'none';
+                                            currentForm = null;
+                                            currentAction = null;
+                                        }
+
+                                        // Function to confirm popup action
+                                        function confirmPopupAction() {
+                                            if (currentForm && currentAction) {
+                                                if (currentAction === 'error') {
+                                                    // Just close for error messages
+                                                    closePopup();
+                                                } else {
+                                                    // Show appropriate success message based on action
+                                                    if (currentAction === 'remove') {
+                                                        showSuccessMessage('Đã xóa khỏi giỏ hàng!');
+                                                    } else if (currentAction === 'clear') {
+                                                        showSuccessMessage('Đã xóa toàn bộ giỏ hàng!');
+                                                    } else {
+                                                        showSuccessMessage();
+                                                    }
+                                                    
+                                                    // Submit the form
+                                                    currentForm.submit();
+                                                }
+                                            }
+                                            closePopup();
+                                        }
+
+                                        // Function to handle item removal with custom popup
+                                        function handleRemoveItem(form, type) {
+                                            const itemType = type === 'product' ? 'sản phẩm' : 'vé';
+                                            const title = 'Xác nhận xóa';
+                                            const message = `Bạn có chắc chắn muốn xóa ${itemType} này khỏi giỏ hàng?`;
+                                            
+                                            showPopup(title, message, form, 'remove');
+                                            return false; // Prevent form submission
+                                        }
+
+                                        // Function to handle clear cart with custom popup
+                                        function handleClearCart(form) {
+                                            const title = 'Xác nhận xóa giỏ hàng';
+                                            const message = 'Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?';
+                                            
+                                            showPopup(title, message, form, 'clear');
+                                            return false; // Prevent form submission
                                         }
 
                                         // Prevent checkout if there are stock issues
@@ -877,6 +1038,8 @@
                                                 }
                                             });
                                         });
+
+
         </script>
 
         <!-- ✅ ENHANCED: Comprehensive Validation Styles -->
@@ -1148,6 +1311,243 @@
                 50% {
                     background-color: rgba(255, 152, 0, 0.1);
                 }
+            }
+
+            /* Product styling classes */
+            .out-of-stock-item {
+                background-color: #ffebee !important;
+                opacity: 0.7 !important;
+            }
+
+            .insufficient-stock-item {
+                background-color: #fff3e0 !important;
+            }
+
+            .out-of-stock-text {
+                color: #666 !important;
+                text-decoration: line-through !important;
+            }
+
+            .quantity-input {
+                width: 80px;
+                height: 35px;
+                padding: 0 10px;
+                border: 1px solid #e6e6e6;
+            }
+
+            .insufficient-stock-input {
+                border-color: #ff9800 !important;
+            }
+
+            /* Ticket styling classes */
+            .sold-out-ticket {
+                background-color: #ffebee !important;
+                opacity: 0.7 !important;
+            }
+
+            .limited-availability-ticket {
+                background-color: #fff3e0 !important;
+                opacity: 0.8 !important;
+            }
+
+            .date-issue-ticket {
+                background-color: #f3e5f5 !important;
+                opacity: 0.8 !important;
+            }
+
+            .ticket-quantity-input {
+                width: 60px;
+                height: 35px;
+                padding: 0 10px;
+                border: 1px solid #e6e6e6;
+                text-align: center;
+            }
+
+            .limited-availability-input {
+                border-color: #ff9800 !important;
+            }
+
+            .date-issue-input {
+                border-color: #e91e63 !important;
+            }
+
+            /* Additional ticket text styling classes */
+            .sold-out-text {
+                color: #666 !important;
+                text-decoration: line-through !important;
+            }
+
+            .limited-availability-text {
+                color: #666 !important;
+                font-style: italic !important;
+            }
+
+            .date-issue-text {
+                color: #666 !important;
+                font-style: italic !important;
+            }
+
+            .dimmed-text {
+                color: #666 !important;
+            }
+
+            .date-issue-date {
+                color: #e91e63 !important;
+                font-weight: bold !important;
+            }
+
+            .dimmed-price {
+                opacity: 0.7 !important;
+            }
+
+            /* Toast notification styling (exactly matching product.jsp) */
+            .success-message {
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                min-width: 260px;
+                max-width: 350px;
+                background: #27ae60;
+                color: #fff;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                font-size: 16px;
+                z-index: 1002;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                opacity: 0.97;
+                transition: all 0.3s;
+            }
+            .success-message i.fa-circle-check {
+                color: #fff;
+                font-size: 22px;
+                margin-right: 8px;
+            }
+            .success-message i.fa-circle-xmark {
+                color: #fff;
+                font-size: 22px;
+                margin-right: 8px;
+            }
+
+            /* Custom Popup Modal Styling */
+            .custom-popup {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1004;
+                backdrop-filter: blur(5px);
+            }
+
+            .popup-content {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                max-width: 400px;
+                width: 90%;
+                animation: popupSlideIn 0.3s ease-out;
+            }
+
+            @keyframes popupSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-50px) scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            .popup-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 24px 0 24px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .popup-header h3 {
+                margin: 0;
+                color: #333;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .popup-close {
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: #999;
+                cursor: pointer;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s;
+            }
+
+            .popup-close:hover {
+                background-color: #f5f5f5;
+                color: #666;
+            }
+
+            .popup-body {
+                padding: 20px 24px;
+            }
+
+            .popup-body p {
+                margin: 0;
+                color: #666;
+                font-size: 16px;
+                line-height: 1.5;
+            }
+
+            .popup-footer {
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                padding: 0 24px 20px 24px;
+            }
+
+            .popup-footer .btn {
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 500;
+                border: none;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .popup-footer .btn-secondary {
+                background-color: #f8f9fa;
+                color: #666;
+                border: 1px solid #dee2e6;
+            }
+
+            .popup-footer .btn-secondary:hover {
+                background-color: #e9ecef;
+                color: #495057;
+            }
+
+            .popup-footer .btn-primary {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .popup-footer .btn-primary:hover {
+                background-color: #0056b3;
             }
         </style>
 

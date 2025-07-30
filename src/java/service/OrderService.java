@@ -338,4 +338,26 @@ public class OrderService implements IOrderService {
         return oDAO.getTotalOrderDetailsByVillageId(villageId, status, searchKeyword);
     }
 
+    public List<SubOrder> getSOrdersByVillageId(int villageId, String orderStatus, String searchKeyword, int page, int pageSize) {
+        return oDAO.getSOrdersByVillageId(villageId, orderStatus, searchKeyword, page, pageSize);
+    }
+
+    public int getTotalSOrderDetailsByVillageId(int villageId, String status, String searchKeyword) {
+        return oDAO.getTotalSOrderDetailsByVillageId( villageId, status, searchKeyword);
+    }
+
+    public Order getAllOrderBuySubOrder() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public void updateStatusSubOrder(int subOrderId, int orderStatus){
+        oDAO.updateStatusSubOrder(subOrderId, orderStatus);
+    }
+
+    public TicketOrderDetail getTicketOrderByTicketCode(String code, int villageId) {
+        return oDAO.getTicketOrderByTicketCode(code,villageId);
+    }
+    public static void main(String[] args) {
+        System.out.println(new OrderService().getTicketOrderByTicketCode("V3T1U1CD2025-07-29 08", 3));
+    }
 }

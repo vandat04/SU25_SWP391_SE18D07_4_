@@ -44,6 +44,58 @@
         <link rel="stylesheet" href="assets/css/main-color03-green.css">
 
         <style>
+            /* Vô hiệu hóa CSS ::before cho star-rating để tránh xung đột */
+            .star-rating::before {
+                display: none !important;
+                content: none !important;
+            }
+            
+            .rating .star-rating::before {
+                display: none !important;
+                content: none !important;
+            }
+            
+            .comment-content .rating .star-rating::before {
+                display: none !important;
+                content: none !important;
+            }
+            
+            /* Cải thiện hiển thị text review */
+            .comment-content .comment-in .post-name {
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                line-height: 1.5 !important;
+                color: #333 !important;
+                margin-bottom: 8px !important;
+                display: block !important;
+            }
+            
+            .comment-content .author {
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                color: #666 !important;
+                margin-top: 8px !important;
+            }
+            
+            .comment-content .post-date {
+                font-size: 12px !important;
+                color: #999 !important;
+                font-style: italic !important;
+            }
+            
+            /* Cải thiện hiển thị star rating cho từng review */
+            .comment-content .rating .star-rating {
+                display: inline-block;
+                margin: 5px 0;
+            }
+            
+            /* Sử dụng CSS phân trang từ style.css */
+            .biolife-panigations-block.version-2 {
+                text-align: center;
+                padding-top: 7px !important;
+                padding-bottom: 49px !important;
+            }
+            
             /* Calendar Styles */
             .calendar-container {
                 max-width: 400px;
@@ -390,6 +442,17 @@
                 background: #ffc107;
                 border-radius: 3px;
                 transition: width 0.4s;
+            }
+            
+            /* Phóng to phần rating-info */
+            .rating-info {
+                transform: scale(1.5);
+                transform-origin: top left;
+            }
+            
+            /* Điều chỉnh width của rating-bar để phù hợp với scale */
+            .rating-info .rating-bar {
+                width: 195px; /* 130px * 1.5 = 195px */
             }
 
             /* Enhanced Ticket Details Styles */
@@ -841,10 +904,10 @@
                                                 <p class="index">
                                                     <strong class="rating">
                                                         <c:choose>
-                                                            <c:when test="${averageRating != null and averageRating > 0}">
-                                                                <fmt:formatNumber value="${averageRating}" pattern="0.0"/>
-                                                            </c:when>
-                                                            <c:otherwise>0.0</c:otherwise>
+                                                                                                                    <c:when test="${averageRating != null and averageRating > 0}">
+                                                            <fmt:formatNumber value="${averageRating}" maxFractionDigits="2"/>
+                                                        </c:when>
+                                                        <c:otherwise>0.00</c:otherwise>
                                                         </c:choose>
                                                     </strong> out of 5
                                                 </p>
@@ -903,16 +966,18 @@
                                                                         </span>
                                                                     </p>
                                                                     <div class="rating">
-                                                                        <p class="star-rating">
-                                                                            <c:choose>
-                                                                                <c:when test="${review.rating != null and review.rating > 0}">
-                                                                                    <span class="width-${review.rating * 20}percent"></span>
-                                                                                </c:when>
-                                                                                <c:otherwise>
-                                                                                    <span class="width-0percent"></span>
-                                                                                </c:otherwise>
-                                                                            </c:choose>
-                                                                        </p>
+                                                                        <div class="star-rating">
+                                                                            <c:forEach var="i" begin="1" end="5">
+                                                                                <c:choose>
+                                                                                    <c:when test="${i <= review.rating}">
+                                                                                        <i class="fa fa-star" style="color: #ffc107; font-size: 14px;"></i>
+                                                                                    </c:when>
+                                                                                    <c:otherwise>
+                                                                                        <i class="fa fa-star-o" style="color: #ccc; font-size: 14px;"></i>
+                                                                                    </c:otherwise>
+                                                                                </c:choose>
+                                                                            </c:forEach>
+                                                                        </div>
                                                                         <!-- Debug: Show actual rating value -->
                                                                         <c:if test="${param.debug == 'true'}">
                                                                             <small style="color: #999;">Debug: Rating=${review.rating}</small>
@@ -945,6 +1010,39 @@
                                                         </div>
                                                     </c:forEach>
                                                 </ol>
+
+                                                <!-- PHÂN TRANG REVIEW -->
+                                                <c:if test="${totalPages > 1}">
+                                                    <div class="biolife-panigations-block version-2">
+                                                        <ul class="panigation-contain">
+                                                            <c:if test="${currentPage > 1}">
+                                                                <li><a href="ticket-detail?ticketId=${ticket.ticketID}&page=${currentPage - 1}" class="link-page prev">&lt;</a></li>
+                                                            </c:if>
+                                                            <c:forEach var="i" begin="1" end="${totalPages}">
+                                                                <li>
+                                                                    <c:choose>
+                                                                        <c:when test="${i == currentPage}">
+                                                                            <span class="current-page">${i}</span>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <a href="ticket-detail?ticketId=${ticket.ticketID}&page=${i}" class="link-page">${i}</a>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </li>
+                                                            </c:forEach>
+                                                            <c:if test="${currentPage < totalPages}">
+                                                                <li><a href="ticket-detail?ticketId=${ticket.ticketID}&page=${currentPage + 1}" class="link-page next">&gt;</a></li>
+                                                            </c:if>
+                                                        </ul>
+                                                        <div class="result-count">
+                                                            <p class="txt-count">
+                                                                <b>${(currentPage-1)*2+1}</b> -
+                                                                <b>${(currentPage*2 > totalReviews) ? totalReviews : currentPage*2}</b>
+                                                                of <b>${totalReviews}</b> reviews
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </c:if>
                                             </div>
                                         </div>
                                     </div>
@@ -1028,6 +1126,21 @@
             let selectedTicketId = null;
             let availableDates = [];
 
+            // Auto-scroll to review tab if page parameter exists
+            document.addEventListener('DOMContentLoaded', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const page = urlParams.get('page');
+                if (page) {
+                    // Find the review tab link and trigger a click
+                    const reviewTabLink = document.querySelector('a[href="#tab_4th"]');
+                    if (reviewTabLink) {
+                        setTimeout(() => {
+                            reviewTabLink.click();
+                        }, 100);
+                    }
+                }
+            });
+            
             // Initialize calendar on page load
             document.addEventListener('DOMContentLoaded', function () {
                 try {

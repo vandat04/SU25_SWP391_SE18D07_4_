@@ -19,12 +19,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Types;
+import java.text.ParseException;
 import service.ProductService;
 import service.VillageService;
 
@@ -108,21 +110,23 @@ public class OrderDAO {
     }
 
     private TicketOrderDetail mapResultSetToTicketOrderDetail(ResultSet rs) throws SQLException {
-        TicketOrderDetail detail = new TicketOrderDetail();
-
-        detail.setDetailID(rs.getInt("detailID"));
-        detail.setOrderID(rs.getInt("orderID"));
-        detail.setSubOrderId(rs.getInt("subOrderId"));
-        detail.setTicketID(rs.getInt("ticketID"));
-        detail.setQuantity(rs.getInt("quantity"));
-        detail.setPrice(rs.getBigDecimal("price"));
-        detail.setSubtotal(rs.getBigDecimal("subtotal")); // computed column
-        detail.setVillageID(rs.getInt("villageID"));
-        detail.setReviewStatus(rs.getInt("reviewStatus"));
-        detail.setTicketCode(rs.getString("TicketCode"));
-
-        return detail;
-    }
+    TicketOrderDetail detail = new TicketOrderDetail();
+    detail.setDetailID(rs.getInt("detailID"));
+    detail.setOrderID(rs.getInt("orderID"));
+    detail.setSubOrderId(rs.getInt("subOrderId"));
+    detail.setTicketID(rs.getInt("ticketID"));
+    detail.setQuantity(rs.getInt("quantity"));
+    detail.setPrice(rs.getBigDecimal("price"));
+    detail.setSubtotal(rs.getBigDecimal("subtotal"));
+    detail.setVillageID(rs.getInt("villageID"));
+    detail.setReviewStatus(rs.getInt("reviewStatus"));
+    detail.setTicketCode(rs.getString("TicketCode"));
+    java.sql.Date bookDate = rs.getDate("bookDate");
+    detail.setStatus(rs.getInt("status"));
+    System.out.println("Mapping bookDate for detailID " + rs.getInt("detailID") + ": " + bookDate);
+    detail.setBookDate(bookDate);
+    return detail;
+}
 
     private void closeResources(java.sql.Connection conn, PreparedStatement ps, ResultSet rs) {
         try {
@@ -309,7 +313,7 @@ public class OrderDAO {
     }
 
     public Integer addTicketOrderDetail(TicketOrderDetail ticketOrderDetail) {
-        String sql = "{CALL AddTicketOrderDetail(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL AddTicketOrderDetail(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         Connection conn = null;
         CallableStatement cs = null;
         Integer newDetailId = null;
@@ -324,11 +328,12 @@ public class OrderDAO {
             cs.setBigDecimal(5, ticketOrderDetail.getPrice());
             cs.setInt(6, ticketOrderDetail.getVillageID());
             cs.setString(7, ticketOrderDetail.getTicketCode());
+            cs.setDate(8, (Date) ticketOrderDetail.getBookDate());
             // OUT parameter: TicketOrderDetailID
-            cs.registerOutParameter(8, java.sql.Types.INTEGER);
+            cs.registerOutParameter(9, java.sql.Types.INTEGER);
             cs.execute();
 
-            newDetailId = cs.getInt(8); // Get output value
+            newDetailId = cs.getInt(9); // Get output value
             System.out.println("[INFO] TicketOrderDetail created successfully. New ID = " + newDetailId);
 
         } catch (Exception e) {
@@ -428,10 +433,6 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return -1; // return -1 nếu không tìm thấy
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new OrderDAO().getSubOrderByVillageID(1));
     }
 
     public double getOrderTotal(int orderID) {
@@ -866,44 +867,51 @@ public class OrderDAO {
     }
 
     public List<TicketOrderDetail> getAllTicketOrderDetailByOrderID(int orderId) {
-        List<TicketOrderDetail> list = new ArrayList<>();
-        String sql = "SELECT * FROM TicketOrderDetail WHERE orderID = ?";
+    List<TicketOrderDetail> list = new ArrayList<>();
+    String sql = "SELECT * FROM TicketOrderDetail WHERE orderID = ?";
 
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
 
-        try {
-            conn = DBContext.getConnection(); // Hoặc connection pool của bạn
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, orderId);
-            rs = ps.executeQuery();
+    try {
+        conn = DBContext.getConnection();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, orderId);
+        rs = ps.executeQuery();
 
-            while (rs.next()) {
-                TicketOrderDetail tod = mapResultSetToTicketOrderDetail(rs);
-                tod.setVillageName(new VillageService().getVillageNameByID(tod.getVillageID()));
+        while (rs.next()) {
+            TicketOrderDetail tod = mapResultSetToTicketOrderDetail(rs);
+            tod.setVillageName(new VillageService().getVillageNameByID(tod.getVillageID()));
 
-                list.add(tod);
+            // So sánh bookDate với ngày hiện tại
+            java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+            if (tod.getBookDate() != null && tod.getBookDate().before(today)) {
+                // Nếu bookDate đã qua thì cập nhật status về 0 trong database
+                String updateSQL = "UPDATE TicketOrderDetail SET status = 0 WHERE detailID = ?";
+                try (PreparedStatement updatePs = conn.prepareStatement(updateSQL)) {
+                    updatePs.setInt(1, tod.getDetailID());
+                    updatePs.executeUpdate();
+                }
+                tod.setStatus(0); // cập nhật lại trong đối tượng Java
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+
+            list.add(tod);
         }
-        return list;
+        System.out.println(list);
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
+    return list;
+}
 
     public List<Order> getOrdersByUserId(int userId) {
         List<Order> list = new ArrayList<>();
@@ -1613,29 +1621,29 @@ public class OrderDAO {
         return orders;
     }
 
-   public OrderDetail getOrderDetailById(int orderDetailId) {
+    public OrderDetail getOrderDetailById(int orderDetailId) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         OrderDetail orderDetail = null;
-        
+
         try {
             conn = DBContext.getConnection();
-            String sql = "SELECT od.*, o.shippingAddress, o.shippingPhone, o.shippingName, " +
-                        "o.paymentMethod as orderPaymentMethod, o.paymentStatus as orderPaymentStatus, " +
-                        "o.createdDate as orderCreatedDate, o.email, " +
-                        "a.userName, a.fullName, " +
-                        "p.name as pname, p.mainImageUrl as pimage " +
-                        "FROM OrderDetail od " +
-                        "JOIN Orders o ON od.order_id = o.id " +
-                        "JOIN Account a ON o.userID = a.userID " +
-                        "JOIN Product p ON od.product_id = p.pid " +
-                        "WHERE od.id = ?";
-            
+            String sql = "SELECT od.*, o.shippingAddress, o.shippingPhone, o.shippingName, "
+                    + "o.paymentMethod as orderPaymentMethod, o.paymentStatus as orderPaymentStatus, "
+                    + "o.createdDate as orderCreatedDate, o.email, "
+                    + "a.userName, a.fullName, "
+                    + "p.name as pname, p.mainImageUrl as pimage "
+                    + "FROM OrderDetail od "
+                    + "JOIN Orders o ON od.order_id = o.id "
+                    + "JOIN Account a ON o.userID = a.userID "
+                    + "JOIN Product p ON od.product_id = p.pid "
+                    + "WHERE od.id = ?";
+
             ps = conn.prepareStatement(sql);
             ps.setInt(1, orderDetailId);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 orderDetail = new OrderDetail();
                 orderDetail.setId(rs.getInt("id"));
@@ -1646,15 +1654,21 @@ public class OrderDAO {
                 orderDetail.setSubtotal(rs.getBigDecimal("subtotal"));
                 // Additional fields from joins
                 orderDetail.setProductName(rs.getString("pname"));
-                
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -1666,16 +1680,16 @@ public class OrderDAO {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             conn = DBContext.getConnection();
-            String sql = "SELECT a.* FROM Account a " +
-                        "JOIN Orders o ON a.userID = o.userID " +
-                        "WHERE o.id = ?";
+            String sql = "SELECT a.* FROM Account a "
+                    + "JOIN Orders o ON a.userID = o.userID "
+                    + "WHERE o.id = ?";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, orderId);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 entity.Account.Account account = new entity.Account.Account();
                 account.setUserID(rs.getInt("userID"));
@@ -1690,9 +1704,15 @@ public class OrderDAO {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -1706,40 +1726,40 @@ public class OrderDAO {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             conn = DBContext.getConnection();
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT od.*, o.shippingAddress, o.shippingPhone, o.shippingName, ")
-               .append("o.paymentMethod as orderPaymentMethod, o.paymentStatus as orderPaymentStatus, ")
-               .append("o.createdDate as orderCreatedDate, o.email, ")
-               .append("a.userName, a.fullName, ")
-               .append("p.name as pname, p.mainImageUrl as pimage ")
-               .append("FROM OrderDetail od ")
-               .append("JOIN Orders o ON od.order_id = o.id ")
-               .append("JOIN Account a ON o.userID = a.userID ")
-               .append("JOIN Product p ON od.product_id = p.pid ")
-               .append("WHERE p.villageID = ? ");
-            
+                    .append("o.paymentMethod as orderPaymentMethod, o.paymentStatus as orderPaymentStatus, ")
+                    .append("o.createdDate as orderCreatedDate, o.email, ")
+                    .append("a.userName, a.fullName, ")
+                    .append("p.name as pname, p.mainImageUrl as pimage ")
+                    .append("FROM OrderDetail od ")
+                    .append("JOIN Orders o ON od.order_id = o.id ")
+                    .append("JOIN Account a ON o.userID = a.userID ")
+                    .append("JOIN Product p ON od.product_id = p.pid ")
+                    .append("WHERE p.villageID = ? ");
+
             if (status >= 0) {
                 sql.append("AND od.status = ? ");
             }
-            
+
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
                 sql.append("AND (o.shippingName LIKE ? OR o.shippingPhone LIKE ? OR od.id LIKE ? OR o.id LIKE ?) ");
             }
-            
+
             sql.append("ORDER BY od.createdDate DESC ")
-               .append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-            
+                    .append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
             ps = conn.prepareStatement(sql.toString());
             int paramIndex = 1;
             ps.setInt(paramIndex++, villageId);
-            
+
             if (status >= 0) {
                 ps.setInt(paramIndex++, status);
             }
-            
+
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
                 String keyword = "%" + searchKeyword + "%";
                 ps.setString(paramIndex++, keyword);
@@ -1747,12 +1767,12 @@ public class OrderDAO {
                 ps.setString(paramIndex++, keyword);
                 ps.setString(paramIndex++, keyword);
             }
-            
+
             ps.setInt(paramIndex++, (page - 1) * pageSize);
             ps.setInt(paramIndex++, pageSize);
-            
+
             rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setId(rs.getInt("id"));
@@ -1761,19 +1781,24 @@ public class OrderDAO {
                 orderDetail.setQuantity(rs.getInt("quantity"));
                 orderDetail.setPrice(rs.getBigDecimal("price"));
                 orderDetail.setSubtotal(rs.getBigDecimal("subtotal"));
-               
+
                 orderDetail.setProductName(rs.getString("pname"));
-                
-                
+
                 orderDetails.add(orderDetail);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -1786,31 +1811,31 @@ public class OrderDAO {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             conn = DBContext.getConnection();
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT COUNT(*) as total ")
-               .append("FROM OrderDetail od ")
-               .append("JOIN Orders o ON od.order_id = o.id ")
-               .append("WHERE od.villageID = ? ");
-            
+                    .append("FROM OrderDetail od ")
+                    .append("JOIN Orders o ON od.order_id = o.id ")
+                    .append("WHERE od.villageID = ? ");
+
             if (status >= 0) {
                 sql.append("AND od.status = ? ");
             }
-            
+
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
                 sql.append("AND (o.shippingName LIKE ? OR o.shippingPhone LIKE ? OR od.id LIKE ? OR o.id LIKE ?) ");
             }
-            
+
             ps = conn.prepareStatement(sql.toString());
             int paramIndex = 1;
             ps.setInt(paramIndex++, villageId);
-            
+
             if (status >= 0) {
                 ps.setInt(paramIndex++, status);
             }
-            
+
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
                 String keyword = "%" + searchKeyword + "%";
                 ps.setString(paramIndex++, keyword);
@@ -1818,7 +1843,7 @@ public class OrderDAO {
                 ps.setString(paramIndex++, keyword);
                 ps.setString(paramIndex++, keyword);
             }
-            
+
             rs = ps.executeQuery();
             if (rs.next()) {
                 total = rs.getInt("total");
@@ -1827,14 +1852,335 @@ public class OrderDAO {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
         return total;
     }
+
+    public List<SubOrder> getSOrdersByVillageId(int villageId, String orderStatus, String searchKeyword, int page, int pageSize) {
+        List<SubOrder> subOrders = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+            StringBuilder sql = new StringBuilder();
+            sql.append("SELECT * FROM SubOrders WHERE villageId = ? ");
+
+            if (orderStatus != null && !orderStatus.trim().isEmpty()) {
+                sql.append("AND orderStatus = ? ");
+            }
+
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                sql.append("AND (shippingOrderCode LIKE ? OR shippingPartner LIKE ? OR note LIKE ?) ");
+            }
+
+            sql.append("ORDER BY createdDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+            ps = conn.prepareStatement(sql.toString());
+            int paramIndex = 1;
+
+            // Required parameter
+            ps.setInt(paramIndex++, villageId);
+
+            // Optional: Filter by orderStatus
+            if (orderStatus != null && !orderStatus.trim().isEmpty()) {
+                ps.setString(paramIndex++, orderStatus.trim());
+            }
+
+            // Optional: Filter by search keyword
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                String keyword = "%" + searchKeyword.trim() + "%";
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+            }
+
+            // Pagination parameters
+            int safePageSize = Math.max(pageSize, 1); // avoid 0
+            int offset = Math.max((page - 1), 0) * safePageSize;
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, safePageSize);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                SubOrder subOrder = new SubOrder();
+                subOrder.setSubOrderId(rs.getInt("subOrderId"));
+                subOrder.setOrderId(rs.getInt("orderId"));
+                subOrder.setVillageId(rs.getInt("villageId"));
+                subOrder.setTotalPrice(rs.getBigDecimal("total_price"));
+                subOrder.setPoints(rs.getInt("points"));
+                subOrder.setPaymentMethod(rs.getString("paymentMethod"));
+                subOrder.setPaymentStatus(rs.getInt("paymentStatus"));
+                subOrder.setOrderStatus(rs.getInt("orderStatus"));
+                subOrder.setNote(rs.getString("note"));
+                subOrder.setReviewStatus(rs.getInt("reviewStatus"));
+                subOrder.setCreatedDate(rs.getTimestamp("createdDate"));
+                // add other fields as needed
+                subOrders.add(subOrder);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return subOrders;
+    }
+
+    public int getTotalSOrderDetailsByVillageId(int villageId, String status, String searchKeyword) {
+        int total = 0;
+        String sql = "SELECT COUNT(*) FROM SubOrders sod "
+                + "WHERE villageId = ? ";
+
+        // Nếu có status thì thêm điều kiện
+        if (status != null && !status.isEmpty()) {
+            sql += "AND sod.status = ? ";
+        }
+
+        // Nếu có từ khoá tìm kiếm
+        if (searchKeyword != null && !searchKeyword.isEmpty()) {
+            sql += "AND p.productName LIKE ? ";
+        }
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, villageId);
+
+            if (status != null && !status.isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+
+            if (searchKeyword != null && !searchKeyword.isEmpty()) {
+                ps.setString(paramIndex++, "%" + searchKeyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    public void updateTicketAva(int subOrderId) {
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DBContext.getConnection();
+
+        // 1. Lấy ticketID, bookDate và tổng quantity, chỉ lấy những dòng có bookDate = availableDate
+        String selectQuantitySQL = "SELECT d.ticketID, d.bookDate, SUM(d.quantity) AS totalQty "
+                                 + "FROM TicketOrderDetail d "
+                                 + "JOIN TicketAvailability a ON d.ticketID = a.ticketID "
+                                 + "WHERE d.subOrderId = ? AND d.bookDate = a.availableDate "
+                                 + "GROUP BY d.ticketID, d.bookDate";
+
+        ps = conn.prepareStatement(selectQuantitySQL);
+        ps.setInt(1, subOrderId);
+        rs = ps.executeQuery();
+
+        // 2. Cập nhật availableSlots
+        while (rs.next()) {
+            int ticketID = rs.getInt("ticketID");
+            Date bookDate = rs.getDate("bookDate");
+            int totalQty = rs.getInt("totalQty");
+
+            String updateAvailableSQL = "UPDATE TicketAvailability "
+                                      + "SET availableSlots = availableSlots - ? "
+                                      + "WHERE ticketID = ? AND availableDate = ?";
+
+            try (PreparedStatement psUpdate = conn.prepareStatement(updateAvailableSQL)) {
+                psUpdate.setInt(1, totalQty);
+                psUpdate.setInt(2, ticketID);
+                psUpdate.setDate(3, bookDate);
+                psUpdate.executeUpdate();
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+    
+    public void updateProductAva(int subOrderId) {
+    String selectSQL = "SELECT product_id, SUM(quantity) AS totalQuantity " +
+                       "FROM OrderDetail WHERE subOrderId = ? GROUP BY product_id";
+    String updateSQL = "UPDATE Product SET stock = stock - ? WHERE pid = ?";
+
+    Connection conn = null;
+    PreparedStatement psSelect = null;
+    PreparedStatement psUpdate = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DBContext.getConnection(); // đảm bảo bạn có class DBContext trả về connection
+
+        // 1. Lấy tổng số lượng quantity theo product_id
+        psSelect = conn.prepareStatement(selectSQL);
+        psSelect.setInt(1, subOrderId);
+        rs = psSelect.executeQuery();
+
+        psUpdate = conn.prepareStatement(updateSQL);
+
+        // 2. Cập nhật lại stock cho từng product_id
+        while (rs.next()) {
+            int productId = rs.getInt("product_id");
+            int totalQuantity = rs.getInt("totalQuantity");
+
+            psUpdate.setInt(1, totalQuantity);
+            psUpdate.setInt(2, productId);
+            psUpdate.executeUpdate();
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (psSelect != null) psSelect.close();
+            if (psUpdate != null) psUpdate.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+    public void updateStatusSubOrder(int subOrderId, int orderStatus) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBContext.getConnection();
+
+            // Cập nhật orderStatus trong SubOrders
+            String updateSubOrderSQL = "UPDATE SubOrders SET orderStatus = ? WHERE subOrderId = ?";
+            ps = conn.prepareStatement(updateSubOrderSQL);
+            ps.setInt(1, orderStatus);
+            ps.setInt(2, subOrderId);
+            ps.executeUpdate();
+            ps.close();
+
+            // Nếu orderStatus = 1: cập nhật TicketOrderDetail.status = 1
+            if (orderStatus == 1) {
+                String updateTicketDetail = "UPDATE TicketOrderDetail SET status = 1 WHERE subOrderId = ?";
+                updateTicketAva(subOrderId);
+                updateProductAva(subOrderId);
+                ps = conn.prepareStatement(updateTicketDetail);
+                ps.setInt(1, subOrderId);
+                ps.executeUpdate();
+                ps.close();
+            }
+
+            if (orderStatus == 4 || orderStatus == 3) {
+                String updateTicketDetail = "UPDATE TicketOrderDetail SET status = 0 WHERE subOrderId = ?";
+                String updatePayment = "UPDATE Payment SET paymentStatus = 3 WHERE subOrderId = ?";
+                ps = conn.prepareStatement(updateTicketDetail);
+                ps.setInt(1, subOrderId);
+                ps.executeUpdate();
+                ps.close();
+
+                ps = conn.prepareStatement(updatePayment);
+                ps.setInt(1, subOrderId);
+                ps.executeUpdate();
+                ps.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws ParseException {
+        System.out.println(new OrderDAO().getTicketOrderByTicketCode("", 3));
+    }
+
+   public TicketOrderDetail getTicketOrderByTicketCode(String code, int villageID) {
+    TicketOrderDetail detail = null;
+    String selectSQL = "SELECT * FROM TicketOrderDetail WHERE TicketCode = ? AND villageID = ? AND CAST(bookDate AS DATE) = CAST(GETDATE() AS DATE)";
+    String updateSQL = "UPDATE TicketOrderDetail SET status = 0 WHERE TicketCode = ? AND villageID = ?";
+
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DBContext.getConnection(); // Kết nối DB
+
+        // 1. Truy vấn bản ghi
+        ps = conn.prepareStatement(selectSQL);
+        ps.setString(1, code);
+        ps.setInt(2, villageID);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+            // Map dữ liệu sang đối tượng
+            detail = mapResultSetToTicketOrderDetail(rs);
+            String villageName = new VillageService().getVillageNameByID(detail.getVillageID());
+            detail.setVillageName(villageName);
+            // 2. Cập nhật lại status = 0 nếu tìm thấy
+            PreparedStatement psUpdate = conn.prepareStatement(updateSQL);
+            psUpdate.setString(1, code);
+            psUpdate.setInt(2, villageID);
+            psUpdate.executeUpdate();
+            psUpdate.close();
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    return detail;
+}
 
 }

@@ -18,13 +18,29 @@ public class CloudinaryUploader {
 
     //  Hàm upload raw file (dùng cho .glb, .pdf, .zip, ...)
     public static String uploadRaw(Part filePart) {
+        System.out.println("🔍 DEBUG: CloudinaryUploader.uploadRaw() called");
+        System.out.println("🔍 DEBUG: File part: " + (filePart != null ? "not null" : "null"));
+        
+        if (filePart == null) {
+            System.out.println("❌ ERROR: File part is null");
+            return "";
+        }
+        
+        System.out.println("🔍 DEBUG: File name: " + filePart.getSubmittedFileName());
+        System.out.println("🔍 DEBUG: File size: " + filePart.getSize());
+        System.out.println("🔍 DEBUG: Content type: " + filePart.getContentType());
+        
         return uploadFile(filePart, "raw");
     }
-    
+
     private static String uploadFile(Part filePart, String resourceType) {
         String fileUrl = "";
         try {
+            System.out.println("🔍 DEBUG: uploadFile() called with resourceType: " + resourceType);
+            
             if (filePart != null && filePart.getSize() > 0) {
+                System.out.println("🔍 DEBUG: File is valid, size: " + filePart.getSize());
+                
                 InputStream fileContent = filePart.getInputStream();
 
                 // Chuyển InputStream thành byte[]
@@ -37,23 +53,31 @@ public class CloudinaryUploader {
                 buffer.flush();
 
                 byte[] fileBytes = buffer.toByteArray();
+                System.out.println("🔍 DEBUG: File converted to bytes, size: " + fileBytes.length);
 
                 Cloudinary cloudinary = CloudinaryConfig.getInstance();
+                System.out.println("🔍 DEBUG: Cloudinary instance created");
 
                 // Upload với resource_type tương ứng
+                System.out.println("🔍 DEBUG: Starting Cloudinary upload...");
                 Map uploadResult = cloudinary.uploader().upload(
                         fileBytes,
                         ObjectUtils.asMap("resource_type", resourceType)
                 );
 
                 fileUrl = (String) uploadResult.get("secure_url");
+                System.out.println("🔍 DEBUG: Cloudinary upload successful, URL: " + fileUrl);
+            } else {
+                System.out.println("❌ ERROR: File part is null or empty");
             }
 
         } catch (Exception e) {
+            System.err.println("❌ EXCEPTION in uploadFile: " + e.getMessage());
             e.printStackTrace();
         }
         return fileUrl;
     }
+
     public static String uploadRawFromUrl(String glbUrl) {
         String fileUrl = "";
         try {

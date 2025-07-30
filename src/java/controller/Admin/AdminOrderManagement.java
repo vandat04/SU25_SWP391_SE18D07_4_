@@ -4,6 +4,7 @@
  */
 package controller.Admin;
 
+import entity.Account.Account;
 import entity.Orders.SubOrder;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -11,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import service.OrderService;
 
@@ -35,6 +37,15 @@ public class AdminOrderManagement extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("acc");
+
+        // Check if user is logged in and is a seller
+        if (account == null || account.getRole() != 3) {
+            response.sendRedirect("login");
+            return;
+        }
+        
         // Pagination parameters
         int pageSize = 10; // 10 orders per page
         int page = 1; // Default to page 1

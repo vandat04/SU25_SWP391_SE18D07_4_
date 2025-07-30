@@ -4,6 +4,7 @@
  */
 package controller.Admin;
 
+import entity.Account.Account;
 import entity.Ticket.Ticket;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -11,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.List;
 import service.TicketService;
@@ -36,6 +38,15 @@ public class AdminTicketManagement extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+         HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("acc");
+
+        // Check if user is logged in and is a seller
+        if (account == null || account.getRole() != 3) {
+            response.sendRedirect("login");
+            return;
+        }
+        
         String error = request.getParameter("error");
         String statusStr = request.getParameter("status");
         String searchIDStr = request.getParameter("searchID");

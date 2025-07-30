@@ -125,7 +125,7 @@
                         <div class="product-category list-style">
                             
                             
-                            <div id="top-functions-area" class="top-functions-area">
+<!--                            <div id="top-functions-area" class="top-functions-area">
                                 <div class="flt-item to-left group-on-mobile">
                                     <span class="flt-title">Refine</span>
                                     <a href="#" class="icon-for-mobile">
@@ -147,7 +147,7 @@
                                                     <option value="150-max" ${selectedPrice == '150-max' ? 'selected' : ''}>More than 150k</option>
                                                 </select>
                                             </div>
-                                            <!-- Các phần tử khác nếu cần -->
+                                             Các phần tử khác nếu cần 
                                             <div class="flt-item to-right" style="padding-left: 100px">
                                                 <span class="flt-title">Sort</span>
                                                 <div class="wrap-selectors">
@@ -159,13 +159,13 @@
                                                             <option value="price-desc" ${param.orderby == 'price-desc' ? 'selected' : ''}>Price: High to Low</option>
                                                         </select>
                                                     </div>
-                                                    <!-- Các phần tử khác nếu cần -->
+                                                     Các phần tử khác nếu cần 
                                                 </div>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
 
 
                                                                            <c:set var="pageSize" value="6"/>

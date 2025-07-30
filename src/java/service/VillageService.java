@@ -166,5 +166,4 @@ public class VillageService implements IVillageService {
     public List<CraftType> getAllActiveCraftTypes() {
         return vDAO.getAllActiveCraftTypes();
     }
-
 }

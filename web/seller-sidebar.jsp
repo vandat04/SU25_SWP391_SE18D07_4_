@@ -66,76 +66,10 @@
                     <span>Reviews Management</span>
                 </a>
             </li>
-
-            <!-- Inventory Management -->
-            <li>
-                <a href="seller-inventory-management" class="sidebar-link">
-                    <i class="fas fa-warehouse"></i>
-                    <span>Inventory Management</span>
-                </a>
-            </li>
-
-            <!-- Sales Reports -->
-            <li>
-                <a href="seller-reports" class="sidebar-link">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Sales Reports</span>
-                </a>
-            </li>
-
-            <!-- Messages -->
-            <li>
-                <a href="seller-messages" class="sidebar-link">
-                    <i class="fas fa-envelope"></i>
-                    <span>Customer Messages</span>
-                    <c:if test="${not empty unreadMessages && unreadMessages > 0}">
-                        <span class="badge badge-danger">${unreadMessages}</span>
-                    </c:if>
-                </a>
-            </li>
-
-            <!-- Profile Settings -->
-            <li>
-                <a href="seller-profile" class="sidebar-link">
-                    <i class="fas fa-user-cog"></i>
-                    <span>Account Settings</span>
-                </a>
-            </li>
-
             <!-- Divider -->
             <li class="sidebar-divider">
                 <hr>
             </li>
-
-            <!-- Quick Actions -->
-            <li class="sidebar-section-title">
-                <span>Quick Actions</span>
-            </li>
-
-            <!-- View Public Profile -->
-            <li>
-                <a href="village?id=${sessionScope.acc.userID}" target="_blank" class="sidebar-link">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>View Public Profile</span>
-                </a>
-            </li>
-
-            <!-- Export Data -->
-            <li>
-                <a href="seller-export" class="sidebar-link">
-                    <i class="fas fa-download"></i>
-                    <span>Export Data</span>
-                </a>
-            </li>
-
-            <!-- Help & Support -->
-            <li>
-                <a href="seller-support" class="sidebar-link">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Support</span>
-                </a>
-            </li>
-
             <!-- Divider -->
             <li class="sidebar-divider">
                 <hr>

@@ -90,7 +90,7 @@
             </div>
     
     <!-- Breadcrumb -->
-    <div class="breadcrumb-section" style="background-image: url('assets/images/breadcrumb-bg.jpg'); margin-top: 100px;">
+    <div class="breadcrumb-section" style="background-image: url('assets/images/breadcrumb-bg.jpg'); margin-top: 10px;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -102,7 +102,7 @@
         </div>
     </div>
     
-    <div class="page-contain wishlist-page" style="padding: 60px 0;">
+    <div class="page-contain wishlist-page" style="padding: 10px 0;">
         <div class="container">
             
             <!-- Messages -->

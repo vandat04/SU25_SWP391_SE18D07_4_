@@ -5,6 +5,7 @@
 package controller.Admin;
 
 import constant.CloudinaryUploader;
+import entity.Account.Account;
 import entity.CraftVillage.CraftVillage;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -13,6 +14,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.util.List;
 import service.VillageService;
@@ -44,6 +46,16 @@ public class AdminVillageManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+         HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("acc");
+
+        // Check if user is logged in and is a seller
+        if (account == null || account.getRole() != 3) {
+            response.sendRedirect("login");
+            return;
+        }
+        
         int page = 1;
         String pageStr = request.getParameter("page");
         if (pageStr != null && !pageStr.isEmpty()) {

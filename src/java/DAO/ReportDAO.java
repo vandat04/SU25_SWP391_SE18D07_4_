@@ -500,35 +500,36 @@ public class ReportDAO {
     }
 
     public int getNumberTicketPostByDayMonthYear(int day, int month, int year) {
-        String query = "SELECT COUNT(*) AS total "
-                + "FROM TicketOrderDetail "
-                + "WHERE status = 0 "
-                + "AND DAY(createdDate) = ? "
-                + "AND MONTH(createdDate) = ? "
-                + "AND YEAR(createdDate) = ?";
-
-        int totalPosts = 0;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            conn = DBContext.getConnection();
-            ps = conn.prepareStatement(query);
-            ps.setInt(1, day);
-            ps.setInt(2, month);
-            ps.setInt(3, year);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                totalPosts = rs.getInt("total");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeResources(conn, ps, rs);
-        }
-
-        return totalPosts;
+//        String query = "SELECT COUNT(*) AS total "
+//                + "FROM TicketOrderDetail "
+//                + "WHERE status = 0 "
+//                + "AND DAY(createdDate) = ? "
+//                + "AND MONTH(createdDate) = ? "
+//                + "AND YEAR(createdDate) = ?";
+//
+//        int totalPosts = 0;
+//        Connection conn = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//
+//        try {
+//            conn = DBContext.getConnection();
+//            ps = conn.prepareStatement(query);
+//            ps.setInt(1, day);
+//            ps.setInt(2, month);
+//            ps.setInt(3, year);
+//            rs = ps.executeQuery();
+//            if (rs.next()) {
+//                totalPosts = rs.getInt("total");
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } finally {
+//            closeResources(conn, ps, rs);
+//        }
+//
+//        return totalPosts;
+return 0;
     }
 
 //---- Craft Village Post

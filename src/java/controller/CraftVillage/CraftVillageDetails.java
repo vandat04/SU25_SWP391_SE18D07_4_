@@ -8,7 +8,6 @@ import entity.Ticket.Ticket;
 import entity.Ticket.TicketType;
 import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

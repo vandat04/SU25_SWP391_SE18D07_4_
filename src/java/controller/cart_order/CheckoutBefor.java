@@ -198,7 +198,7 @@ public class CheckoutBefor extends HttpServlet {
                 int subOrderId = oService.getSubOrderID(orderID, villageID);
                 Ticket ticket  = new TicketService().getTicketByTicketId(t.getTicketId());
                 String ticketCode = "V" + villageID + "T" + ticket.getTypeID() + "U" + userID + "CD" + new Timestamp(System.currentTimeMillis());
-                oService.addTicketOrderDetail(new TicketOrderDetail(orderID, subOrderId, t.getTicketId(), t.getQuantity(), BigDecimal.valueOf(t.getPrice()), villageID, ticketCode));
+                oService.addTicketOrderDetail(new TicketOrderDetail(orderID, subOrderId, t.getTicketId(), t.getQuantity(), BigDecimal.valueOf(t.getPrice()), villageID, ticketCode, t.getTicketDate()));
             }
 
             int cartID = oService.getCartIDByUserID(Integer.parseInt(userID));

@@ -7,6 +7,7 @@ package controller.Seller;
 import entity.Account.Account;
 import entity.Orders.Order;
 import entity.Orders.OrderDetail;
+import entity.Orders.SubOrder;
 import entity.Orders.TicketOrderDetail;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 import service.OrderService;
 import service.VillageService;
@@ -40,29 +42,29 @@ public class SellerOrderManagement extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("acc");
-        
+
         if (account == null || account.getRoleID() != 2) {
             response.sendRedirect("login");
             return;
         }
-        
+
         // Get seller's village ID
         int sellerId = account.getUserID();
         int villageId = villageService.getVillageIdBySellerId(sellerId);
-        
+
         // Debug logging
         System.out.println("DEBUG: Seller ID = " + sellerId);
         System.out.println("DEBUG: Village ID = " + villageId);
-        
+
         if (villageId == 0) {
             request.setAttribute("error", "Bạn chưa có làng nghề để quản lý đơn hàng");
             request.getRequestDispatcher("seller-dashboard.jsp").forward(request, response);
             return;
         }
-        
+
         // Pagination parameters
         int pageSize = 10;
         int page = 1;
@@ -74,34 +76,52 @@ public class SellerOrderManagement extends HttpServlet {
                 page = 1;
             }
         }
-        
+
         // Filter parameters
         String statusStr = request.getParameter("status");
         int status = statusStr != null && !statusStr.isEmpty() ? Integer.parseInt(statusStr) : -1; // -1 = all
-        
+
         String searchKeyword = request.getParameter("search");
-        if (searchKeyword == null) searchKeyword = "";
-        
+        if (searchKeyword == null) {
+            searchKeyword = "";
+        }
+
         // Get order details for seller's village
-        List<OrderDetail> orderDetails = orderService.getOrderDetailsByVillageId(villageId, status, searchKeyword, page, pageSize);
-        int totalOrders = orderService.getTotalOrderDetailsByVillageId(villageId, status, searchKeyword);
+        // List<OrderDetail> orderDetails = orderService.getOrderDetailsByVillageId(villageId, status, searchKeyword, page, pageSize);
+        List<SubOrder> orderDetails = orderService.getSOrdersByVillageId(villageId, statusStr, searchKeyword, page, pageSize);
+        List<Order> order = new ArrayList<>();
+        List<OrderDetail> productOrder = new ArrayList<>();
+        List<TicketOrderDetail> ticketOrder = new ArrayList<>();
+        for(SubOrder so : orderDetails){
+            Order x = orderService.getOrderById(so.getOrderId());
+            if (!order.contains(x.getId())){
+                order.add(x);
+            }
+            productOrder.addAll(orderService.getAllOrderDetailByOrderID(so.getOrderId()));
+            ticketOrder.addAll(orderService.getAllTicketOrderDetailByOrderID(so.getOrderId()));
+        }
+//        int totalOrders = orderService.getTotalOrderDetailsByVillageId(villageId, status, searchKeyword);
+        int totalOrders = orderService.getTotalSOrderDetailsByVillageId(villageId,  statusStr, searchKeyword);
         int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
-        
+
         // Debug logging
         System.out.println("DEBUG: Found " + orderDetails.size() + " order details");
         System.out.println("DEBUG: Total orders = " + totalOrders);
         System.out.println("DEBUG: Status filter = " + status);
         System.out.println("DEBUG: Search keyword = '" + searchKeyword + "'");
-        
+
         // Set attributes
+        request.setAttribute("order", order);
         request.setAttribute("orderDetails", orderDetails);
+        request.setAttribute("productOrder", productOrder);
+        request.setAttribute("ticketOrder", ticketOrder);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("status", status);
         request.setAttribute("searchKeyword", searchKeyword);
         request.setAttribute("villageId", villageId);
-        
+
         request.getRequestDispatcher("seller-order-list.jsp").forward(request, response);
     }
 

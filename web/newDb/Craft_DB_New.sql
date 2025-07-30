@@ -131,19 +131,6 @@ CREATE TABLE [dbo].[CraftVillage](
 )
 GO
 
---Table [NavigationPoints]
-CREATE TABLE [dbo].[NavigationPoints](
-	[id] [int] IDENTITY(1,1) NOT NULL,
-	[villageId] [int] NULL,
-	[currentImage] [int] NULL,
-	[nextImage] [int] NULL,
-	[x] [float] NULL,
-	[y] [float] NULL,
-	[description] [nvarchar](255) NULL,
-	CONSTRAINT [FK_NavigationPoints_CraftVillage] FOREIGN KEY([villageId]) REFERENCES [dbo].[CraftVillage]([villageID])
-)
-GO
-
 --Table [VillageImage]
 CREATE TABLE [dbo].[VillageImage](
 	[imageID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
@@ -249,8 +236,7 @@ CREATE TABLE [dbo].[Product]( --22 trường
 	[totalReviews] [int] NOT NULL DEFAULT(0),
 	[modelFile] [nvarchar](max) NULL,
 	CONSTRAINT [FK_Product_Village] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage] ([villageID]),
-	CONSTRAINT [FK_Product_Category] FOREIGN KEY([categoryID]) REFERENCES [dbo].[ProductCategory] ([categoryID]),
-	CONSTRAINT [FK_Product_CraftType] FOREIGN KEY([craftTypeID]) REFERENCES [dbo].[CraftType] ([typeID])
+	CONSTRAINT [FK_Product_Category] FOREIGN KEY([categoryID]) REFERENCES [dbo].[ProductCategory] ([categoryID])
 )
 GO
 
@@ -364,8 +350,7 @@ CREATE TABLE [dbo].[SubOrders] (
     [createdDate] DATETIME NOT NULL DEFAULT GETDATE(),
     [updatedDate] DATETIME,
 
-    CONSTRAINT FK_SubOrders_Orders FOREIGN KEY ([orderId]) REFERENCES [dbo].[Orders](id),
-    CONSTRAINT FK_SubOrders_CraftVillage FOREIGN KEY ([villageId]) REFERENCES [dbo].[CraftVillage](villageID)
+    CONSTRAINT FK_SubOrders_Orders FOREIGN KEY ([orderId]) REFERENCES [dbo].[Orders](id)
 );
 
 --Table [OrderDetail]
@@ -379,10 +364,8 @@ CREATE TABLE [dbo].[OrderDetail](
 	[subtotal] AS ([price] * [quantity]) PERSISTED,
 	[villageID] int,
         [reviewStatus] int default(0),
-	CONSTRAINT FK_OrderDetail_Orders FOREIGN KEY (order_id) REFERENCES [dbo].[Orders](id),
 	CONSTRAINT FK_OrderDetail_SubOrders FOREIGN KEY ([subOrderId]) REFERENCES [dbo].[SubOrders](subOrderId),
-	CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (product_id) REFERENCES [dbo].[Product](pid),
-	CONSTRAINT FK_OrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
+	CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (product_id) REFERENCES [dbo].[Product](pid)
 )
 GO
 
@@ -399,29 +382,12 @@ CREATE TABLE [dbo].[TicketOrderDetail](
 	[villageID] int,
         [reviewStatus] int default(0),
         [TicketCode] nvarchar(50),
-	CONSTRAINT [FK_TicketOrderDetail_Order] FOREIGN KEY([orderID]) REFERENCES [dbo].[Orders] (id),
+        status int default(0),
+        bookDate DATETIME,
 	CONSTRAINT FK_TicketOrderDetail_SubOrders FOREIGN KEY ([subOrderId]) REFERENCES [dbo].[SubOrders](subOrderId),
-	CONSTRAINT [FK_TicketOrderDetail_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID]),
-	CONSTRAINT FK_TicketOrderDetail_CraftVillage FOREIGN KEY (villageID) REFERENCES CraftVillage(villageID)
+	CONSTRAINT [FK_TicketOrderDetail_Ticket] FOREIGN KEY([ticketID]) REFERENCES [dbo].[VillageTicket] ([ticketID])
 )
 GO
-
---Table [TicketCode] 
-CREATE TABLE [dbo].[TicketCode](
-	[codeID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[orderDetailID] [int] NOT NULL,
-	[ticketCode] [varchar](20) NOT NULL UNIQUE ,
-	[qrCode] [varchar](max) NULL,
-	[issueDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[expiryDate] [datetime] NOT NULL,
-	[usageDate] [datetime] NULL,
-	[status] [int] NOT NULL DEFAULT(0), 
-	[usedBy] [nvarchar](100) NULL,
-	[notes] [nvarchar](500) NULL,
-	CONSTRAINT [FK_TicketCode_OrderDetail] FOREIGN KEY([orderDetailID]) REFERENCES [dbo].[TicketOrderDetail] ([detailID])
-)
-GO
-
 
 ----------------------------------------------------Support-------------
 --Table [MessageThread]---Dư thì lma
@@ -444,7 +410,6 @@ CREATE TABLE [dbo].[Message](
 	[attachmentUrl] [varchar](max) NULL,
 	[sentDate] [datetime] NOT NULL DEFAULT GETDATE(),
 	[userRead] int default (0),
-	CONSTRAINT [FK_Message_Sender] FOREIGN KEY([senderID]) REFERENCES [dbo].[Account] ([userID]),
 	CONSTRAINT [FK_Message_Thread] FOREIGN KEY([threadID]) REFERENCES [dbo].[MessageThread] ([threadID])
 )
 GO
@@ -473,19 +438,6 @@ CREATE TABLE [dbo].[Notification](
 )
 GO
 
---Table [PageView] -- tham chieu dfen ban????
-CREATE TABLE [dbo].[PageView](
-	[viewID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[pageUrl] [varchar](500) NOT NULL,
-	[userID] [int] NULL,
-	[ipAddress] [varchar](50) NULL,
-	[userAgent] [varchar](500) NULL,
-	[referrer] [varchar](500) NULL,
-	[sessionID] [varchar](100) NULL,
-	[viewDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	CONSTRAINT [FK_PageView_User] FOREIGN KEY([userID]) REFERENCES [dbo].[Account] ([userID])
-)
-GO
 
 --Table [SearchHistory] --- SearchType: nvarchar --> int  BOTCHAT
 CREATE TABLE [dbo].[SearchHistory](
@@ -570,7 +522,6 @@ CREATE TABLE [dbo].[SellerVerification] (
     -- Ngày tạo
     [createdDate] DATETIME NOT NULL DEFAULT GETDATE(),    
     -- Ràng buộc FK
-    CONSTRAINT [FK_SellerVerification_Admin] FOREIGN KEY ([verifiedBy]) REFERENCES [dbo].[Account] ([userID]),
     CONSTRAINT [FK_SellerVerification_Seller] FOREIGN KEY ([sellerID]) REFERENCES [dbo].[Account] ([userID])
 );
 GO
@@ -633,3 +584,471 @@ Go
 ALTER TABLE [dbo].[TicketAvailability] WITH NOCHECK ADD CONSTRAINT [CK_TicketAvailability_BookedSlots] CHECK ([bookedSlots] <= [totalSlots]);
 Go
 
+---------------------------------------------------Virtual Tour 360° System-------------
+--Table [Tours] - Quản lý các tour 360° của mỗi làng nghề
+CREATE TABLE [dbo].[Tours](
+	[tourID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[villageID] [int] NOT NULL,
+	[tourName] [nvarchar](200) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[status] [int] NOT NULL DEFAULT(1), -- 1: active, 0: inactive
+	[isDefault] [bit] NOT NULL DEFAULT(0), -- 1: tour mặc định của làng
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	[createdBy] [int] NULL, -- userID của người tạo
+	CONSTRAINT [FK_Tours_CraftVillage] FOREIGN KEY([villageID]) REFERENCES [dbo].[CraftVillage]([villageID]),
+	CONSTRAINT [FK_Tours_Account] FOREIGN KEY([createdBy]) REFERENCES [dbo].[Account]([userID])
+)
+GO
+
+--Table [Panoramas] - Lưu các ảnh panorama của mỗi tour
+CREATE TABLE [dbo].[Panoramas](
+	[panoramaID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[tourID] [int] NOT NULL,
+	[panoramaName] [nvarchar](200) NOT NULL,
+	[imageUrl] [varchar](max) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[orderIndex] [int] NOT NULL DEFAULT(0), -- Thứ tự hiển thị trong tour
+	[isStartPoint] [bit] NOT NULL DEFAULT(0), -- 1: điểm bắt đầu tour
+	[status] [int] NOT NULL DEFAULT(1), -- 1: active, 0: inactive
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_Panoramas_Tours] FOREIGN KEY([tourID]) REFERENCES [dbo].[Tours]([tourID])
+)
+GO
+
+--Table [NavigationPoints] - Điểm chuyển cảnh giữa các panorama (đã cập nhật)
+CREATE TABLE [dbo].[NavigationPoints](
+	[navigationID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[panoramaID] [int] NOT NULL, -- Panorama xuất phát
+	[targetPanoramaID] [int] NOT NULL, -- Panorama đích
+	[x] [float] NOT NULL, -- Tọa độ X trên panorama (0-1)
+	[y] [float] NOT NULL, -- Tọa độ Y trên panorama (0-1)
+	[yaw] [float] NULL, -- Góc yaw (nếu cần)
+	[pitch] [float] NULL, -- Góc pitch (nếu cần)
+	[description] [nvarchar](255) NULL,
+	[navigationType] [nvarchar](50) NOT NULL DEFAULT('scene'), -- 'scene', 'info', 'product', 'shop'
+	[targetUrl] [varchar](max) NULL, -- URL đích nếu navigationType = 'info' hoặc 'product'
+	[iconClass] [nvarchar](100) NULL, -- CSS class cho icon
+	[status] [int] NOT NULL DEFAULT(1), -- 1: active, 0: inactive
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_NavigationPoints_Panorama] FOREIGN KEY([panoramaID]) REFERENCES [dbo].[Panoramas]([panoramaID]),
+	CONSTRAINT [FK_NavigationPoints_TargetPanorama] FOREIGN KEY([targetPanoramaID]) REFERENCES [dbo].[Panoramas]([panoramaID])
+)
+GO
+
+--Table [TourHotspots] - Các điểm nóng (hotspot) thông tin trên panorama
+CREATE TABLE [dbo].[TourHotspots](
+	[hotspotID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[panoramaID] [int] NOT NULL,
+	[x] [float] NOT NULL, -- Tọa độ X trên panorama (0-1)
+	[y] [float] NOT NULL, -- Tọa độ Y trên panorama (0-1)
+	[yaw] [float] NULL, -- Góc yaw
+	[pitch] [float] NULL, -- Góc pitch
+	[title] [nvarchar](200) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[hotspotType] [nvarchar](50) NOT NULL DEFAULT('info'), -- 'info', 'product', 'shop', 'video'
+	[targetUrl] [varchar](max) NULL, -- URL đích hoặc nội dung
+	[iconClass] [nvarchar](100) NULL, -- CSS class cho icon
+	[productID] [int] NULL, -- Liên kết với sản phẩm nếu hotspotType = 'product'
+	[status] [int] NOT NULL DEFAULT(1), -- 1: active, 0: inactive
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_TourHotspots_Panorama] FOREIGN KEY([panoramaID]) REFERENCES [dbo].[Panoramas]([panoramaID]),
+	CONSTRAINT [FK_TourHotspots_Product] FOREIGN KEY([productID]) REFERENCES [dbo].[Product]([pid])
+)
+GO
+
+--Table [TourSettings] - Cài đặt cho mỗi tour
+CREATE TABLE [dbo].[TourSettings](
+	[settingID] [int] PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	[tourID] [int] NOT NULL,
+	[settingKey] [nvarchar](100) NOT NULL,
+	[settingValue] [nvarchar](max) NULL,
+	[settingType] [nvarchar](50) NOT NULL DEFAULT('string'), -- 'string', 'number', 'boolean', 'json'
+	[description] [nvarchar](255) NULL,
+	[createdDate] [datetime] NOT NULL DEFAULT GETDATE(),
+	[updatedDate] [datetime] NULL,
+	CONSTRAINT [FK_TourSettings_Tours] FOREIGN KEY([tourID]) REFERENCES [dbo].[Tours]([tourID]),
+	CONSTRAINT [UC_TourSettings_Key] UNIQUE NONCLUSTERED ([tourID], [settingKey])
+)
+GO
+
+-- Tạo indexes để tối ưu hiệu suất
+CREATE NONCLUSTERED INDEX [IX_Tours_VillageID] ON [dbo].[Tours]([villageID] ASC)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Panoramas_TourID] ON [dbo].[Panoramas]([tourID] ASC)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Panoramas_OrderIndex] ON [dbo].[Panoramas]([orderIndex] ASC)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_NavigationPoints_PanoramaID] ON [dbo].[NavigationPoints]([panoramaID] ASC)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_TourHotspots_PanoramaID] ON [dbo].[TourHotspots]([panoramaID] ASC)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_TourSettings_TourID] ON [dbo].[TourSettings]([tourID] ASC)
+GO
+
+-- Thêm constraints để đảm bảo tính toàn vẹn dữ liệu
+ALTER TABLE [dbo].[Panoramas] WITH NOCHECK ADD CHECK ([orderIndex] >= 0)
+GO
+
+ALTER TABLE [dbo].[NavigationPoints] WITH NOCHECK ADD CHECK ([x] >= 0 AND [x] <= 1)
+GO
+
+ALTER TABLE [dbo].[NavigationPoints] WITH NOCHECK ADD CHECK ([y] >= 0 AND [y] <= 1)
+GO
+
+ALTER TABLE [dbo].[TourHotspots] WITH NOCHECK ADD CHECK ([x] >= 0 AND [x] <= 1)
+GO
+
+ALTER TABLE [dbo].[TourHotspots] WITH NOCHECK ADD CHECK ([y] >= 0 AND [y] <= 1)
+GO
+
+-- Cập nhật bảng CraftVillage để thêm foreign key tới tour mặc định
+ALTER TABLE [dbo].[CraftVillage] ADD [defaultTourID] [int] NULL
+GO
+
+ALTER TABLE [dbo].[CraftVillage] ADD CONSTRAINT [FK_CraftVillage_DefaultTour] 
+FOREIGN KEY([defaultTourID]) REFERENCES [dbo].[Tours]([tourID])
+GO
+
+-- Xóa bảng NavigationPoints cũ nếu tồn tại (để thay thế bằng bảng mới)
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[NavigationPoints]') AND type in (N'U'))
+BEGIN
+    -- Kiểm tra xem có dữ liệu trong bảng cũ không
+    IF NOT EXISTS (SELECT TOP 1 1 FROM [dbo].[NavigationPoints])
+    BEGIN
+        DROP TABLE [dbo].[NavigationPoints]
+        PRINT 'Dropped old NavigationPoints table (was empty)'
+    END
+    ELSE
+    BEGIN
+        PRINT 'WARNING: Old NavigationPoints table contains data. Please migrate data before dropping.'
+    END
+END
+GO
+
+-- Tạo stored procedures cho quản lý tour 360°
+
+-- Stored procedure tạo tour mới
+CREATE PROCEDURE [dbo].[sp_CreateTour]
+    @villageID INT,
+    @tourName NVARCHAR(200),
+    @description NVARCHAR(MAX) = NULL,
+    @createdBy INT = NULL,
+    @tourID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        INSERT INTO [dbo].[Tours] ([villageID], [tourName], [description], [createdBy])
+        VALUES (@villageID, @tourName, @description, @createdBy);
+        
+        SET @tourID = SCOPE_IDENTITY();
+        
+        -- Nếu đây là tour đầu tiên của làng, đặt làm tour mặc định
+        IF NOT EXISTS (SELECT 1 FROM [dbo].[Tours] WHERE [villageID] = @villageID AND [tourID] != @tourID)
+        BEGIN
+            UPDATE [dbo].[Tours] SET [isDefault] = 1 WHERE [tourID] = @tourID;
+            UPDATE [dbo].[CraftVillage] SET [defaultTourID] = @tourID WHERE [villageID] = @villageID;
+        END
+        
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+-- Stored procedure thêm panorama vào tour
+CREATE PROCEDURE [dbo].[sp_AddPanorama]
+    @tourID INT,
+    @panoramaName NVARCHAR(200),
+    @imageUrl VARCHAR(MAX),
+    @description NVARCHAR(MAX) = NULL,
+    @orderIndex INT = NULL,
+    @isStartPoint BIT = 0,
+    @panoramaID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        -- Nếu không chỉ định orderIndex, tự động tính
+        IF @orderIndex IS NULL
+        BEGIN
+            SELECT @orderIndex = ISNULL(MAX([orderIndex]), -1) + 1 
+            FROM [dbo].[Panoramas] 
+            WHERE [tourID] = @tourID;
+        END
+        
+        -- Nếu đây là panorama đầu tiên, đặt làm điểm bắt đầu
+        IF NOT EXISTS (SELECT 1 FROM [dbo].[Panoramas] WHERE [tourID] = @tourID)
+        BEGIN
+            SET @isStartPoint = 1;
+        END
+        
+        INSERT INTO [dbo].[Panoramas] ([tourID], [panoramaName], [imageUrl], [description], [orderIndex], [isStartPoint])
+        VALUES (@tourID, @panoramaName, @imageUrl, @description, @orderIndex, @isStartPoint);
+        
+        SET @panoramaID = SCOPE_IDENTITY();
+        
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+-- Stored procedure lấy thông tin tour hoàn chỉnh
+CREATE PROCEDURE [dbo].[sp_GetCompleteTourInfo]
+    @tourID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Lấy thông tin tour
+    SELECT 
+        t.[tourID],
+        t.[tourName],
+        t.[description],
+        t.[status],
+        t.[isDefault],
+        t.[createdDate],
+        t.[updatedDate],
+        cv.[villageID],
+        cv.[villageName],
+        cv.[description] AS villageDescription,
+        cv.[address],
+        cv.[mainImageUrl] AS villageImageUrl
+    FROM [dbo].[Tours] t
+    INNER JOIN [dbo].[CraftVillage] cv ON t.[villageID] = cv.[villageID]
+    WHERE t.[tourID] = @tourID;
+    
+    -- Lấy danh sách panorama
+    SELECT 
+        p.[panoramaID],
+        p.[panoramaName],
+        p.[imageUrl],
+        p.[description],
+        p.[orderIndex],
+        p.[isStartPoint],
+        p.[status]
+    FROM [dbo].[Panoramas] p
+    WHERE p.[tourID] = @tourID
+    ORDER BY p.[orderIndex];
+    
+    -- Lấy danh sách navigation points
+    SELECT 
+        np.[navigationID],
+        np.[panoramaID],
+        np.[targetPanoramaID],
+        np.[x],
+        np.[y],
+        np.[yaw],
+        np.[pitch],
+        np.[description],
+        np.[navigationType],
+        np.[targetUrl],
+        np.[iconClass],
+        p1.[panoramaName] AS sourcePanoramaName,
+        p2.[panoramaName] AS targetPanoramaName
+    FROM [dbo].[NavigationPoints] np
+    INNER JOIN [dbo].[Panoramas] p1 ON np.[panoramaID] = p1.[panoramaID]
+    INNER JOIN [dbo].[Panoramas] p2 ON np.[targetPanoramaID] = p2.[panoramaID]
+    WHERE p1.[tourID] = @tourID
+    ORDER BY p1.[orderIndex], np.[x];
+    
+    -- Lấy danh sách hotspots
+    SELECT 
+        th.[hotspotID],
+        th.[panoramaID],
+        th.[x],
+        th.[y],
+        th.[yaw],
+        th.[pitch],
+        th.[title],
+        th.[description],
+        th.[hotspotType],
+        th.[targetUrl],
+        th.[iconClass],
+        th.[productID],
+        p.[name] AS productName,
+        p.[price] AS productPrice,
+        p.[mainImageUrl] AS productImageUrl
+    FROM [dbo].[TourHotspots] th
+    LEFT JOIN [dbo].[Product] p ON th.[productID] = p.[pid]
+    INNER JOIN [dbo].[Panoramas] pan ON th.[panoramaID] = pan.[panoramaID]
+    WHERE pan.[tourID] = @tourID
+    ORDER BY pan.[orderIndex], th.[x];
+    
+    -- Lấy cài đặt tour
+    SELECT 
+        ts.[settingKey],
+        ts.[settingValue],
+        ts.[settingType],
+        ts.[description]
+    FROM [dbo].[TourSettings] ts
+    WHERE ts.[tourID] = @tourID;
+END
+GO
+
+-- Stored procedure lấy tour mặc định của làng
+CREATE PROCEDURE [dbo].[sp_GetDefaultTourByVillage]
+    @villageID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @defaultTourID INT;
+    
+    -- Lấy tour mặc định từ bảng CraftVillage
+    SELECT @defaultTourID = [defaultTourID] 
+    FROM [dbo].[CraftVillage] 
+    WHERE [villageID] = @villageID;
+    
+    -- Nếu không có tour mặc định, lấy tour đầu tiên
+    IF @defaultTourID IS NULL
+    BEGIN
+        SELECT TOP 1 @defaultTourID = [tourID]
+        FROM [dbo].[Tours]
+        WHERE [villageID] = @villageID AND [status] = 1
+        ORDER BY [isDefault] DESC, [createdDate] ASC;
+    END
+    
+    -- Trả về thông tin tour
+    IF @defaultTourID IS NOT NULL
+    BEGIN
+        EXEC [dbo].[sp_GetCompleteTourInfo] @defaultTourID;
+    END
+    ELSE
+    BEGIN
+        -- Trả về thông tin làng nếu không có tour
+        SELECT 
+            NULL AS tourID,
+            NULL AS tourName,
+            NULL AS description,
+            NULL AS status,
+            NULL AS isDefault,
+            NULL AS createdDate,
+            NULL AS updatedDate,
+            cv.[villageID],
+            cv.[villageName],
+            cv.[description] AS villageDescription,
+            cv.[address],
+            cv.[mainImageUrl] AS villageImageUrl
+        FROM [dbo].[CraftVillage] cv
+        WHERE cv.[villageID] = @villageID;
+    END
+END
+GO
+
+-- Stored procedure thêm navigation point
+CREATE PROCEDURE [dbo].[sp_AddNavigationPoint]
+    @panoramaID INT,
+    @targetPanoramaID INT,
+    @x FLOAT,
+    @y FLOAT,
+    @yaw FLOAT = NULL,
+    @pitch FLOAT = NULL,
+    @description NVARCHAR(255) = NULL,
+    @navigationType NVARCHAR(50) = 'scene',
+    @targetUrl VARCHAR(MAX) = NULL,
+    @iconClass NVARCHAR(100) = NULL,
+    @navigationID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        -- Kiểm tra panorama tồn tại và thuộc cùng tour
+        DECLARE @tourID1 INT, @tourID2 INT;
+        
+        SELECT @tourID1 = [tourID] FROM [dbo].[Panoramas] WHERE [panoramaID] = @panoramaID;
+        SELECT @tourID2 = [tourID] FROM [dbo].[Panoramas] WHERE [panoramaID] = @targetPanoramaID;
+        
+        IF @tourID1 IS NULL OR @tourID2 IS NULL
+        BEGIN
+            RAISERROR('Panorama không tồn tại', 16, 1);
+            RETURN;
+        END
+        
+        IF @tourID1 != @tourID2
+        BEGIN
+            RAISERROR('Panorama phải thuộc cùng một tour', 16, 1);
+            RETURN;
+        END
+        
+        INSERT INTO [dbo].[NavigationPoints] 
+        ([panoramaID], [targetPanoramaID], [x], [y], [yaw], [pitch], [description], [navigationType], [targetUrl], [iconClass])
+        VALUES (@panoramaID, @targetPanoramaID, @x, @y, @yaw, @pitch, @description, @navigationType, @targetUrl, @iconClass);
+        
+        SET @navigationID = SCOPE_IDENTITY();
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END
+GO
+
+-- Stored procedure thêm hotspot
+CREATE PROCEDURE [dbo].[sp_AddTourHotspot]
+    @panoramaID INT,
+    @x FLOAT,
+    @y FLOAT,
+    @yaw FLOAT = NULL,
+    @pitch FLOAT = NULL,
+    @title NVARCHAR(200),
+    @description NVARCHAR(MAX) = NULL,
+    @hotspotType NVARCHAR(50) = 'info',
+    @targetUrl VARCHAR(MAX) = NULL,
+    @iconClass NVARCHAR(100) = NULL,
+    @productID INT = NULL,
+    @hotspotID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        -- Kiểm tra panorama tồn tại
+        IF NOT EXISTS (SELECT 1 FROM [dbo].[Panoramas] WHERE [panoramaID] = @panoramaID)
+        BEGIN
+            RAISERROR('Panorama không tồn tại', 16, 1);
+            RETURN;
+        END
+        
+        -- Kiểm tra product tồn tại nếu có
+        IF @productID IS NOT NULL AND NOT EXISTS (SELECT 1 FROM [dbo].[Product] WHERE [pid] = @productID)
+        BEGIN
+            RAISERROR('Sản phẩm không tồn tại', 16, 1);
+            RETURN;
+        END
+        
+        INSERT INTO [dbo].[TourHotspots] 
+        ([panoramaID], [x], [y], [yaw], [pitch], [title], [description], [hotspotType], [targetUrl], [iconClass], [productID])
+        VALUES (@panoramaID, @x, @y, @yaw, @pitch, @title, @description, @hotspotType, @targetUrl, @iconClass, @productID);
+        
+        SET @hotspotID = SCOPE_IDENTITY();
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END
+GO

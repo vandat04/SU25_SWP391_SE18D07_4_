@@ -5,6 +5,8 @@
 package entity.Orders;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class TicketOrderDetail {
 
@@ -19,9 +21,27 @@ public class TicketOrderDetail {
     private String villageName;
     private int reviewStatus;
     private String ticketCode;
-    
+    private Date bookDate;
+    private int status;
+
     // Constructors
     public TicketOrderDetail() {
+    }
+
+    public TicketOrderDetail(int detailID, int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal, Integer villageID, String villageName, int reviewStatus, String ticketCode, Date bookDate, int status) {
+        this.detailID = detailID;
+        this.orderID = orderID;
+        this.subOrderId = subOrderId;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+        this.subtotal = subtotal;
+        this.villageID = villageID;
+        this.villageName = villageName;
+        this.reviewStatus = reviewStatus;
+        this.ticketCode = ticketCode;
+        this.bookDate = bookDate;
+        this.status = status;
     }
 
     public TicketOrderDetail(int detailID, int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal, Integer villageID, int reviewStatus, String ticketCode) {
@@ -61,7 +81,20 @@ public class TicketOrderDetail {
         this.villageName = villageName;
     }
 
-    public TicketOrderDetail(int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, Integer villageID, String ticketCode) {
+    public TicketOrderDetail(int detailID, int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, BigDecimal subtotal, Integer villageID, String villageName, Date bookDate) {
+        this.detailID = detailID;
+        this.orderID = orderID;
+        this.subOrderId = subOrderId;
+        this.ticketID = ticketID;
+        this.quantity = quantity;
+        this.price = price;
+        this.subtotal = subtotal;
+        this.villageID = villageID;
+        this.villageName = villageName;
+        this.bookDate = bookDate;
+    }
+
+    public TicketOrderDetail(int orderID, int subOrderId, int ticketID, int quantity, BigDecimal price, Integer villageID, String ticketCode, Date bookDate) {
         this.orderID = orderID;
         this.subOrderId = subOrderId;
         this.ticketID = ticketID;
@@ -69,6 +102,30 @@ public class TicketOrderDetail {
         this.price = price;
         this.villageID = villageID;
         this.ticketCode = ticketCode;
+        this.bookDate = bookDate;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Date getBookDate() {
+        return bookDate;
+    }
+
+    public String getBookDateStr() {
+        if (bookDate != null) {
+            return new SimpleDateFormat("dd/MM/yyyy").format(bookDate);
+        }
+        return "";
+    }
+
+    public void setBookDate(Date bookDate) {
+        this.bookDate = bookDate;
     }
 
     public String getTicketCode() {
@@ -161,9 +218,7 @@ public class TicketOrderDetail {
 
     @Override
     public String toString() {
-        return "TicketOrderDetail{" + "detailID=" + detailID + ", orderID=" + orderID + ", subOrderId=" + subOrderId + ", ticketID=" + ticketID + ", quantity=" + quantity + ", price=" + price + ", subtotal=" + subtotal + ", villageID=" + villageID + ", villageName=" + villageName + ", reviewStatus=" + reviewStatus + ", ticketCode=" + ticketCode + '}';
+        return "TicketOrderDetail{" + "detailID=" + detailID + ", orderID=" + orderID + ", subOrderId=" + subOrderId + ", ticketID=" + ticketID + ", quantity=" + quantity + ", price=" + price + ", subtotal=" + subtotal + ", villageID=" + villageID + ", villageName=" + villageName + ", reviewStatus=" + reviewStatus + ", ticketCode=" + ticketCode + ", bookDate=" + bookDate + '}';
     }
-
-    
 
 }

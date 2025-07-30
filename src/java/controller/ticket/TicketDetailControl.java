@@ -48,7 +48,7 @@ public class TicketDetailControl extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String ticketIdStr = request.getParameter("ticketId");
         if (ticketIdStr == null || ticketIdStr.isEmpty()) {
             response.sendRedirect("ticket-list");
@@ -57,7 +57,7 @@ public class TicketDetailControl extends HttpServlet {
 
         try {
             int ticketId = Integer.parseInt(ticketIdStr);
-            
+
             // Get ticket information
             VillageTicket ticket = villageTicketDAO.getTicketById(ticketId);
             if (ticket == null) {
@@ -82,7 +82,7 @@ public class TicketDetailControl extends HttpServlet {
 
             // Get available dates for this ticket (next 30 days) using service
             List<TicketAvailability> availableDates = availabilityService.getAvailableDatesForTicket(ticketId);
-            
+
             if (availableDates.isEmpty()) {
                 // Initialize sample availability for testing (next 7 days)
                 for (int i = 1; i <= 7; i++) {
@@ -96,7 +96,7 @@ public class TicketDetailControl extends HttpServlet {
 
             // Get all ticket types for same village (for dropdown selection)
             List<VillageTicket> allTicketTypes = villageTicketDAO.getTicketsByVillageId(village.getVillageID());
-            
+
             // Get other ticket types (excluding current one for recommendations)
             List<VillageTicket> otherTickets = villageTicketDAO.getTicketsByVillageId(village.getVillageID());
             otherTickets.removeIf(t -> t.getTicketID() == ticketId);
@@ -105,34 +105,61 @@ public class TicketDetailControl extends HttpServlet {
             handleReviewEligibility(request, village.getVillageID());
 
             // Get village reviews
-            List<entity.CraftVillage.CraftReview> villageReviews = reviewService.getVillageReviews(village.getVillageID());
-            request.setAttribute("villageReviews", villageReviews);
-            request.setAttribute("hasReviews", villageReviews != null && !villageReviews.isEmpty());
+            List<entity.CraftVillage.CraftReview> allVillageReviews = reviewService.getVillageReviews(village.getVillageID());
+            int reviewCount = (allVillageReviews != null) ? allVillageReviews.size() : 0;
+            request.setAttribute("hasReviews", allVillageReviews != null && !allVillageReviews.isEmpty());
 
-            // Calculate average rating and rating distribution for village
-            if (villageReviews != null && !villageReviews.isEmpty()) {
-                double averageRating = villageReviews.stream()
+            // Pagination logic
+            int reviewsPerPage = 2;
+            int currentPage = 1;
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                    if (currentPage < 1) {
+                        currentPage = 1;
+                    }
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+            int totalPages = (int) Math.ceil((double) reviewCount / reviewsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+
+            int start = (currentPage - 1) * reviewsPerPage;
+            int end = Math.min(start + reviewsPerPage, reviewCount);
+            List<entity.CraftVillage.CraftReview> villageReviews = (allVillageReviews != null && reviewCount > 0) ? allVillageReviews.subList(start, end) : java.util.Collections.emptyList();
+
+            request.setAttribute("villageReviews", villageReviews);
+            request.setAttribute("reviewCount", reviewCount);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
+
+            // Calculate average rating and rating distribution from ALL reviews, not just current page
+            if (allVillageReviews != null && !allVillageReviews.isEmpty()) {
+                double averageRating = allVillageReviews.stream()
                         .mapToInt(review -> review.getRating())
                         .average()
                         .orElse(0.0);
                 request.setAttribute("averageRating", averageRating);
 
-                // Calculate rating distribution
+                // Calculate rating distribution from ALL reviews
                 int[] ratingDistribution = new int[5];
-                for (entity.CraftVillage.CraftReview review : villageReviews) {
+                for (entity.CraftVillage.CraftReview review : allVillageReviews) {
                     if (review.getRating() >= 1 && review.getRating() <= 5) {
                         ratingDistribution[review.getRating() - 1]++;
                     }
                 }
                 request.setAttribute("ratingDistribution", ratingDistribution);
-                request.setAttribute("totalReviews", villageReviews.size());
+                request.setAttribute("totalReviews", allVillageReviews.size());
             } else {
                 request.setAttribute("averageRating", 0.0);
                 request.setAttribute("ratingDistribution", new int[5]);
                 request.setAttribute("totalReviews", 0);
             }
-
-            // Set attributes for JSP
+// Set attributes for JSP
             request.setAttribute("selectedTicket", ticket);
             request.setAttribute("ticket", ticket);
             request.setAttribute("village", village);
@@ -141,12 +168,12 @@ public class TicketDetailControl extends HttpServlet {
             request.setAttribute("availabilities", availableDates);
             request.setAttribute("allTicketTypes", allTicketTypes);
             request.setAttribute("otherTickets", otherTickets);
-            
+
             // Add some utility data
             request.setAttribute("hasAvailability", !availableDates.isEmpty());
-            
+
             request.getRequestDispatcher("TicketDetail.jsp").forward(request, response);
-            
+
         } catch (NumberFormatException e) {
             response.sendRedirect("ticket-list");
         }
@@ -158,24 +185,24 @@ public class TicketDetailControl extends HttpServlet {
     private void handleReviewEligibility(HttpServletRequest request, int villageID) {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("acc");
-        
+
         if (user == null) {
             request.setAttribute("canUserReviewVillage", false);
             request.setAttribute("reviewMessageVillage", "Please log in to leave a review.");
             return;
         }
-        
+
         try {
             // Check if user has any eligible ticket orders for this village
             List<java.util.Map<String, Object>> reviewableVillages = reviewService.getUserReviewableVillages(user.getUserID());
             boolean canReview = reviewableVillages.stream()
                     .anyMatch(village -> (Integer) village.get("villageID") == villageID);
-            
+
             request.setAttribute("canUserReviewVillage", canReview);
             if (!canReview) {
                 request.setAttribute("reviewMessageVillage", "You need to purchase and use a ticket for this village before you can review it.");
             }
-            
+
         } catch (Exception e) {
             request.setAttribute("canUserReviewVillage", false);
             request.setAttribute("reviewMessageVillage", "Unable to check review eligibility at this time.");

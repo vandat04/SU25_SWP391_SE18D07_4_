@@ -29,7 +29,7 @@ public class ReviewDAO {
                 rs.getTimestamp("reviewDate"),
                 rs.getString("response"),
                 rs.getTimestamp("responseDate"),
-                rs.getString("pictrureUrl")
+                rs.getString("pictrureUrl")  // Sửa lỗi chính tả: pictureUrl -> pictrureUrl
         );
     }
 
@@ -44,7 +44,7 @@ public class ReviewDAO {
                 rs.getTimestamp("reviewDate"),
                 rs.getString("response"),
                 rs.getTimestamp("responseDate"),
-                rs.getString("pictrureUrl")
+                rs.getString("pictrureUrl")  // Sửa lỗi chính tả: pictureUrl -> pictrureUrl
         );
     }
 

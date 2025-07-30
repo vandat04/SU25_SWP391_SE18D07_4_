@@ -4,6 +4,7 @@
  */
 package controller.Admin;
 
+import entity.Account.Account;
 import entity.Account.SellerVerification;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import service.SellerVerificationService;
 
@@ -62,6 +64,14 @@ public class AdminProcessRequest extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+         HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("acc");
+
+        // Check if user is logged in and is a seller
+        if (account == null || account.getRole() != 3) {
+            response.sendRedirect("login");
+            return;
+        }
         List<SellerVerification> listRequest = sService.getSellerVertificationFormByAdmin(3);
         request.setAttribute("listRequest", listRequest);
         request.getRequestDispatcher("admin-process-request.jsp").forward(request, response);

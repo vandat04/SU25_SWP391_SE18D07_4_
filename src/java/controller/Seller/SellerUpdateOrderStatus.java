@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import service.OrderService;
 
 /**
  *
@@ -30,19 +31,27 @@ public class SellerUpdateOrderStatus extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet SellerUpdateOrderStatus</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet SellerUpdateOrderStatus at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+        String action = request.getParameter("action");
+        String orderDetailId = request.getParameter("subOrderId");
+        OrderService orderService = new OrderService();
+
+        switch (action) {
+            case "rejectOrder":
+                orderService.updateStatusSubOrder(Integer.parseInt(orderDetailId), 6);
+                break;
+            case "refundOrder":
+                orderService.updateStatusSubOrder(Integer.parseInt(orderDetailId), 4);
+                break;
+            case "cancelOrder":
+                orderService.updateStatusSubOrder(Integer.parseInt(orderDetailId), 3);
+                break;
+            case "confirmOrder":
+                orderService.updateStatusSubOrder(Integer.parseInt(orderDetailId), 1);
+                break;
+            default:
+                throw new AssertionError();
         }
+        request.getRequestDispatcher("seller-order-management").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -1,10 +1,12 @@
 
+import entity.Account.Account;
 import entity.Product.ProductReview;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -19,6 +21,15 @@ public class AdminPReviewManagement extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("acc");
+
+        // Check if user is logged in and is a seller
+        if (account == null || account.getRole() != 3) {
+            response.sendRedirect("login");
+            return;
+        }
+        
         String pid = request.getParameter("pid");
         String name = request.getParameter("name");
         String searchIDStr = request.getParameter("searchID");

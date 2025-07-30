@@ -31,7 +31,7 @@ public class ProductService implements IProductService {
 
     @Override
     public boolean updateProduct(Product product) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return pDAO.updateProductByAdmin(product);
     }
 
     @Override
@@ -159,8 +159,8 @@ public class ProductService implements IProductService {
 
     // Additional compatibility method
     public List<Product> getActiveProductsBySellID(int sellerId) {
-        // Return products by seller ID (for now, return empty list)
-        return pDAO.getProductsByVillage(1);
+        // Return products by seller ID (village ID in this context)
+        return pDAO.getProductsByVillage(sellerId);
     }
 
     @Override
@@ -372,4 +372,8 @@ public class ProductService implements IProductService {
     public boolean addProductImage(ProductImage productImage) {
         return sellerService.addProductImage(productImage);
     }
+    public boolean updateProductModelFile(int productId, String modelFile) {
+        return pDAO.updateProductModelFile(productId, modelFile);
+    }
+
 }

@@ -27,7 +27,7 @@ import java.util.logging.Level;
  */
 @WebServlet(name = "DetailControl", urlPatterns = {"/detail"})
 public class DetailControl extends HttpServlet {
-    
+
     private static final Logger LOGGER = Logger.getLogger(DetailControl.class.getName());
 
     /**
@@ -42,30 +42,31 @@ public class DetailControl extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Kiểm tra session đăng nhập
-        
+
         ProductService productService = new ProductService();
-        
+
         // Validate and get product
         String id = request.getParameter("pid");
         Product product = validateAndGetProduct(id, productService, response);
-        if (product == null) return; // Response already handled
-        
+        if (product == null) {
+            return; // Response already handled
+        }
         // Set basic product attributes
         setProductAttributes(request, product);
-        
+
         // Handle review eligibility
         handleReviewEligibility(request, product, id);
-        
+
         // Set additional product data
         setAdditionalProductData(request, productService, product);
-        
+
         request.getRequestDispatcher("Detail.jsp").forward(request, response);
     }
-    
+
     /**
      * Validate product ID and get product details
      */
-    private Product validateAndGetProduct(String id, ProductService productService, HttpServletResponse response) 
+    private Product validateAndGetProduct(String id, ProductService productService, HttpServletResponse response)
             throws IOException {
         if (id == null || id.trim().isEmpty()) {
             response.sendRedirect("home");
@@ -77,10 +78,10 @@ public class DetailControl extends HttpServlet {
             response.sendRedirect("home");
             return null;
         }
-        
+
         return product;
     }
-    
+
     /**
      * Set basic product attributes in request
      */
@@ -91,33 +92,33 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("price", product.getPrice());
         request.setAttribute("description", product.getDescription());
         request.setAttribute("img", product.getMainImageUrl());
-        
+
         request.setAttribute("product3D", new ProductService().getModelFileByProductID(Integer.parseInt(request.getParameter("pid"))));
     }
-    
+
     /**
      * Handle review eligibility logic
      */
     private void handleReviewEligibility(HttpServletRequest request, Product product, String productId) {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("acc");
-        
+
         if (user == null) {
             setDefaultReviewAttributes(request, "Please log in to leave a review.");
             return;
         }
-        
+
         try {
             int productIdInt = Integer.parseInt(productId);
             ReviewEligibilityResult result = checkReviewEligibility(user.getUserID(), productIdInt);
-            
+
             request.setAttribute("canUserReviewProduct", result.canReview);
             if (result.canReview) {
                 request.setAttribute("orderIDForReview", result.eligibleOrderId);
             } else {
                 request.setAttribute("reviewMessage", result.message);
             }
-            
+
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Invalid product ID format: " + productId, e);
             setDefaultReviewAttributes(request, "Invalid product ID.");
@@ -126,25 +127,23 @@ public class DetailControl extends HttpServlet {
             setDefaultReviewAttributes(request, "Unable to check review eligibility at this time.");
         }
     }
-    
+
     /**
-     * Check if user can review the product
-     * Note: Order-based review eligibility removed due to OrderService cleanup
+     * Check if user can review the product Note: Order-based review eligibility
+     * removed due to OrderService cleanup
      */
     private ReviewEligibilityResult checkReviewEligibility(int userId, int productId) {
         ReviewService reviewService = new ReviewService();
-        
+
         // Simplified review eligibility - allow all logged-in users to review
         boolean alreadyReviewed = reviewService.hasUserReviewedProduct(userId, productId, -1);
         if (!alreadyReviewed) {
             return new ReviewEligibilityResult(true, -1, "");
         }
-        
+
         return new ReviewEligibilityResult(false, -1, "You have already reviewed this product.");
     }
-    
 
-    
     /**
      * Set default review attributes when user cannot review
      */
@@ -152,7 +151,7 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("canUserReviewProduct", false);
         request.setAttribute("reviewMessage", message);
     }
-    
+
     /**
      * Set additional product data like categories and related products
      */
@@ -168,7 +167,7 @@ public class DetailControl extends HttpServlet {
         // Get all categories and find current category name
         List<ProductCategory> listC = productService.getAllCategory();
         request.setAttribute("listCC", listC);
-        
+
         String categoryName = findCategoryName(listC, product.getCategoryID());
         request.setAttribute("categoryName", categoryName);
 
@@ -182,8 +181,10 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("completeProductInfo", completeProductInfo);
 
         // Get reviews for this product with user names
+        LOGGER.info("Loading reviews for product ID: " + product.getPid());
         List<entity.Product.ProductReview> allReviews = reviewService.getProductReviewsWithUserName(product.getPid());
         int reviewCount = (allReviews != null) ? allReviews.size() : 0;
+        LOGGER.info("Total reviews loaded: " + reviewCount);
 
         // Pagination logic
         int reviewsPerPage = 2;
@@ -192,13 +193,17 @@ public class DetailControl extends HttpServlet {
         if (pageParam != null) {
             try {
                 currentPage = Integer.parseInt(pageParam);
-                if (currentPage < 1) currentPage = 1;
+                if (currentPage < 1) {
+                    currentPage = 1;
+                }
             } catch (NumberFormatException e) {
                 currentPage = 1;
             }
         }
         int totalPages = (int) Math.ceil((double) reviewCount / reviewsPerPage);
-        if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        }
 
         int start = (currentPage - 1) * reviewsPerPage;
         int end = Math.min(start + reviewsPerPage, reviewCount);
@@ -209,9 +214,9 @@ public class DetailControl extends HttpServlet {
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
 
-        // Calculate average rating and rating distribution
-        if (reviewsPage != null && !reviewsPage.isEmpty()) {
-            double averageRating = reviewsPage.stream()
+        // Calculate average rating and rating distribution from ALL reviews, not just current page
+        if (allReviews != null && !allReviews.isEmpty()) {
+            double averageRating = allReviews.stream()
                     .mapToInt(review -> review.getRating())
                     .average()
                     .orElse(0.0);
@@ -223,9 +228,9 @@ public class DetailControl extends HttpServlet {
             request.setAttribute("fullStars", fullStars);
             request.setAttribute("hasHalfStar", hasHalfStar);
 
-            // Calculate rating distribution
+            // Calculate rating distribution from ALL reviews
             int[] ratingDistribution = new int[5];
-            for (entity.Product.ProductReview review : reviewsPage) {
+            for (entity.Product.ProductReview review : allReviews) {
                 if (review.getRating() >= 1 && review.getRating() <= 5) {
                     ratingDistribution[review.getRating() - 1]++;
                 }
@@ -238,7 +243,7 @@ public class DetailControl extends HttpServlet {
             request.setAttribute("ratingDistribution", new int[5]);
         }
     }
-    
+
     /**
      * Find category name by ID
      */
@@ -249,15 +254,16 @@ public class DetailControl extends HttpServlet {
                 .findFirst()
                 .orElse("");
     }
-    
+
     /**
      * Helper class to hold review eligibility results
      */
     private static class ReviewEligibilityResult {
+
         final boolean canReview;
         final int eligibleOrderId;
         final String message;
-        
+
         ReviewEligibilityResult(boolean canReview, int eligibleOrderId, String message) {
             this.canReview = canReview;
             this.eligibleOrderId = eligibleOrderId;
@@ -304,4 +310,4 @@ public class DetailControl extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-} 
+}

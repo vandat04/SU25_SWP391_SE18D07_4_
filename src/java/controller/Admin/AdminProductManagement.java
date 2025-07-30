@@ -5,6 +5,7 @@
 package controller.Admin;
 
 import constant.CloudinaryUploader;
+import entity.Account.Account;
 import entity.Product.Product;
 import entity.Ticket.Ticket;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.math.BigDecimal;
 import service.ProductService;
@@ -50,6 +52,16 @@ public class AdminProductManagement extends HttpServlet {
             throws ServletException, IOException {
         ProductService ps = new ProductService();
 
+         HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("acc");
+
+        // Check if user is logged in and is a seller
+        if (account == null || account.getRole() != 3) {
+            response.sendRedirect("login");
+            return;
+        }
+        
+        
         // Get current page
         int page = 1;
         String pageStr = request.getParameter("page");

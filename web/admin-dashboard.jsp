@@ -3,6 +3,8 @@
 <%@page import="java.math.BigDecimal"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <!DOCTYPE html>
 <html>
     <head>
@@ -88,7 +90,7 @@
                     </div>
                     <div class="bg-white p-4 rounded shadow">
                         <h3 class="text-gray-700">Today's Revenue</h3>
-                        <p class="text-2xl font-bold text-red-600">${currentRevenue}₫</p>
+                        <p class="text-2xl font-bold text-red-600"><fmt:formatNumber value="${currentRevenue}" type="currency" currencySymbol="₫" groupingUsed="true"/></p>
                     </div>
                 </div>
 

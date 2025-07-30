@@ -80,10 +80,6 @@
                             </button>
                             <!-- Dropdown Menu -->
                             <div id="exportMenu" class="hidden absolute z-10 mt-2 w-auto min-w-[12rem] max-w-md bg-white border rounded shadow-lg">
-                                <!-- Summary Option -->
-                                <a href="export-order-pdf?cas=0" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Summary
-                                </a>
                                 <!-- Submenu Title -->
                                 <div class="relative group">
                                     <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">

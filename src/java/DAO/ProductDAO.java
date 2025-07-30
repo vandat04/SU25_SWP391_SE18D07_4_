@@ -141,7 +141,7 @@ public class ProductDAO {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                return mapResultSetToProduct(rs);
+                return mapResultSetToProduct1(rs);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -339,6 +339,9 @@ public class ProductDAO {
         String sql = "{CALL UpdateProductFull(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection con = DBContext.getConnection(); CallableStatement cs = con.prepareCall(sql)) {
 
+            System.out.println("🔍 DEBUG: Starting updateProductByAdmin for product ID: " + product.getPid());
+            System.out.println("🔍 DEBUG: ModelFile to update: " + product.getModelFile());
+
             cs.setInt(1, product.getPid());
             cs.setString(2, product.getName());
             cs.setBigDecimal(3, product.getPrice());
@@ -361,12 +364,18 @@ public class ProductDAO {
             // Output param
             cs.registerOutParameter(19, Types.INTEGER);
 
+            System.out.println("🔍 DEBUG: Executing stored procedure...");
             cs.execute();
 
             int result = cs.getInt(19);
-            return result == 1;
+            System.out.println("🔍 DEBUG: Stored procedure result: " + result);
+
+            boolean success = result == 1;
+            System.out.println("🔍 DEBUG: Update success: " + success);
+            return success;
 
         } catch (Exception e) {
+            System.err.println("🔍 DEBUG: Exception in updateProductByAdmin: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -969,9 +978,6 @@ public class ProductDAO {
         return list;
     }
 
-    public static void main(String[] args) {
-        System.out.println(new ProductDAO().getSearchProductByAdmin(1, 0, "", 1, 10).size());
-    }
 
     public int getTotalSearchProducts(int status, int searchID, String contentSearch) {
         String query;
@@ -1096,5 +1102,24 @@ public class ProductDAO {
             closeResources(conn, ps, rs);
         }
         return images;
+    }
+    public boolean updateProductModelFile(int productId, String modelFile) {
+        String sql = "UPDATE Product SET modelFile = ?, updatedDate = GETDATE() WHERE pid = ?";
+        try (Connection con = DBContext.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, modelFile);
+            ps.setInt(2, productId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new ProductDAO().updateProductModelFile(1,""));
     }
 }
